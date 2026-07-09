@@ -3654,10 +3654,14 @@ function heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, t
   });
 }
 
+function heroGearUsesEmpowermentCost(piece = {}, targetLevel = piece?.level) {
+  return heroGearCanEmpowerAtLevel(Number(targetLevel ?? piece?.level ?? 0));
+}
+
 function heroGearEnhancementCostToTarget(piece, targetEnhancement, slot, hero, targetLevel = piece?.level) {
-  const normalCost = heroGearNormalEnhancementCostToTarget(piece, targetEnhancement);
-  const empowermentCost = heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel);
-  return addCost(normalCost, empowermentCost);
+  return heroGearUsesEmpowermentCost(piece, targetLevel)
+    ? heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel)
+    : heroGearNormalEnhancementCostToTarget(piece, targetEnhancement);
 }
 
 function heroGearMasteryInvestment(piece, slot, hero) {
@@ -3691,7 +3695,9 @@ function heroGearEmpowermentInvestment(piece, slot, hero) {
 }
 
 function heroGearEnhancementInvestment(piece, slot, hero) {
-  return addCost(heroGearNormalEnhancementInvestment(piece), heroGearEmpowermentInvestment(piece, slot, hero));
+  return heroGearUsesEmpowermentCost(piece)
+    ? heroGearEmpowermentInvestment(piece, slot, hero)
+    : heroGearNormalEnhancementInvestment(piece);
 }
 
 function heroGearPieceInvestment(piece, slot, hero) {
