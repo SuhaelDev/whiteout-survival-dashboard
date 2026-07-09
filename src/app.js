@@ -4099,6 +4099,20 @@ function heroGearUpgradeSummary(entries) {
   };
 }
 
+function heroGearSetInvestmentBreakdown(entries) {
+  return entries.reduce((acc, entry) => {
+    const [heroId, gearSet] = Array.isArray(entry) ? entry : [entry.heroId, entry.gearSet];
+    const setNumber = Number(entry?.setNumber || gearSet?.set_number || gearSet?.gear_set_number || 0);
+    const setLabel = entry?.setLabel || (setNumber ? `${titleFromId(heroGearTroopKey(heroId, gearSet))} Set ${setNumber}` : heroRecordFor(heroId).name);
+    const investment = heroGearSetInvestment(gearSet, heroId);
+    const key = setNumber > 0 ? `set_${setNumber}` : "unassigned";
+    acc[key] ||= { setNumber, sets: [], total: makeCost(HERO_GEAR_FIELDS) };
+    acc[key].sets.push({ heroId, setLabel, investment });
+    addCost(acc[key].total, investment);
+    return acc;
+  }, {});
+}
+
 function heroGearPiecesHtml(gear = {}) {
   if (!gear || typeof gear !== "object") return `<span class="muted">No gear read</span>`;
   if (gear.overview) return `<span class="muted">${esc(gear.overview)}</span>`;
@@ -5187,6 +5201,9 @@ function renderHeroGear() {
   const primaryIds = new Set(primaryEntries.map((entry) => entry.heroId));
   const trackedHeroes = gearEntries.length;
   const primarySummary = heroGearUpgradeSummary(primaryEntries);
+  const primarySetInvestments = heroGearSetInvestmentBreakdown(primaryEntries);
+  const set2Investment = primarySetInvestments.set_2?.total || makeCost(HERO_GEAR_FIELDS);
+  const set2Labels = (primarySetInvestments.set_2?.sets || []).map((set) => `${set.setLabel}: ${fmt(set.investment.hero_gear_xp)} XP`);
   const allSummary = heroGearUpgradeSummary(gearEntries);
   const capturedGearStats = allSummary.capturedStats;
   const gearRows = gearEntries
@@ -5282,8 +5299,10 @@ function renderHeroGear() {
         `Primary power ${fmt(primarySummary.totalPower)}`,
         `${fmt(primarySummary.investedCost.essence_stones)} stones invested`,
         `${fmt(primarySummary.investedCost.hero_gear_xp)} XP invested`,
+        `${fmt(set2Investment.hero_gear_xp)} Set 2 XP invested`,
         `${fmt(primarySummary.investedCost.mythic_gear)} mythic gear invested`,
         `${fmt(primarySummary.investedCost.mithril)} mithril invested`,
+        ...set2Labels,
       ],
       cost: primarySummary.totalCost,
       fields: HERO_GEAR_FIELDS,
@@ -5300,6 +5319,7 @@ function renderHeroGear() {
       <div class="metric purple"><span>XP to targets</span><strong>${fmt(totalCost.hero_gear_xp)}</strong></div>
       <div class="metric amber"><span>Stones invested</span><strong>${fmt(allSummary.investedCost.essence_stones)}</strong></div>
       <div class="metric purple"><span>XP invested</span><strong>${fmt(allSummary.investedCost.hero_gear_xp)}</strong></div>
+      <div class="metric purple"><span>Set 2 XP invested</span><strong>${fmt(set2Investment.hero_gear_xp)}</strong></div>
       <div class="metric green"><span>Mythic Gear</span><strong>${fmt(totalCost.mythic_gear)}</strong></div>
       <div class="metric amber"><span>Mithril</span><strong>${fmt(totalCost.mithril)}</strong></div>
       <div class="metric green"><span>Mythic Gear invested</span><strong>${fmt(allSummary.investedCost.mythic_gear)}</strong></div>
@@ -5315,6 +5335,7 @@ function renderHeroGear() {
       statSnapshotCard("Hero Gear XP To Targets", fmt(totalCost.hero_gear_xp), "Target inputs", "Uses workbook enhancement table"),
       statSnapshotCard("Essence Stones Invested", fmt(allSummary.investedCost.essence_stones), "Current gear levels", "Calculated from level 0 to captured mastery levels"),
       statSnapshotCard("Hero Gear XP Invested", fmt(allSummary.investedCost.hero_gear_xp), "Current gear + levels", "Includes normal enhancement XP and eligible empowerment XP"),
+      statSnapshotCard("Set 2 Hero Gear XP Invested", fmt(set2Investment.hero_gear_xp), set2Labels.length ? set2Labels.join(" | ") : "No Set 2 loadouts", "Calculated from secondary interchangeable gear sets only"),
       statSnapshotCard("Mythic Gear To Targets", fmt(totalCost.mythic_gear), "Target inputs", "Uses workbook enhancement table"),
       statSnapshotCard("Mithril To Targets", fmt(totalCost.mithril), "Target inputs", "Uses workbook enhancement table"),
       statSnapshotCard("Mythic Gear Invested", fmt(allSummary.investedCost.mythic_gear), "Eligible empowerment", "Calculated from active empowerment material levels"),
