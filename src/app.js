@@ -90,6 +90,33 @@ const HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS = [
   { enhancement: 80, mode: "Exploration", stat: "Hero Defense Up", value_percent: 15 },
   { enhancement: 100, mode: "Expedition", statKind: "Defense", value_percent: 50 },
 ];
+const HERO_GEAR_EMPOWERMENT_STAT_PATTERNS = {
+  attack_side: [
+    { enhancement: 20, mode: "Expedition", statKind: "Attack", value_percent: 20 },
+    { enhancement: 40, mode: "Exploration", stat: "Hero Health Up", value_percent: 7.5 },
+    { enhancement: 60, mode: "Expedition", statKind: "Defense", value_percent: 30 },
+    { enhancement: 80, mode: "Exploration", stat: "Hero Attack Up", value_percent: 15 },
+    { enhancement: 100, mode: "Expedition", statKind: "Attack", value_percent: 50 },
+  ],
+  defense_side: [
+    { enhancement: 20, mode: "Expedition", statKind: "Defense", value_percent: 20 },
+    { enhancement: 40, mode: "Exploration", stat: "Hero Health Up", value_percent: 7.5 },
+    { enhancement: 60, mode: "Expedition", statKind: "Attack", value_percent: 30 },
+    { enhancement: 80, mode: "Exploration", stat: "Hero Defense Up", value_percent: 15 },
+    { enhancement: 100, mode: "Expedition", statKind: "Defense", value_percent: 50 },
+  ],
+};
+const HERO_GEAR_SLOT_EMPOWERMENT_PATTERNS = {
+  goggles: "attack_side",
+  top_left: "attack_side",
+  belt: "attack_side",
+  bottom_left: "attack_side",
+  gauntlets: "defense_side",
+  gloves: "defense_side",
+  top_right: "defense_side",
+  boots: "defense_side",
+  bottom_right: "defense_side",
+};
 const SMART_RECOMMENDATION_BIASES = [
   ["balanced", "Balanced stats"],
   ["infantry", "Infantry bias"],
@@ -3794,21 +3821,33 @@ function troopLabelForHeroGear(hero = {}) {
   }[normalized] || "Troop";
 }
 
-function heroGearDefaultEmpowermentStats(piece = {}, hero = {}) {
+function heroGearEmpowermentPatternKey(piece = {}, slot = "") {
+  const canonicalSlot = heroGearCanonicalSlot(slot);
+  const explicitPattern = HERO_GEAR_SLOT_EMPOWERMENT_PATTERNS[canonicalSlot] || HERO_GEAR_SLOT_EMPOWERMENT_PATTERNS[normalizeKey(slot)];
+  if (explicitPattern) return explicitPattern;
+  const name = normalizeKey(piece?.name || "");
+  if (/goggles|belt/.test(name)) return "attack_side";
+  if (/gauntlet|glove|boot/.test(name)) return "defense_side";
+  return "";
+}
+
+function heroGearDefaultEmpowermentStats(piece = {}, hero = {}, slot = "") {
   const troopLabel = troopLabelForHeroGear(hero);
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
-  return HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS.map((row) => ({
+  const patternKey = heroGearEmpowermentPatternKey(piece, slot);
+  const patternRows = HERO_GEAR_EMPOWERMENT_STAT_PATTERNS[patternKey] || HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS;
+  return patternRows.map((row) => ({
     enhancement: row.enhancement,
     mode: row.mode,
     stat: row.stat || `${troopLabel} ${row.statKind}`,
     value_percent: row.value_percent,
     unlocked: row.enhancement <= currentEnhancement,
-    source: "screenshot_reference",
+    source: patternKey ? "slot_screenshot_reference" : "generic_screenshot_reference",
   }));
 }
 
-function heroGearEmpowermentStats(piece = {}, hero = {}) {
-  const defaults = heroGearDefaultEmpowermentStats(piece, hero);
+function heroGearEmpowermentStats(piece = {}, hero = {}, slot = "") {
+  const defaults = heroGearDefaultEmpowermentStats(piece, hero, slot);
   const byEnhancement = new Map(defaults.map((row) => [Number(row.enhancement), row]));
   (Array.isArray(piece.empowerment_stats) ? piece.empowerment_stats : []).forEach((row) => {
     const enhancement = Number(row.enhancement || 0);
@@ -3825,10 +3864,10 @@ function heroGearEmpowermentStats(piece = {}, hero = {}) {
   return [...byEnhancement.values()].sort((a, b) => Number(a.enhancement || 0) - Number(b.enhancement || 0));
 }
 
-function heroGearEmpowermentChipsHtml(piece = {}, hero = {}, targetEnhancement = null) {
+function heroGearEmpowermentChipsHtml(piece = {}, hero = {}, targetEnhancement = null, slot = "") {
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
   const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
-  const rows = heroGearEmpowermentStats(piece, hero);
+  const rows = heroGearEmpowermentStats(piece, hero, slot);
   if (!rows.length) return "";
   return `<div class="hero-empowerment-chips">${rows
     .map((row) => {
@@ -3857,7 +3896,7 @@ function heroGearPieceProjectedChanges(heroId, slot, piece = {}) {
   }
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
   const targetEnhancement = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targetLevel);
-  heroGearEmpowermentStats(piece, hero)
+  heroGearEmpowermentStats(piece, hero, slot)
     .filter((row) => Number(row.enhancement || 0) > currentEnhancement && Number(row.enhancement || 0) <= targetEnhancement)
     .forEach((row) => {
       changes.push(numericStatChange(row.stat || "Empowerment Stat", 0, Number(row.value_percent || 0), "percent"));
@@ -3874,8 +3913,8 @@ function heroGearPieceImpactCompactHtml(heroId, slot, piece = {}) {
     .join("")}</div>`;
 }
 
-function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null) {
-  const rows = heroGearEmpowermentStats(piece, hero);
+function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null, slot = "") {
+  const rows = heroGearEmpowermentStats(piece, hero, slot);
   if (!rows.length) return "";
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
   const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
@@ -3925,7 +3964,7 @@ function heroGearProjectedStatCards(gearEntries) {
       }
       const currentEnhancement = heroGearCurrentEmpowerment(piece);
       const targetEnhancement = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targetLevel);
-      heroGearEmpowermentStats(piece, hero)
+      heroGearEmpowermentStats(piece, hero, slot)
         .filter((row) => Number(row.enhancement || 0) > currentEnhancement && Number(row.enhancement || 0) <= targetEnhancement)
         .forEach((row) => {
           mergeChange(row.stat || "Empowerment Stat", 0, Number(row.value_percent || 0), "percent");
@@ -4118,7 +4157,7 @@ function heroGearSlotCardHtml(heroId, position, entry) {
     </div>
     <div class="equipped-slot__invested">${heroGearInvestmentMiniHtml(investment, "Current investment")}</div>
     <div class="equipped-slot__materials"><span>Upgrade materials</span>${costHtml(pieceCost, HERO_GEAR_FIELDS)}</div>
-    <div class="equipped-slot__stats">${heroGearPieceStatsHtml(piece)}${heroGearEmpowermentHtml(piece, hero, targetEmpowerment)}</div>
+    <div class="equipped-slot__stats">${heroGearPieceStatsHtml(piece)}${heroGearEmpowermentHtml(piece, hero, targetEmpowerment, slot)}</div>
 	  </div>`;
 }
 
@@ -4183,7 +4222,7 @@ function heroGearPrimaryPieceHtml(heroId, position, entry) {
         ? `<span><b>${esc(compactHeroGearStatLabel(primaryChange.label))}</b><em>${esc(primaryChange.delta)}</em></span>`
         : `<span class="muted">No projected stat change</span>`
     }</div>
-    ${heroGearEmpowermentChipsHtml(piece, hero, targetEmpowerment)}
+    ${heroGearEmpowermentChipsHtml(piece, hero, targetEmpowerment, slot)}
     ${heroGearInvestmentMiniHtml(investment)}
   </div>`;
 }
@@ -4569,7 +4608,7 @@ function smartHeroGearPlan() {
           const currentEnhancement = Number(targetState.enhancements[key] || 0);
           const currentEmpowerment = heroGearCurrentEmpowerment({ ...piece, level: currentLevel, enhancement: currentEnhancement });
           const empowermentRows = heroGearCanEmpowerAtLevel(currentLevel)
-            ? heroGearEmpowermentStats(piece, hero)
+            ? heroGearEmpowermentStats(piece, hero, slot)
                 .map((row) => ({ ...row, enhancement: Number(row.enhancement || 0) }))
                 .filter((row) => row.enhancement > currentEnhancement)
                 .sort((a, b) => a.enhancement - b.enhancement)
@@ -4578,7 +4617,7 @@ function smartHeroGearPlan() {
           if (nextEmpowerment) {
             const nextEnhancement = Number(nextEmpowerment.enhancement);
             const cost = heroGearEnhancementCostToTarget({ ...piece, enhancement: currentEnhancement }, nextEnhancement, slot, hero, currentLevel);
-            const changes = heroGearEmpowermentStats(piece, hero)
+            const changes = heroGearEmpowermentStats(piece, hero, slot)
               .filter((row) => Number(row.enhancement || 0) > currentEmpowerment && Number(row.enhancement || 0) <= nextEnhancement)
               .map((row) => numericStatChange(row.stat || "Empowerment Stat", 0, Number(row.value_percent || 0), "percent"));
             candidates.push({
