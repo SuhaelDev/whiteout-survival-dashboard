@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Whiteout Survival Personal Dashboard</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="src/styles.css?v=20260709-hero-gear-set2-empowerment-1" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Module navigation">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">W</span>
+          <div>
+            <strong>Whiteout Tracker</strong>
+            <span>Personal calculator</span>
+          </div>
+        </div>
+        <nav class="module-nav" id="moduleNav"></nav>
+        <div class="save-panel">
+          <span id="saveStatus">Loading data</span>
+          <button type="button" id="exportState">Export</button>
+          <label class="file-button">
+            Import
+            <input id="importState" type="file" accept="application/json" />
+          </label>
+          <div class="cloud-sync-panel cloud-sync-panel--shared">
+            <span class="cloud-sync-title">Shared database sync</span>
+            <div class="cloud-sync-actions">
+              <button type="button" id="saveCloudState">Sync Now</button>
+              <button type="button" id="loadCloudState">Reload DB</button>
+            </div>
+            <span id="cloudSyncStatus">Cloud not loaded</span>
+          </div>
+          <button type="button" id="resetTargets">Reset Targets</button>
+          <button type="button" id="resetState">Reset</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="hero-band">
+          <img src="assets/frost-command-dashboard.png" alt="" />
+          <div class="hero-content">
+            <p class="eyebrow">Workbook seed 3.1c-rev2 · May 1, 2026</p>
+            <h1>Personal Progress Calculator</h1>
+            <div class="profile-grid" id="profileInputs"></div>
+          </div>
+        </section>
+
+        <section class="content-area">
+          <div class="tab-panel active" id="tab-overview"></div>
+          <div class="tab-panel" id="tab-planner"></div>
+          <div class="tab-panel" id="tab-current-extract"></div>
+          <div class="tab-panel" id="tab-buildings"></div>
+          <div class="tab-panel" id="tab-chief-gear"></div>
+          <div class="tab-panel" id="tab-charms"></div>
+          <div class="tab-panel" id="tab-heroes"></div>
+          <div class="tab-panel" id="tab-hero-gear"></div>
+          <div class="tab-panel" id="tab-pets"></div>
+          <div class="tab-panel" id="tab-experts"></div>
+          <div class="tab-panel" id="tab-research"></div>
+          <div class="tab-panel" id="tab-resources"></div>
+          <div class="tab-panel" id="tab-sources"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="errorTemplate">
+      <div class="empty-state">
+        <h2>Data could not load</h2>
+        <p>Start a local web server from this folder so the JSON files can be fetched.</p>
+      </div>
+    </template>
+
+    <script type="module" src="src/app.js?v=20260709-hero-gear-set2-empowerment-1"></script>
+  </body>
+</html>

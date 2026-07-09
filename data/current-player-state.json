@@ -1,0 +1,2556 @@
+{
+  "schema_version": 1,
+  "extracted_at": null,
+  "extraction_status": "in_progress",
+  "profile": {
+    "chief_name": "[B2D]Sorrow",
+    "chief_id": "383664139",
+    "state_number": "2476",
+    "initial_state": "2456",
+    "state_age_days": 0,
+    "furnace_level": "FC9",
+    "vip_level": 12,
+    "power": 636157883,
+    "profile_power_display": "636.2M",
+    "kills_display": "254.4M",
+    "alliance": "B2D",
+    "profile_badge": "Silver Medallion 1",
+    "temperature_observations": ["-38.0", "-2.0"]
+  },
+  "resources": {
+    "diamonds": 411897,
+    "meat": 1000000000,
+    "wood": 510900000,
+    "coal": 103300000,
+    "iron": 42300000,
+    "fire_crystals": 1715,
+    "refined_fire_crystals": 134,
+    "steel": 1700000,
+    "fire_crystal_shards": 71,
+    "hardened_alloy": 142422,
+    "polishing_solution": 1168,
+    "design_plans": 528,
+    "lunar_amber": 0,
+    "charm_guides": 5142,
+    "charm_designs": 5358,
+    "charm_secrets": 0,
+    "pet_manuals": 852,
+    "pet_potions": 107,
+    "pet_serum": 0,
+    "expert_affinity": 328280,
+    "resource_displays": {
+      "meat": "1.0B",
+      "wood": "510.9M",
+      "coal": "103.3M",
+      "iron": "42.3M",
+      "steel": "1.7M",
+      "fire_crystal_shards": "71"
+    },
+    "top_bar_resource_observed": {
+      "display": "103.3M",
+      "notes": "Top bar resource matches the coal total later confirmed from the Heal Injured screen."
+    },
+    "backpack_clear_counts": {
+      "fire_crystals": 1715,
+      "warhymn_testament": 7600,
+      "transfer_pass": 19,
+      "pocket_watch": 7
+    },
+    "speedups": {
+      "general": {
+        "1m": 245,
+        "5m": 922,
+        "1h": 352,
+        "3h": 1,
+        "8h": 1
+      },
+      "construction": {
+        "1m": 15675,
+        "5m": 8025,
+        "1h": 96
+      },
+      "training": {
+        "1m": 163,
+        "5m": 220,
+        "1h": 42
+      },
+      "research": {
+        "1m": 1461,
+        "5m": 1314,
+        "1h": 52
+      },
+      "healing": {
+        "1m": 63,
+        "5m": 484,
+        "1h": 42
+      },
+      "learning": {
+        "1h": 4
+      }
+    },
+    "backpack_direct_resource_value": {
+      "meat": 928946000,
+      "wood": 1488240000,
+      "coal": 207012000,
+      "iron": 506665300,
+      "notes": "Direct named Meat/Wood/Coal/Iron stacks only. Excludes random supply chests and choice/custom resource chests."
+    },
+    "backpack_items": {
+      "resources": [
+        { "name": "1 Gems", "count": 50, "effect": "Grants 1 Gems." },
+        { "name": "100 Gems", "count": 22, "effect": "Grants 100 Gems." },
+        { "name": "1,000 Gems", "count": 2, "effect": "Grants 1,000 Gems." },
+        { "name": "Fire Crystal Weekly Card Crate", "count": 3, "effect": "Open to randomly receive 100/60/40/20/10/5 Fire Crystals." },
+        { "name": "Fire Crystal", "count": 1715, "effect": "Fire Crystal building upgrades." },
+        { "name": "Refined Fire Crystal", "count": 134, "effect": "Purified Fire Crystal material." },
+        { "name": "Fire Crystal Shard", "count": 71, "effect": "Used to research Fire Crystal Tech in War Academy." },
+        { "name": "1,000 Hero XP", "count": 12, "effect": "Gives 1K Hero XP." },
+        { "name": "5,000 Hero XP", "count": 2, "effect": "Gives 5K Hero XP." },
+        { "name": "Chief Stamina", "count": 1370, "effect": "Restores 10 Chief Stamina." },
+        { "name": "1K Resource Supply Chest", "count": 455, "effect": "Grants 1K Meat, Wood, Coal, or Iron resources." },
+        { "name": "10K Resource Supply Chest", "count": 3840, "effect": "Grants 10K Meat, Wood, Coal, or Iron resources." },
+        { "name": "100K Resource Supply Chest", "count": 88, "effect": "Grants 100K Meat, Wood, Coal, or Iron resources." },
+        { "name": "10K Secured Resource Supply Chest", "count": 384, "effect": "Grants 10K secured Meat, Wood, Coal, or Iron resources at random." },
+        { "name": "100K Secured Resource Supply Chest", "count": 25, "effect": "Grants 100K secured Meat, Wood, Coal, or Iron resources at random." },
+        { "name": "Lv.1 Custom Resource Chest", "count": 2200, "effect": "Choice of 10K Meat, 10K Wood, 2K Coal, or 500 Iron." },
+        { "name": "Lv.2 Custom Resource Chest", "count": 3505, "effect": "Choice of 100K Meat, 100K Wood, 20K Coal, or 5K Iron." },
+        { "name": "Lv.3 Custom Resource Chest", "count": 1681, "effect": "Choice of 1M Meat, 1M Wood, 200K Coal, or 50K Iron." },
+        { "name": "Lv.1 Custom Secured Resource Chest", "count": 3990, "effect": "Choice of 10K Meat, 10K Wood, 2K Coal, or 500 Iron, secured." },
+        { "name": "Lv.2 Custom Secured Resource Chest", "count": 114, "effect": "Choice of 100K Meat, 100K Wood, 20K Coal, or 5K Iron, secured." },
+        { "name": "Lv.3 Custom Secured Resource Chest", "count": 208, "effect": "Choice of 1M Meat, 1M Wood, 200K Coal, or 50K Iron, secured." },
+        { "name": "1K Meat", "count": 5806, "effect": "Grants 1,000 Meat." },
+        { "name": "1K Meat (Secured)", "count": 100, "effect": "Gives 1,000 Meat (Secured)." },
+        { "name": "10K Meat", "count": 35232, "effect": "Grants 10,000 Meat." },
+        { "name": "10K Meat (Secured)", "count": 3242, "effect": "Gives 10,000 Meat (Secured)." },
+        { "name": "100K Meat", "count": 23, "effect": "Grants 100,000 Meat." },
+        { "name": "100K Meat (Secured)", "count": 280, "effect": "Gives 100,000 Meat (Secured)." },
+        { "name": "1M Meat", "count": 499, "effect": "Grants 1,000,000 Meat." },
+        { "name": "1M Meat (Secured)", "count": 9, "effect": "Gives 1,000,000 Meat (Secured)." },
+        { "name": "1K Wood", "count": 5831, "effect": "Grants 1,000 Wood." },
+        { "name": "1K Wood (Secured)", "count": 99, "effect": "Gives 1,000 Wood (Secured)." },
+        { "name": "10K Wood", "count": 33159, "effect": "Grants 10,000 Wood." },
+        { "name": "10K Wood (Secured)", "count": 2612, "effect": "Gives 10,000 Wood (Secured)." },
+        { "name": "100K Wood", "count": 20, "effect": "Grants 100,000 Wood." },
+        { "name": "100K Wood (Secured)", "count": 276, "effect": "Gives 100,000 Wood (Secured)." },
+        { "name": "1M Wood", "count": 1087, "effect": "Grants 1,000,000 Wood." },
+        { "name": "1M Wood (Secured)", "count": 8, "effect": "Gives 1,000,000 Wood (Secured)." },
+        { "name": "100 Coal", "count": 140, "effect": "Grants 100 Coal." },
+        { "name": "1K Coal", "count": 35512, "effect": "Grants 1,000 Coal." },
+        { "name": "1K Coal (Secured)", "count": 13756, "effect": "Gives 1,000 Coal (Secured)." },
+        { "name": "10K Coal", "count": 6963, "effect": "Grants 10,000 Coal." },
+        { "name": "10K Coal (Secured)", "count": 230, "effect": "Gives 10,000 Coal (Secured)." },
+        { "name": "100K Coal", "count": 710, "effect": "Grants 100,000 Coal." },
+        { "name": "100K Coal (Secured)", "count": 78, "effect": "Gives 100,000 Coal (Secured)." },
+        { "name": "1M Coal", "count": 7, "effect": "Grants 1,000,000 Coal." },
+        { "name": "100 Iron", "count": 233, "effect": "Grants 100 Iron." },
+        { "name": "1K Iron", "count": 51087, "effect": "Grants 1,000 Iron." },
+        { "name": "1K Iron (Secured)", "count": 75, "effect": "Gives 1,000 Iron (Secured)." },
+        { "name": "10K Iron", "count": 20317, "effect": "Grants 10,000 Iron." },
+        { "name": "10K Iron (Secured)", "count": 10561, "effect": "Gives 10,000 Iron (Secured)." },
+        { "name": "100K Iron", "count": 605, "effect": "Grants 100,000 Iron." },
+        { "name": "100K Iron (Secured)", "count": 802, "effect": "Gives 100,000 Iron (Secured)." },
+        { "name": "1M Iron", "count": 6, "effect": "Grants 1,000,000 Iron." }
+      ],
+      "other": [
+        {
+          "name": "Compass",
+          "count": 8988,
+          "effect": "An exquisite compass to gift to a resident Expert for +10 Affinity."
+        },
+        {
+          "name": "Fiery Heart",
+          "count": 774,
+          "effect": "A precious Ruby Pendant to gift to a resident Expert for +100 Affinity."
+        },
+        {
+          "name": "Sail of Conquest",
+          "count": 161,
+          "effect": "A stunning sailboat ornament to gift to a resident Expert for +1,000 Affinity."
+        },
+        {
+          "name": "Energizing Potion",
+          "count": 107,
+          "effect": "A rejuvenating potion. Can be used for pet advancement."
+        },
+        {
+          "name": "Taming Manual",
+          "count": 852,
+          "effect": "A manual with diligent beast taming notes that can be used for pet advancement."
+        },
+        {
+          "name": "Advanced Wild Mark",
+          "count": 5,
+          "effect": "A stone imbued with a subtle touch of the wild, which can fully unleash a pet's potential. Used for pet refinement."
+        },
+        {
+          "name": "Common Wild Mark",
+          "count": 129,
+          "effect": "A stone imbued with a subtle touch of the wild, which can stir a pet's instincts to some extent. Used for pet refinement."
+        },
+        {
+          "name": "Strengthening Serum",
+          "count": 0,
+          "effect": "Extracted from the mightiest creatures. Can be used for pet advancement. Sources shown: Pet Weekly Card, Buy Packs, Arena Shop, Mystery Shop.",
+          "extraction_note": "Event/shop tooltip showed Owned: 0."
+        }
+      ],
+      "bonus": [
+        { "name": "2h Shield", "count": 1, "effect": "Protects your City from all enemy attacks and scouting for 2h." },
+        { "name": "8h Shield", "count": 1, "effect": "Protects your City from all enemy attacks and scouting for 8h." },
+        { "name": "Deployment Capacity Boost I (2h)", "count": 2, "effect": "Increases Deployment Capacity by 10% for 2 hours." },
+        { "name": "Deployment Capacity Boost II (12hrs)", "count": 1, "effect": "Increases Deployment Capacity by 20% for 12 hours." },
+        {
+          "name": "Gathering Speed Boost (8h)",
+          "count": 2,
+          "effect": "For 8 hours after use, any troops collecting resources will have 100% faster Gathering Speed.",
+          "extraction_note": "Count was 3 before extraction; 1 was accidentally consumed while reading the Bonus tab, so the saved count is the current post-click count."
+        },
+        {
+          "name": "Unidentified Bonus stack",
+          "count": 1,
+          "effect": "Visible in Bonus tab after the Gathering Speed Boost stack; not opened because selected bonus cards expose a Use button."
+        },
+        {
+          "name": "Unidentified Bonus stack",
+          "count": 3,
+          "effect": "Visible in Bonus tab after the Gathering Speed Boost stack; not opened because selected bonus cards expose a Use button."
+        },
+        {
+          "name": "Unidentified Bonus stack",
+          "count": 1,
+          "effect": "Visible in Bonus tab after the Gathering Speed Boost stack; not opened because selected bonus cards expose a Use button."
+        },
+        {
+          "name": "Unidentified Bonus stack",
+          "count": 2,
+          "effect": "Visible in Bonus tab bottom row; not opened because selected bonus cards expose a Use button."
+        }
+      ]
+    }
+  },
+  "buildings": {
+    "furnace": {
+      "name": "Furnace",
+      "current": "FC9",
+      "level_badge": 9,
+      "power": 4392500,
+      "status": "Enabled",
+      "furnace_status": "Enabled",
+      "energy_gauge_observed": 108,
+      "furnace_consumption": "-36/Min",
+      "max_power": "Off",
+      "on_off_switch": "On",
+      "next_level_visible": {
+        "current": "FC10",
+        "power": 4754500,
+        "furnace_consumption": "-36/Min"
+      },
+      "upgrade_snapshot": {
+        "target": "FC10",
+        "phase_progress_observed": "About 3 of 5 Fire Crystal sub-phases filled",
+        "original_time": "20d 00:00:00",
+        "current_upgrade_time_display": "10d 13:02:21",
+        "finish_cost_diamonds": 202432,
+        "visible_requirements": [
+          { "requirement": "Embassy", "required": "Fire Crystal Lv. 9", "status": "checked" },
+          { "requirement": "Fire Crystals", "observed": "1.71K/350", "status": "checked" },
+          {
+            "requirement": "Additional FC material",
+            "observed": "124/70",
+            "status": "checked",
+            "notes": "Icon/name was partially obscured on the upgrade panel."
+          }
+        ]
+      },
+      "details_table": [
+        { "level": "30", "power": 1523500 },
+        { "level": "FC1", "power": 1810500 },
+        { "level": "FC2", "power": 2097500 },
+        { "level": "FC3", "power": 2384500 },
+        { "level": "FC4", "power": 2700500 },
+        { "level": "FC5", "power": 3016500 },
+        { "level": "FC6", "power": 3354500 },
+        { "level": "FC7", "power": 3692500 },
+        { "level": "FC8", "power": 4030500 },
+        { "level": "FC9", "power": 4392500 },
+        { "level": "FC10", "power": 4754500 }
+      ]
+    },
+    "sawmill": {
+      "name": "Sawmill",
+      "current": "Lv. 30",
+      "status": "MAX"
+    },
+    "cookhouse": {
+      "name": "Cookhouse",
+      "current": "Lv. 10",
+      "level_badge": 10,
+      "status": "MAX",
+      "stove": "MAX",
+      "production": {
+        "resource": "Meat",
+        "amount": 1,
+        "cost_display": "1.0B/300",
+        "stats": 60,
+        "time": "2s"
+      },
+      "furniture_observation": "Visible furniture grid showed level 20 labels on most or all furniture slots.",
+      "details_table": [
+        { "level": 1, "power": 100 },
+        { "level": 2, "power": 190 },
+        { "level": 3, "power": 325 },
+        { "level": 4, "power": 505 },
+        { "level": 5, "power": 775 },
+        { "level": 6, "power": 1180 },
+        { "level": 7, "power": 1765 },
+        { "level": 8, "power": 2350 },
+        { "level": 9, "power": 2935 },
+        { "level": 10, "power": 3785 }
+      ]
+    },
+    "research_center": {
+      "name": "Research Center",
+      "current": "Lv. 30",
+      "research_speed_bonus": "3.0% +75.3%",
+      "power": 335170
+    },
+    "infirmary": {
+      "name": "Infirmary",
+      "current": "FC9",
+      "level_badge": 9,
+      "infirmary_capacity": "116K +101.3K",
+      "base_capacity": 116000,
+      "power": 658875,
+      "next_level_visible": {
+        "current": "FC10",
+        "infirmary_capacity": 121500,
+        "power": 713775
+      }
+    },
+    "enlistment_office": {
+      "name": "Enlistment Office",
+      "current": "No upgrade level shown on opened panel",
+      "loyalty": 0,
+      "current_loyalty_recovery_rate": "0/Hrs",
+      "loyalty_recovery_rate_limit": "14,500/Hrs",
+      "capacity": "0/869,200",
+      "currency": 1279
+    },
+    "war_academy": {
+      "name": "War Academy",
+      "current": "FC8",
+      "level_badge": 8,
+      "research_speed_bonus": "9.0% +69.3%",
+      "power": 483660,
+      "details_table": [
+        { "level": 1, "research_speed": "0.5%", "power": 217260 },
+        { "level": 2, "research_speed": "1.0%", "power": 251700 },
+        { "level": 3, "research_speed": "1.5%", "power": 286140 },
+        { "level": 4, "research_speed": "2.0%", "power": 324060 },
+        { "level": 5, "research_speed": "2.5%", "power": 361980 },
+        { "level": 6, "research_speed": "3.0%", "power": 402540 },
+        { "level": 7, "research_speed": "6.0%", "power": 443100 },
+        { "level": 8, "research_speed": "9.0%", "power": 483660 },
+        { "level": 9, "research_speed": "12.0%", "power": 527100 },
+        { "level": 10, "research_speed": "15.0%", "power": 570540 }
+      ]
+    },
+    "building_queue": {
+      "queue_1": "Idle",
+      "queue_2": "Idle"
+    },
+    "visible_city_labels": {
+      "notes": "City map showed multiple FC-style '10' labels on core buildings and several Lv.30 labels on resource/training buildings. Exact building names still require further panel reads."
+    }
+  },
+  "collection_gallery": {
+    "rank": "Silver Medallion I",
+    "level": 11,
+    "progress_current": 1048250,
+    "progress_required": 1300000,
+    "categories": {
+      "marching": 16,
+      "city": 8,
+      "avatar_frame": 27,
+      "name_card": 5,
+      "chief_profile": 0,
+      "teleport": 2,
+      "private_chat": 2,
+      "nameplate": 13,
+      "rally": 0,
+      "decoration": 32,
+      "action_emote": 29
+    },
+    "marching": {
+      "page_count_observed": "2/2",
+      "page_1_visible_items": [
+        "Blazing Meteor I",
+        "Wind Chaser",
+        "Supersonic Bunny",
+        "Bubble Fantasy",
+        "Koi Lantern",
+        "Hymn of the Aurora",
+        "Wilderness Warrior",
+        "Incubus Knight"
+      ],
+      "page_2_visible_items": [
+        "Colorful Symphony",
+        "Cyclone Runner",
+        "Toy Army",
+        "Freeze Patrol",
+        "Ace Adventurer",
+        "Wings of the Icy Wind",
+        "Ice Journey",
+        "Fungal Sprite"
+      ],
+      "opened_items": [
+        {
+          "name": "Blazing Meteor I",
+          "type": "March Skin",
+          "owned": true,
+          "stat_bonus": "Hunting March Speed +10.0%"
+        },
+        {
+          "name": "Wind Chaser",
+          "type": "March Skin",
+          "owned": true,
+          "stat_bonus": "Hunting March Speed +5.0%"
+        },
+        {
+          "name": "Colorful Symphony",
+          "type": "March Skin",
+          "owned": true,
+          "stat_bonus": "Hunting March Speed +5.0%"
+        },
+        {
+          "name": "Cyclone Runner",
+          "type": "March Skin",
+          "owned": true,
+          "stat_bonus": "Hunting March Speed +5.0%"
+        }
+      ]
+    }
+  },
+  "skins": {
+    "current_city_skin": {
+      "name": "Lost City",
+      "duration": "Permanent",
+      "acquisition_bonus": "Troops' Attack +2.0%"
+    },
+    "aggregate_bonus": {
+      "troops_attack_percent": 14.0,
+      "troops_defense_percent": 53.0,
+      "troops_lethality_percent": 11.5,
+      "troops_health_percent": 3.0,
+      "hunting_march_speed_percent": 85.0,
+      "resource_gathering_speed_percent": 5.0
+    },
+    "visible_city_bonus_items": [
+      { "name": "Icebear Saga", "duration": "Permanent", "bonus": "Troops' Attack +2.0%" },
+      { "name": "High Diver", "duration": "Permanent", "bonus": "Troops' Attack +2.0%" },
+      { "name": "Snowman Rhapsody", "duration": "Permanent", "bonus": "Troops' Attack +2.0%" },
+      { "name": "Winter of Plenty", "duration": "Permanent", "bonus": "Resource Gathering Speed +5.0%" },
+      { "name": "Lost City", "duration": "Permanent", "bonus": "Troops' Attack +2.0%" }
+    ]
+  },
+  "chief_gear": {
+    "hat": {
+      "item_name": "Frost Coronet",
+      "current": "Legendary T2",
+      "power": 5802000,
+      "observed_label": "LegendaryT2"
+    },
+    "watch": {
+      "item_name": "Finite Infinitus",
+      "current": "Legendary T2",
+      "power": 5833000,
+      "observed_label": "LegendaryT2"
+    },
+    "coat": {
+      "item_name": "Dynastic Ward",
+      "current": "Legendary T3 (2-Star)",
+      "power": 6910000,
+      "observed_label": "LegendaryT3 (2-Star)"
+    },
+    "pants": {
+      "item_name": "Conqueror's Cadence",
+      "current": "Legendary T3 (1-Star)",
+      "power": 6858000,
+      "observed_label": "LegendaryT3 (1-Star)"
+    },
+    "ring": {
+      "item_name": "Solaris Incandescence",
+      "current": "Legendary T2 (3-Star)",
+      "power": 6728000,
+      "observed_label": "LegendaryT2 (3-Star)"
+    },
+    "cudgel": {
+      "item_name": "Golden Zeal",
+      "current": "Legendary T2 (3-Star)",
+      "power": 6728000,
+      "observed_label": "LegendaryT2 (3-Star)"
+    }
+  },
+  "charms": {
+    "hat_top": { "current": 8 },
+    "hat_left": { "current": 8 },
+    "hat_right": { "current": 8 },
+    "watch_top": { "current": 8 },
+    "watch_left": { "current": 8 },
+    "watch_right": { "current": 8 },
+    "coat_top": { "current": 9 },
+    "coat_left": { "current": 10 },
+    "coat_right": { "current": 9 },
+    "pants_top": { "current": 9 },
+    "pants_left": { "current": 10 },
+    "pants_right": { "current": 9 },
+    "ring_top": { "current": 9 },
+    "ring_left": { "current": 11 },
+    "ring_right": { "current": 9 },
+    "cudgel_top": { "current": 9 },
+    "cudgel_left": { "current": 11 },
+    "cudgel_right": { "current": 9 }
+  },
+  "heroes": {
+    "edith": {
+      "name": "Edith",
+      "generation": 7,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 14992556
+    },
+    "bradley": {
+      "name": "Bradley",
+      "generation": 7,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 13134642
+    },
+    "gordon": {
+      "name": "Gordon",
+      "generation": 7,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 11042744
+    },
+    "gwen": {
+      "name": "Gwen",
+      "generation": 5,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 3581093
+    },
+    "hector": {
+      "name": "Hector",
+      "generation": 5,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 3356238
+    },
+    "norah": {
+      "name": "Norah",
+      "generation": 5,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 2126168
+    },
+    "reina": {
+      "name": "Reina",
+      "generation": 4,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 2023160
+    },
+    "lynn": {
+      "name": "Lynn",
+      "generation": 4,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1946960
+    },
+    "ahmose": {
+      "name": "Ahmose",
+      "generation": 4,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1908110
+    },
+    "mia": {
+      "name": "Mia",
+      "generation": 3,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1742120
+    },
+    "flint": {
+      "name": "Flint",
+      "generation": 2,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1434100
+    },
+    "alonso": {
+      "name": "Alonso",
+      "generation": 2,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1376500
+    },
+    "wayne": {
+      "name": "Wayne",
+      "generation": 6,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "3 full stars, partial fourth star, empty fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1326325
+    },
+    "jeronimo": {
+      "name": "Jeronimo",
+      "generation": 1,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "4 full stars, empty fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1102270
+    },
+    "greg": {
+      "name": "Greg",
+      "generation": 3,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "4 full stars, partial fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1095170
+    },
+    "molly": {
+      "name": "Molly",
+      "generation": 1,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 1059920
+    },
+    "philly": {
+      "name": "Philly",
+      "generation": 2,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "4 full stars, partial fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 840920
+    },
+    "gina": {
+      "name": "Gina",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 778400
+    },
+    "jessie": {
+      "name": "Jessie",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 778400
+    },
+    "sergey": {
+      "name": "Sergey",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 778400
+    },
+    "logan": {
+      "name": "Logan",
+      "generation": 3,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "3 full stars, partial fourth star, empty fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 770660
+    },
+    "patrick": {
+      "name": "Patrick",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 768464
+    },
+    "bahiti": {
+      "name": "Bahiti",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 756440
+    },
+    "jasser": {
+      "name": "Jasser",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 751400
+    },
+    "seo_yoon": {
+      "name": "Seo-yoon",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 751400
+    },
+    "lumak_bokan": {
+      "name": "Lumak Bokan",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 745424
+    },
+    "ling_xue": {
+      "name": "Ling Xue",
+      "generation": 0,
+      "rarity": "SR",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 745352
+    },
+    "zinman": {
+      "name": "Zinman",
+      "generation": 1,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "4 full stars, empty fifth star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 729320
+    },
+    "cloris": {
+      "name": "Cloris",
+      "generation": 0,
+      "rarity": "R",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 612116
+    },
+    "charlie": {
+      "name": "Charlie",
+      "generation": 0,
+      "rarity": "R",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 612116
+    },
+    "smith": {
+      "name": "Smith",
+      "generation": 0,
+      "rarity": "R",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 609470
+    },
+    "eugene": {
+      "name": "Eugene",
+      "generation": 0,
+      "rarity": "R",
+      "current_level": 80,
+      "stars": 5,
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 609470
+    },
+    "renee": {
+      "name": "Renee",
+      "generation": 5,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "no filled stars observed",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 534722
+    },
+    "natalia": {
+      "name": "Natalia",
+      "generation": 1,
+      "rarity": "SSR",
+      "current_level": 80,
+      "stars_observed": "2 full stars, partial third star",
+      "escorts": 10,
+      "troops_capacity": 13470,
+      "power": 431570
+    },
+    "wu_ming": {
+      "name": "Wu Ming",
+      "generation": 6,
+      "rarity": "SSR",
+      "owned": false,
+      "shards_current": 0,
+      "shards_required": 10,
+      "power_preview": 41850
+    }
+  },
+  "hero_gear": {
+    "edith": {
+      "troop_type": "Infantry",
+      "gear": {
+        "goggles": {
+          "name": "Guardian Goggles",
+          "rarity": "Legendary",
+          "level": 14,
+          "enhancement": 60,
+          "power": 2378820,
+          "stats": {
+            "hero_attack": 1324,
+            "hero_health": 12960,
+            "escort_attack": 441,
+            "escort_health": 4320,
+            "infantry_lethality_percent": 192.0
+          },
+          "troop_mastery": {
+            "level": 14,
+            "gear_stats_percent": 140.0
+          },
+          "empowerment_stats": [
+            { "enhancement": 20, "mode": "Expedition", "stat": "Infantry Attack", "value_percent": 20.0, "unlocked": true },
+            { "enhancement": 40, "mode": "Exploration", "stat": "Hero Health Up", "value_percent": 7.5, "unlocked": true },
+            { "enhancement": 60, "mode": "Expedition", "stat": "Infantry Defense", "value_percent": 30.0, "unlocked": true },
+            { "enhancement": 80, "mode": "Exploration", "stat": "Hero Attack Up", "value_percent": 15.0, "unlocked": false },
+            { "enhancement": 100, "mode": "Expedition", "stat": "Infantry Attack", "value_percent": 50.0, "unlocked": false }
+          ]
+        },
+        "gauntlets": {
+          "name": "Guardian Gauntlets",
+          "rarity": "Legendary",
+          "level": 15,
+          "enhancement": 99,
+          "power": 3415875
+        },
+        "belt": {
+          "name": "Guardian Belt",
+          "rarity": "Legendary",
+          "level": 16,
+          "enhancement": 100,
+          "power": 3740855
+        },
+        "boots": {
+          "name": "Guardian Boots",
+          "rarity": "Legendary",
+          "level": 13,
+          "enhancement": 60,
+          "power": 2304702
+        }
+      },
+      "charm_toolkit": {
+        "enhancement": 3
+      }
+    },
+    "bradley": {
+      "gear": {
+        "top_left": { "level": 15, "enhancement": 80 },
+        "top_right": { "level": 13, "enhancement": 44 },
+        "bottom_left": { "level": 13, "enhancement": 40 },
+        "bottom_right": { "level": 15, "enhancement": 80 }
+      },
+      "special_item": {
+        "name": "Thunder Cannon",
+        "enhancement": 9
+      }
+    },
+    "gordon": {
+      "gear": {
+        "top_left": { "level": 12, "enhancement": 59 },
+        "top_right": { "level": 12, "enhancement": 44 },
+        "bottom_left": { "level": 12, "enhancement": 40 },
+        "bottom_right": { "level": 12, "enhancement": 59 }
+      },
+      "special_item": {
+        "name": "Bonecrux Venom",
+        "enhancement": 10
+      }
+    },
+    "gwen": {
+      "gear": {
+        "top_left": { "level": 10, "enhancement": 90, "visible_enhancement": 90, "empowerment": 0 },
+        "top_right": { "level": 7, "enhancement": 60, "visible_enhancement": 60, "empowerment": 0 },
+        "bottom_left": { "level": 7, "enhancement": 60, "visible_enhancement": 60, "empowerment": 0 },
+        "bottom_right": { "level": 8, "enhancement": 90, "visible_enhancement": 90, "empowerment": 0 }
+      },
+      "special_item": {
+        "name": "Wings of Hope",
+        "enhancement": 10
+      }
+    },
+    "hector": {
+      "gear": {
+        "top_left": { "level": 8, "enhancement": 60, "visible_enhancement": 60, "empowerment": 0 },
+        "top_right": { "level": 8, "enhancement": 80, "visible_enhancement": 80, "empowerment": 0 },
+        "bottom_left": { "level": 8, "enhancement": 80, "visible_enhancement": 80, "empowerment": 0 },
+        "bottom_right": { "level": 7, "enhancement": 60, "visible_enhancement": 60, "empowerment": 0 }
+      },
+      "special_item": {
+        "name": "Steel Fangs",
+        "enhancement": 10
+      }
+    },
+    "norah": {
+      "gear": {
+        "goggles": { "name": "Pioneer Goggles", "rarity": "Epic", "power": 2000 },
+        "gauntlets": { "name": "Pioneer Gauntlets", "rarity": "Epic", "power": 2000 },
+        "belt": { "name": "Pioneer Belt", "rarity": "Epic", "power": 2000 },
+        "boots": { "name": "Pioneer Boots", "rarity": "Epic", "power": 2000 }
+      },
+      "special_item": {
+        "name": "Snow Cruiser",
+        "enhancement": 1
+      }
+    },
+    "reina": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Ninjakken - Raikiri",
+        "enhancement": 7
+      }
+    },
+    "lynn": {
+      "gear": {
+        "goggles": { "name": "Sniper Goggles", "rarity": "Mythic", "power": 2500 },
+        "gauntlets": { "name": "Ranger Gauntlets", "rarity": "Epic", "power": 2000 },
+        "belt": { "name": "Sniper Belt", "rarity": "Mythic", "power": 2500 },
+        "boots": { "name": "Sniper Boots", "rarity": "Mythic", "power": 2500 }
+      },
+      "special_item": {
+        "name": "Ella's Tear",
+        "enhancement": 5
+      }
+    },
+    "ahmose": {
+      "gear": {
+        "goggles": { "name": "Guardian Goggles", "rarity": "Mythic", "power": 2500 },
+        "gauntlets": { "name": "Guardian Gauntlets", "rarity": "Mythic", "power": 2500 },
+        "belt": { "name": "Guardian Belt", "rarity": "Mythic", "power": 2500 },
+        "boots": { "name": "Warden Boots", "rarity": "Epic", "power": 2000 }
+      },
+      "special_item": {
+        "name": "Guardian's Relic",
+        "enhancement": 4
+      }
+    },
+    "mia": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Fate Crystal",
+        "enhancement": 10
+      }
+    },
+    "flint": {
+      "gear": {
+        "goggles": { "name": "Warden Goggles", "rarity": "Epic", "power": 2000 },
+        "gauntlets": { "name": "Warden Gauntlets", "rarity": "Epic", "power": 2000 },
+        "belt": { "name": "Guardian Belt", "rarity": "Mythic", "power": 2500 },
+        "boots": { "name": "Warden Boots", "rarity": "Epic", "power": 2000 }
+      },
+      "special_item": {
+        "name": "Dragonbane",
+        "enhancement": 10
+      }
+    },
+    "alonso": {
+      "gear": {
+        "goggles": { "name": "Ranger Goggles", "rarity": "Epic", "power": 2000 },
+        "gauntlets": { "name": "Ranger Gauntlets", "rarity": "Epic", "power": 2000 },
+        "belt": { "name": "Ranger Belt", "rarity": "Epic", "power": 2000 },
+        "boots": { "name": "Sniper Boots", "rarity": "Mythic", "power": 2500 }
+      },
+      "special_item": {
+        "name": "Captain Ahab",
+        "enhancement": 8
+      }
+    },
+    "wayne": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible slots match Alonso's Ranger Epic / Sniper Mythic mix; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Power Boomerang",
+        "enhancement": 1
+      }
+    },
+    "jeronimo": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible slots match Flint's Warden Epic / Guardian Mythic infantry mix; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Dawnbreak",
+        "enhancement": 10
+      }
+    },
+    "greg": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible slots match Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": {
+        "name": "State Edict",
+        "enhancement": 2
+      }
+    },
+    "molly": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Yeti Spirit",
+        "enhancement": 3
+      }
+    },
+    "philly": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Pharmacologica",
+        "enhancement_observed": "no enhancement number visible"
+      }
+    },
+    "gina": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "jessie": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "sergey": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Warden-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "logan": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Warden-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Fists of Steel",
+        "enhancement_observed": "no enhancement number visible"
+      }
+    },
+    "patrick": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "bahiti": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "jasser": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "seo_yoon": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "lumak_bokan": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "ling_xue": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "zinman": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Woodpecker",
+        "enhancement": 2
+      }
+    },
+    "cloris": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "charlie": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "smith": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Warden-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "eugene": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Warden-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": null
+    },
+    "renee": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Pioneer-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Illusion Magiball",
+        "enhancement_observed": "no enhancement number visible"
+      }
+    },
+    "natalia": {
+      "gear": {
+        "top_left": { "observed": "visible_from_gear_page" },
+        "top_right": { "observed": "visible_from_gear_page" },
+        "bottom_left": { "observed": "visible_from_gear_page" },
+        "bottom_right": { "observed": "visible_from_gear_page" },
+        "overview": "Warden-style Epic gear visible in all four slots; individual cards not opened."
+      },
+      "special_item": {
+        "name": "Gale Force",
+        "enhancement": 2
+      }
+    },
+    "wu_ming": {
+      "gear": null,
+      "special_item": null
+    }
+  },
+  "pets": {
+    "cave_lion": {
+      "name": "Cave Lion",
+      "rarity": "SSR",
+      "current_level": 100,
+      "power": 3323640,
+      "troops_attack_percent": 31.46,
+      "troops_defense_percent": 31.46
+    },
+    "sabertooth_tiger": {
+      "name": "Saber-tooth Tiger",
+      "rarity": "SSR",
+      "current_level": 80,
+      "power": 2976840,
+      "troops_attack_percent": 26.05,
+      "troops_defense_percent": 26.05
+    },
+    "snow_ape": {
+      "name": "Snow Ape",
+      "rarity": "SSR",
+      "current_level": 80,
+      "power": 2928840,
+      "troops_attack_percent": 24.0,
+      "troops_defense_percent": 24.0
+    },
+    "frostscale_chameleon": {
+      "name": "Frostscale Chameleon",
+      "rarity": "SSR",
+      "current_level": 70,
+      "power": 2512920,
+      "troops_attack_percent": 22.32,
+      "troops_defense_percent": 22.32
+    },
+    "snow_leopard": {
+      "name": "Snow Leopard",
+      "rarity": "SR",
+      "current_level": 80,
+      "power": 2242560,
+      "troops_attack_percent": 21.78,
+      "troops_defense_percent": 21.78
+    },
+    "mammoth": {
+      "name": "Mammoth",
+      "rarity": "SSR",
+      "current_level": 70,
+      "power": 2163360,
+      "troops_attack_percent": 22.32,
+      "troops_defense_percent": 22.32
+    },
+    "frost_gorilla": {
+      "name": "Frost Gorilla",
+      "rarity": "SSR",
+      "current_level": 70,
+      "power": 2159760,
+      "troops_attack_percent": 22.32,
+      "troops_defense_percent": 22.32
+    },
+    "iron_rhino": {
+      "name": "Iron Rhino",
+      "rarity": "SSR",
+      "current_level": 70,
+      "power": 2049960,
+      "troops_attack_percent": 20.55,
+      "troops_defense_percent": 20.55
+    },
+    "giant_elk": {
+      "name": "Giant Elk",
+      "rarity": "SR",
+      "current_level": 70,
+      "power": 2006160,
+      "troops_attack_percent": 18.65,
+      "troops_defense_percent": 18.65
+    },
+    "titan_roc": {
+      "name": "Titan Roc",
+      "rarity": "R",
+      "current_level": 70,
+      "power": 1925400,
+      "troops_attack_percent": 15.08,
+      "troops_defense_percent": 15.08
+    },
+    "giant_tapir": {
+      "name": "Giant Tapir",
+      "rarity": "R",
+      "current_level": 70,
+      "power": 1458720,
+      "troops_attack_percent": 13.82,
+      "troops_defense_percent": 13.82
+    },
+    "arctic_wolf": {
+      "name": "Arctic Wolf",
+      "rarity": "N",
+      "current_level": 60,
+      "power": 1025880,
+      "troops_attack_percent": 10.06,
+      "troops_defense_percent": 10.06
+    },
+    "musk_ox": {
+      "name": "Musk Ox",
+      "rarity": "N",
+      "current_level": 60,
+      "power": 852960,
+      "troops_attack_percent": 9.05,
+      "troops_defense_percent": 9.05
+    },
+    "cave_hyena": {
+      "name": "Cave Hyena",
+      "rarity": "N",
+      "current_level": 50,
+      "power": 523800,
+      "troops_attack_percent": 5.02,
+      "troops_defense_percent": 5.02
+    },
+    "pet_skill_grid_observed": {
+      "visible_levels": [5, 7, 8, 9, 7, 6, 8, 7],
+      "visible_cooldowns": ["15:42:07", "11:42:09", "15:42:09", "19:42:08"],
+      "notes": "Read from Pet Skill panel. Two bottom-row icons were partially visible without readable levels."
+    }
+  },
+  "troops": {
+    "total": {
+      "current": 2800000,
+      "capacity": 2800000,
+      "display": "2.8M/2.8M"
+    },
+    "march_queue": {
+      "current": 6,
+      "capacity": 6
+    },
+    "injured": {
+      "current": 125,
+      "capacity": 217300,
+      "display": "125/217.3K"
+    },
+    "helios_infantry": {
+      "troop_type": "Infantry",
+      "tier": "Helios",
+      "current": 1071987
+    },
+    "helios_lancer": {
+      "troop_type": "Lancer",
+      "tier": "Helios",
+      "current": 694145
+    },
+    "helios_marksman": {
+      "troop_type": "Marksman",
+      "tier": "Helios",
+      "current": 1073521
+    }
+  },
+  "experts": {
+    "aggregate_bonuses": {
+      "troops_attack_percent": 45.36,
+      "troops_defense_percent": 42.93,
+      "troops_lethality_percent": 43.93,
+      "troops_health_percent": 43.93,
+      "troops_deployment_capacity": 4000,
+      "rally_capacity": 35000
+    },
+    "active_learning": {
+      "expert": "Romulus",
+      "skill": "Spirit of Aeetes",
+      "skill_level": 9,
+      "effect": "Troops' Lethality and Health +4.5%",
+      "learning_xp_current": 1102200,
+      "learning_xp_required": 1351200,
+      "remaining_time_observed": "1d 17:47:54",
+      "books_available": 5110,
+      "books_required": 6800
+    },
+    "romulus": {
+      "name": "Romulus",
+      "relationship": "Casual 3",
+      "level": 70,
+      "power": 7751000,
+      "affinity_current": 14050,
+      "affinity_required": 13750,
+      "advancement_available": true,
+      "troops_lethality_percent": 13.8,
+      "troops_health_percent": 13.8,
+      "visible_skill_levels": [9, 11, 9, 7]
+    },
+    "baldur": {
+      "name": "Baldur",
+      "relationship": "Casual 3",
+      "level": 64,
+      "power": 1751400,
+      "affinity_current": 2330,
+      "affinity_required": 4400,
+      "troops_attack_percent": 6.6,
+      "troops_defense_percent": 6.6,
+      "visible_skill_levels": [7]
+    },
+    "fabian": {
+      "name": "Fabian",
+      "relationship": "Casual 2",
+      "level": 51,
+      "power": 3375500,
+      "affinity_current": 5470,
+      "affinity_required": 7750,
+      "troops_lethality_percent": 8.33,
+      "troops_health_percent": 8.33,
+      "visible_skill_levels": [6]
+    },
+    "valeria": {
+      "name": "Valeria",
+      "relationship": "Casual 2",
+      "level": 50,
+      "power": 5100000,
+      "affinity_current": 8680,
+      "affinity_required": 13800,
+      "troops_lethality_percent": 11.0,
+      "troops_health_percent": 11.0,
+      "visible_skill_levels": [6]
+    },
+    "ronne": {
+      "name": "Ronne",
+      "relationship": "Casual 1",
+      "level": 42,
+      "power": 1905200,
+      "affinity_current": 1630,
+      "affinity_required": 3480,
+      "troops_attack_percent": 7.05,
+      "troops_defense_percent": 7.05,
+      "visible_skill_levels": [5]
+    },
+    "kathy": {
+      "name": "Kathy",
+      "relationship": "Acquaintance 3",
+      "level": 40,
+      "power": 1900000,
+      "affinity_current": 4790,
+      "affinity_required": 4860,
+      "advancement_available": true,
+      "troops_lethality_percent": 6.3,
+      "troops_health_percent": 6.3,
+      "visible_skill_levels": [4]
+    },
+    "cyrille": {
+      "name": "Cyrille",
+      "relationship": "Intimate",
+      "level": 100,
+      "power": 1744000,
+      "affinity_status": "MAX; Expert Affinity Level Limit reached",
+      "troops_attack_percent": 15.0,
+      "visible_skill_levels": [11],
+      "expert_research": {
+        "name": "Hunting Skill - Proficient",
+        "research_progress": "3 -> 4",
+        "power": "3,000 -> 4,000",
+        "troops_attack_percent": "+0.03% -> +0.04%",
+        "research_cost": "2/10"
+      }
+    },
+    "agnes": {
+      "name": "Agnes",
+      "relationship": "Close 2",
+      "level": 84,
+      "power": 1486200,
+      "affinity_current": 20,
+      "affinity_required": 3840,
+      "troops_defense_percent": 12.6,
+      "visible_skill_levels": [9]
+    },
+    "holger": {
+      "name": "Holger",
+      "relationship": "Close 1",
+      "level": 73,
+      "power": 3153200,
+      "affinity_current": 6470,
+      "affinity_required": 7950,
+      "troops_attack_percent": 11.18,
+      "troops_defense_percent": 11.18,
+      "visible_skill_levels": [8]
+    }
+  },
+  "research": {
+    "research_center": {
+      "level": 30,
+      "research_speed_bonus": "3.0% +75.3%",
+      "power": 335170
+    },
+    "active_research": {
+      "name": "Assault Techniques VI",
+      "remaining_time_observed": "13d 13:32:55 to 13d 12:52:26",
+      "source": "Research Center queue and Tech Research overlay"
+    },
+    "war_academy": {
+      "fire_crystal_tech_power": 50410000,
+      "fire_crystal_shards": 71,
+      "active_research": {
+        "name": "Helios Lancer Healing",
+        "remaining_time_observed": "8d 00:51:43 to 8d 00:47:05; later direct card read 7d 23:26:18",
+        "visible_level_marker": "7/10",
+        "current_card": {
+          "level_progress": "7 -> 8",
+          "helios_lancer_healing_cost_reduction": "35.00% +5.00%",
+          "lancer_attack": "14.00% +2.00%",
+          "power": "1,085,000 +155,000",
+          "remaining_time": "7d 23:26:18",
+          "finish_cost_diamonds": 153151
+        },
+        "notes": "Opened the active node card without using Finish, Speedup, or cancel controls."
+      },
+      "aggregate_bonuses": {
+        "infantry_attack": "+56.00%",
+        "infantry_defense": "+52.00%",
+        "infantry_lethality": "+25.00%",
+        "infantry_health": "+25.00%",
+        "lancer_attack": "+54.00%",
+        "lancer_defense": "+52.00%",
+        "lancer_lethality": "+25.00%",
+        "lancer_health": "+25.00%",
+        "marksman_attack": "+54.00%",
+        "marksman_defense": "+52.00%",
+        "marksman_lethality": "+25.00%",
+        "marksman_health": "+25.00%",
+        "helios_infantry_healing_cost_reduction": "+40.00%",
+        "helios_infantry_healing_time_reduction": "+9.00%",
+        "helios_infantry_training_cost_reduction": "+35.00%",
+        "helios_lancer_healing_cost_reduction": "+35.00%",
+        "helios_lancer_healing_time_reduction": "+9.00%",
+        "helios_lancer_training_cost_reduction": "+30.00%",
+        "helios_marksman_healing_cost_reduction": "+35.00%",
+        "helios_marksman_healing_time_reduction": "+9.00%",
+        "helios_marksman_training_cost_reduction": "+30.00%"
+      },
+      "visible_nodes": {
+        "flame_squad": {
+          "level": 5,
+          "status": "MAX",
+          "effect": "Troops Deployment Capacity +1,000",
+          "power": 300000
+        },
+        "flame_legion": {
+          "level": 12,
+          "status": "MAX",
+          "effect": "Rally Capacity +33,500",
+          "power": 1876000
+        },
+        "helios_lancer": {
+          "level": 1,
+          "status": "MAX",
+          "effect": "Unlock XI Helios Lancers",
+          "power": 8000000
+        },
+        "blazing_lance": {
+          "level": 12,
+          "status": "MAX",
+          "effect": "Lancer Attack +40.00%",
+          "power": 1344000
+        },
+        "blazing_guardian": {
+          "level": 12,
+          "status": "MAX",
+          "effect": "Lancer Defense +40.00%",
+          "power": 1344000
+        },
+        "blazing_charge": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Lancer Lethality +25.00%",
+          "power": 783750
+        },
+        "blazing_armor": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Lancer Health +25.00%",
+          "power": 783750
+        },
+        "flame_strike": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Infantry Lethality +25.00%",
+          "power": 783750
+        },
+        "flame_shield": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Infantry Health +25.00%",
+          "power": 783750
+        },
+        "crystal_vision": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Marksman Lethality +25.00%",
+          "power": 783750
+        },
+        "crystal_armor": {
+          "level": 8,
+          "status": "MAX",
+          "effect": "Marksman Health +25.00%",
+          "power": 783750
+        },
+        "crystal_arrow": {
+          "level": 12,
+          "status": "MAX",
+          "effect": "Marksman Attack +40.00%",
+          "power": 1344000
+        },
+        "crystal_protection": {
+          "level": 12,
+          "status": "MAX",
+          "effect": "Marksman Defense +40.00%",
+          "power": 1344000
+        },
+        "helios_lancer_healing": {
+          "level_progress": "7 -> 8",
+          "status": "Active",
+          "helios_lancer_healing_cost_reduction": "35.00% +5.00%",
+          "lancer_attack": "14.00% +2.00%",
+          "power": "1,085,000 +155,000",
+          "remaining_time": "7d 23:26:18",
+          "finish_cost_diamonds": 153151
+        },
+        "helios_lancer_training": {
+          "level_progress": "6 -> 7",
+          "status": "Available",
+          "helios_lancer_training_cost_reduction": "30.00% +5.00%",
+          "troops_deployment_capacity": "600 +100",
+          "power": "390,000 +65,000",
+          "research_cost": {
+            "fire_crystal_shards": "71/612",
+            "steel": "1.7M/180,000",
+            "meat": "1.0B/15M",
+            "wood": "511.9M/15M",
+            "coal": "103.6M/3M",
+            "iron": "42.3M/750,000"
+          },
+          "original_time": "12d 12:00:00",
+          "current_time": "7d 00:15:20",
+          "finish_cost_diamonds": 134605
+        },
+        "helios_lancer_first_aid": {
+          "level_progress": "6 -> 7",
+          "status": "Available",
+          "helios_lancer_healing_time_reduction": "9.00% +1.50%",
+          "lancer_defense": "12.00% +2.00%",
+          "power": "823,500 +137,250",
+          "research_cost": {
+            "fire_crystal_shards": "71/306",
+            "steel": "1.7M/90,000",
+            "meat": "1.0B/7.5M",
+            "wood": "511.9M/7.5M",
+            "coal": "103.6M/1.5M",
+            "iron": "42.3M/370,000"
+          },
+          "original_time": "6d 06:00:00",
+          "current_time": "3d 12:07:40",
+          "finish_cost_diamonds": 67303
+        },
+        "helios_infantry": {
+          "level": 1,
+          "status": "MAX",
+          "effect": "Unlock XI Helios Infantries",
+          "power": 8000000
+        },
+        "helios_infantry_healing": {
+          "level_progress": "8 -> 9",
+          "status": "Available",
+          "helios_infantry_healing_cost_reduction": "40.00% +5.00%",
+          "infantry_attack": "16.00% +2.00%",
+          "power": "1,240,000 +155,000",
+          "research_cost": {
+            "fire_crystal_shards": "71/1,122",
+            "steel": "1.7M/330,000",
+            "meat": "1.0B/27M",
+            "wood": "512.0M/27M",
+            "coal": "103.6M/5.5M",
+            "iron": "42.3M/1.3M"
+          },
+          "original_time": "22d 22:00:00",
+          "current_time": "12d 20:28:07",
+          "finish_cost_diamonds": 246775
+        },
+        "helios_infantry_training": {
+          "level_progress": "7 -> 8",
+          "status": "Available",
+          "helios_infantry_training_cost_reduction": "35.00% +5.00%",
+          "troops_deployment_capacity": "700 +100",
+          "power": "455,000 +65,000",
+          "research_cost": {
+            "fire_crystal_shards": "71/836",
+            "steel": "1.7M/240,000",
+            "meat": "1.0B/20M",
+            "wood": "512.0M/20M",
+            "coal": "103.6M/4.1M",
+            "iron": "42.3M/1M"
+          },
+          "original_time": "17d 02:00:00",
+          "current_time": "9d 13:56:58",
+          "finish_cost_diamonds": 183960
+        },
+        "helios_infantry_first_aid": {
+          "level_progress": "6 -> 7",
+          "status": "Available",
+          "helios_infantry_healing_time_reduction": "9.00% +1.50%",
+          "infantry_defense": "12.00% +2.00%",
+          "power": "823,500 +137,250",
+          "research_cost": {
+            "fire_crystal_shards": "71/306",
+            "steel": "1.7M/90,000",
+            "meat": "1.0B/7.5M",
+            "wood": "512.0M/7.5M",
+            "coal": "103.6M/1.5M",
+            "iron": "42.3M/370,000"
+          },
+          "original_time": "6d 06:00:00",
+          "current_time": "3d 12:07:40",
+          "finish_cost_diamonds": 67303
+        },
+        "helios_marksman": {
+          "level": 1,
+          "status": "MAX",
+          "effect": "Unlock XI Helios Marksmen",
+          "power": 8000000
+        },
+        "helios_marksman_healing": {
+          "level_progress": "7 -> 8",
+          "status": "Available",
+          "helios_marksman_healing_cost_reduction": "35.00% +5.00%",
+          "marksman_attack": "14.00% +2.00%",
+          "power": "1,085,000 +155,000",
+          "research_cost": {
+            "fire_crystal_shards": "71/836",
+            "steel": "1.7M/240,000",
+            "meat": "1.0B/20M",
+            "wood": "512.0M/20M",
+            "coal": "103.6M/4.1M",
+            "iron": "42.3M/1M"
+          },
+          "original_time": "17d 02:00:00",
+          "current_time": "9d 13:56:58",
+          "finish_cost_diamonds": 183960
+        },
+        "helios_marksman_training": {
+          "level_progress": "6 -> 7",
+          "status": "Available",
+          "helios_marksman_training_cost_reduction": "30.00% +5.00%",
+          "troops_deployment_capacity": "600 +100",
+          "power": "390,000 +65,000",
+          "research_cost": {
+            "fire_crystal_shards": "71/612",
+            "steel": "1.7M/180,000",
+            "meat": "1.0B/15M",
+            "wood": "512.0M/15M",
+            "coal": "103.6M/3M",
+            "iron": "42.3M/750,000"
+          },
+          "original_time": "12d 12:00:00",
+          "current_time": "7d 00:15:20",
+          "finish_cost_diamonds": 134605
+        },
+        "helios_marksman_first_aid": {
+          "level_progress": "6 -> 7",
+          "status": "Available",
+          "helios_marksman_healing_time_reduction": "9.00% +1.50%",
+          "marksman_defense": "12.00% +2.00%",
+          "power": "823,500 +137,250",
+          "research_cost": {
+            "fire_crystal_shards": "71/306",
+            "steel": "1.7M/90,000",
+            "meat": "1.0B/7.5M",
+            "wood": "512.0M/7.5M",
+            "coal": "103.6M/1.5M",
+            "iron": "42.3M/370,000"
+          },
+          "original_time": "6d 06:00:00",
+          "current_time": "3d 12:07:40",
+          "finish_cost_diamonds": 67303
+        }
+      }
+    },
+    "aggregate_bonuses_visible": {
+      "growth": {
+        "research_speed": "+25.30%",
+        "construction_speed": "+25.30%",
+        "healing_speed": "+221.80%",
+        "training_speed": "+184.20%",
+        "infirmary_capacity": "+100,300",
+        "training_capacity": "+186",
+        "march_queue": "+3"
+      },
+      "economy_visible": {
+        "meat_output": "+119.50%",
+        "wood_output": "+109.50%",
+        "coal_output": "+109.50%",
+        "iron_output": "+106.00%",
+        "meat_gathering_speed": "+205.00%"
+      }
+    },
+    "detailed_nodes_visible": {
+      "growth": {
+        "bandaging_i": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Healing Speed +15.20%",
+          "power": 15200
+        },
+        "trainer_tools_i": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Training Speed +7.40%",
+          "power": 13320
+        }
+      },
+      "economy": {
+        "food_gathering_v": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Meat Gathering Speed +53.50%",
+          "power": 6687
+        },
+        "coal_mining_iv": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Coal Gathering Speed +53.50%",
+          "power": 6687
+        },
+        "wood_gathering_v": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Wood Gathering Speed +53.50%",
+          "power": 6687
+        },
+        "iron_mining_iv": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Iron Gathering Speed +53.50%",
+          "power": 6687
+        },
+        "meat_output_vi": {
+          "level": 3,
+          "status": "MAX",
+          "effect": "Meat Output +26.00%",
+          "power": 6760
+        },
+        "coal_output_v": {
+          "level": 2,
+          "next_level": 3,
+          "visible_progress": "2/3",
+          "effect_current": "Coal Output +16.00%",
+          "effect_next": "+10.00%",
+          "power_current": 4160,
+          "power_next": 2600,
+          "research_time": "6d 11:47:32",
+          "original_time": "11d 13:46:40",
+          "finish_diamonds": 124634,
+          "research_cost": {
+            "meat": 6600000,
+            "wood": 6600000,
+            "coal": 1300000,
+            "iron": 330000,
+            "steel": 190000
+          }
+        },
+        "wood_output_vi": {
+          "level": 2,
+          "next_level": 3,
+          "visible_progress": "2/3",
+          "effect_current": "Wood Output +16.00%",
+          "effect_next": "+10.00%",
+          "power_current": 4160,
+          "power_next": 2600,
+          "research_time": "6d 05:33:38",
+          "original_time": "11d 02:40:00",
+          "finish_diamonds": 119649,
+          "research_cost": {
+            "meat": 9300000,
+            "wood": 9300000,
+            "coal": 1800000,
+            "iron": 460000,
+            "steel": 150000
+          }
+        },
+        "iron_output_v": {
+          "level": 2,
+          "next_level": 3,
+          "visible_progress": "2/3",
+          "effect_current": "Iron Output +16.00%",
+          "effect_next": "+10.00%",
+          "power_current": 4160,
+          "power_next": 2600,
+          "research_time": "6d 11:47:32",
+          "original_time": "11d 13:46:40",
+          "finish_diamonds": 124634,
+          "research_cost": {
+            "meat": 6600000,
+            "wood": 6600000,
+            "coal": 1300000,
+            "iron": 330000,
+            "steel": 190000
+          }
+        }
+      },
+      "battle": {
+        "close_combat_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Infantry Lethality +31.75%",
+          "power": 44450
+        },
+        "targeted_sniping_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Marksman Lethality +31.75%",
+          "power": 111125
+        },
+        "lance_upgrade_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Lancer Lethality +31.75%",
+          "power": 111125
+        },
+        "shield_upgrade_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Infantry Health +31.75%",
+          "power": 142875
+        },
+        "marksman_armor_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Marksman Health +31.75%",
+          "power": 76200
+        },
+        "lancer_armor_v": {
+          "level": 6,
+          "status": "MAX",
+          "effect": "Lancer Health +31.75%",
+          "power": 76200
+        },
+        "weapons_prep_vi": {
+          "level": 4,
+          "next_level": 5,
+          "visible_progress": "4/6",
+          "effect_current": "Troops Attack +9.00%",
+          "effect_next": "+2.25%",
+          "power_current": 75600,
+          "power_next": 18900,
+          "research_time": "21d 06:22:32",
+          "original_time": "37d 22:00:00",
+          "finish_diamonds": 408301,
+          "research_cost": {
+            "meat": 7000000,
+            "wood": 7000000,
+            "coal": 1400000,
+            "iron": 350000,
+            "steel": 110000
+          }
+        },
+        "reprisal_tactics_vi": {
+          "level": 4,
+          "next_level": 5,
+          "visible_progress": "4/6",
+          "effect_current": "Infantry Attack +22.00%",
+          "effect_next": "+5.50%",
+          "power_current": 30800,
+          "power_next": 7700,
+          "research_time": "8d 04:17:54",
+          "original_time": "14d 14:00:00",
+          "finish_diamonds": 157039,
+          "research_cost": {
+            "meat": 2700000,
+            "wood": 2700000,
+            "coal": 540000,
+            "iron": 130000,
+            "steel": 44000
+          }
+        },
+        "precision_targeting_vi": {
+          "level": 4,
+          "next_level": 5,
+          "visible_progress": "4/6",
+          "effect_current": "Marksman Attack +22.00%",
+          "effect_next": "+5.50%",
+          "power_current": 77000,
+          "power_next": 19250,
+          "research_time": "19d 15:06:57",
+          "original_time": "35d 00:00:00",
+          "finish_diamonds": 376893,
+          "research_cost": {
+            "meat": 6500000,
+            "wood": 6500000,
+            "coal": 1300000,
+            "iron": 320000,
+            "steel": 100000
+          }
+        },
+        "skirmishing_vi": {
+          "level": 4,
+          "next_level": 5,
+          "visible_progress": "4/6",
+          "effect_current": "Lancer Attack +22.00%",
+          "effect_next": "+5.50%",
+          "power_current": 77000,
+          "power_next": 19250,
+          "research_time": "19d 15:06:57",
+          "original_time": "35d 00:00:00",
+          "finish_diamonds": 376893,
+          "research_cost": {
+            "meat": 6500000,
+            "wood": 6500000,
+            "coal": 1300000,
+            "iron": 320000,
+            "steel": 100000
+          }
+        },
+        "assault_techniques_vi": {
+          "status": "in_progress",
+          "remaining_time_observed": "13d 12:52:26",
+          "notes": "Active queue label visible. Node detail was not opened because the queue overlay blocks the bottom active node and safe label taps did not open details."
+        }
+      }
+    },
+    "visible_nodes": {
+      "growth": {
+        "tooling_up_i": "MAX",
+        "ward_expansion_i": "MAX",
+        "camp_expansion_i": "MAX",
+        "tool_enhancement": "MAX",
+        "assault_techniques_vi": "in progress"
+      },
+      "economy": {
+        "food_gathering_v": "MAX",
+        "coal_mining_iv": "MAX",
+        "wood_gathering_v": "MAX",
+        "iron_mining_iv": "MAX",
+        "meat_output_vi": "MAX",
+        "coal_output_v": "2/3",
+        "wood_output_vi": "2/3",
+        "iron_output_v": "2/3"
+      },
+      "battle": {
+        "close_combat_v": "MAX",
+        "targeted_sniping_v": "MAX",
+        "lance_upgrade_v": "MAX",
+        "shield_upgrade_v": "MAX",
+        "marksman_armor_v": "MAX",
+        "lancer_armor_v": "MAX",
+        "weapons_prep_vi": "4/6",
+        "reprisal_tactics_vi": "4/6",
+        "precision_targeting_vi": "4/6",
+        "skirmishing_vi": "4/6",
+        "assault_techniques_vi": "in progress"
+      }
+    }
+  },
+  "troops": {
+    "summary": {
+      "total_display": "2.8M/2.8M",
+      "march_queue": "6/6",
+      "injured_display": "52/217.3K"
+    },
+    "helios_infantry": {
+      "tier": "Helios",
+      "type": "Infantry",
+      "count": 1072043
+    },
+    "helios_lancer": {
+      "tier": "Helios",
+      "type": "Lancer",
+      "count": 694145
+    },
+    "helios_marksman": {
+      "tier": "Helios",
+      "type": "Marksman",
+      "count": 1073538
+    }
+  },
+  "inventory_observations": [
+    {
+      "module": "backpack_resources_tab",
+      "observed": {
+        "fire_crystals": 1715,
+        "refined_fire_crystals": 134,
+        "fire_crystal_shards": 71,
+        "gems": "1 Gems x50, 100 Gems x22, 1,000 Gems x2",
+        "hero_xp_and_stamina": "1,000 Hero XP x12, 5,000 Hero XP x2, Chief Stamina x1,370",
+        "resource_supply_chests": "1K x455, 10K x3,840, 100K x88, 10K secured x384, 100K secured x25",
+        "custom_resource_chests": "Lv.1 x2,200, Lv.2 x3,505, Lv.3 x1,681, Lv.1 secured x3,990, Lv.2 secured x114, Lv.3 secured x208",
+        "meat": "1K x5,806, 1K secured x100, 10K x35,232, 10K secured x3,242, 100K x23, 100K secured x280, 1M x499, 1M secured x9",
+        "wood": "1K x5,831, 1K secured x99, 10K x33,159, 10K secured x2,612, 100K x20, 100K secured x276, 1M x1,087, 1M secured x8",
+        "coal": "100 x140, 1K x35,512, 1K secured x13,756, 10K x6,963, 10K secured x230, 100K x710, 100K secured x78, 1M x7",
+        "iron": "100 x233, 1K x51,087, 1K secured x75, 10K x20,317, 10K secured x10,561, 100K x605, 100K secured x802, 1M x6"
+      },
+      "confidence": "high for opened item cards; medium for lower-list completeness",
+      "notes": "Read from Backpack > Resources by selecting visible item cards only. Use, Details, plus/minus, and max controls were not clicked. Bottom of the Resources tab could not be fully scrolled with available controls, so further hidden stacks may still exist."
+    },
+    {
+      "module": "backpack_speedup_tab",
+      "observed": {
+        "general": "1m 245, 5m 922, 1h 352, 3h 1, 8h 1",
+        "construction": "1m 15,675, 5m 8,025, 1h 96",
+        "training": "1m 163, 5m 220, 1h 42",
+        "research": "1m 1,461, 5m 1,314, 1h 52",
+        "healing": "1m 63, 5m 484, 1h 42",
+        "learning": "1h 4"
+      },
+      "confidence": "high",
+      "notes": "Read from Backpack > Speedup by selecting one stack from each category; Use button was not clicked."
+    },
+    {
+      "module": "backpack_bonus_tab",
+      "observed": {
+        "identified": "2h Shield x1; 8h Shield x1; Deployment Capacity Boost I (2h) x2; Deployment Capacity Boost II (12hrs) x1; Gathering Speed Boost (8h) current x2",
+        "unidentified_visible_stacks": "Four additional Bonus-tab stacks remained visible with counts x1, x3, x1, and x2, but were not opened after the Use overlay risk became clear.",
+        "accidental_use": "Gathering Speed Boost (8h) count was 3 before extraction and 2 after one stack was accidentally consumed while reading the Bonus tab. No upgrade, research, troop training, healing, or purchase was started."
+      },
+      "confidence": "high for identified opened cards and the post-click Gathering Speed Boost count; low for unidentified visible Bonus stacks",
+      "notes": "Bonus cards expose quantity controls and a Use button. After one accidental bonus-use side effect, further Bonus item-card clicks were stopped."
+    },
+    {
+      "module": "backpack_gear_tab",
+      "observed": {
+        "visible_hero_gear": "Lv16 +100, Lv15 +99, Lv15 +80, Lv15 +80, plus dimmed/visible Lv14 +60, Lv13 +60, Lv12 +59, Lv12 +59"
+      },
+      "confidence": "medium",
+      "notes": "Read from Backpack > Gear overview; item detail cards were not opened here because hero gear details were captured in the hero pass."
+    },
+    {
+      "module": "backpack_other_tab",
+      "observed": {
+        "warhymn_testament": 7600,
+        "transfer_pass": 19,
+        "pocket_watch": 7,
+        "visible_chest_or_event_counts": [12, 7, 5, 52, 16, 2, 1, 1, 38, 19, 5, 1, 8, 15, 2, 4, 20]
+      },
+      "confidence": "medium",
+      "notes": "Read from Backpack > Other. First three item names were confirmed by item detail popups. Remaining visible counts were not opened individually."
+    }
+  ],
+  "source_observations": [
+    {
+      "module": "home",
+      "observed": {
+        "power": 636157883,
+        "vip_level": 12,
+        "diamonds": 411897,
+        "temperature": "-38.0"
+      },
+      "confidence": "high",
+      "notes": "Read from BlueStacks Whiteout Survival home screen top bar."
+    },
+    {
+      "module": "resumed_city_sweep",
+      "observed": {
+        "login_state": "Reconnect prompt appeared after account was logged in on another device; Reconnect was clicked.",
+        "home_top_bar": "Power 636,157,883, VIP 12, diamonds 411,897, visible top resource 99.8M, temperature -38.0.",
+        "building_attempts": "Visible clicks opened only already-saved Research Center Lv.30 and Enlistment Office read-only panel; one sale pack was opened accidentally and closed without purchase.",
+        "input_blocker": "Drag and scroll gestures still did not reliably pan the city map, and overlapping hitboxes prevented safe selection of missing buildings."
+      },
+      "confidence": "high for observed top-bar/profile values; low for missing building reads",
+      "notes": "No upgrades, research, orders, training, healing, item use, claims, speedups, or purchases were started."
+    },
+    {
+      "module": "profile",
+      "observed": {
+        "chief_name": "[B2D]Sorrow",
+        "chief_id": "383664139",
+        "power_display": "639.0M",
+        "kills_display": "254.4M",
+        "alliance": "B2D",
+        "state_number": "2476",
+        "initial_state": "2456",
+        "badge": "Silver Medallion 1"
+      },
+      "confidence": "high",
+      "notes": "Read from Chief Profile screen."
+    },
+    {
+      "module": "collection_gallery",
+      "observed": {
+        "rank": "Silver Medallion I",
+        "level_progress": "Lv. 11, 1,048,250/1,300,000",
+        "category_counts": "Marching 16, City 8, Avatar Frame 27, Name Card 5, Chief Profile 0, Teleport 2, Private Chat 2, Nameplate 13, Rally 0, Decoration 32, Action Emote 29",
+        "marching_page_1": "Blazing Meteor I, Wind Chaser, Supersonic Bunny, Bubble Fantasy, Koi Lantern, Hymn of the Aurora, Wilderness Warrior, Incubus Knight",
+        "marching_page_2": "Colorful Symphony, Cyclone Runner, Toy Army, Freeze Patrol, Ace Adventurer, Wings of the Icy Wind, Ice Journey, Fungal Sprite",
+        "opened_march_stats": "Blazing Meteor I owned, Hunting March Speed +10.0%; Wind Chaser owned, Hunting March Speed +5.0%; Colorful Symphony owned, Hunting March Speed +5.0%; Cyclone Runner owned, Hunting March Speed +5.0%"
+      },
+      "confidence": "high for rank/counts/opened items; medium for un-opened category item stats",
+      "notes": "Opened from Chief Profile badge into Collection Gallery. Details view was toggled, then Marching category and two March Skin item cards were opened. Hide, Use, and unrelated action controls were not used."
+    },
+    {
+      "module": "skins_bonus_details",
+      "observed": {
+        "current_city_skin": "Lost City, Permanent, Troops' Attack +2.0%",
+        "aggregate_bonus": "Troops' Attack +14.0%, Troops' Defense +53.0%, Troops' Lethality +11.5%, Troops' Health +3.0%, Hunting March Speed +85.0%, Resource Gathering Speed +5.0%",
+        "visible_city_items": "Icebear Saga +2.0% attack, High Diver +2.0% attack, Snowman Rhapsody +2.0% attack, Winter of Plenty +5.0% resource gathering speed, Lost City +2.0% attack"
+      },
+      "confidence": "high for aggregate bonus and visible opened tab rows",
+      "notes": "Read from Chief Profile > Skins > Bonus Details. Equip/use buttons were not clicked."
+    },
+    {
+      "module": "chief_gear_and_charms",
+      "observed": {
+        "hat": "Frost Coronet LegendaryT2, charms 8/8/8",
+        "watch": "Finite Infinitus LegendaryT2, charms 8/8/8",
+        "coat": "Dynastic Ward LegendaryT3 (2-Star), charms 9/10/9",
+        "pants": "Conqueror's Cadence LegendaryT3 (1-Star), charms 9/10/9",
+        "ring": "Solaris Incandescence LegendaryT2 (3-Star), charms 9/11/9",
+        "cudgel": "Golden Zeal LegendaryT2 (3-Star), charms 9/11/9"
+      },
+      "confidence": "medium",
+      "notes": "Slot mapping inferred from item type/icon positions on Chief Profile. Item names, levels, powers, and charm levels were read from individual popups."
+    },
+    {
+      "module": "troops",
+      "observed": {
+        "total": "2.8M/2.8M",
+        "march_queue": "6/6",
+        "injured": "52/217.3K",
+        "helios_infantry": 1072043,
+        "helios_lancer": 694145,
+        "helios_marksman": 1073538
+      },
+      "confidence": "high",
+      "notes": "Read from Chief Profile > Troops Preview."
+    },
+    {
+      "module": "heroes",
+      "observed": {
+        "edith": "SSR S7, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 14,992,556",
+        "bradley": "SSR S7, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 13,134,642",
+        "gordon": "SSR S7, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 11,042,744",
+        "gwen": "SSR S5, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 3,581,093",
+        "hector": "SSR S5, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 3,356,238",
+        "norah": "SSR S5, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 2,126,168",
+        "reina": "SSR S4, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 2,023,160",
+        "lynn": "SSR S4, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,946,960",
+        "ahmose": "SSR S4, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,908,110",
+        "mia": "SSR S3, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,742,120",
+        "flint": "SSR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,434,100",
+        "alonso": "SSR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,376,500",
+        "wayne": "SSR S6, Lv.80, stars observed as 3 full plus partial fourth, escorts 10, troop capacity 13,470, power 1,326,325",
+        "jeronimo": "SSR, Lv.80, stars observed as 4 full and fifth empty, escorts 10, troop capacity 13,470, power 1,102,270",
+        "greg": "SSR S3, Lv.80, stars observed as 4 full plus partial fifth, escorts 10, troop capacity 13,470, power 1,095,170",
+        "molly": "SSR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 1,059,920",
+        "philly": "SSR, Lv.80, stars observed as 4 full plus partial fifth, escorts 10, troop capacity 13,470, power 840,920",
+        "gina": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 778,400",
+        "jessie": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 778,400",
+        "sergey": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 778,400",
+        "logan": "SSR S3, Lv.80, stars observed as 3 full plus partial fourth, escorts 10, troop capacity 13,470, power 770,660",
+        "patrick": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 768,464",
+        "bahiti": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 756,440",
+        "jasser": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 751,400",
+        "seo_yoon": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 751,400",
+        "lumak_bokan": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 745,424",
+        "ling_xue": "SR, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 745,352",
+        "zinman": "SSR, Lv.80, stars observed as 4 full and fifth empty, escorts 10, troop capacity 13,470, power 729,320",
+        "cloris": "R, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 612,116",
+        "charlie": "R, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 612,116",
+        "smith": "R, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 609,470",
+        "eugene": "R, Lv.80, 5 stars, escorts 10, troop capacity 13,470, power 609,470",
+        "renee": "SSR S5, Lv.80, no filled stars observed, escorts 10, troop capacity 13,470, power 534,722",
+        "natalia": "SSR, Lv.80, stars observed as 2 full plus partial third, escorts 10, troop capacity 13,470, power 431,570",
+        "wu_ming": "SSR S6, unowned/recruitable, shards 0/10, preview power 41,850"
+      },
+      "confidence": "high",
+      "notes": "Read from Heroes detail stats screens."
+    },
+    {
+      "module": "hero_gear",
+      "observed": {
+        "edith": "Guardian Goggles Lv14 +60, Guardian Gauntlets Lv15 +99, Guardian Belt Lv16 +100, Guardian Boots Lv13 +60, Charm Toolkit +3",
+        "bradley": "visible gear slots Lv15 +80, Lv13 +44, Lv13 +40, Lv15 +80; Thunder Cannon +9",
+        "gordon": "visible gear slots Lv12 +59, Lv12 +44, Lv12 +40, Lv12 +59; Bonecrux Venom +10",
+        "gwen": "visible gear slots Lv10 +90, Lv7 +60, Lv7 +60, Lv8 +90; Wings of Hope +10",
+        "hector": "visible gear slots Lv8 +60, Lv8 +80, Lv8 +80, Lv7 +60; Steel Fangs +10",
+        "norah": "Pioneer Goggles/Gauntlets/Belt/Boots, Epic, 2,000 power each; Snow Cruiser +1",
+        "reina": "Pioneer-style Epic gear visible in all four slots; Ninjakken - Raikiri +7",
+        "lynn": "Sniper Goggles Mythic 2,500, Ranger Gauntlets Epic 2,000, Sniper Belt Mythic 2,500, Sniper Boots Mythic 2,500; Ella's Tear +5",
+        "ahmose": "Guardian Goggles Mythic 2,500, Guardian Gauntlets Mythic 2,500, Guardian Belt Mythic 2,500, Warden Boots Epic 2,000; Guardian's Relic +4",
+        "mia": "Pioneer-style Epic gear visible in all four slots; Fate Crystal +10",
+        "flint": "Warden Goggles Epic 2,000, Warden Gauntlets Epic 2,000, Guardian Belt Mythic 2,500, Warden Boots Epic 2,000; Dragonbane +10",
+        "alonso": "Ranger Goggles Epic 2,000, Ranger Gauntlets Epic 2,000, Ranger Belt Epic 2,000, Sniper Boots Mythic 2,500; Captain Ahab +8",
+        "wayne": "Visible gear matches Alonso's Ranger Epic / Sniper Mythic mix; Power Boomerang +1",
+        "jeronimo": "Visible gear matches Flint's Warden Epic / Guardian Mythic infantry mix; Dawnbreak +10",
+        "greg": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; State Edict +2",
+        "molly": "Pioneer-style Epic gear visible in all four slots; Yeti Spirit +3",
+        "philly": "Pioneer-style Epic gear visible in all four slots; Pharmacologica with no enhancement number visible",
+        "gina": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; no special item shown",
+        "jessie": "Pioneer-style Epic gear visible in all four slots; no special item shown",
+        "sergey": "Warden-style Epic gear visible in all four slots; no special item shown",
+        "logan": "Warden-style Epic gear visible in all four slots; Fists of Steel with no enhancement number visible",
+        "patrick": "Pioneer-style Epic gear visible in all four slots; no special item shown",
+        "bahiti": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; no special item shown",
+        "jasser": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; no special item shown",
+        "seo_yoon": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; no special item shown",
+        "lumak_bokan": "Pioneer-style Epic gear visible in all four slots; no special item shown",
+        "ling_xue": "Pioneer-style Epic gear visible in all four slots; no special item shown",
+        "zinman": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; Woodpecker +2",
+        "cloris": "Visible gear matches Ranger Epic gear with one Mythic Sniper-style slot; no special item shown",
+        "charlie": "Pioneer-style Epic gear visible in all four slots; no special item shown",
+        "smith": "Warden-style Epic gear visible in all four slots; no special item shown",
+        "eugene": "Warden-style Epic gear visible in all four slots; no special item shown",
+        "renee": "Pioneer-style Epic gear visible in all four slots; Illusion Magiball with no enhancement number visible",
+        "natalia": "Warden-style Epic gear visible in all four slots; Gale Force +2",
+        "wu_ming": "unowned; no gear tab observed"
+      },
+      "confidence": "medium",
+      "notes": "Edith gear item details were opened. Later hero gear was read from the Gear tab overview only. No upgrade/action buttons clicked."
+    },
+    {
+      "module": "pets",
+      "observed": {
+        "cave_lion": "SSR Lv100, power 3,323,640, troop attack/defense +31.46%",
+        "sabertooth_tiger": "SSR Lv80, power 2,976,840, troop attack/defense +26.05%",
+        "snow_ape": "SSR Lv80, power 2,928,840, troop attack/defense +24.00%",
+        "frostscale_chameleon": "SSR Lv70, power 2,512,920, troop attack/defense +22.32%",
+        "snow_leopard": "SR Lv80, power 2,242,560, troop attack/defense +21.78%",
+        "mammoth": "SSR Lv70, power 2,163,360, troop attack/defense +22.32%",
+        "frost_gorilla": "SSR Lv70, power 2,159,760, troop attack/defense +22.32%",
+        "iron_rhino": "SSR Lv70, power 2,049,960, troop attack/defense +20.55%",
+        "giant_elk": "SR Lv70, power 2,006,160, troop attack/defense +18.65%",
+        "titan_roc": "R Lv70, power 1,925,400, troop attack/defense +15.08%",
+        "giant_tapir": "R Lv70, power 1,458,720, troop attack/defense +13.82%",
+        "arctic_wolf": "N Lv60, power 1,025,880, troop attack/defense +10.06%",
+        "musk_ox": "N Lv60, power 852,960, troop attack/defense +9.05%",
+        "cave_hyena": "N Lv50, power 523,800, troop attack/defense +5.02%"
+      },
+      "confidence": "high",
+      "notes": "Read from Beast Cage > Pet details using the right-arrow loop. Advance/Upgrade/Refine/Adventure buttons were not clicked."
+    },
+    {
+      "module": "buildings_and_queues",
+      "observed": {
+        "sawmill": "Lv. 30, MAX",
+        "research_center": "Lv. 30, Research Speed 3.0% +75.3%, Power 335,170",
+        "building_queue_1": "Idle",
+        "building_queue_2": "Idle",
+        "training": "Infantry 13:19:28, Lancer 13:19:29, Marksman 13:19:29 remaining when observed"
+      },
+      "confidence": "medium",
+      "notes": "Read from city building detail panel and left-side city queue drawer. No construction or training action buttons were clicked."
+    },
+    {
+      "module": "research",
+      "observed": {
+        "active": "Assault Techniques VI, about 13d 13h remaining",
+        "growth_visible": "Tooling Up I MAX, Ward Expansion I MAX, Camp Expansion I MAX, Tool Enhancement MAX",
+        "economy_visible": "Food Gathering V MAX, Coal Mining IV MAX, Wood Gathering V MAX, Iron Mining IV MAX, Meat Output VI MAX, Coal Output V 2/3, Wood Output VI 2/3, Iron Output V 2/3",
+        "battle_visible": "Close Combat V MAX, Targeted Sniping V MAX, Lance Upgrade V MAX, Shield Upgrade V MAX, Marksman Armor V MAX, Lancer Armor V MAX, Weapons Prep VI 4/6, Reprisal Tactics VI 4/6, Precision Targeting VI 4/6, Skirmishing VI 4/6"
+      },
+      "confidence": "medium",
+      "notes": "Read from Research Center and Tech Research tabs. Full tree was not scroll-extracted; visible nodes and aggregate bonuses were saved."
+    },
+    {
+      "module": "research_detail_pass",
+      "observed": {
+        "growth_details": "Bandaging I Lv3 MAX, Healing Speed +15.20%, Power 15,200; Trainer Tools I Lv3 MAX, Training Speed +7.40%, Power 13,320",
+        "economy_details": "Food Gathering V, Coal Mining IV, Wood Gathering V, Iron Mining IV, Meat Output VI maxed; Coal Output V 2/3, Wood Output VI 2/3, Iron Output V 2/3 opened with costs and timers",
+        "battle_details": "Close Combat V, Targeted Sniping V, Lance Upgrade V, Shield Upgrade V, Marksman Armor V, Lancer Armor V maxed; Weapons Prep VI, Reprisal Tactics VI, Precision Targeting VI, Skirmishing VI opened at 4/6 with costs and timers",
+        "active_research": "Assault Techniques VI active queue, about 13d 12:52:26 remaining on latest read"
+      },
+      "confidence": "high for opened node detail cards; medium for hidden active Assault Techniques VI level",
+      "notes": "No Finish, Research, Speedup, or cancel controls were clicked. Research tree panning did not respond reliably in BlueStacks, so hidden nodes remain unconfirmed unless previously visible."
+    },
+    {
+      "module": "war_academy",
+      "observed": {
+        "building": "War Academy FC8, Research Speed 9.0% +69.3%, Power 483,660",
+        "building_detail_table": "Levels 1-10 visible with current Level 8 highlighted; Level 9 Research Speed 12.0%, Power 527,100; Level 10 Research Speed 15.0%, Power 570,540",
+        "fire_crystal_tech_power": "50,410,000",
+        "fire_crystal_shards": 71,
+        "active_research": "Helios Lancer Healing, active node card opened at 7/10 with 7d 23:26:18 remaining; effect 35.00%+5.00% healing cost reduction and Lancer Attack 14.00%+2.00%",
+        "aggregate_bonuses": "Infantry +56% attack/+52% defense/+25% lethality/+25% health; Lancer +54% attack/+52% defense/+25% lethality/+25% health; Marksman +54% attack/+52% defense/+25% lethality/+25% health; Helios training/healing reductions visible",
+        "visible_nodes": "Flame Squad Lv5 MAX, +1,000 deployment, power 300,000; Flame Legion Lv12 MAX, +33,500 rally, power 1,876,000; Helios Infantry/Lancer/Marksman Lv1 MAX, unlock XI Helios troops, power 8,000,000 each; Blazing Lance Lv12 MAX; Blazing Guardian Lv12 MAX; Blazing Charge Lv8 MAX; Blazing Armor Lv8 MAX; Flame Strike Lv8 MAX, Infantry Lethality +25.00%, power 783,750; Flame Shield Lv8 MAX, Infantry Health +25.00%, power 783,750; Crystal Arrow Lv12 MAX, Marksman Attack +40.00%, power 1,344,000; Crystal Protection Lv12 MAX, Marksman Defense +40.00%, power 1,344,000; Crystal Vision Lv8 MAX, Marksman Lethality +25.00%, power 783,750; Crystal Armor Lv8 MAX, Marksman Health +25.00%, power 783,750; Helios Infantry Healing 8->9, Training 7->8, First Aid 6->7; Helios Lancer Healing 7->8 active, Training 6->7, First Aid 6->7; Helios Marksman Healing 7->8, Training 6->7, First Aid 6->7"
+      },
+      "confidence": "high for building/aggregate/opened MAX nodes and Helios Infantry/Lancer/Marksman branch-end cards",
+      "notes": "Read from War Academy, War Academy Research, Fire Crystal Tech bonus overview, and opened node detail popups. Speedup, Finish, Research, Confirm, Redeem, Commissions, purchase/reward, and cancel controls were not used. Branch ends were reached after the tree auto-centered from opened node cards."
+    },
+    {
+      "module": "experts",
+      "observed": {
+        "aggregate": "Attack +45.36%, Defense +42.93%, Lethality +43.93%, Health +43.93%, Deployment +4,000, Rally +35,000",
+        "active_learning": "Romulus Spirit of Aeetes Lv.9, XP 1,102,200/1,351,200, 1d 17:47:54 remaining, books 5,110/6,800",
+        "romulus": "Casual 3, Lv70, power 7,751,000, affinity 14,050/13,750, Lethality/Health +13.80%",
+        "baldur": "Casual 3, Lv64, power 1,751,400, affinity 2,330/4,400, Attack/Defense +6.60%",
+        "fabian": "Casual 2, Lv51, power 3,375,500, affinity 5,470/7,750, Lethality/Health +8.33%",
+        "valeria": "Casual 2, Lv50, power 5,100,000, affinity 8,680/13,800, Lethality/Health +11.00%",
+        "ronne": "Casual 1, Lv42, power 1,905,200, affinity 1,630/3,480, Attack/Defense +7.05%",
+        "kathy": "Acquaintance 3, Lv40, power 1,900,000, affinity 4,790/4,860, Lethality/Health +6.30%",
+        "cyrille": "Intimate, Lv100 MAX, power 1,744,000, Attack +15.00%, affinity level limit reached",
+        "agnes": "Close 2, Lv84, power 1,486,200, affinity 20/3,840, Defense +12.60%",
+        "holger": "Close 1, Lv73, power 3,153,200, affinity 6,470/7,950, Attack/Defense +11.18%"
+      },
+      "confidence": "high",
+      "notes": "Read from Dawn Academy expert stats and skills tabs. Gift, Relationship Advancement, Research, Trek, and Learning action buttons were not clicked."
+    },
+    {
+      "module": "city_bonus_and_orders",
+      "observed": {
+        "city_bonus_active": "Resource Gathering Speed +100.00% was previously observed with about 1:57 remaining; Gathering Speed Boost (8h) was accidentally used during Backpack Bonus extraction and should now be active from that later timestamp. Medical Advancement Healing Speed +50.00% was previously observed with about 4:25 remaining.",
+        "chief_order": "Order currency 255.5M; multiple orders visible on cooldown"
+      },
+      "confidence": "medium",
+      "notes": "Read from City Bonus shortcut and Chief Order screen. No orders or bonuses were activated."
+    },
+    {
+      "module": "medical_and_enlistment",
+      "observed": {
+        "enlistment_office": "Loyalty 0, current recovery 0/hr, recovery limit 14,500/hr, capacity 0/869,200, enlistment currency 1,279",
+        "infirmary": "Severely injured 145/217,300, Helios Infantry 97, Helios Marksman 48, resource display 1.0B/53.1K meat, 510.6M/50.5K wood, 103.3M/10.4K coal, 42.3M/2.5K iron"
+      },
+      "confidence": "high",
+      "notes": "Read from Enlistment Office and Heal Injured screens. Quick Select, Finish, and Heal buttons were not clicked."
+    },
+    {
+      "module": "building_detail_pass",
+      "observed": {
+        "infirmary": "FC9 badge, Infirmary Capacity 116K +101.3K, Power 658,875. Building Details table highlighted current level 9 with capacity 116,000 and showed next level 10 capacity 121,500, power 713,775.",
+        "enlistment_office": "Opened from visible building. Panel showed Loyalty 0, Current Loyalty Recovery Rate 0/Hrs, Recovery Rate Limit 14,500/Hrs, Capacity 0/869,200, currency 1,279. No separate upgrade level shown."
+      },
+      "confidence": "high",
+      "notes": "Read via building Details and More Details. Upgrade, Heal, Finish, and Speedup controls were not clicked."
+    },
+    {
+      "module": "furnace_detail_pass",
+      "observed": {
+        "current": "Furnace FC9, power 4,392,500, Furnace Status Enabled, energy gauge about 108, consumption -36/min, Max Power Off, On/Off switch On.",
+        "building_detail_table": "Building Details table highlighted FC9 with power 4,392,500 and showed FC10 power 4,754,500.",
+        "fc10_upgrade_panel": "Upgrade target FC10, about 3 of 5 Fire Crystal sub-phases filled, original time 20d 00:00:00, visible upgrade time 10d 13:02:21, Finish cost 202,432 diamonds.",
+        "visible_requirements": "Embassy Fire Crystal Lv. 9 checked; Fire Crystals 1.71K/350 checked; additional partially obscured FC material 124/70 checked.",
+        "fire_crystal_details": "Details popup said Fire Crystal buildings include Furnace, troop training buildings, Infirmary, Embassy, and Command Center, and each Fire Crystal level has five sub-phases."
+      },
+      "confidence": "high except partially obscured material name",
+      "notes": "Read from Furnace panel, Building Details, Fire Crystal Details, and the FC10 upgrade preview. Upgrade and Finish buttons were not clicked."
+    },
+    {
+      "module": "cookhouse_detail_pass",
+      "observed": {
+        "current": "Cookhouse Lv. 10, MAX, Stove MAX.",
+        "production": "Meat production card showed output 1, cost 1.0B/300, stats 60, time 2s.",
+        "building_detail_table": "Building Details table highlighted Lv. 10 with power 3,785 and showed levels 1-10."
+      },
+      "confidence": "high",
+      "notes": "Read from Cookhouse panel and Building Details. No production or upgrade action was clicked."
+    }
+  ],
+  "open_items": [
+    "Resumed BlueStacks sweep after reconnect permission/login prompt. Current top-bar power and diamonds were refreshed, but missing building levels were not updated because the city map still would not pan reliably and visible hitboxes only opened already-saved Research Center/Enlistment Office panels.",
+    "Profile, troop preview, current city skin, and total skin bonuses have been read from BlueStacks and saved in this file.",
+    "AI Planner now uses only confirmed current rows for recommendations; unconfirmed buildings are deliberately excluded from upgrade recommendations instead of assuming a default level.",
+    "Furnace FC9 and Cookhouse Lv. 10 have now been directly read and saved; remaining exact building reads should continue through each building's Details panel.",
+    "Command Center, Embassy, Barricade, Shelter, troop camps, and remaining resource buildings still need exact detail-panel reads if the dashboard should calculate every building from current to FC10.",
+    "Research Center tree was captured for visible/opened nodes. War Academy Helios branch ends, Lancer core nodes, Marksman core nodes, and shared MAX nodes are saved; exact Infantry base attack/defense node names remain pending because BlueStacks ignored map-pan attempts.",
+    "Collection Gallery rank/progress and Marching pages 1-2 were opened/read; Flame Tech and full gallery item-by-item stats still need a deeper pass.",
+    "Backpack Resources was item-card read for visible gems, Fire Crystal materials, hero XP/stamina, resource chests, and meat/wood/coal/iron stacks; lower hidden rows and some non-Resources tab items may still need another pass."
+  ]
+}

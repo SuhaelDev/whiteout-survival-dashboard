@@ -1,0 +1,813 @@
+{
+  "metadata": {
+    "source_workbook": "Whiteout Survival Calculator v3.1c-rev2.xlsx",
+    "workbook_version": "3.1c-rev2",
+    "workbook_last_updated_serial": 46143,
+    "workbook_last_updated_date": "2026-05-01",
+    "extracted_at_utc": "2026-07-04T05:42:58Z",
+    "sheet_count": 44,
+    "notes": [
+      "Raw sheet values are exported from the uploaded workbook for implementation seeding.",
+      "Separate static game data from player state before using this in a production dashboard.",
+      "Some workbook cells contain cached Excel error strings; normalize and unit-test formulas in application code."
+    ]
+  },
+  "inventory": [
+    {
+      "index": 0,
+      "sheet": "Construction",
+      "used_range": "A1:AD74",
+      "rows": 74,
+      "columns": 30,
+      "non_empty_cells": 397,
+      "error_cells": 0,
+      "category": "Buildings / construction",
+      "notes": "Version; 3.1c-rev2; (631) Zerethusta's Whiteout Survival  Calculator (RIP 631, now 646); Last Updated"
+    },
+    {
+      "index": 1,
+      "sheet": "Chief Gear & Charms",
+      "used_range": "A1:AC80",
+      "rows": 80,
+      "columns": 29,
+      "non_empty_cells": 608,
+      "error_cells": 0,
+      "category": "Chief gear & charms",
+      "notes": "(631) Zerethusta's Whiteout Survival Chief Gear & Charms Calculator; Chief Gear Items; Chief Charm Items; Hardened Alloy"
+    },
+    {
+      "index": 2,
+      "sheet": "New Chief Gear Data",
+      "used_range": "A1:L125",
+      "rows": 125,
+      "columns": 12,
+      "non_empty_cells": 1090,
+      "error_cells": 0,
+      "category": "Chief gear & charms",
+      "notes": "Gear Level; #; Alloy; Polish"
+    },
+    {
+      "index": 3,
+      "sheet": "Charms Data",
+      "used_range": "A1:M41",
+      "rows": 41,
+      "columns": 13,
+      "non_empty_cells": 259,
+      "error_cells": 0,
+      "category": "Chief gear & charms",
+      "notes": "Charm Upgrade Costs; Level; Guides; Designs"
+    },
+    {
+      "index": 4,
+      "sheet": "Heroes",
+      "used_range": "A1:AC70",
+      "rows": 70,
+      "columns": 29,
+      "non_empty_cells": 659,
+      "error_cells": 0,
+      "category": "Heroes / rally / chief data",
+      "notes": "(631) Zerethusta's Whiteout Survival Chief Hero Calculator; Hero; Hero Star Levels; Shards"
+    },
+    {
+      "index": 5,
+      "sheet": "Chief & Hero Data",
+      "used_range": "A1:BZ201",
+      "rows": 201,
+      "columns": 78,
+      "non_empty_cells": 4127,
+      "error_cells": 2348,
+      "category": "Chief gear + heroes source data",
+      "notes": "Chief Gear; Hardened Alloy; Polishing Solution; Total"
+    },
+    {
+      "index": 6,
+      "sheet": "Hero Gear",
+      "used_range": "A1:AJ47",
+      "rows": 47,
+      "columns": 36,
+      "non_empty_cells": 687,
+      "error_cells": 0,
+      "category": "Hero gear",
+      "notes": "(631) Zerethusta's Hero Gear Calculator; Infantry Gear Set 1; Infantry Gear Set 2; Reforge"
+    },
+    {
+      "index": 7,
+      "sheet": "Hero Gear Data",
+      "used_range": "A1:DI336",
+      "rows": 336,
+      "columns": 113,
+      "non_empty_cells": 24848,
+      "error_cells": 0,
+      "category": "Hero gear",
+      "notes": "Infantry Set 1; Hero Gear; Base Costs; Goggles"
+    },
+    {
+      "index": 8,
+      "sheet": "Pets",
+      "used_range": "A1:Q33",
+      "rows": 33,
+      "columns": 17,
+      "non_empty_cells": 205,
+      "error_cells": 0,
+      "category": "Pets",
+      "notes": "(631) Zerethusta's Whiteout Survival Pet Upgrades Calculator; Pet Advancement Calculator (X= Food Only To Level, X.1 = Advanced With Items); Custom Pet Chest Pack (Choose 3 From Each Tier); Pet"
+    },
+    {
+      "index": 9,
+      "sheet": "Pet Data",
+      "used_range": "A1:EW27",
+      "rows": 27,
+      "columns": 153,
+      "non_empty_cells": 990,
+      "error_cells": 0,
+      "category": "Pets",
+      "notes": "Cave Hyena; Arctic Wolf; Level; Food"
+    },
+    {
+      "index": 10,
+      "sheet": "Troop Calculator",
+      "used_range": "A1:AA62",
+      "rows": 62,
+      "columns": 27,
+      "non_empty_cells": 391,
+      "error_cells": 0,
+      "category": "Troops",
+      "notes": "(631) Zerethusta's Whiteout Survival Troop Training Calculator; Troop Training Variables; To Train 1 Batch Of New Troops/Upgrade Existing Troops; Training Capacity"
+    },
+    {
+      "index": 11,
+      "sheet": "Troop Data",
+      "used_range": "A1:BP68",
+      "rows": 68,
+      "columns": 68,
+      "non_empty_cells": 2748,
+      "error_cells": 8,
+      "category": "Troops",
+      "notes": "Train Troops - Full Build; Infantry; To Train 1581 Infantry; Points"
+    },
+    {
+      "index": 12,
+      "sheet": "T12 Exalted Unlock & Research",
+      "used_range": "A1:AI92",
+      "rows": 92,
+      "columns": 35,
+      "non_empty_cells": 686,
+      "error_cells": 0,
+      "category": "War Academy / T12 research",
+      "notes": "(631) Zerethusta's T12/Exalted Troop Unlock/Research Calculator; Research Variables; T12 Troop Unlock/Research Costs (Calculated from Selections Below); What is your research speed %?"
+    },
+    {
+      "index": 13,
+      "sheet": "T12 Exalted Data",
+      "used_range": "A1:AM226",
+      "rows": 226,
+      "columns": 39,
+      "non_empty_cells": 6075,
+      "error_cells": 0,
+      "category": "War Academy / T12 research",
+      "notes": "Infantry Costs; Lancer Costs; Steel; RFC"
+    },
+    {
+      "index": 14,
+      "sheet": "Furnace",
+      "used_range": "A1:AI92",
+      "rows": 92,
+      "columns": 35,
+      "non_empty_cells": 1868,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Furnace; Resource Cost; Meat; Wood"
+    },
+    {
+      "index": 15,
+      "sheet": "Barricade",
+      "used_range": "A1:Q22",
+      "rows": 22,
+      "columns": 17,
+      "non_empty_cells": 134,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Barricade; Resource Cost; Building Time; Meat"
+    },
+    {
+      "index": 16,
+      "sheet": "Command Center",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 1455,
+      "error_cells": 487,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Command Center; Resource Cost; Meat"
+    },
+    {
+      "index": 17,
+      "sheet": "Coal Mine",
+      "used_range": "A1:Q42",
+      "rows": 42,
+      "columns": 17,
+      "non_empty_cells": 300,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Coal Mine; Resource Cost; Building Time"
+    },
+    {
+      "index": 18,
+      "sheet": "Embassy",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 936,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Embassy; Resource Cost; Meat"
+    },
+    {
+      "index": 19,
+      "sheet": "Infirmary",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 927,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Infirmary; Resource Cost; Meat"
+    },
+    {
+      "index": 20,
+      "sheet": "Hunter's Hut",
+      "used_range": "A1:Q42",
+      "rows": 42,
+      "columns": 17,
+      "non_empty_cells": 304,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Hunter's Hut; Resource Cost; Building Time"
+    },
+    {
+      "index": 21,
+      "sheet": "Infantry Camp",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 938,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Infantry Camp; Resource Cost; Meat"
+    },
+    {
+      "index": 22,
+      "sheet": "Iron Mine",
+      "used_range": "A1:Q42",
+      "rows": 42,
+      "columns": 17,
+      "non_empty_cells": 270,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Iron Mine; Resource Cost; Building Time"
+    },
+    {
+      "index": 23,
+      "sheet": "Lancer Camp",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 939,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Lancer Camp; Resource Cost; Meat"
+    },
+    {
+      "index": 24,
+      "sheet": "Marksman Camp",
+      "used_range": "A1:V92",
+      "rows": 92,
+      "columns": 22,
+      "non_empty_cells": 939,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Marksman Camp; Resource Cost; Meat"
+    },
+    {
+      "index": 25,
+      "sheet": "Research Center",
+      "used_range": "A1:S42",
+      "rows": 42,
+      "columns": 19,
+      "non_empty_cells": 308,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Research Center; Resource Cost; Building Time"
+    },
+    {
+      "index": 26,
+      "sheet": "Sawmill",
+      "used_range": "A1:Q42",
+      "rows": 42,
+      "columns": 17,
+      "non_empty_cells": 300,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Sawmill; Resource Cost; Building Time"
+    },
+    {
+      "index": 27,
+      "sheet": "Shelter",
+      "used_range": "A1:Q22",
+      "rows": 22,
+      "columns": 17,
+      "non_empty_cells": 115,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "Level For F30; Shelter; Resource Cost; Building Time"
+    },
+    {
+      "index": 28,
+      "sheet": "War Academy",
+      "used_range": "A1:V58",
+      "rows": 58,
+      "columns": 22,
+      "non_empty_cells": 662,
+      "error_cells": 1,
+      "category": "Buildings / construction",
+      "notes": "War Academy; Resource Cost; Meat; Wood"
+    },
+    {
+      "index": 29,
+      "sheet": "Dawn Academy (Experts)",
+      "used_range": "A1:AG118",
+      "rows": 118,
+      "columns": 33,
+      "non_empty_cells": 873,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "(631) Zerethusta's Dawn Academy Information Page; Expert Inventory; Note: Not all data has been validated, be warned it may be incorrect (but it does seem to pass the sniff test) ~ Z; Sigils"
+    },
+    {
+      "index": 30,
+      "sheet": "Cyrille",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 567,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 31,
+      "sheet": "Agnes",
+      "used_range": "A1:AE117",
+      "rows": 117,
+      "columns": 31,
+      "non_empty_cells": 569,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 32,
+      "sheet": "Holger",
+      "used_range": "A1:AE117",
+      "rows": 117,
+      "columns": 31,
+      "non_empty_cells": 629,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 33,
+      "sheet": "Romulus",
+      "used_range": "A1:AE117",
+      "rows": 117,
+      "columns": 31,
+      "non_empty_cells": 737,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 34,
+      "sheet": "Fabian",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 695,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 35,
+      "sheet": "Baldur",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 688,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 36,
+      "sheet": "Valeria",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 690,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 37,
+      "sheet": "Ronne",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 628,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 38,
+      "sheet": "Kathy",
+      "used_range": "A1:AE118",
+      "rows": 118,
+      "columns": 31,
+      "non_empty_cells": 617,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "Total Cost; Affinity; Sigils; Books"
+    },
+    {
+      "index": 39,
+      "sheet": "Fire Crystal Refinement",
+      "used_range": "A1:T31",
+      "rows": 31,
+      "columns": 20,
+      "non_empty_cells": 193,
+      "error_cells": 0,
+      "category": "Fire crystal refinement",
+      "notes": "(631) Zerethusta's Refined Fire Crystal Information Page; Tier 1; Tier 2; Tier 3"
+    },
+    {
+      "index": 40,
+      "sheet": "SVS Prep Week",
+      "used_range": "A1:Q43",
+      "rows": 43,
+      "columns": 17,
+      "non_empty_cells": 168,
+      "error_cells": 0,
+      "category": "SVS event planning",
+      "notes": "What to expect on each day of SVS Prep; What day does your state use presidential Construction Buff?; Monday; Definitely do it on this day"
+    },
+    {
+      "index": 41,
+      "sheet": "Hero Rally Setup",
+      "used_range": "A1:AD81",
+      "rows": 81,
+      "columns": 30,
+      "non_empty_cells": 812,
+      "error_cells": 0,
+      "category": "Heroes / rally / chief data",
+      "notes": "(631) Zerethusta's Rally Setup Page; All Heroes; Infantry; Lancer"
+    },
+    {
+      "index": 42,
+      "sheet": "Dawn Academy Alternate Layout",
+      "used_range": "A1:AH202",
+      "rows": 202,
+      "columns": 34,
+      "non_empty_cells": 2193,
+      "error_cells": 0,
+      "category": "Dawn Academy / experts",
+      "notes": "(631) Zerethusta's Dawn Academy Information Page; Expert Inventory; Sigils; Affinity Items"
+    },
+    {
+      "index": 43,
+      "sheet": "Lists",
+      "used_range": "A1:C825",
+      "rows": 825,
+      "columns": 3,
+      "non_empty_cells": 895,
+      "error_cells": 0,
+      "category": "Helper lists / calculations",
+      "notes": "Lists"
+    }
+  ],
+  "canonical_tables": [
+    {
+      "Canonical table": "game_versions",
+      "Source sheet(s)": "Construction + web changelog",
+      "Primary key": "version/date",
+      "Important columns": "workbook_version, workbook_date, app_version, changelog_date, source_url",
+      "Status / notes": "Use for freshness checks and migration notes"
+    },
+    {
+      "Canonical table": "resource_types",
+      "Source sheet(s)": "Construction, Lists",
+      "Primary key": "resource_id",
+      "Important columns": "name, category, unit, svs_point_value",
+      "Status / notes": "Meat/Wood/Coal/Iron/FC/RFC/shards/steel/speedups/materials"
+    },
+    {
+      "Canonical table": "building_levels",
+      "Source sheet(s)": "Furnace + building sheets",
+      "Primary key": "building_id + level_code",
+      "Important columns": "numerical_level, meat, wood, coal, iron, fire_crystals, refined_fcs, build_seconds",
+      "Status / notes": "Normalize FC sublevels: FC1, FC1-1 ... FC10"
+    },
+    {
+      "Canonical table": "building_prerequisites",
+      "Source sheet(s)": "Furnace + building sheets",
+      "Primary key": "building_id + level_code + prereq_building",
+      "Important columns": "prereq_level_code, count/slot where applicable",
+      "Status / notes": "Required for chained FC10 planning"
+    },
+    {
+      "Canonical table": "chief_gear_levels",
+      "Source sheet(s)": "New Chief Gear Data, Chief & Hero Data",
+      "Primary key": "gear_level_code",
+      "Important columns": "sequence, alloy, polish, design_plans, amber, power/stat columns",
+      "Status / notes": "Need clean label mapping from Green/Blue/Epic/Mythic/Legendary"
+    },
+    {
+      "Canonical table": "chief_charm_levels",
+      "Source sheet(s)": "Charms Data, Chief & Hero Data",
+      "Primary key": "charm_level",
+      "Important columns": "guides, designs, secrets, stats/power",
+      "Status / notes": "Separate costs from per-slot state"
+    },
+    {
+      "Canonical table": "hero_catalog",
+      "Source sheet(s)": "Heroes, Hero Rally Setup",
+      "Primary key": "hero_id",
+      "Important columns": "name, generation, troop_type, rarity, rally/garrison roles, unlock_state",
+      "Status / notes": "Spreadsheet lists generations through Gen 16 in headers"
+    },
+    {
+      "Canonical table": "hero_star_costs",
+      "Source sheet(s)": "Heroes, Chief & Hero Data",
+      "Primary key": "rarity + star_from + star_to",
+      "Important columns": "specific_shards, general_shards, total_shards, power/stat",
+      "Status / notes": "Needed for hero calculator"
+    },
+    {
+      "Canonical table": "hero_gear_xp",
+      "Source sheet(s)": "Hero Gear Data",
+      "Primary key": "gear_type + level",
+      "Important columns": "xp, mythic_gear, mithril",
+      "Status / notes": "Large wide table; should be unpivoted"
+    },
+    {
+      "Canonical table": "hero_gear_mastery",
+      "Source sheet(s)": "Hero Gear Data",
+      "Primary key": "gear_type + mastery_level",
+      "Important columns": "essence_stones, stat/power",
+      "Status / notes": "Confirm actual column groups during import"
+    },
+    {
+      "Canonical table": "pet_levels",
+      "Source sheet(s)": "Pet Data",
+      "Primary key": "pet_id + level_code",
+      "Important columns": "food, manuals, potions, serum, svs_points",
+      "Status / notes": "Wide by pet; should be unpivoted"
+    },
+    {
+      "Canonical table": "troop_tiers",
+      "Source sheet(s)": "Troop Data",
+      "Primary key": "troop_type + tier",
+      "Important columns": "points, base_seconds, adjusted_seconds, meat, wood, coal, iron",
+      "Status / notes": "Needed for training and promotion calculators"
+    },
+    {
+      "Canonical table": "t12_research",
+      "Source sheet(s)": "T12 Exalted Data",
+      "Primary key": "troop_type + research_node + level",
+      "Important columns": "steel, RFC, shards, meat, wood, coal, iron, minutes, power, stat",
+      "Status / notes": "Contains T12 I/II/III and Exalted unlock data"
+    },
+    {
+      "Canonical table": "expert_affinity_levels",
+      "Source sheet(s)": "Expert sheets + Dawn Academy",
+      "Primary key": "expert_id + affinity_level",
+      "Important columns": "affinity, common_sigil, specific_sigil, stats, power",
+      "Status / notes": "Individual expert sheets are cleaner source tables"
+    },
+    {
+      "Canonical table": "expert_skill_levels",
+      "Source sheet(s)": "Expert sheets + Dawn Academy",
+      "Primary key": "expert_id + skill_id + level",
+      "Important columns": "books, learning_xp, skill_effect, power",
+      "Status / notes": "Needed for skill ROI and learning speedup planner"
+    },
+    {
+      "Canonical table": "fire_crystal_refinement",
+      "Source sheet(s)": "Fire Crystal Refinement",
+      "Primary key": "tier + return_amount",
+      "Important columns": "cost, probability, expected_return, return_per_fc, weekly_cost",
+      "Status / notes": "Add stochastic/expected value calculator"
+    },
+    {
+      "Canonical table": "svs_scoring_rules",
+      "Source sheet(s)": "SVS Prep Week",
+      "Primary key": "activity_id",
+      "Important columns": "points_formula, eligible_days, notes",
+      "Status / notes": "Needs refresh as event scoring changes"
+    },
+    {
+      "Canonical table": "rally_templates",
+      "Source sheet(s)": "Hero Rally Setup",
+      "Primary key": "template_id + slot",
+      "Important columns": "use_case, troop_type, hero_id, ratio",
+      "Status / notes": "Use hero unlocks to filter valid options"
+    }
+  ],
+  "gaps": [
+    {
+      "Priority": "High",
+      "Gap / validation item": "Flame Tech",
+      "Why it matters": "Official changelog after the workbook adds Flame Tech unlocked after required state age and Helios Troops; no matching workbook sheets were found.",
+      "Research / extraction approach": "Extract unlock rules, tech tree, costs, stats, prerequisites, and state-age gates from official/community sources and screenshots."
+    },
+    {
+      "Priority": "High",
+      "Gap / validation item": "Collection Gallery / permanent skins",
+      "Why it matters": "New system grants Collection Points/levels and rewards; workbook has no Collection/Gallery data.",
+      "Research / extraction approach": "Capture skin catalog, point values, level thresholds, reward tables, and owned-skin state."
+    },
+    {
+      "Priority": "High",
+      "Gap / validation item": "Normal Research Center research trees",
+      "Why it matters": "Workbook has Research Center building costs, but not full general/economy/battle research trees.",
+      "Research / extraction approach": "Build separate research_nodes table with branch, node, level, resource/time costs, prerequisites, stats."
+    },
+    {
+      "Priority": "High",
+      "Gap / validation item": "Full War Academy research beyond T12/Exalted",
+      "Why it matters": "Workbook covers T12/Exalted tables; the requested dashboard should include all War Academy research where applicable.",
+      "Research / extraction approach": "Separate T12/Exalted from any Helios/War Academy tech and add unlock gates."
+    },
+    {
+      "Priority": "High",
+      "Gap / validation item": "Current heroes/pets/experts after 2026-05-01",
+      "Why it matters": "Workbook may miss releases after its last update.",
+      "Research / extraction approach": "Use app version history, official Discord announcements, in-game screenshots, and community sheets."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Formula portability",
+      "Why it matters": "Workbook uses Excel formulas and contains cached #N/A/#REF! outputs; web dashboard should not replicate spreadsheet errors.",
+      "Research / extraction approach": "Rebuild formulas in backend/domain code with unit tests for each module."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Event scoring drift",
+      "Why it matters": "SVS, Icefire Warhymn, Frostfire Mine and other events can change.",
+      "Research / extraction approach": "Store scoring rules as versioned data with effective_date and source_url."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Server/state-age unlock rules",
+      "Why it matters": "Many systems unlock by state age and season.",
+      "Research / extraction approach": "Add state_age_days, season, furnace_level, troop_unlock gates to prerequisites."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Community data licensing/source provenance",
+      "Why it matters": "Workbook appears based on Zerethusta community calculator; need provenance before publishing copied tables.",
+      "Research / extraction approach": "Track source_url, source_author, retrieved_at, confidence, and permission/attribution per imported table."
+    }
+  ],
+  "state_schema": [
+    {
+      "Entity": "player_profile",
+      "Field": "player_id",
+      "Type": "uuid/string",
+      "Persistence": "permanent",
+      "Notes": "Primary user key"
+    },
+    {
+      "Entity": "player_profile",
+      "Field": "state_number/state_age_days",
+      "Type": "integer",
+      "Persistence": "editable",
+      "Notes": "Unlock gating and generation timing"
+    },
+    {
+      "Entity": "player_profile",
+      "Field": "furnace_level",
+      "Type": "level_code",
+      "Persistence": "derived/editable",
+      "Notes": "Used by many unlock gates"
+    },
+    {
+      "Entity": "player_resources",
+      "Field": "resource_id",
+      "Type": "string",
+      "Persistence": "current balance",
+      "Notes": "Meat, wood, coal, iron, FC, RFC, shards, steel, speedups, materials"
+    },
+    {
+      "Entity": "player_resources",
+      "Field": "quantity",
+      "Type": "number",
+      "Persistence": "current balance",
+      "Notes": "Supports inventory tracking"
+    },
+    {
+      "Entity": "player_buffs",
+      "Field": "buff_id",
+      "Type": "string",
+      "Persistence": "scenario-specific",
+      "Notes": "Construction speed, research speed, troop speed, VP, Mercantilism, pet/hero/expert skills"
+    },
+    {
+      "Entity": "player_building_state",
+      "Field": "building_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "One row per building"
+    },
+    {
+      "Entity": "player_building_state",
+      "Field": "current_level_code / target_level_code",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "FC sublevels kept as strings"
+    },
+    {
+      "Entity": "player_chief_gear_state",
+      "Field": "slot_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Hat/Watch/Coat/Pants/Ring/Cudgel etc."
+    },
+    {
+      "Entity": "player_chief_gear_state",
+      "Field": "current_level_code / target_level_code",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Matches chief_gear_levels"
+    },
+    {
+      "Entity": "player_charm_state",
+      "Field": "slot_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Per charm position"
+    },
+    {
+      "Entity": "player_hero_state",
+      "Field": "hero_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Owned, unlocked, stars, shards"
+    },
+    {
+      "Entity": "player_hero_gear_state",
+      "Field": "hero_id + gear_slot",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "XP level, mastery, essence level"
+    },
+    {
+      "Entity": "player_pet_state",
+      "Field": "pet_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Pet level/advancement"
+    },
+    {
+      "Entity": "player_troop_state",
+      "Field": "troop_type + tier",
+      "Type": "integer",
+      "Persistence": "current/target",
+      "Notes": "Counts available/training/planned"
+    },
+    {
+      "Entity": "player_research_state",
+      "Field": "research_node_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "General research, War Academy, Flame Tech, etc."
+    },
+    {
+      "Entity": "player_expert_state",
+      "Field": "expert_id",
+      "Type": "string",
+      "Persistence": "current/target",
+      "Notes": "Affinity and skill levels"
+    },
+    {
+      "Entity": "calculation_snapshot",
+      "Field": "module_id",
+      "Type": "string",
+      "Persistence": "audit/history",
+      "Notes": "Store result version, source data version, input hash, total costs, gaps"
+    }
+  ]
+}

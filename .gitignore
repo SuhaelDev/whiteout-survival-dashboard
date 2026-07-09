@@ -1,0 +1,10 @@
+.vercel
+.env*
+.server/
+.playwright-cli/
+.chrome-dashboard-review/
+captures/
+output/
+resources_tmp/
+scripts/__pycache__/
+*.pyc

@@ -1,0 +1,9 @@
+.chrome-dashboard-review
+.playwright-cli
+.server
+.DS_Store
+captures
+output
+resources_tmp
+scripts/__pycache__
+*.pyc
