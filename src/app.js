@@ -76,9 +76,13 @@ const PET_FIELDS = [
 ];
 const HERO_GEAR_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
 const HERO_GEAR_INVESTMENT_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
+const HERO_GEAR_MAX_ENHANCEMENT = 100;
 const HERO_GEAR_MAX_EMPOWERMENT = 100;
 const HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL = 11;
 const HERO_GEAR_EMPOWERMENT_SOURCE_OFFSET = 100;
+const HERO_GEAR_NORMAL_ENHANCEMENT_XP_OVERRIDES = {
+  90: 1910,
+};
 const HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS = [
   { enhancement: 20, mode: "Expedition", statKind: "Attack", value_percent: 20 },
   { enhancement: 40, mode: "Exploration", stat: "Hero Health Up", value_percent: 7.5 },
@@ -995,9 +999,9 @@ function currentProgressEditorHtml() {
         `${hero.name} | ${position}`,
         [
           currentEditorControl("Current level", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.level`, Number(piece.level || 0))),
-          currentEditorControl("Current empower", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.empowerment`, heroGearCurrentEmpowerment(piece), 0)),
+          currentEditorControl("Current +", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)),
           heroGearLockedObservedEnhancement(piece)
-            ? currentEditorControl("Observed locked +", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.visible_enhancement`, heroGearLockedObservedEnhancement(piece), 0))
+            ? currentEditorControl("Stat empower gate", `<span class="muted">Locked until Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL}</span>`)
             : "",
           currentEditorControl("Power", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.power`, Number(piece.power || 0), 0)),
         ],
@@ -1507,7 +1511,7 @@ function resetAllTargetsToCurrent(nextState = state) {
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
       const pieceTargets = (heroTargets.pieces[slot] ||= {});
       changed += setIfChanged(pieceTargets, "target_level", Number(piece.level || 0));
-      changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEmpowerment(piece));
+      changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEnhancement(piece));
     });
     const special = gearSet.special_item || gearSet.charm_toolkit;
     changed += setIfChanged(heroTargets, "special_enhancement", Number(special?.enhancement || 0));
@@ -1561,7 +1565,7 @@ function resetHeroGearPieceTarget(heroId, slot) {
   const pieceTargets = (heroTargets.pieces[slot] ||= {});
   let changed = 0;
   changed += setIfChanged(pieceTargets, "target_level", Number(piece.level || 0));
-  changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEmpowerment(piece));
+  changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEnhancement(piece));
   return changed;
 }
 
@@ -1629,22 +1633,17 @@ function normalizeTargets(nextState) {
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
       const pieceTargets = (heroTargets.pieces[slot] ||= {});
       const currentLevel = Number(piece.level || 0);
-      const currentEnhancement = heroGearCurrentEmpowerment(piece);
+      const currentEnhancement = heroGearCurrentEnhancement(piece);
       if (Number(pieceTargets.target_level ?? currentLevel) < currentLevel) {
         pieceTargets.target_level = currentLevel;
-        changed = true;
-      }
-      const targetLevel = Number(pieceTargets.target_level ?? currentLevel);
-      if (!heroGearCanEmpowerAtLevel(targetLevel) && Number(pieceTargets.target_enhancement || 0) !== 0) {
-        pieceTargets.target_enhancement = 0;
         changed = true;
       }
       if (Number(pieceTargets.target_enhancement ?? currentEnhancement) < currentEnhancement) {
         pieceTargets.target_enhancement = currentEnhancement;
         changed = true;
       }
-      if (Number(pieceTargets.target_enhancement || 0) > HERO_GEAR_MAX_EMPOWERMENT) {
-        pieceTargets.target_enhancement = HERO_GEAR_MAX_EMPOWERMENT;
+      if (Number(pieceTargets.target_enhancement || 0) > HERO_GEAR_MAX_ENHANCEMENT) {
+        pieceTargets.target_enhancement = HERO_GEAR_MAX_ENHANCEMENT;
         changed = true;
       }
     });
@@ -3460,19 +3459,28 @@ function heroGearCanEmpowerAtLevel(level) {
   return Number(level || 0) >= HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
 }
 
+function clampHeroGearEnhancement(value) {
+  const number = Number(value || 0);
+  if (!Number.isFinite(number)) return 0;
+  return Math.min(HERO_GEAR_MAX_ENHANCEMENT, Math.max(0, number));
+}
+
+function heroGearCurrentEnhancement(piece = {}) {
+  const raw = piece.enhancement ?? piece.enhancement_level ?? piece.current_enhancement ?? piece.visible_enhancement ?? piece.observed_enhancement;
+  return clampHeroGearEnhancement(raw);
+}
+
 function heroGearCurrentEmpowerment(piece = {}) {
   const level = Number(piece.level || 0);
   if (level > 0 && !heroGearCanEmpowerAtLevel(level)) return 0;
-  const raw = piece.empowerment ?? piece.empowerment_level ?? piece.current_empowerment ?? piece.enhancement;
+  const raw = piece.empowerment ?? piece.empowerment_level ?? piece.current_empowerment ?? heroGearCurrentEnhancement(piece);
   const value = Number(raw || 0);
   if (!Number.isFinite(value)) return 0;
   return Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, value));
 }
 
 function heroGearObservedEnhancement(piece = {}) {
-  const raw = piece.visible_enhancement ?? piece.observed_enhancement ?? piece.enhancement;
-  const value = Number(raw || 0);
-  return Number.isFinite(value) ? Math.max(0, value) : 0;
+  return heroGearCurrentEnhancement(piece);
 }
 
 function heroGearLockedObservedEnhancement(piece = {}) {
@@ -3483,7 +3491,7 @@ function heroGearLockedObservedEnhancement(piece = {}) {
 }
 
 function heroGearTargetEmpowerment(piece = {}, rawTarget, targetLevel) {
-  const value = Number(rawTarget ?? heroGearCurrentEmpowerment(piece));
+  const value = Number(rawTarget ?? heroGearCurrentEnhancement(piece));
   const clamped = Number.isFinite(value) ? Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, value)) : 0;
   return heroGearCanEmpowerAtLevel(targetLevel) ? clamped : 0;
 }
@@ -3505,14 +3513,14 @@ function heroGearPieceTargetsFor(heroId, slot) {
   const piece = state.extracted_current?.hero_gear?.[heroId]?.gear?.[slot] || {};
   const maxMasteryLevel = Math.max(20, ...((gameData.hero_gear_mastery_levels || []).map((row) => Number(row.level || 0))));
   const currentLevel = Number(piece.level || 0);
-  const currentEmpowerment = heroGearCurrentEmpowerment(piece);
+  const currentEnhancement = heroGearCurrentEnhancement(piece);
   const targetLevel = Number(pieceTargets.target_level ?? pieceTargets.gear_level ?? heroTargets.gear_level ?? defaults.default_gear_level ?? currentLevel);
   const rawTargetEnhancement =
-    pieceTargets.target_enhancement ?? pieceTargets.gear_enhancement ?? heroTargets.gear_enhancement ?? defaults.default_gear_enhancement ?? currentEmpowerment;
+    pieceTargets.target_enhancement ?? pieceTargets.gear_enhancement ?? heroTargets.gear_enhancement ?? defaults.default_gear_enhancement ?? currentEnhancement;
   const clampedTargetLevel = Math.min(maxMasteryLevel, Math.max(0, targetLevel));
   return {
     targetLevel: clampedTargetLevel,
-    targetEnhancement: heroGearTargetEmpowerment(piece, rawTargetEnhancement, clampedTargetLevel),
+    targetEnhancement: clampHeroGearEnhancement(rawTargetEnhancement),
   };
 }
 
@@ -3556,7 +3564,22 @@ function heroGearMasteryCostToTarget(piece, targetLevel, slot, hero) {
   });
 }
 
-function heroGearEnhancementRows(piece, slot, hero) {
+function heroGearNormalEnhancementRows() {
+  const rows = (gameData.hero_gear_enhancement_levels || []).filter((row) => row.scope === "base" && Number(row.level) <= HERO_GEAR_MAX_ENHANCEMENT);
+  return sortByNumber(rows, "level").map((row) => {
+    const level = Number(row.level || 0);
+    return {
+      ...row,
+      hero_gear_xp: HERO_GEAR_NORMAL_ENHANCEMENT_XP_OVERRIDES[level] ?? row.hero_gear_xp,
+      mythic_gear: 0,
+      mithril: 0,
+      level_id: level,
+      order: level,
+    };
+  });
+}
+
+function heroGearEmpowermentRows(piece, slot, hero) {
   const rows = gameData.hero_gear_enhancement_levels || [];
   const canonicalSlot = heroGearCanonicalSlot(slot);
   const troop = normalizeKey(hero?.troop_type || "");
@@ -3585,13 +3608,29 @@ function heroGearEnhancementRows(piece, slot, hero) {
   ];
 }
 
-function heroGearEnhancementCostToTarget(piece, targetEnhancement, slot, hero) {
-  const rows = heroGearEnhancementRows(piece, slot, hero);
-  return rangeCost(rows, heroGearCurrentEmpowerment(piece), Number(targetEnhancement || 0), {
+function heroGearNormalEnhancementCostToTarget(piece, targetEnhancement) {
+  const rows = heroGearNormalEnhancementRows();
+  return rangeCost(rows, heroGearCurrentEnhancement(piece), clampHeroGearEnhancement(targetEnhancement), {
     idKey: "level_id",
     orderKey: "order",
     fields: HERO_GEAR_FIELDS,
   });
+}
+
+function heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel = piece?.level) {
+  const rows = heroGearEmpowermentRows(piece, slot, hero);
+  const targetEmpowerment = heroGearTargetEmpowerment(piece, targetEnhancement, targetLevel);
+  return rangeCost(rows, heroGearCurrentEmpowerment(piece), targetEmpowerment, {
+    idKey: "level_id",
+    orderKey: "order",
+    fields: HERO_GEAR_FIELDS,
+  });
+}
+
+function heroGearEnhancementCostToTarget(piece, targetEnhancement, slot, hero, targetLevel = piece?.level) {
+  const normalCost = heroGearNormalEnhancementCostToTarget(piece, targetEnhancement);
+  const empowermentCost = heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel);
+  return addCost(normalCost, empowermentCost);
 }
 
 function heroGearMasteryInvestment(piece, slot, hero) {
@@ -3604,14 +3643,28 @@ function heroGearMasteryInvestment(piece, slot, hero) {
   });
 }
 
-function heroGearEnhancementInvestment(piece, slot, hero) {
-  const currentEnhancement = heroGearCurrentEmpowerment(piece);
+function heroGearNormalEnhancementInvestment(piece) {
+  const currentEnhancement = heroGearCurrentEnhancement(piece);
   if (!currentEnhancement) return makeCost(HERO_GEAR_FIELDS);
-  return rangeCost(heroGearEnhancementRows(piece, slot, hero), 0, currentEnhancement, {
+  return rangeCost(heroGearNormalEnhancementRows(), 0, currentEnhancement, {
     idKey: "level_id",
     orderKey: "order",
     fields: HERO_GEAR_FIELDS,
   });
+}
+
+function heroGearEmpowermentInvestment(piece, slot, hero) {
+  const currentEmpowerment = heroGearCurrentEmpowerment(piece);
+  if (!currentEmpowerment) return makeCost(HERO_GEAR_FIELDS);
+  return rangeCost(heroGearEmpowermentRows(piece, slot, hero), 0, currentEmpowerment, {
+    idKey: "level_id",
+    orderKey: "order",
+    fields: HERO_GEAR_FIELDS,
+  });
+}
+
+function heroGearEnhancementInvestment(piece, slot, hero) {
+  return addCost(heroGearNormalEnhancementInvestment(piece), heroGearEmpowermentInvestment(piece, slot, hero));
 }
 
 function heroGearPieceInvestment(piece, slot, hero) {
@@ -3634,7 +3687,7 @@ function heroGearInvestmentMiniHtml(cost, label = "Invested") {
 
 function heroGearPieceCostToTarget(piece, targets, slot, hero) {
   const masteryCost = heroGearMasteryCostToTarget(piece, targets.targetLevel, slot, hero);
-  const enhancementCost = heroGearEnhancementCostToTarget(piece, targets.targetEnhancement, slot, hero);
+  const enhancementCost = heroGearEnhancementCostToTarget(piece, targets.targetEnhancement, slot, hero, targets.targetLevel);
   return addCost(masteryCost, enhancementCost);
 }
 
@@ -3686,13 +3739,13 @@ function heroGearPieceName(slot, piece = {}) {
 }
 
 function heroGearPieceMeta(piece = {}) {
-  const currentEmpowerment = heroGearCurrentEmpowerment(piece);
+  const currentEnhancement = heroGearCurrentEnhancement(piece);
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
   return [
     piece.rarity,
     piece.level != null ? `Lv ${piece.level}` : "",
-    piece.enhancement != null || piece.empowerment != null ? `+${currentEmpowerment}` : "",
-    lockedObserved ? `locked +${lockedObserved} seen` : "",
+    piece.enhancement != null || piece.visible_enhancement != null ? `+${currentEnhancement}` : "",
+    lockedObserved ? "empower stats locked" : "",
     piece.power != null ? `Power ${fmt(piece.power)}` : "",
   ]
     .filter(Boolean)
@@ -3774,7 +3827,7 @@ function heroGearEmpowermentStats(piece = {}, hero = {}) {
 
 function heroGearEmpowermentChipsHtml(piece = {}, hero = {}, targetEnhancement = null) {
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
-  const target = Number(targetEnhancement ?? currentEnhancement);
+  const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
   const rows = heroGearEmpowermentStats(piece, hero);
   if (!rows.length) return "";
   return `<div class="hero-empowerment-chips">${rows
@@ -3803,7 +3856,7 @@ function heroGearPieceProjectedChanges(heroId, slot, piece = {}) {
     }
   }
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
-  const targetEnhancement = Number(targets.targetEnhancement || 0);
+  const targetEnhancement = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targetLevel);
   heroGearEmpowermentStats(piece, hero)
     .filter((row) => Number(row.enhancement || 0) > currentEnhancement && Number(row.enhancement || 0) <= targetEnhancement)
     .forEach((row) => {
@@ -3825,7 +3878,7 @@ function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null
   const rows = heroGearEmpowermentStats(piece, hero);
   if (!rows.length) return "";
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
-  const target = Number(targetEnhancement ?? currentEnhancement);
+  const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
   return `<div class="empowerment-list">${rows
     .map((row) => {
       const enhancement = Number(row.enhancement || 0);
@@ -3871,7 +3924,7 @@ function heroGearProjectedStatCards(gearEntries) {
         }
       }
       const currentEnhancement = heroGearCurrentEmpowerment(piece);
-      const targetEnhancement = Number(targets.targetEnhancement || 0);
+      const targetEnhancement = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targetLevel);
       heroGearEmpowermentStats(piece, hero)
         .filter((row) => Number(row.enhancement || 0) > currentEnhancement && Number(row.enhancement || 0) <= targetEnhancement)
         .forEach((row) => {
@@ -3982,7 +4035,7 @@ function heroGearUpgradeSummary(entries) {
         scope: `equipped ${heroId} ${position}`,
         label: heroGearPieceName(slot, piece),
         meta: `${hero.name} | ${HERO_GEAR_POSITION_LABELS[position] || titleFromId(position)}`,
-        from: `Lv ${piece.level ?? "?"}/+${heroGearCurrentEmpowerment(piece)}`,
+        from: `Lv ${piece.level ?? "?"}/+${heroGearCurrentEnhancement(piece)}`,
         to: `Lv ${pieceTargets.targetLevel}/+${pieceTargets.targetEnhancement}`,
       });
     });
@@ -4040,7 +4093,8 @@ function heroGearSlotCardHtml(heroId, position, entry) {
   const hero = heroRecordFor(heroId);
   const pieceCost = heroGearPieceCostToTarget(piece, targets, slot, hero);
   const investment = heroGearPieceInvestment(piece, slot, hero);
-  const currentEmpowerment = heroGearCurrentEmpowerment(piece);
+  const currentEnhancement = heroGearCurrentEnhancement(piece);
+  const targetEmpowerment = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targets.targetLevel);
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
   return `<div class="equipped-slot equipped-slot--${position}">
     <div class="equipped-slot__icon">${iconHtml("gear", label, "md", sourceScope)}</div>
@@ -4051,20 +4105,20 @@ function heroGearSlotCardHtml(heroId, position, entry) {
     </div>
     <div class="equipped-slot__badges">
       ${piece.level != null ? `<b>Lv ${esc(piece.level)}</b>` : ""}
-      ${piece.enhancement != null || piece.empowerment != null ? `<b>+${esc(currentEmpowerment)}</b>` : ""}
+      ${piece.enhancement != null || piece.visible_enhancement != null ? `<b>+${esc(currentEnhancement)}</b>` : ""}
       ${piece.rarity ? `<em>${esc(piece.rarity)}</em>` : ""}
-      ${lockedObserved ? `<em>locked +${esc(lockedObserved)}</em>` : ""}
+      ${lockedObserved ? `<em>empower stats locked</em>` : ""}
     </div>
     <div class="equipped-slot__targets">
       <label><span>Target level</span>${numberInput(targetLevelPath, targets.targetLevel, 0)}</label>
-      <label><span>Target empower</span>${numberInput(targetEnhancementPath, targets.targetEnhancement, 0)}</label>
+      <label><span>Target +</span>${numberInput(targetEnhancementPath, targets.targetEnhancement, 0)}</label>
       ${resetTargetButton(`hero-gear:${heroId}:${slot}`, "Reset this piece")}
       ${piece.power != null ? `<div><span>Power read</span><strong>${fmt(piece.power)}</strong></div>` : ""}
-      <div><span>Empower XP</span><strong>${fmt(pieceCost.hero_gear_xp)}</strong></div>
+      <div><span>Enhance XP</span><strong>${fmt(pieceCost.hero_gear_xp)}</strong></div>
     </div>
     <div class="equipped-slot__invested">${heroGearInvestmentMiniHtml(investment, "Current investment")}</div>
     <div class="equipped-slot__materials"><span>Upgrade materials</span>${costHtml(pieceCost, HERO_GEAR_FIELDS)}</div>
-    <div class="equipped-slot__stats">${heroGearPieceStatsHtml(piece)}${heroGearEmpowermentHtml(piece, hero, targets.targetEnhancement)}</div>
+    <div class="equipped-slot__stats">${heroGearPieceStatsHtml(piece)}${heroGearEmpowermentHtml(piece, hero, targetEmpowerment)}</div>
 	  </div>`;
 }
 
@@ -4080,12 +4134,12 @@ function heroGearMiniSlotHtml(heroId, position, entry) {
   const label = heroGearPieceName(slot, piece);
   const sourceScope = `equipped ${heroId} ${position}`;
   const level = piece.level != null ? `Lv ${piece.level}` : "Lv ?";
-  const enhancement = piece.enhancement != null || piece.empowerment != null ? `+${heroGearCurrentEmpowerment(piece)}` : "";
+  const enhancement = piece.enhancement != null || piece.visible_enhancement != null ? `+${heroGearCurrentEnhancement(piece)}` : "";
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
   return `<div class="hero-gear-mini-slot">
     ${iconHtml("gear", label, "md", sourceScope)}
     <span>${esc(positionLabel)}</span>
-    <strong>${esc(level)}${enhancement ? ` <em>${esc(enhancement)}</em>` : ""}${lockedObserved ? ` <em>locked +${esc(lockedObserved)}</em>` : ""}</strong>
+    <strong>${esc(level)}${enhancement ? ` <em>${esc(enhancement)}</em>` : ""}${lockedObserved ? ` <em>stats locked</em>` : ""}</strong>
   </div>`;
 }
 
@@ -4105,8 +4159,9 @@ function heroGearPrimaryPieceHtml(heroId, position, entry) {
   const hero = heroRecordFor(heroId);
   const investment = heroGearPieceInvestment(piece, slot, hero);
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
-  const startText = `${piece.level ?? "?"}/+${heroGearCurrentEmpowerment(piece)}`;
+  const startText = `${piece.level ?? "?"}/+${heroGearCurrentEnhancement(piece)}`;
   const targetText = `${targets.targetLevel}/+${targets.targetEnhancement}`;
+  const targetEmpowerment = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targets.targetLevel);
   const primaryChange = heroGearPieceProjectedChanges(heroId, slot, piece).find((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
   return `<div class="hero-primary-piece">
     <div class="hero-primary-piece__head">
@@ -4114,7 +4169,7 @@ function heroGearPrimaryPieceHtml(heroId, position, entry) {
       <div><span>${esc(positionLabel)}</span><strong>${esc(label)}</strong></div>
     </div>
     <div class="hero-primary-route">
-      <span><small>Start</small><b>${esc(startText)}</b>${lockedObserved ? `<em>locked +${esc(lockedObserved)}</em>` : ""}</span>
+      <span><small>Start</small><b>${esc(startText)}</b>${lockedObserved ? `<em>empower stats locked</em>` : ""}</span>
       <i aria-hidden="true"></i>
       <span><small>End</small><b>${esc(targetText)}</b></span>
     </div>
@@ -4128,7 +4183,7 @@ function heroGearPrimaryPieceHtml(heroId, position, entry) {
         ? `<span><b>${esc(compactHeroGearStatLabel(primaryChange.label))}</b><em>${esc(primaryChange.delta)}</em></span>`
         : `<span class="muted">No projected stat change</span>`
     }</div>
-    ${heroGearEmpowermentChipsHtml(piece, hero, targets.targetEnhancement)}
+    ${heroGearEmpowermentChipsHtml(piece, hero, targetEmpowerment)}
     ${heroGearInvestmentMiniHtml(investment)}
   </div>`;
 }
@@ -4474,7 +4529,7 @@ function smartHeroGearPlan() {
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
       const key = `${heroId}:${slot}`;
       targetState.levels[key] = Number(piece.level || 0);
-      targetState.enhancements[key] = heroGearCurrentEmpowerment(piece);
+      targetState.enhancements[key] = heroGearCurrentEnhancement(piece);
     });
   });
   return smartOptimize({
@@ -4512,6 +4567,7 @@ function smartHeroGearPlan() {
           }
 
           const currentEnhancement = Number(targetState.enhancements[key] || 0);
+          const currentEmpowerment = heroGearCurrentEmpowerment({ ...piece, level: currentLevel, enhancement: currentEnhancement });
           const empowermentRows = heroGearCanEmpowerAtLevel(currentLevel)
             ? heroGearEmpowermentStats(piece, hero)
                 .map((row) => ({ ...row, enhancement: Number(row.enhancement || 0) }))
@@ -4521,9 +4577,9 @@ function smartHeroGearPlan() {
           const nextEmpowerment = empowermentRows[0];
           if (nextEmpowerment) {
             const nextEnhancement = Number(nextEmpowerment.enhancement);
-            const cost = heroGearEnhancementCostToTarget({ ...piece, enhancement: currentEnhancement, empowerment: currentEnhancement }, nextEnhancement, slot, hero);
+            const cost = heroGearEnhancementCostToTarget({ ...piece, enhancement: currentEnhancement }, nextEnhancement, slot, hero, currentLevel);
             const changes = heroGearEmpowermentStats(piece, hero)
-              .filter((row) => Number(row.enhancement || 0) > currentEnhancement && Number(row.enhancement || 0) <= nextEnhancement)
+              .filter((row) => Number(row.enhancement || 0) > currentEmpowerment && Number(row.enhancement || 0) <= nextEnhancement)
               .map((row) => numericStatChange(row.stat || "Empowerment Stat", 0, Number(row.value_percent || 0), "percent"));
             candidates.push({
               kind: "gear",
@@ -4643,7 +4699,7 @@ function resetSmartModuleTargets(moduleId) {
       heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
         heroTargets.pieces[slot] ||= {};
         heroTargets.pieces[slot].target_level = Number(piece.level || 0);
-        heroTargets.pieces[slot].target_enhancement = heroGearCurrentEmpowerment(piece);
+        heroTargets.pieces[slot].target_enhancement = heroGearCurrentEnhancement(piece);
       });
     });
   } else if (moduleId === "research") {
@@ -5136,7 +5192,7 @@ function renderHeroGear() {
     commonHeroGearTarget("level", 16),
   );
   const enhancementBulk = bulkTargetControls(
-    "Target empowerment",
+    "Target +",
     "bulkHeroGearEnhancement",
     [
       ["0", "+0"],
@@ -5213,12 +5269,12 @@ function renderHeroGear() {
       statSnapshotCard("Essence Stones To Targets", fmt(totalCost.essence_stones), "Target inputs", "Uses workbook mastery forging table"),
       statSnapshotCard("Hero Gear XP To Targets", fmt(totalCost.hero_gear_xp), "Target inputs", "Uses workbook enhancement table"),
       statSnapshotCard("Essence Stones Invested", fmt(allSummary.investedCost.essence_stones), "Current gear levels", "Calculated from level 0 to captured mastery levels"),
-      statSnapshotCard("Hero Gear XP Invested", fmt(allSummary.investedCost.hero_gear_xp), "Current gear empowerment", "Calculated from +0 to captured empowerment levels"),
+      statSnapshotCard("Hero Gear XP Invested", fmt(allSummary.investedCost.hero_gear_xp), "Current gear + levels", "Includes normal enhancement XP and eligible empowerment XP"),
       statSnapshotCard("Mythic Gear To Targets", fmt(totalCost.mythic_gear), "Target inputs", "Uses workbook enhancement table"),
       statSnapshotCard("Mithril To Targets", fmt(totalCost.mithril), "Target inputs", "Uses workbook enhancement table"),
-      statSnapshotCard("Mythic Gear Invested", fmt(allSummary.investedCost.mythic_gear), "Current gear empowerment", "Calculated from +0 to captured empowerment levels"),
-      statSnapshotCard("Mithril Invested", fmt(allSummary.investedCost.mithril), "Current gear empowerment", "Calculated from +0 to captured empowerment levels"),
-    ], "Opened detail popups provide exact current stats; uncaptured empowerment breakpoints use the screenshot-derived mythic gear reference.")}
+      statSnapshotCard("Mythic Gear Invested", fmt(allSummary.investedCost.mythic_gear), "Eligible empowerment", "Calculated from active empowerment material levels"),
+      statSnapshotCard("Mithril Invested", fmt(allSummary.investedCost.mithril), "Eligible empowerment", "Calculated from active empowerment material levels"),
+    ], "Opened detail popups provide exact current stats; normal + enhancement XP follows the mythic gear guide, while empowerment stats remain gated by mastery level.")}
     <div class="panel hero-gear-actions">
       ${levelBulk}
       ${enhancementBulk}
