@@ -16,6 +16,62 @@ class AdvisorHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _proxy_state(self, method, body=None):
+        import urllib.request
+        import urllib.error
+        
+        url = "https://whiteout-survival-dashboard.vercel.app/api/state"
+        headers = {}
+        
+        for k, v in self.headers.items():
+            if k.lower() == "x-dashboard-sync-key":
+                headers["X-Dashboard-Sync-Key"] = v
+                
+        if method == "PUT":
+            headers["Content-Type"] = "application/json"
+            
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers=headers,
+            method=method
+        )
+        
+        try:
+            with urllib.request.urlopen(req, timeout=30) as response:
+                res_body = response.read()
+                self.send_response(response.status)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(res_body)))
+                self.end_headers()
+                self.wfile.write(res_body)
+        except urllib.error.HTTPError as error:
+            res_body = error.read()
+            self.send_response(error.code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(res_body)))
+            self.end_headers()
+            self.wfile.write(res_body)
+        except Exception as error:
+            self._send_json(500, {"error": str(error)})
+
+    def do_GET(self):
+        if self.path == "/api/state":
+            self._proxy_state("GET")
+            return
+        super().do_GET()
+
+    def do_PUT(self):
+        if self.path == "/api/state":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                body = self.rfile.read(length) if length > 0 else b"{}"
+                self._proxy_state("PUT", body)
+            except Exception as e:
+                self._send_json(500, {"error": str(e)})
+            return
+        self._send_json(404, {"error": "Not Found"})
+
     def do_POST(self):
         if self.path != "/api/advisor":
             self._send_json(404, {"error": "Unknown endpoint"})

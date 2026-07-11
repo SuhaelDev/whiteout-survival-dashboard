@@ -8,3 +8,5 @@ output/
 resources_tmp/
 scripts/__pycache__/
 *.pyc
+node_modules/
+scratch/

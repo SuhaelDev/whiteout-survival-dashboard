@@ -273,6 +273,12 @@
     "cavelion": "assets/game/pet-cave-lion.png",
     "charlie": "assets/game/hero-charlie.png",
     "charm": "assets/game/chief-charm-slot-clean.png",
+    "charmlancerhex": "assets/game/charms/charm-lancer-hex.png",
+    "charmlancerround": "assets/game/charms/charm-lancer-hex.png",
+    "charminfantryhex": "assets/game/charms/charm-infantry-hex.png",
+    "charminfantryround": "assets/game/charms/charm-infantry-round.png",
+    "charmmarksmanhex": "assets/game/charms/charm-marksman-hex.png",
+    "charmmarksmanround": "assets/game/charms/charm-marksman-round.png",
     "charmtoolkit": "assets/game/equipped-hero-gear/edith-special.png",
     "charmdesigns": {
       "src": "assets/game/materials/charm-designs.png",
@@ -318,10 +324,7 @@
     "cityskincurrentcityskin": "assets/game/city-skin-lost-city.png",
     "cityskinlostcity": "assets/game/city-skin-lost-city.png",
     "cloris": "assets/game/hero-cloris.png",
-    "coal": {
-      "src": "assets/game/coal-1k.png",
-      "hide_count": true
-    },
+    "coal": "assets/game/resources/coal.png",
     "commonexpertsigils": {
       "src": "assets/game/materials/common-expert-sigil.png",
       "hide_count": true
@@ -455,18 +458,9 @@
     "expertronne": "assets/game/expert-ronne.png",
     "expertvaleria": "assets/game/expert-valeria.png",
     "fabian": "assets/game/expert-fabian.png",
-    "fc": {
-      "src": "assets/game/fire-crystal.png",
-      "hide_count": true
-    },
-    "firecrystal": {
-      "src": "assets/game/fire-crystal.png",
-      "hide_count": true
-    },
-    "firecrystals": {
-      "src": "assets/game/fire-crystal.png",
-      "hide_count": true
-    },
+    "fc": "assets/game/resources/fire-crystal.png",
+    "firecrystal": "assets/game/resources/fire-crystal.png",
+    "firecrystals": "assets/game/resources/fire-crystal.png",
     "firecrystalshard": {
       "src": "assets/game/fire-crystal-shard.png",
       "hide_count": true
@@ -579,9 +573,84 @@
     "equippedhectorbottomright": "assets/game/equipped-hero-gear/hector-bottom_right.png",
     "equippedhectortopleft": "assets/game/equipped-hero-gear/hector-top_left.png",
     "equippedhectortopright": "assets/game/equipped-hero-gear/hector-top_right.png",
+    "buildingfurnace": "assets/game/buildings/furnace.png",
+    "buildingembassy": "assets/game/buildings/embassy.png",
+    "buildingcommandcenter": "assets/game/buildings/command-center.png",
+    "buildinginfirmary": "assets/game/buildings/infirmary.png",
+    "buildingwaracademy": "assets/game/buildings/war-academy.png",
+    "buildinginfantrycamp": "assets/game/buildings/infantry-camp.png",
+    "buildinglancercamp": "assets/game/buildings/lancer-camp.png",
+    "buildingmarksmancamp": "assets/game/buildings/marksman-camp.png",
+    "researchshieldupgrade": "assets/game/research/regular/shield_upgrade.png",
+    "researchmarksmanarmor": "assets/game/research/regular/marksman_armor.png",
+    "researchlancerarmor": "assets/game/research/regular/lancer_armor.png",
+    "researchweaponsprep": "assets/game/research/regular/weapons_prep.png",
+    "researchreprisaltactics": "assets/game/research/regular/reprisal_tactics.png",
+    "researchprecisiontargeting": "assets/game/research/regular/precision_targeting.png",
+    "researchskirmishing": "assets/game/research/regular/skirmishing.png",
+    "researchdefensiveformations": "assets/game/research/regular/defensive_formations.png",
+    "researchpicketlines": "assets/game/research/regular/picket_lines.png",
+    "researchbulwarkformations": "assets/game/research/regular/bulwark_formations.png",
+    "researchspecialdefensivetraining": "assets/game/research/regular/special_defensive_training.png",
+    "researchsurvivaltechniques": "assets/game/research/regular/survival_techniques.png",
+    "researchassaulttechniques": "assets/game/research/regular/assault_techniques.png",
+    "researchregimentalexpansion": "assets/game/research/regular/regimental_expansion.png",
+    "researchclosecombat": "assets/game/research/regular/close_combat.png",
+    "researchtargetedsniping": "assets/game/research/regular/targeted_sniping.png",
+    "researchlanceupgrade": "assets/game/research/regular/lance_upgrade.png",
+    "researchironmining": "assets/game/research/regular/iron_mining.png",
+    "researchmeatoutput": "assets/game/research/regular/meat_output.png",
+    "researchcoaloutput": "assets/game/research/regular/coal_output.png",
+    "researchwoodoutput": "assets/game/research/regular/wood_output.png",
+    "researchironoutput": "assets/game/research/regular/iron_output.png",
+    "researchfoodgathering": "assets/game/research/regular/food_gathering.png",
+    "researchcoalmining": "assets/game/research/regular/coal_mining.png",
+    "researchwoodgathering": "assets/game/research/regular/wood_gathering.png",
+    "researchtoolenhancement": "assets/game/research/regular/tool_enhancement.png",
+    "researchbandaging": "assets/game/research/regular/bandaging.png",
+    "researchtrainertools": "assets/game/research/regular/trainer_tools.png",
+    "researchtoolingup": "assets/game/research/regular/tooling_up.png",
+    "researchwardexpansion": "assets/game/research/regular/ward_expansion.png",
+    "researchcampexpansion": "assets/game/research/regular/camp_expansion.png",
     "heliosinfantry": "assets/game/troop-helios-infantry.png",
+    "heliosinfantryfirstaid": {
+      "src": "assets/game/research/helios-infantry-first-aid.png",
+      "hide_count": true
+    },
+    "heliosinfantryhealing": {
+      "src": "assets/game/research/helios-infantry-healing.png",
+      "hide_count": true
+    },
+    "heliosinfantrytraining": {
+      "src": "assets/game/research/helios-infantry-training.png",
+      "hide_count": true
+    },
     "helioslancer": "assets/game/troop-helios-lancer.png",
+    "helioslancerfirstaid": {
+      "src": "assets/game/research/helios-lancer-first-aid.png",
+      "hide_count": true
+    },
+    "helioslancerhealing": {
+      "src": "assets/game/research/helios-lancer-healing.png",
+      "hide_count": true
+    },
+    "helioslancertraining": {
+      "src": "assets/game/research/helios-lancer-training.png",
+      "hide_count": true
+    },
     "heliosmarksman": "assets/game/troop-helios-marksman.png",
+    "heliosmarksmanfirstaid": {
+      "src": "assets/game/research/helios-marksman-first-aid.png",
+      "hide_count": true
+    },
+    "heliosmarksmanhealing": {
+      "src": "assets/game/research/helios-marksman-healing.png",
+      "hide_count": true
+    },
+    "heliosmarksmantraining": {
+      "src": "assets/game/research/helios-marksman-training.png",
+      "hide_count": true
+    },
     "heroahmose": "assets/game/hero-ahmose.png",
     "heroalonso": "assets/game/hero-alonso.png",
     "herobahiti": "assets/game/hero-bahiti.png",
@@ -644,10 +713,7 @@
     "herozinman": "assets/game/hero-zinman.png",
     "holger": "assets/game/expert-holger.png",
     "infantry": "assets/game/troop-helios-infantry.png",
-    "iron": {
-      "src": "assets/game/iron-1k.png",
-      "hide_count": true
-    },
+    "iron": "assets/game/resources/iron.png",
     "ironrhino": "assets/game/pet-iron-rhino.png",
     "jasser": "assets/game/hero-jasser.png",
     "jeronimo": "assets/game/hero-jeronimo.png",
@@ -711,10 +777,7 @@
     "marchingskin": "assets/game/march-skin-blazing-meteor-i.png",
     "marchskinblazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
     "marksman": "assets/game/troop-helios-marksman.png",
-    "meat": {
-      "src": "assets/game/meat-1k.png",
-      "hide_count": true
-    },
+    "meat": "assets/game/resources/meat.png",
     "mia": "assets/game/hero-mia.png",
     "mithril": {
       "src": "assets/game/materials/mithril-card.png",
@@ -722,6 +785,14 @@
     },
     "molly": "assets/game/hero-molly.png",
     "muskox": "assets/game/pet-musk-ox.png",
+    "mythicgear": {
+      "src": "assets/game/materials/mythic-gear.png",
+      "hide_count": true
+    },
+    "mythicgeargear": {
+      "src": "assets/game/materials/mythic-gear.png",
+      "hide_count": true
+    },
     "mythicgeneralshards": {
       "src": "assets/game/materials/mythic-general-shard-card.png",
       "hide_count": true
@@ -802,14 +873,8 @@
       "src": "assets/game/materials/rare-general-shard-card.png",
       "hide_count": true
     },
-    "refinedfirecrystal": {
-      "src": "assets/game/refined-fire-crystal.png",
-      "hide_count": true
-    },
-    "refinedfirecrystals": {
-      "src": "assets/game/refined-fire-crystal.png",
-      "hide_count": true
-    },
+    "refinedfirecrystal": "assets/game/resources/refined-fire-crystal.png",
+    "refinedfirecrystals": "assets/game/resources/refined-fire-crystal.png",
     "reina": "assets/game/hero-reina.png",
     "renee": "assets/game/hero-renee.png",
     "researchspeedup": {
@@ -828,10 +893,7 @@
       "src": "assets/game/materials/speedup-research-1m.png",
       "hide_count": true
     },
-    "rfc": {
-      "src": "assets/game/refined-fire-crystal.png",
-      "hide_count": true
-    },
+    "rfc": "assets/game/resources/refined-fire-crystal.png",
     "rightcharm": "assets/game/chief-charm-slot-clean.png",
     "ring": "assets/game/chief-gear-ring-clean.png",
     "romulus": "assets/game/expert-romulus.png",
@@ -879,7 +941,7 @@
       "src": "assets/game/materials/speedup-training-1m.png",
       "hide_count": true
     },
-    "steel": "assets/game/materials/steel-topbar.png",
+    "steel": "assets/game/materials/steel-ingot.png",
     "steelfangs": "assets/game/equipped-hero-gear/hector-special.png",
     "stamina": {
       "src": "assets/game/chief-stamina.png",
@@ -929,10 +991,7 @@
     "watch": "assets/game/chief-gear-watch-clean.png",
     "wayne": "assets/game/hero-wayne.png",
     "wingsofhope": "assets/game/equipped-hero-gear/gwen-special.png",
-    "wood": {
-      "src": "assets/game/wood-1k.png",
-      "hide_count": true
-    },
+    "wood": "assets/game/resources/wood.png",
     "wuming": "assets/game/hero-wu_ming.png",
     "captainahab": "assets/game/equipped-hero-gear/alonso-special.png",
     "dawnbreak": "assets/game/equipped-hero-gear/jeronimo-special.png",

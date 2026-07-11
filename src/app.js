@@ -210,7 +210,7 @@ let templateState;
 let extractedState;
 let visualAssets = {};
 let state;
-let activeTab = "overview";
+let activeTab = new URLSearchParams(window.location.search).get("tab") || "overview";
 let saveTimer;
 let cloudSaveTimer;
 let lastPlannerPayload = null;
@@ -361,6 +361,9 @@ function observedStars(hero) {
 
 function applyExtractedState(baseState, extracted) {
   if (!extracted) return baseState;
+  if (extracted.extracted_current) {
+    extracted = extracted.extracted_current;
+  }
   const next = mergeDeep(clone(baseState), { extracted_current: extracted });
 
   if (extracted.profile) {
@@ -373,6 +376,28 @@ function applyExtractedState(baseState, extracted) {
     next.profile.research_speed_pct = percentNumber(extracted.buildings?.research_center?.research_speed_bonus) || next.profile.research_speed_pct;
     next.profile.construction_speed_pct = Number(String(extracted.research?.aggregate_bonuses_visible?.growth?.construction_speed || "").replace(/[^0-9.]/g, "")) || next.profile.construction_speed_pct;
     next.profile.training_speed_pct = Number(String(extracted.research?.aggregate_bonuses_visible?.growth?.training_speed || "").replace(/[^0-9.]/g, "")) || next.profile.training_speed_pct;
+  }
+
+  // Bonus Overview (Chief Profile) is the authoritative account-wide stat panel.
+  const bonusOverview = extracted.bonus_overview || {};
+  if (bonusOverview.growth) {
+    if (Number.isFinite(Number(bonusOverview.growth.construction_speed_percent))) {
+      next.profile.construction_speed_pct = Number(bonusOverview.growth.construction_speed_percent);
+    }
+    if (Number.isFinite(Number(bonusOverview.growth.research_speed_percent))) {
+      next.profile.research_speed_pct = Number(bonusOverview.growth.research_speed_percent);
+    }
+  }
+  if (Number.isFinite(Number(bonusOverview.military?.training_speed_percent))) {
+    next.profile.training_speed_pct = Number(bonusOverview.military.training_speed_percent);
+  }
+  if (Number.isFinite(Number(bonusOverview.power?.troops_power))) {
+    const powerParts = Object.values(bonusOverview.power).map(Number).filter(Number.isFinite);
+    next.profile.power_breakdown_total = powerParts.reduce((sum, value) => sum + value, 0);
+  }
+
+  if (extracted.construction && typeof extracted.construction === "object") {
+    next.construction = mergeDeep(next.construction || {}, clone(extracted.construction));
   }
 
   Object.entries(extracted.resources || {}).forEach(([key, value]) => {
@@ -409,6 +434,10 @@ function applyExtractedState(baseState, extracted) {
     next.heroes[mappedId].current_stars = observedStars(hero);
     next.heroes[mappedId].current_level = hero.current_level;
     next.heroes[mappedId].power = hero.power ?? hero.power_preview;
+    if (hero.star_tier != null) next.heroes[mappedId].current_star_tier = Number(hero.star_tier) || 0;
+    if (hero.widget_level != null) next.heroes[mappedId].current_widget_level = Number(hero.widget_level) || 0;
+    const extractedShards = hero.shards_current ?? hero.shards;
+    if (extractedShards != null) next.heroes[mappedId].shards = extractedShards;
   });
 
   const petIdByName = Object.fromEntries(gameData.pets.map((pet) => [normalizeKey(pet.name), pet.pet_id]));
@@ -878,6 +907,13 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
+const ASSET_CACHE_VERSION = "20260711c";
+
+function assetUrl(src) {
+  if (!src) return src;
+  return `${src}${src.includes("?") ? "&" : "?"}v=${ASSET_CACHE_VERSION}`;
+}
+
 function iconHtml(kind, label, size = "md", scope = "") {
   const asset = assetEntryFor(scope, label) || assetEntryFor(kind, label);
   const assetSrc = typeof asset === "string" ? asset : asset?.src;
@@ -886,7 +922,7 @@ function iconHtml(kind, label, size = "md", scope = "") {
     const fit = ["contain", "cover"].includes(asset?.fit) ? asset.fit : "contain";
     const position = asset?.position ? String(asset.position).replace(/[^a-z0-9% .-]/gi, "") : "center";
     return `<span class="game-icon game-icon--asset game-icon--${size}${hideCount ? " game-icon--count-crop" : ""}" aria-hidden="true">
-      <img class="game-asset${hideCount ? " game-asset--count-crop" : ""}" src="${esc(assetSrc)}" alt="" loading="lazy" style="object-fit:${fit};object-position:${esc(position)}" />
+      <img class="game-asset${hideCount ? " game-asset--count-crop" : ""}" src="${esc(assetUrl(assetSrc))}" alt="" loading="lazy" style="object-fit:${fit};object-position:${esc(position)}" />
     </span>`;
   }
   const safeKind = String(kind || "generic").replace(/[^a-z0-9-]/g, "");
@@ -1137,6 +1173,208 @@ function costHtml(cost, fields) {
 
 function availableInventoryValue(key) {
   return Number(state.resources[key] || 0);
+}
+
+/* ---------------------------------------------------------------------------
+ * Game-replica UI helpers
+ * Shared building blocks that mirror the in-game dialogs:
+ * - compact K/M/B numbers like the game HUD
+ * - "Requires" rows with have/need + check marks (building upgrade dialog)
+ * - material cost tiles with have/need (chief gear enhancement dialog)
+ * - "Upgrade Bonus" stat rows with green gains (war academy dialog)
+ * - level flow badges with chevrons (8 >>> 9)
+ * - gold/blue game buttons and the blue dialog frame
+ * ------------------------------------------------------------------------- */
+
+function fmtCompact(value) {
+  const number = Number(value || 0);
+  if (!Number.isFinite(number)) return "-";
+  const abs = Math.abs(number);
+  const sign = number < 0 ? "-" : "";
+  const short = (divisor, suffix) => {
+    const scaled = abs / divisor;
+    const decimals = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
+    return `${sign}${fmt(scaled, decimals).replace(/\.0+$/, "")}${suffix}`;
+  };
+  if (abs >= 1e9) return short(1e9, "B");
+  if (abs >= 1e6) return short(1e6, "M");
+  if (abs >= 1e4) return short(1e3, "K");
+  return fmt(number);
+}
+
+function gameSectionBannerHtml(title) {
+  return `<div class="gd-banner"><span>${esc(title)}</span></div>`;
+}
+
+function gameLevelFlowHtml(fromLabel, toLabel, options = {}) {
+  const changed = String(fromLabel) !== String(toLabel);
+  return `<div class="gd-level-flow">
+    <div class="gd-level-badge"><small>${esc(options.fromCaption || "Current")}</small><strong>${esc(fromLabel)}</strong></div>
+    <span class="gd-chevrons ${changed ? "" : "gd-chevrons--idle"}" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="gd-level-badge gd-level-badge--target"><small>${esc(options.toCaption || "Target")}</small><strong>${esc(toLabel)}</strong></div>
+  </div>`;
+}
+
+function gameBonusRowsHtml(rows, title = "Upgrade Bonus") {
+  const body = rows
+    .filter((row) => row && row.current != null)
+    .map((row) => {
+      const hasTarget = row.target != null && String(row.target) !== String(row.current);
+      const tail = hasTarget
+        ? `<span class="gd-arrow" aria-hidden="true"></span><strong class="gd-gain">${esc(row.target)}</strong>`
+        : row.delta && !/^\+?0(\.0+)?%?$/.test(String(row.delta))
+          ? `<strong class="gd-gain">${esc(row.delta)}</strong>`
+          : "";
+      return `<div class="gd-bonus-row"><span class="gd-bonus-label">${esc(row.label)}</span><span class="gd-bonus-values"><strong>${esc(row.current)}</strong>${tail}</span></div>`;
+    })
+    .join("");
+  if (!body) return "";
+  return `<section class="gd-section">${gameSectionBannerHtml(title)}<div class="gd-bonus-list">${body}</div></section>`;
+}
+
+function matchExpertSkillId(expert, skillName, index) {
+  const catalog = expert?.skills || [];
+  const wanted = normalizeKey(skillName);
+  const byName = catalog.find((skill) => normalizeKey(skill.name) === wanted);
+  if (byName) return byName.skill_id;
+  return catalog[index]?.skill_id || null;
+}
+
+function expertSkillLevelRows(skillId) {
+  if (!skillId) return [];
+  return sortByNumber((gameData.expert_skill_levels || []).filter((row) => row.skill_id === skillId), "skill_level");
+}
+
+function expertSkillPlanner(expert, skills) {
+  let books = 0;
+  let learningXp = 0;
+  const body = (skills || [])
+    .filter((skill) => skill && skill.name)
+    .map((skill, index) => {
+      const ready = /maxed|ready/i.test(String(skill.learning_xp || ""));
+      const skillId = matchExpertSkillId(expert, skill.name, index);
+      const rows = expertSkillLevelRows(skillId);
+      const current = Number(skill.level || 0);
+      const maxLevel = rows.length ? Math.max(current, Number(rows.at(-1).skill_level)) : current;
+      const savedTarget = state.expert_skill_targets?.[skillId];
+      const target = Math.min(Math.max(Number(savedTarget ?? current), current), maxLevel);
+      const stepRows = rows.filter((row) => Number(row.skill_level) > current && Number(row.skill_level) <= target);
+      const stepBooks = stepRows.reduce((sum, row) => sum + Number(row.books || 0), 0);
+      const stepXp = stepRows.reduce((sum, row) => sum + Number(row.learning_xp || 0), 0);
+      books += stepBooks;
+      learningXp += stepXp;
+      const options = [];
+      for (let level = current; level <= maxLevel; level += 1) {
+        options.push(`<option value="${level}" ${level === target ? "selected" : ""}>Lv. ${level}</option>`);
+      }
+      const targetControl =
+        skillId && maxLevel > current
+          ? `<select data-path="expert_skill_targets.${esc(skillId)}" aria-label="Target level for ${esc(skill.name)}">${options.join("")}</select>`
+          : `<span class="muted">max</span>`;
+      const costLine =
+        stepBooks || stepXp
+          ? `<div class="expert-skill-cost">Lv. ${current} → ${target}: <strong>${fmt(stepBooks)}</strong> books · <strong>${fmtCompact(stepXp)}</strong> XP</div>`
+          : "";
+      return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="gd-bonus-values"><strong>Lv. ${esc(skill.level ?? "-")}</strong>${ready ? `<strong class="gd-gain">ready</strong>` : ""}${targetControl}</span></div>${costLine}`;
+    })
+    .join("");
+  if (!body) return { html: "", books: 0, learningXp: 0 };
+  const totalLine =
+    books || learningXp
+      ? `<div class="expert-skill-cost expert-skill-cost--total">Skill plan total: <strong>${fmt(books)}</strong> books · <strong>${fmtCompact(learningXp)}</strong> Learning XP</div>`
+      : "";
+  const html = `<section class="gd-section">${gameSectionBannerHtml("Expert Skills")}<div class="gd-bonus-list">${body}</div>${totalLine}</section>`;
+  return { html, books, learningXp };
+}
+
+function gamePrereqRowHtml(label, met, detail = "") {
+  return `<div class="gd-req-row ${met ? "is-met" : "is-short"}">
+    <span class="gd-req-label">${esc(label)}${detail ? `<small>${esc(detail)}</small>` : ""}</span>
+    <span class="gd-req-status" aria-hidden="true">${met ? "" : ""}</span>
+  </div>`;
+}
+
+function gameResourceRowHtml(key, required, label = RESOURCE_LABELS[key] || key) {
+  const have = availableInventoryValue(key);
+  const met = have >= Number(required || 0);
+  return `<div class="gd-req-row ${met ? "is-met" : "is-short"}">
+    ${iconHtml(iconKind(key, label), label, "md", key)}
+    <span class="gd-req-label">${esc(label)}</span>
+    <span class="gd-req-amount"><b class="${met ? "gd-have-ok" : "gd-have-short"}">${fmtCompact(have)}</b><i>/</i>${fmtCompact(required)}</span>
+    <span class="gd-req-status" aria-hidden="true">${met ? "" : ""}</span>
+  </div>`;
+}
+
+function gameRequiresHtml(cost, fields, options = {}) {
+  const { title = "Requires", prereqHtml = "", note = "", emptyText = "No requirements for this selection." } = options;
+  const keys = fieldKeys(fields).filter((key) => Number(cost?.[key] || 0) > 0);
+  const rows = keys.map((key) => gameResourceRowHtml(key, cost[key])).join("");
+  const body = `${prereqHtml}${rows}` || `<div class="gd-req-empty">${esc(emptyText)}</div>`;
+  return `<section class="gd-section">${gameSectionBannerHtml(title)}<div class="gd-req-list">${body}</div>${
+    note ? `<p class="gd-note">${esc(note)}</p>` : ""
+  }</section>`;
+}
+
+function gameCostTilesHtml(cost, fields, options = {}) {
+  const { emptyText = "No materials needed for this selection." } = options;
+  const keys = fieldKeys(fields).filter((key) => Number(cost?.[key] || 0) > 0);
+  if (!keys.length) return `<div class="gd-req-empty">${esc(emptyText)}</div>`;
+  return `<div class="gd-cost-tiles">${keys
+    .map((key) => {
+      const required = Number(cost[key] || 0);
+      const have = availableInventoryValue(key);
+      const met = have >= required;
+      const label = RESOURCE_LABELS[key] || key;
+      return `<div class="gd-cost-tile ${met ? "is-met" : "is-short"}" title="${esc(label)}: you have ${fmt(have)}, need ${fmt(required)}">
+        <span class="gd-cost-tile__icon">${iconHtml(iconKind(key, label), label, "lg", key)}</span>
+        <span class="gd-cost-tile__amount"><b>${fmtCompact(have)}</b>/${fmtCompact(required)}</span>
+        <span class="gd-cost-tile__label">${esc(label)}</span>
+      </div>`;
+    })
+    .join("")}</div>`;
+}
+
+function gameButtonHtml(label, sub = "", variant = "blue", enabled = true) {
+  return `<div class="gd-btn gd-btn--${variant}${enabled ? "" : " gd-btn--disabled"}" role="presentation">
+    <span>${esc(label)}</span>${sub ? `<small>${esc(sub)}</small>` : ""}
+  </div>`;
+}
+
+function gameDialogHtml({ title, body, className = "" }) {
+  return `<section class="game-dialog ${className}">
+    <header class="game-dialog__title"><span>${esc(title)}</span></header>
+    <div class="game-dialog__body">${body}</div>
+  </section>`;
+}
+
+function gameCostCoverage(cost, fields) {
+  const keys = fieldKeys(fields).filter((key) => Number(cost?.[key] || 0) > 0);
+  const short = keys.filter((key) => availableInventoryValue(key) < Number(cost[key] || 0));
+  return { hasCost: keys.length > 0, covered: keys.length > 0 && short.length === 0, shortCount: short.length };
+}
+
+/* Construction cost reduction (e.g. Zinman-style city skills).
+ * Verified in game 2026-07-10: displayed building costs for meat/wood/coal/iron
+ * were exactly 85% of workbook base rows (72M -> 61.2M etc.), while fire
+ * crystal, refined fire crystal, and build time matched the base rows exactly.
+ * The discount therefore applies only to the four basic resources. */
+const CONSTRUCTION_DISCOUNT_FIELDS = ["meat", "wood", "coal", "iron"];
+
+function constructionCostReductionPct() {
+  const pct = Number(state.construction?.cost_reduction_pct);
+  if (!Number.isFinite(pct)) return 0;
+  return Math.min(90, Math.max(0, pct));
+}
+
+function applyConstructionDiscount(cost) {
+  const pct = constructionCostReductionPct();
+  if (!pct) return cost;
+  const factor = (100 - pct) / 100;
+  const discounted = { ...cost };
+  CONSTRUCTION_DISCOUNT_FIELDS.forEach((key) => {
+    if (discounted[key]) discounted[key] = Math.ceil(discounted[key] * factor);
+  });
+  return discounted;
 }
 
 function signedFmt(value, decimals = 0) {
@@ -1415,11 +1653,11 @@ function needAfterInventory(cost) {
 function allBuildingCosts() {
   const levelsByBuilding = groupBy(gameData.building_levels, "building_id");
   return Object.entries(state.buildings).reduce((acc, [buildingId, saved]) => {
-    const cost = rangeCost(levelsByBuilding[buildingId] || [], saved.current, saved.target, {
+    const cost = applyConstructionDiscount(rangeCost(levelsByBuilding[buildingId] || [], saved.current, saved.target, {
       idKey: "level_code",
       orderKey: "numerical_level",
       fields: BUILDING_FIELDS,
-    });
+    }));
     return addCost(acc, cost);
   }, makeCost(BUILDING_FIELDS));
 }
@@ -1522,8 +1760,12 @@ function resetAllTargetsToCurrent(nextState = state) {
   Object.values(nextState.experts || {}).forEach((saved) => {
     if (saved?.relationship_current != null) changed += setIfChanged(saved, "relationship_target", saved.relationship_current);
   });
+  Object.keys(nextState.expert_skill_targets || {}).forEach((skillId) => {
+    changed += setIfChanged(nextState.expert_skill_targets, skillId, null);
+  });
   Object.values(nextState.heroes || {}).forEach((saved) => {
     changed += setIfChanged(saved, "target_stars", Number(saved.current_stars || 0));
+    changed += setIfChanged(saved, "target_star_tier", Number(saved.current_star_tier || 0));
     changed += setIfChanged(saved, "target_widget_level", Number(saved.current_widget_level || 0));
   });
   Object.values(nextState.troops || {}).forEach((saved) => {
@@ -1651,6 +1893,22 @@ function normalizeTargets(nextState) {
   Object.entries(nextState.experts || {}).forEach(([expertId, saved]) => {
     changed =
       ensureTargetAtLeastCurrent(saved, "relationship_current", "relationship_target", levelsByExpert[expertId] || [], "level_code", "relationship_level") || changed;
+  });
+  nextState.expert_skill_targets ||= {};
+  Object.entries(nextState.extracted_current?.experts || {}).forEach(([expertId, observed]) => {
+    if (!Array.isArray(observed?.skills)) return;
+    const catalog = (gameData.experts || []).find((expert) => expert.expert_id === expertId);
+    if (!catalog) return;
+    observed.skills.forEach((skill, index) => {
+      const skillId = matchExpertSkillId(catalog, skill?.name, index);
+      if (!skillId) return;
+      const current = Number(skill?.level || 0);
+      const saved = nextState.expert_skill_targets[skillId];
+      if (saved != null && Number(saved) < current) {
+        nextState.expert_skill_targets[skillId] = current;
+        changed = true;
+      }
+    });
   });
   nextState.hero_gear_targets ||= {};
   nextState.hero_gear_targets.heroes ||= {};
@@ -2017,26 +2275,55 @@ function inventorySnapshot(fields) {
   }, {});
 }
 
+function coverageChipHtml(state, text, tooltip = "") {
+  return `<span class="coverage-chip coverage-chip--${state}" title="${esc(tooltip)}">${text}</span>`;
+}
+
 function inventoryComparisonHtml(cost, fields, title = "Inventory check", exchangeKey = "") {
   const available = inventorySnapshot(fields);
   const exchangePlan = exchangeKey ? materialExchangePlan(cost, fields, exchangeKey) : null;
   const need = exchangePlan ? exchangePlan.gap : costGap(cost);
   const status = costIsEmpty(need) ? "Covered" : "Need more";
   const exchangeHtml = exchangePlan?.trades.length
-    ? `<div><span>Suggested exchange</span><div class="exchange-trade-list">${exchangePlan.trades.map((trade) => `<em>${esc(exchangeTradeText(trade))}</em>`).join("")}</div></div>`
+    ? `<div class="inventory-check__exchange"><span>Suggested exchange</span><div class="exchange-trade-list">${exchangePlan.trades.map((trade) => `<em>${esc(exchangeTradeText(trade))}</em>`).join("")}</div></div>`
     : "";
   const exchangeRules = exchangePlan ? exchangeRulesHtml(exchangePlan.set) : "";
+  const rows = fieldKeys(fields)
+    .map((key) => {
+      const required = Number(cost[key] || 0);
+      const have = Number(available[key] || 0);
+      const short = Number(need[key] || 0);
+      let stateClass = "is-none";
+      let chip = coverageChipHtml("none", "&ndash; none needed", "This material is not required by the selected targets");
+      if (required > 0 && short > 0) {
+        stateClass = "is-lacking";
+        chip = coverageChipHtml("lacking", `&#10007; short ${fmt(short)}`, exchangePlan ? "Still missing after the suggested exchange" : "Missing from inventory");
+      } else if (required > 0) {
+        stateClass = "is-excess";
+        const spare = have - required;
+        chip = spare > 0
+          ? coverageChipHtml("excess", `&#10003; excess +${fmt(spare)}`, "Covered with spare stock left over")
+          : coverageChipHtml("excess", "&#10003; covered exactly", "Covered with nothing to spare");
+      }
+      const label = Array.isArray(fields.find((field) => fieldKey(field) === key)) ? fields.find((field) => fieldKey(field) === key)[1] : RESOURCE_LABELS[key] || key;
+      return `<div class="coverage-row ${stateClass}">
+        <span class="coverage-row__name">${visualResourceLabel(key, typeof label === "string" ? label : RESOURCE_LABELS[key] || key)}</span>
+        <span class="coverage-row__value">${required > 0 ? fmt(required) : "&ndash;"}</span>
+        <span class="coverage-row__value">${fmt(have)}</span>
+        ${chip}
+      </div>`;
+    })
+    .join("");
   return `<div class="inventory-check ${costIsEmpty(need) ? "inventory-check--covered" : ""}">
     <div class="inventory-check__head">
       <span>${esc(title)}</span>
       <strong>${exchangePlan ? `${status} after exchange` : status}</strong>
     </div>
-    <div class="inventory-check__grid">
-      <div><span>Required</span>${costHtml(cost, fields)}</div>
-      <div><span>You have</span>${costHtml(available, fields)}</div>
-      <div><span>${exchangePlan ? "Need after exchange" : "Need more"}</span>${costHtml(need, fields)}</div>
-      ${exchangeHtml}
+    <div class="coverage-table">
+      <div class="coverage-row coverage-row--head"><span>Material</span><span>Required</span><span>You have</span><span>Status</span></div>
+      ${rows}
     </div>
+    ${exchangeHtml}
     ${exchangeRules}
   </div>`;
 }
@@ -2196,7 +2483,7 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
     : blocked
       ? "Next best changes are not affordable"
       : "No recommendation available";
-  const comparisonTitle = plan.exchangeKey ? `${title} recommendation materials after exchange` : `${title} recommendation materials`;
+  const comparisonTitle = plan.exchangeKey ? "Material coverage (with exchange)" : "Material coverage";
   return `<section class="panel smart-panel">
     <div class="smart-panel__head">
       <div>
@@ -2380,7 +2667,7 @@ function upgradeNutshellHtml({
       </div>
       <strong class="upgrade-nutshell__selected">${esc(selected)}</strong>
     </div>
-    ${upgradePathStripHtml(upgrades, empty)}
+    ${upgradePathStripHtml(upgrades)}
     ${impactHtml}
     ${detailHtml}
     <div class="nutshell-material-grid">${materialHtml}</div>
@@ -2414,6 +2701,11 @@ function weightedCost(cost) {
     pet_potions: 650000,
     pet_serum: 1600000,
     common_sigils: 3000000,
+    expert_affinity: 40000,
+    hero_gear_xp: 30000,
+    essence_stones: 90000,
+    mythic_gear: 1200000,
+    mithril: 2500000,
   };
   return Object.entries(cost).reduce((total, [key, value]) => total + Number(value || 0) * (weights[key] || 1), 0);
 }
@@ -2475,11 +2767,11 @@ function plannerCandidates() {
     const levels = levelsByBuilding[building.building_id] || [];
     const step = nextLevel(levels, saved.current, "level_code", "numerical_level");
     if (!step.next) return;
-    const cost = rangeCost(levels, saved.current, step.next.level_code, {
+    const cost = applyConstructionDiscount(rangeCost(levels, saved.current, step.next.level_code, {
       idKey: "level_code",
       orderKey: "numerical_level",
       fields: BUILDING_FIELDS,
-    });
+    }));
     if (costIsEmpty(cost)) return;
     candidates.push(
       candidateRow({
@@ -3125,6 +3417,37 @@ function renderCurrentExtract() {
     </tr>`;
   });
 
+  const bonusOverview = data.bonus_overview || {};
+  const bonusOverviewSections = [
+    ["Power", bonusOverview.power],
+    ["Battle Results", bonusOverview.battle_results],
+    ["Military", bonusOverview.military],
+    ["City Defenses", bonusOverview.city_defenses],
+    ["Resources", bonusOverview.resources],
+    ["Growth", bonusOverview.growth],
+  ].filter(([, section]) => section && Object.keys(section).length);
+  const bonusOverviewHtml = bonusOverviewSections.length
+    ? `<div class="panel">
+        <h2>Bonus Overview (Chief Profile)</h2>
+        <div class="bonus-overview-grid">
+          ${bonusOverviewSections
+            .map(([title, section]) => `<section class="gd-section">
+              ${gameSectionBannerHtml(title)}
+              <div class="gd-bonus-list">
+                ${Object.entries(section)
+                  .map(([key, value]) => ({
+                    label: titleFromId(key.replace(/_percent$/, "").replaceAll("_", " ")),
+                    value: /percent$/.test(key) ? `${fmt(Number(value), 2)}%` : fmt(Number(value)),
+                  }))
+                  .map((row) => `<div class="gd-bonus-row"><span class="gd-bonus-label">${esc(row.label)}</span><span class="gd-bonus-values"><strong>${esc(row.value)}</strong></span></div>`)
+                  .join("")}
+              </div>
+            </section>`)
+            .join("")}
+        </div>
+      </div>`
+    : "";
+
   $("#tab-current-extract").innerHTML = `
     <div class="toolbar"><div><h2>Current Extract</h2><p>Loaded from data/current-player-state.json and applied to the calculator fields.</p></div></div>
     <div class="summary-grid">
@@ -3135,6 +3458,7 @@ function renderCurrentExtract() {
       <div class="metric blue"><span>Buildings read</span><strong>${fmt(buildings.length)}</strong></div>
     </div>
     <div class="extract-stack">
+      ${bonusOverviewHtml}
       <div class="grid-2">
         <div class="panel">
           <h2>Profile</h2>
@@ -3219,48 +3543,55 @@ function renderCurrentExtract() {
   `;
 }
 
+function getNextLevelCode(levels, currentCode) {
+  const currentIndex = levels.findIndex(l => String(l.level_code) === String(currentCode));
+  if (currentIndex !== -1 && currentIndex < levels.length - 1) {
+    return levels[currentIndex + 1].level_code;
+  }
+  return null;
+}
+
+function isBuildingLevelMet(levelsByBuilding, buildingId, currentCode, requiredCode) {
+  const levels = levelsByBuilding[buildingId] || [];
+  const currentLvl = levels.find(l => String(l.level_code) === String(currentCode));
+  const requiredLvl = levels.find(l => String(l.level_code) === String(requiredCode));
+  if (!requiredLvl) return true;
+  if (!currentLvl) return false;
+  return Number(currentLvl.numerical_level) >= Number(requiredLvl.numerical_level);
+}
+
 function renderBuildings() {
   const levelsByBuilding = groupBy(gameData.building_levels, "building_id");
   let totalCost = makeCost(BUILDING_FIELDS);
   let totalBaseSeconds = 0;
   let selectedUpgradeCount = 0;
   const selectedUpgrades = [];
-  const rows = gameData.buildings
-    .map((building) => {
-      const levels = sortByNumber(levelsByBuilding[building.building_id] || [], "numerical_level");
-      const saved = state.buildings[building.building_id] || { current: levels[0]?.level_code, target: levels.at(-1)?.level_code };
-      const cost = rangeCost(levels, saved.current, saved.target, {
-        idKey: "level_code",
-        orderKey: "numerical_level",
-        fields: BUILDING_FIELDS,
+  
+  // Calculate global totals
+  gameData.buildings.forEach((building) => {
+    const levels = sortByNumber(levelsByBuilding[building.building_id] || [], "numerical_level");
+    const saved = state.buildings[building.building_id] || { current: levels[0]?.level_code, target: levels.at(-1)?.level_code };
+    const cost = applyConstructionDiscount(rangeCost(levels, saved.current, saved.target, {
+      idKey: "level_code",
+      orderKey: "numerical_level",
+      fields: BUILDING_FIELDS,
+    }));
+    totalCost = addCost(totalCost, cost);
+    if (!costIsEmpty(cost)) {
+      selectedUpgradeCount += 1;
+      selectedUpgrades.push({
+        kind: "building",
+        scope: "building",
+        label: building.name,
+        meta: `${levels.length} levels`,
+        from: saved.current,
+        to: saved.target,
       });
-      totalCost = addCost(totalCost, cost);
-      if (!costIsEmpty(cost)) {
-        selectedUpgradeCount += 1;
-        selectedUpgrades.push({
-          kind: "building",
-          scope: "building",
-          label: building.name,
-          meta: `${levels.length} levels`,
-          from: saved.current,
-          to: saved.target,
-        });
-      }
-      const baseSeconds = rangeSeconds(levels, saved.current, saved.target);
-      totalBaseSeconds += Number(baseSeconds || 0);
-      const timePlan = constructionTimePlan(baseSeconds);
-      const options = optionList(levels, "level_code", "level_code", saved.current);
-      const targetOptions = optionList(levels, "level_code", "level_code", saved.target);
-      return `<tr>
-        <td>${visualLabel("building", building.name, `${levels.length} levels`)}</td>
-        <td><select data-path="buildings.${building.building_id}.current">${options}</select></td>
-        <td><select data-path="buildings.${building.building_id}.target">${targetOptions}</select></td>
-        <td>${costHtml(cost, BUILDING_FIELDS)}</td>
-        <td class="number">${timeFmt(baseSeconds)}</td>
-        <td class="number">${timeFmt(timePlan.adjustedSeconds)}</td>
-      </tr>`;
-    })
-    .join("");
+    }
+    const baseSeconds = rangeSeconds(levels, saved.current, saved.target);
+    totalBaseSeconds += Number(baseSeconds || 0);
+  });
+
   const totalTimePlan = constructionTimePlan(totalBaseSeconds);
   const buffRows = totalTimePlan.buffRows
     .map(
@@ -3271,6 +3602,7 @@ function renderBuildings() {
       </tr>`,
     )
     .join("");
+
   const buildingBulk = bulkTargetControls(
     "Quick target",
     "bulkBuildingTarget",
@@ -3289,13 +3621,147 @@ function renderBuildings() {
       ["max", "Max available"],
     ],
     [
-      { action: "buildings-fc", label: "Apply FC buildings" },
-      { action: "buildings-all", label: "Apply all possible" },
+      { action: "buildings-fc", label: "Apply FC" },
+      { action: "buildings-all", label: "Apply all" },
     ],
   );
 
+  // Selected Building details
+  const selectedBuildingId = state.selected_building_id || "furnace";
+  const selectedBuilding = gameData.buildings.find(b => b.building_id === selectedBuildingId) || gameData.buildings[0];
+  const selectedBuildingLevels = sortByNumber(levelsByBuilding[selectedBuilding.building_id] || [], "numerical_level");
+  const selectedSaved = state.buildings[selectedBuilding.building_id] || { 
+    current: selectedBuildingLevels[0]?.level_code, 
+    target: selectedBuildingLevels.at(-1)?.level_code 
+  };
+  
+  const selectedCost = applyConstructionDiscount(rangeCost(selectedBuildingLevels, selectedSaved.current, selectedSaved.target, {
+    idKey: "level_code",
+    orderKey: "numerical_level",
+    fields: BUILDING_FIELDS,
+  }));
+  
+  const selectedBaseSeconds = rangeSeconds(selectedBuildingLevels, selectedSaved.current, selectedSaved.target);
+  const selectedTimePlan = constructionTimePlan(selectedBaseSeconds);
+
+  // Render Sidebar
+  const sidebarHtml = gameData.buildings.map((b) => {
+    const levels = sortByNumber(levelsByBuilding[b.building_id] || [], "numerical_level");
+    const saved = state.buildings[b.building_id] || { current: levels[0]?.level_code, target: levels.at(-1)?.level_code };
+    const isActive = b.building_id === selectedBuildingId;
+    const upgradeSelected = String(saved.current) !== String(saved.target);
+    return `<div class="building-list-item ${isActive ? 'active' : ''}" data-select-building-id="${b.building_id}">
+      ${iconHtml("building", b.name, "md", b.building_id)}
+      <strong>${esc(b.name)}</strong>
+      <span class="level-badge">${esc(saved.current)}${upgradeSelected ? `<i class="level-badge__up" aria-hidden="true"></i>` : ""}</span>
+    </div>`;
+  }).join("");
+
+  // Prerequisites calculations
+  const nextLevel = getNextLevelCode(selectedBuildingLevels, selectedSaved.current);
+  const prereqs = nextLevel ? (gameData.building_prerequisites || []).filter(
+    p => p.building_id === selectedBuilding.building_id && String(p.level_code) === String(nextLevel)
+  ) : [];
+  
+  let allPrereqsMet = true;
+  const prereqsListHtml = prereqs.length ? prereqs.map(p => {
+    const prereqCurrent = state.buildings[p.prereq_building_id]?.current || "1";
+    const isMet = isBuildingLevelMet(levelsByBuilding, p.prereq_building_id, prereqCurrent, p.prereq_level_code);
+    if (!isMet) allPrereqsMet = false;
+    return gamePrereqRowHtml(
+      `${p.prereq_building_name} Lv. ${p.prereq_level_code}`,
+      isMet,
+      isMet ? "" : `Currently Lv. ${prereqCurrent} — upgrade cost not included below`,
+    );
+  }).join("") : "";
+
+  const coverage = gameCostCoverage(selectedCost, BUILDING_FIELDS);
+  const hasCost = coverage.hasCost;
+  const canUpgrade = allPrereqsMet && coverage.covered && hasCost;
+
+  // Extracted building specs -> "Upgrade Bonus" rows like the in-game dialog
+  const ext = state.extracted_current?.buildings?.[selectedBuilding.building_id];
+  const bonusRows = [];
+  if (ext) {
+    if (ext.power != null) {
+      let targetPower = null;
+      if (ext.details_table) {
+        const targetClean = simpleLevelCode(selectedSaved.target);
+        const match = ext.details_table.find(row => String(row.level).toLowerCase() === String(targetClean).toLowerCase());
+        if (match && match.power) targetPower = Number(match.power);
+      }
+      bonusRows.push({
+        label: "Power",
+        current: fmt(ext.power),
+        target: targetPower != null ? fmt(targetPower) : null,
+        delta: targetPower != null ? signedFmt(targetPower - ext.power) : "",
+      });
+    }
+    if (ext.research_speed_bonus) bonusRows.push({ label: "Research Speed", current: String(ext.research_speed_bonus) });
+    if (ext.infirmary_capacity) bonusRows.push({ label: "Infirmary Capacity", current: String(ext.infirmary_capacity) });
+    if (ext.capacity) bonusRows.push({ label: "Enlistment Capacity", current: String(ext.capacity) });
+    if (ext.production) bonusRows.push({ label: "Production Rate", current: `${ext.production.amount} ${ext.production.resource} / ${ext.production.time}` });
+    if (ext.furnace_consumption) bonusRows.push({ label: "Furnace Consumption", current: String(ext.furnace_consumption) });
+    if (ext.energy_gauge_observed != null) bonusRows.push({ label: "Energy Gauge", current: String(ext.energy_gauge_observed) });
+  }
+
+  const queue = state.extracted_current?.buildings?.building_queue;
+  const queueHtml = queue
+    ? `<div class="city-queue-strip">
+        <span class="city-queue-strip__title">City Queues</span>
+        <span><strong>Worker 1:</strong> ${esc(queue.queue_1)}</span>
+        <span><strong>Worker 2:</strong> ${esc(queue.queue_2)}</span>
+        ${state.extracted_current.buildings.training ? `<span><strong>Training:</strong> ${esc(state.extracted_current.buildings.training)}</span>` : ""}
+       </div>`
+    : "";
+
+  // Build the game-replica upgrade dialog
+  const upgradePanelHtml = gameDialogHtml({
+    title: selectedBuilding.name,
+    className: "building-upgrade-dialog",
+    body: `
+      <div class="gd-hero-row">
+        ${iconHtml("building", selectedBuilding.name, "xl", selectedBuilding.building_id)}
+        ${gameLevelFlowHtml(selectedSaved.current, selectedSaved.target)}
+      </div>
+      <div class="gd-select-row">
+        <label class="compact-field">
+          <span>Current level</span>
+          <select data-path="buildings.${selectedBuilding.building_id}.current">
+            ${optionList(selectedBuildingLevels, "level_code", "level_code", selectedSaved.current)}
+          </select>
+        </label>
+        <label class="compact-field">
+          <span>Target level</span>
+          <select data-path="buildings.${selectedBuilding.building_id}.target">
+            ${optionList(selectedBuildingLevels, "level_code", "level_code", selectedSaved.target)}
+          </select>
+        </label>
+      </div>
+      ${gameBonusRowsHtml(bonusRows)}
+      ${gameRequiresHtml(selectedCost, BUILDING_FIELDS, {
+        prereqHtml: prereqsListHtml,
+        emptyText: "Building already at target level.",
+        note: [
+          constructionCostReductionPct() ? `Costs include your ${fmt(constructionCostReductionPct(), 1)}% construction cost reduction (matches in-game display).` : "",
+          prereqs.length ? `Prerequisites shown for next level ${nextLevel || "max"}. Their own upgrade costs are not added to this total.` : "",
+        ].filter(Boolean).join(" "),
+      })}
+      <div class="gd-time-row"><span>Original:</span><strong>${timeFmt(selectedTimePlan.baseSeconds)}</strong><span>With buffs:</span><strong class="gd-gain">${timeFmt(selectedTimePlan.adjustedSeconds)}</strong></div>
+      <div class="gd-btn-row">
+        ${gameButtonHtml(
+          !hasCost ? "Target Met" : canUpgrade ? "Upgrade" : "Requirements Not Met",
+          !hasCost ? "" : canUpgrade ? "All requirements covered" : `${coverage.shortCount ? `${coverage.shortCount} material${coverage.shortCount === 1 ? "" : "s"} short` : "Prerequisites missing"}`,
+          canUpgrade ? "blue" : "grey",
+          canUpgrade,
+        )}
+      </div>
+    `,
+  });
+
   $("#tab-buildings").innerHTML = `
-    <div class="toolbar"><div><h2>Buildings</h2><p>Costs are summed from current exclusive to target inclusive.</p></div>${buildingBulk}</div>
+    <div class="toolbar"><div><h2>Buildings</h2><p>Upgrade dashboard and resource requirements planner.</p></div>${buildingBulk}</div>
+    ${queueHtml}
     ${upgradeNutshellHtml({
       module: "Buildings",
       selected: upgradeSelectionText(selectedUpgradeCount, "building target", "building targets"),
@@ -3309,13 +3775,16 @@ function renderBuildings() {
       fields: BUILDING_FIELDS,
       empty: "Set one or more building targets above current level to see resource gaps.",
     })}
-    <div class="summary-grid">
-      <div class="metric blue"><span>${visualResourceLabel("meat", "Meat")}</span><strong>${fmt(totalCost.meat)}</strong></div>
-      <div class="metric blue"><span>${visualResourceLabel("wood", "Wood")}</span><strong>${fmt(totalCost.wood)}</strong></div>
-      <div class="metric amber"><span>${visualResourceLabel("fire_crystals", "Fire Crystals")}</span><strong>${fmt(totalCost.fire_crystals)}</strong></div>
-      <div class="metric green"><span>${visualResourceLabel("refined_fire_crystals", "Refined FC")}</span><strong>${fmt(totalCost.refined_fire_crystals)}</strong></div>
+    
+    <div class="buildings-view-layout">
+      <div class="buildings-sidebar">
+        ${sidebarHtml}
+      </div>
+      <div class="building-upgrade-view">
+        ${upgradePanelHtml}
+      </div>
     </div>
-    ${inventoryComparisonHtml(totalCost, BUILDING_FIELDS, "Combined building upgrade resources")}
+
     <div class="summary-grid">
       <div class="metric blue"><span>Base build time</span><strong>${timeFmt(totalTimePlan.baseSeconds)}</strong></div>
       <div class="metric green"><span>With selected buffs</span><strong>${timeFmt(totalTimePlan.adjustedSeconds)}</strong></div>
@@ -3332,6 +3801,11 @@ function renderBuildings() {
               <td>${visualLabel("construction", "Base construction speed", "Profile / research / permanent bonuses")}</td>
               <td><span class="status-pill">Always</span></td>
               <td>${numberInput("profile.construction_speed_pct", state.profile.construction_speed_pct, 0, 0.1)}</td>
+            </tr>
+            <tr>
+              <td>${visualLabel("construction", "Construction cost reduction %", "City skills (e.g. Zinman) cut Meat/Wood/Coal/Iron costs; FC and RFC are never discounted")}</td>
+              <td><span class="status-pill">Resources</span></td>
+              <td>${numberInput("construction.cost_reduction_pct", constructionCostReductionPct(), 0, 0.5)}</td>
             </tr>
             ${buffRows}
             <tr>
@@ -3355,10 +3829,6 @@ function renderBuildings() {
         </table></div>
       </div>
     </div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Building</th><th>Current</th><th>Target</th><th>Cost</th><th class="number">Base time</th><th class="number">Buffed time</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
   `;
 }
 
@@ -4789,6 +5259,15 @@ function applySmartRecommendation(moduleId) {
   return plan.selected.length;
 }
 
+function chiefGearRarityBorderClass(levelCode) {
+  const code = String(levelCode || "").toLowerCase();
+  if (code.includes("legendary")) return "border-legendary";
+  if (code.includes("epic")) return "border-epic";
+  if (code.includes("rare")) return "border-rare";
+  if (code.includes("uncommon")) return "border-uncommon";
+  return "border-common";
+}
+
 function renderChiefGear() {
   let totalCost = makeCost(GEAR_FIELDS);
   let totalCurrentPower = 0;
@@ -4800,77 +5279,74 @@ function renderChiefGear() {
   const slotById = Object.fromEntries(gameData.chief_gear_slots.map((slot) => [slot.slot_id, slot]));
   const targetOptions = levels.map((level) => [level.gear_level_code, level.gear_level_code]);
   const maxTarget = levels.at(-1)?.gear_level_code;
-  const groupCards = CHIEF_TROOP_GROUPS.map((group) => {
-    let groupCost = makeCost(GEAR_FIELDS);
-    let groupCurrentPower = 0;
-    let groupTargetPower = 0;
-    let groupStatChanges = {};
-    const rows = group.gearSlots
-      .map((slotId) => {
-        const slot = slotById[slotId];
-        const saved = state.chief_gear[slotId];
-        const impact = powerImpact(levels, saved.current, saved.target, "gear_level_code");
-        const statChanges = chiefGearAttributeChanges(slotId, saved.current, saved.target);
-        const powerChange = {
-          label: "Power",
-          current: fmt(impact.currentPower),
-          target: fmt(impact.targetPower),
-          delta: signedFmt(impact.deltaPower),
-        };
-        const cost = rangeCost(levels, saved.current, saved.target, {
-          idKey: "gear_level_code",
-          orderKey: "sequence",
-          fields: GEAR_FIELDS,
-        });
-        totalCost = addCost(totalCost, cost);
-        groupCost = addCost(groupCost, cost);
-        if (!costIsEmpty(cost)) {
-          selectedUpgradeCount += 1;
-          selectedUpgrades.push({
-            kind: "gear",
-            scope: "gear",
-            label: slot.name,
-            meta: group.label,
-            from: saved.current,
-            to: saved.target,
-          });
-        }
-        groupCurrentPower += impact.currentPower;
-        groupTargetPower += impact.targetPower;
-        totalCurrentPower += impact.currentPower;
-        totalTargetPower += impact.targetPower;
-        mergeNumericStatChanges(groupStatChanges, statChanges);
-        mergeNumericStatChanges(totalStatChanges, statChanges);
-        const meta = [saved.item_name, saved.power != null ? `Power ${fmt(saved.power)}` : ""].filter(Boolean).join(" | ");
-        return `<div class="chief-control-row">
-          <div class="chief-control-main">${visualLabel("gear", slot.name, meta)}</div>
-          <label><span>Current</span><select data-path="chief_gear.${slot.slot_id}.current">${optionList(levels, "gear_level_code", "gear_level_code", saved.current)}</select></label>
-          <label class="target-with-reset"><span>Target</span><select data-path="chief_gear.${slot.slot_id}.target">${optionList(levels, "gear_level_code", "gear_level_code", saved.target)}</select>${resetTargetButton(`chief-gear:${slot.slot_id}`)}</label>
-          <div class="chief-control-impact"><span>Stat impact</span>${statChangeListHtml([...statChanges, powerChange])}</div>
-          <div class="chief-control-cost"><span>Cost</span>${costHtml(cost, GEAR_FIELDS)}</div>
-        </div>`;
-      })
-      .join("");
-    const groupBulk = bulkTargetControls(
-      "Group target",
-      `bulkChiefGearTarget_${group.id}`,
-      targetOptions,
-      [{ action: `chief-gear:${group.id}`, label: `Apply ${group.label}` }],
-      maxTarget,
-    );
-    return `<section class="chief-troop-card chief-troop-card--${group.id}">
-      <div class="chief-troop-head">
-        ${visualLabel("troop", group.label, group.gearSlots.map((slotId) => slotById[slotId]?.name || titleFromId(slotId)).join(" / "))}
-        ${groupBulk}
+  
+  // Selected Gear Slot
+  const selectedSlotId = state.selected_chief_gear_slot || "hat";
+  const selectedSlot = slotById[selectedSlotId] || slotById["hat"];
+  const selectedSaved = state.chief_gear[selectedSlotId] || { current: levels[0]?.gear_level_code, target: levels.at(-1)?.gear_level_code };
+  
+  const selectedImpact = powerImpact(levels, selectedSaved.current, selectedSaved.target, "gear_level_code");
+  const selectedStatChanges = chiefGearAttributeChanges(selectedSlotId, selectedSaved.current, selectedSaved.target);
+  const selectedPowerChange = {
+    label: "Power",
+    current: fmt(selectedImpact.currentPower),
+    target: fmt(selectedImpact.targetPower),
+    delta: signedFmt(selectedImpact.deltaPower),
+  };
+  const selectedCost = rangeCost(levels, selectedSaved.current, selectedSaved.target, {
+    idKey: "gear_level_code",
+    orderKey: "sequence",
+    fields: GEAR_FIELDS,
+  });
+
+  // Calculate totals and group cards
+  gameData.chief_gear_slots.forEach((slot) => {
+    const saved = state.chief_gear[slot.slot_id];
+    const impact = powerImpact(levels, saved.current, saved.target, "gear_level_code");
+    const statChanges = chiefGearAttributeChanges(slot.slot_id, saved.current, saved.target);
+    const cost = rangeCost(levels, saved.current, saved.target, {
+      idKey: "gear_level_code",
+      orderKey: "sequence",
+      fields: GEAR_FIELDS,
+    });
+    totalCost = addCost(totalCost, cost);
+    if (!costIsEmpty(cost)) {
+      selectedUpgradeCount += 1;
+      selectedUpgrades.push({
+        kind: "gear",
+        scope: "gear",
+        label: slot.name,
+        meta: slot.troop_type || "",
+        from: saved.current,
+        to: saved.target,
+      });
+    }
+    totalCurrentPower += impact.currentPower;
+    totalTargetPower += impact.targetPower;
+    mergeNumericStatChanges(totalStatChanges, statChanges);
+  });
+
+  // Slot card renderer helper
+  function renderSlotCard(slotId) {
+    const slot = slotById[slotId];
+    if (!slot) return "";
+    const saved = state.chief_gear[slotId];
+    const borderClass = chiefGearRarityBorderClass(saved.current);
+    const isActive = slotId === selectedSlotId;
+    const upgradeSelected = String(saved.current) !== String(saved.target);
+    return `<div class="chief-gear-slot-card ${borderClass} ${isActive ? 'active-card' : ''}" data-select-chief-gear-slot="${slotId}">
+      <div class="chief-gear-slot-card__icon">
+        ${iconHtml("chiefgear" + slotId, slot.name, "lg")}
+        ${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}
       </div>
-      <div class="chief-control-list">${rows}</div>
-      ${statImpactPanel(`${group.label} Gear Impact`, [
-        ...aggregateStatCards(groupStatChanges, "Chief gear attribute table"),
-        statImpactCard("Workbook Power", fmt(groupCurrentPower), fmt(groupTargetPower), signedFmt(groupTargetPower - groupCurrentPower), "Exact from gear level rows"),
-      ], "Attack, defense, and deployment are calculated from the sourced chief gear stat table.")}
-      ${inventoryComparisonHtml(groupCost, GEAR_FIELDS, `${group.label} gear materials`)}
-    </section>`;
-  }).join("");
+      <div class="chief-gear-slot-card__info">
+        <strong>${esc(slot.name)}</strong>
+        <span class="tier-label">${esc(saved.current)}</span>
+        ${upgradeSelected ? `<span class="tier-label tier-label--target">${esc(saved.target)}</span>` : ""}
+      </div>
+    </div>`;
+  }
+
   const gearBulk = bulkTargetControls(
     "All gear target",
     "bulkChiefGearTarget",
@@ -4878,9 +5354,97 @@ function renderChiefGear() {
     [{ action: "chief-gear", label: "Apply all slots" }],
     maxTarget,
   );
+  
   const smartPlan = smartRecommendationPlan("chief_gear");
+
+  const avatarSilhouette = `
+    <div class="chief-avatar-container">
+      <svg class="chief-avatar-silhouette" viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- head -->
+        <circle cx="50" cy="30" r="12" fill="#00d2ff" opacity="0.8"/>
+        <!-- body -->
+        <path d="M30 48 C 30 48, 20 70, 18 100 L 40 100 L 50 70 L 60 100 L 82 100 C 80 70, 70 48, 70 48 L 50 50 Z" fill="#00d2ff" opacity="0.6"/>
+        <!-- glowing chest detail -->
+        <path d="M50 55 L 43 70 L 50 82 L 57 70 Z" fill="#2cf5f5" opacity="0.9"/>
+        <!-- shoulders/pauldrons details -->
+        <path d="M28 48 L 36 54 M 72 48 L 64 54" stroke="#2cf5f5" stroke-width="2" opacity="0.8"/>
+        <!-- ice particles -->
+        <circle cx="25" cy="40" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="75" cy="45" r="1" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="35" cy="85" r="1" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="65" cy="90" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+      </svg>
+    </div>
+  `;
+
+  const selectedCoverage = gameCostCoverage(selectedCost, GEAR_FIELDS);
+  const editorHtml = gameDialogHtml({
+    title: `${selectedSlot.name} — Gear Enhancement`,
+    className: "chief-gear-dialog",
+    body: `
+      <div class="gd-hero-row">
+        ${iconHtml("chiefgear" + selectedSlotId, selectedSlot.name, "xl")}
+        ${gameLevelFlowHtml(selectedSaved.current, selectedSaved.target)}
+      </div>
+      <div class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(selectedImpact.currentPower)}</strong><em class="gd-gain">${signedFmt(selectedImpact.deltaPower)}</em></div>
+      <div class="gd-select-row">
+        <label class="compact-field">
+          <span>Current level</span>
+          <select data-path="chief_gear.${selectedSlotId}.current">
+            ${optionList(levels, "gear_level_code", "gear_level_code", selectedSaved.current)}
+          </select>
+        </label>
+        <label class="compact-field">
+          <span>Target level</span>
+          <select data-path="chief_gear.${selectedSlotId}.target">
+            ${optionList(levels, "gear_level_code", "gear_level_code", selectedSaved.target)}
+          </select>
+        </label>
+      </div>
+      ${gameBonusRowsHtml(
+        [...selectedStatChanges.map((change) => ({ label: change.label, current: change.current, target: change.target }))],
+        "Stat Bonuses",
+      )}
+      <section class="gd-section">
+        ${gameSectionBannerHtml("Enhancement Cost")}
+        ${gameCostTilesHtml(selectedCost, GEAR_FIELDS, { emptyText: "Slot already at target level." })}
+      </section>
+      <div class="gd-btn-row">
+        ${gameButtonHtml(
+          !selectedCoverage.hasCost ? "Target Met" : selectedCoverage.covered ? "Enhance" : "Materials Short",
+          !selectedCoverage.hasCost ? "" : selectedCoverage.covered ? "All materials covered" : `${selectedCoverage.shortCount} material${selectedCoverage.shortCount === 1 ? "" : "s"} short — check exchange below`,
+          selectedCoverage.covered && selectedCoverage.hasCost ? "blue" : "grey",
+          selectedCoverage.covered && selectedCoverage.hasCost,
+        )}
+      </div>
+    `,
+  });
+
   $("#tab-chief-gear").innerHTML = `
-    <div class="toolbar"><div><h2>Chief Gear</h2><p>Grouped by troop type using the in-game chief gear stat mapping.</p></div>${gearBulk}</div>
+    <div class="toolbar"><div><h2>Chief Gear</h2><p>Upgrade chief equipment items to boost troop stats.</p></div>${gearBulk}</div>
+    
+    <div class="chief-gear-layout-container">
+      <div class="chief-gear-screen">
+        <div class="chief-gear-grid-container">
+          <div class="chief-gear-col-left">
+            ${renderSlotCard("hat")}
+            ${renderSlotCard("watch")}
+            ${renderSlotCard("coat")}
+          </div>
+          ${avatarSilhouette}
+          <div class="chief-gear-col-right">
+            ${renderSlotCard("pants")}
+            ${renderSlotCard("ring")}
+            ${renderSlotCard("cudgel")}
+          </div>
+        </div>
+      </div>
+      
+      <div class="chief-gear-editor-view">
+        ${editorHtml}
+      </div>
+    </div>
+    
     ${upgradeNutshellHtml({
       module: "Chief Gear",
       selected: upgradeSelectionText(selectedUpgradeCount, "gear target", "gear targets"),
@@ -4895,22 +5459,21 @@ function renderChiefGear() {
       exchangeKey: "chief_gear",
       empty: "Set chief gear targets above current tiers to see material gaps.",
     })}
+    
     ${smartRecommendationPanelHtml("chief_gear", "Chief Gear Targets", smartPlan, "Suggests affordable chief gear target changes by stat gain and material pressure.")}
-    <div class="summary-grid">
-      ${GEAR_FIELDS.map((field, idx) => {
-        const key = Array.isArray(field) ? field[0] : field;
-        const color = ["blue", "amber", "green", "purple"][idx % 4];
-        return `<div class="metric ${color}"><span>${visualResourceLabel(key, RESOURCE_LABELS[key] || key)}</span><strong>${fmt(totalCost[key])}</strong></div>`;
-      }).join("")}
-      <div class="metric blue"><span>Projected power gain</span><strong>${signedFmt(totalTargetPower - totalCurrentPower)}</strong></div>
-    </div>
-    ${statImpactPanel("Total Chief Gear Impact", [
-      ...aggregateStatCards(totalStatChanges, "Chief gear attribute table"),
-      statImpactCard("Workbook Power", fmt(totalCurrentPower), fmt(totalTargetPower), signedFmt(totalTargetPower - totalCurrentPower), "Exact current-to-target power delta"),
-    ], "Material costs and power are exact from the workbook. Attribute stats use the confirmed chief gear table and status-step interpolation.")}
     ${inventoryComparisonHtml(totalCost, GEAR_FIELDS, "Combined gear upgrade materials", "chief_gear")}
-    <div class="chief-troop-grid">${groupCards}</div>
   `;
+}
+
+function charmArtKey(gearSlotId, level) {
+  const slot = normalizeKey(gearSlotId);
+  const troopClass = ["coat", "pants"].includes(slot)
+    ? "infantry"
+    : ["hat", "watch"].includes(slot)
+      ? "lancer"
+      : "marksman";
+  const shape = Number(level) >= 10 ? "round" : "hex";
+  return `charm${troopClass}${shape}`;
 }
 
 function renderCharms() {
@@ -4928,64 +5491,93 @@ function renderCharms() {
   );
   const targetOptions = levels.map((level) => [level.charm_level, `Level ${level.label}`]);
   const maxTarget = gameData.chief_charm_levels.at(-1)?.charm_level;
+
+  // Selected Charm Socket
+  const selectedSocketId = state.selected_chief_charm_socket_id || "hat_top";
+  const selectedSocket = gameData.chief_charm_slots.find(s => s.slot_id === selectedSocketId) || gameData.chief_charm_slots[0];
+  const selectedGearSlotId = normalizeKey(selectedSocket.gear_slot);
+  const selectedGearSlot = gearSlotById[selectedGearSlotId];
+  
+  const selectedSaved = state.charms[selectedSocketId] || { current: 0, target: 0 };
+  const selectedImpact = powerImpact(levels, selectedSaved.current, selectedSaved.target, "charm_level");
+  const selectedStatChanges = chiefCharmAttributeChanges(selectedGearSlotId, selectedSaved.current, selectedSaved.target);
+  const selectedPowerChange = {
+    label: "Power",
+    current: fmt(selectedImpact.currentPower),
+    target: fmt(selectedImpact.targetPower),
+    delta: signedFmt(selectedImpact.deltaPower),
+  };
+  const selectedCost = rangeCost(levels, selectedSaved.current, selectedSaved.target, {
+    idKey: "charm_level",
+    orderKey: "charm_level",
+    fields: CHARM_FIELDS,
+  });
+
+  // Calculate totals and group cards
   const groupCards = CHIEF_TROOP_GROUPS.map((group) => {
     let groupCost = makeCost(CHARM_FIELDS);
     let groupCurrentPower = 0;
     let groupTargetPower = 0;
     let groupStatChanges = {};
-    const gearBlocks = group.gearSlots
-      .map((gearSlotId) => {
-        const gearSlot = gearSlotById[gearSlotId];
-        const rows = (charmSlotsByGear[gearSlotId] || [])
-          .map((slot) => {
-            const saved = state.charms[slot.slot_id];
-            const impact = powerImpact(levels, saved.current, saved.target, "charm_level");
-            const statChanges = chiefCharmAttributeChanges(gearSlotId, saved.current, saved.target);
-            const powerChange = {
-              label: "Power",
-              current: fmt(impact.currentPower),
-              target: fmt(impact.targetPower),
-              delta: signedFmt(impact.deltaPower),
-            };
-            const cost = rangeCost(levels, saved.current, saved.target, {
-              idKey: "charm_level",
-              orderKey: "charm_level",
-              fields: CHARM_FIELDS,
-            });
-            totalCost = addCost(totalCost, cost);
-            groupCost = addCost(groupCost, cost);
-            if (!costIsEmpty(cost)) {
-              selectedUpgradeCount += 1;
-              selectedUpgrades.push({
-                kind: "charm",
-                scope: "charm",
-                label: `${gearSlot?.name || titleFromId(gearSlotId)} ${slot.position}`,
-                meta: group.label,
-                from: `Lv ${saved.current}`,
-                to: `Lv ${saved.target}`,
-              });
-            }
-            groupCurrentPower += impact.currentPower;
-            groupTargetPower += impact.targetPower;
-            totalCurrentPower += impact.currentPower;
-            totalTargetPower += impact.targetPower;
-            mergeNumericStatChanges(groupStatChanges, statChanges);
-            mergeNumericStatChanges(totalStatChanges, statChanges);
-            return `<div class="chief-control-row chief-control-row--charm">
-              <div class="chief-control-main">${visualLabel("charm", slot.position, `${slot.gear_slot} charm`)}</div>
-              <label><span>Current</span><select data-path="charms.${slot.slot_id}.current">${optionList(levels, "label", "charm_level", saved.current)}</select></label>
-              <label class="target-with-reset"><span>Target</span><select data-path="charms.${slot.slot_id}.target">${optionList(levels, "label", "charm_level", saved.target)}</select>${resetTargetButton(`charm:${slot.slot_id}`)}</label>
-              <div class="chief-control-impact"><span>Stat impact</span>${statChangeListHtml([...statChanges, powerChange])}</div>
-              <div class="chief-control-cost"><span>Cost</span>${costHtml(cost, CHARM_FIELDS)}</div>
-            </div>`;
-          })
-          .join("");
-        return `<div class="chief-gear-cluster">
-          <h3>${visualLabel("gear", gearSlot?.name || titleFromId(gearSlotId))}</h3>
-          <div class="chief-control-list">${rows}</div>
+    
+    const gearBlocks = group.gearSlots.map((gearSlotId) => {
+      const gearSlot = gearSlotById[gearSlotId];
+      const sockets = charmSlotsByGear[gearSlotId] || [];
+      
+      const socketsHtml = sockets.map((slot) => {
+        const saved = state.charms[slot.slot_id];
+        const isActive = slot.slot_id === selectedSocketId;
+        
+        // Sum values for group totals
+        const impact = powerImpact(levels, saved.current, saved.target, "charm_level");
+        const statChanges = chiefCharmAttributeChanges(gearSlotId, saved.current, saved.target);
+        const cost = rangeCost(levels, saved.current, saved.target, {
+          idKey: "charm_level",
+          orderKey: "charm_level",
+          fields: CHARM_FIELDS,
+        });
+        
+        totalCost = addCost(totalCost, cost);
+        groupCost = addCost(groupCost, cost);
+        
+        if (!costIsEmpty(cost)) {
+          selectedUpgradeCount += 1;
+          selectedUpgrades.push({
+            kind: "charm",
+            scope: "charm",
+            label: `${gearSlot?.name || titleFromId(gearSlotId)} ${slot.position}`,
+            meta: group.label,
+            from: `Lv ${saved.current}`,
+            to: `Lv ${saved.target}`,
+          });
+        }
+        
+        groupCurrentPower += impact.currentPower;
+        groupTargetPower += impact.targetPower;
+        totalCurrentPower += impact.currentPower;
+        totalTargetPower += impact.targetPower;
+        mergeNumericStatChanges(groupStatChanges, statChanges);
+        mergeNumericStatChanges(totalStatChanges, statChanges);
+        
+        const socketSelected = Number(saved.target) > Number(saved.current);
+        return `<div class="charm-socket-node ${isActive ? 'active-socket' : ''}" data-select-chief-charm-socket-id="${slot.slot_id}">
+          <div class="charm-socket-node__circle">${iconHtml(charmArtKey(gearSlotId, saved.current), "Charm gem", "md")}${socketSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</div>
+          <span class="charm-socket-node__label">Lv. ${esc(saved.current)}${socketSelected ? ` <b class="gd-gain">➜ ${esc(saved.target)}</b>` : ""}</span>
+          <span class="charm-socket-node__sub">${esc(slot.position)}</span>
         </div>`;
-      })
-      .join("");
+      }).join("");
+      
+      return `<div class="charm-gear-piece-card">
+        <div class="charm-gear-piece-card__head">
+          ${iconHtml(charmArtKey(gearSlotId, 0), "Charm gem", "sm")}
+          <strong>${esc(gearSlot?.name || titleFromId(gearSlotId))}</strong>
+        </div>
+        <div class="charm-sockets-container">
+          ${socketsHtml}
+        </div>
+      </div>`;
+    }).join("");
+    
     const groupBulk = bulkTargetControls(
       "Group target",
       `bulkCharmTarget_${group.id}`,
@@ -4993,19 +5585,28 @@ function renderCharms() {
       [{ action: `charms:${group.id}`, label: `Apply ${group.label}` }],
       maxTarget,
     );
-    return `<section class="chief-troop-card chief-troop-card--${group.id}">
+    
+    return `<section class="chief-troop-card charms-troops-group-card chief-troop-card--${group.id}">
       <div class="chief-troop-head">
         ${visualLabel("troop", group.label, group.gearSlots.map((slotId) => gearSlotById[slotId]?.name || titleFromId(slotId)).join(" / "))}
         ${groupBulk}
       </div>
-      <div class="chief-gear-clusters">${gearBlocks}</div>
-      ${statImpactPanel(`${group.label} Charm Impact`, [
-        ...aggregateStatCards(groupStatChanges, "Charm attribute table"),
-        statImpactCard("Workbook Power", fmt(groupCurrentPower), fmt(groupTargetPower), signedFmt(groupTargetPower - groupCurrentPower), "Exact from charm level rows"),
-      ], "Lethality and health are calculated from the sourced charm stat table.")}
-      ${inventoryComparisonHtml(groupCost, CHARM_FIELDS, `${group.label} charm materials`)}
+      <div class="charms-slots-layout">${gearBlocks}</div>
+      ${gameBonusRowsHtml(
+        [
+          ...Object.values(groupStatChanges).map((change) => ({
+            label: change.label,
+            current: statDisplay(change.rawCurrent, change.type),
+            target: statDisplay(change.rawTarget, change.type),
+          })),
+          { label: "Power", current: fmt(groupCurrentPower), target: groupTargetPower !== groupCurrentPower ? fmt(groupTargetPower) : null },
+        ],
+        `${group.label} Bonus`,
+      )}
+      ${gameCostTilesHtml(groupCost, CHARM_FIELDS, { emptyText: `No ${group.label.toLowerCase()} charm targets selected.` })}
     </section>`;
   }).join("");
+
   const charmBulk = bulkTargetControls(
     "All charms target",
     "bulkCharmTarget",
@@ -5013,9 +5614,64 @@ function renderCharms() {
     [{ action: "charms", label: "Apply all charms" }],
     maxTarget,
   );
+  
   const smartPlan = smartRecommendationPlan("charms");
+
+  const selectedCoverage = gameCostCoverage(selectedCost, CHARM_FIELDS);
+  const editorHtml = gameDialogHtml({
+    title: `${selectedGearSlot?.name || titleFromId(selectedGearSlotId)} — ${selectedSocket.position} Charm`,
+    className: "charm-dialog",
+    body: `
+      <div class="gd-hero-row">
+        ${iconHtml(charmArtKey(selectedGearSlotId, selectedSaved.current), "Charm gem", "xl")}
+        ${gameLevelFlowHtml(`Lv. ${selectedSaved.current}`, `Lv. ${selectedSaved.target}`)}
+      </div>
+      <div class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(selectedImpact.currentPower)}</strong><em class="gd-gain">${signedFmt(selectedImpact.deltaPower)}</em></div>
+      <div class="gd-select-row">
+        <label class="compact-field">
+          <span>Current level</span>
+          <select data-path="charms.${selectedSocketId}.current">
+            ${optionList(levels, "label", "charm_level", selectedSaved.current)}
+          </select>
+        </label>
+        <label class="compact-field">
+          <span>Target level</span>
+          <select data-path="charms.${selectedSocketId}.target">
+            ${optionList(levels, "label", "charm_level", selectedSaved.target)}
+          </select>
+        </label>
+      </div>
+      ${gameBonusRowsHtml(
+        selectedStatChanges.map((change) => ({ label: change.label, current: change.current, target: change.target })),
+        "Stat Bonuses",
+      )}
+      <section class="gd-section">
+        ${gameSectionBannerHtml("Upgrade Cost")}
+        ${gameCostTilesHtml(selectedCost, CHARM_FIELDS, { emptyText: "Charm already at target level." })}
+      </section>
+      <div class="gd-btn-row">
+        ${gameButtonHtml(
+          !selectedCoverage.hasCost ? "Target Met" : selectedCoverage.covered ? "Upgrade" : "Materials Short",
+          !selectedCoverage.hasCost ? "" : selectedCoverage.covered ? "All materials covered" : `${selectedCoverage.shortCount} material${selectedCoverage.shortCount === 1 ? "" : "s"} short — check exchange below`,
+          selectedCoverage.covered && selectedCoverage.hasCost ? "blue" : "grey",
+          selectedCoverage.covered && selectedCoverage.hasCost,
+        )}
+      </div>
+    `,
+  });
+
   $("#tab-charms").innerHTML = `
     <div class="toolbar"><div><h2>Chief Charms</h2><p>Grouped by the troop type of the gear piece each charm is attached to.</p></div>${charmBulk}</div>
+    
+    <div class="chief-gear-layout-container">
+      <div class="chief-gear-editor-view">
+        ${editorHtml}
+      </div>
+      <div class="chief-troop-grid">
+        ${groupCards}
+      </div>
+    </div>
+    
     ${upgradeNutshellHtml({
       module: "Chief Charms",
       selected: upgradeSelectionText(selectedUpgradeCount, "charm target", "charm targets"),
@@ -5030,21 +5686,9 @@ function renderCharms() {
       exchangeKey: "chief_charms",
       empty: "Set charm targets above current levels to see material gaps.",
     })}
+    
     ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "Suggests affordable charm targets with troop-type and stat bias weighting.")}
-    <div class="summary-grid">
-      ${CHARM_FIELDS.map((field, idx) => {
-        const key = Array.isArray(field) ? field[0] : field;
-        const color = ["blue", "amber", "green", "purple"][idx % 4];
-        return `<div class="metric ${color}"><span>${visualResourceLabel(key, RESOURCE_LABELS[key] || key)}</span><strong>${fmt(totalCost[key])}</strong></div>`;
-      }).join("")}
-      <div class="metric blue"><span>Projected power gain</span><strong>${signedFmt(totalTargetPower - totalCurrentPower)}</strong></div>
-    </div>
-    ${statImpactPanel("Total Charm Impact", [
-      ...aggregateStatCards(totalStatChanges, "Charm attribute table"),
-      statImpactCard("Workbook Power", fmt(totalCurrentPower), fmt(totalTargetPower), signedFmt(totalTargetPower - totalCurrentPower), "Exact current-to-target power delta"),
-    ], "Charm materials and power are exact from the workbook. Lethality and health totals use the confirmed charm stat table.")}
     ${inventoryComparisonHtml(totalCost, CHARM_FIELDS, "Combined charm upgrade materials", "chief_charms")}
-    <div class="chief-troop-grid">${groupCards}</div>
   `;
 }
 
@@ -5085,14 +5729,26 @@ function renderPets() {
         });
       }
       totalSvsGain += svsGain;
-      return `<tr>
-        <td>${visualLabel("pet", pet.name, observed.power ? `Power ${fmt(observed.power)}` : "")}</td>
-        <td><select data-path="pets.${pet.pet_id}.current">${optionList(levels, "label", "level_code", saved.current)}</select></td>
-        <td><select data-path="pets.${pet.pet_id}.target">${optionList(levels, "label", "level_code", saved.target)}</select></td>
-        <td>${observedStatsHtml(observed)}</td>
-        <td><div class="impact-stack"><strong>${signedFmt(svsGain)} SVS</strong><span>Target combat stat table not in workbook extract</span></div></td>
-        <td>${costHtml(cost, PET_FIELDS)}</td>
-      </tr>`;
+      const upgradeSelected = String(saved.current) !== String(saved.target);
+      const statRows = observedStatEntries(observed)
+        .map((entry) => ({ label: entry.label, current: entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value) }));
+      return `<div class="pet-card">
+        <div class="pet-card__head">
+          <span class="pet-card__portrait">${iconHtml("pet", pet.name, "xl", "pet")}${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</span>
+          <div class="pet-card__title">
+            <strong>${esc(pet.name)}</strong>
+            ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : `<span class="muted">Not captured</span>`}
+          </div>
+          ${gameLevelFlowHtml(`Lv. ${saved.current}`, `Lv. ${saved.target}`)}
+        </div>
+        <div class="gd-select-row">
+          <label class="compact-field"><span>Current</span><select data-path="pets.${pet.pet_id}.current">${optionList(levels, "label", "level_code", saved.current)}</select></label>
+          <label class="compact-field"><span>Target</span><select data-path="pets.${pet.pet_id}.target">${optionList(levels, "label", "level_code", saved.target)}</select></label>
+        </div>
+        ${statRows.length ? gameBonusRowsHtml(statRows, "Current Bonuses") : ""}
+        ${upgradeSelected ? `<div class="gd-time-row"><span>SVS gain:</span><strong class="gd-gain">${signedFmt(svsGain)}</strong></div>` : ""}
+        ${gameCostTilesHtml(cost, PET_FIELDS, { emptyText: "No upgrade selected." })}
+      </div>`;
     })
     .join("");
   const petTargetOptions = [
@@ -5124,23 +5780,10 @@ function renderPets() {
       empty: "Set pet targets above current levels to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("pets", "Pet Targets", smartPlan, "Uses available pet materials to maximize workbook SVS gain; combat stat target rows still need full extraction.")}
-    <div class="summary-grid">
-      ${PET_FIELDS.map((field, idx) => {
-        const key = Array.isArray(field) ? field[0] : field;
-        const color = ["blue", "amber", "green", "purple"][idx % 4];
-        return `<div class="metric ${color}"><span>${visualResourceLabel(key, RESOURCE_LABELS[key] || key)}</span><strong>${fmt(totalCost[key])}</strong></div>`;
-      }).join("")}
-      <div class="metric blue"><span>Pet power read</span><strong>${fmt(observedPower)}</strong></div>
-      <div class="metric green"><span>Target SVS gain</span><strong>${fmt(totalSvsGain)}</strong></div>
-    </div>
+    <div class="pet-card-grid">${rows}</div>
     ${statImpactPanel("Observed Pet Combat Stats", aggregateStats.map((entry) =>
       statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current read", "Summed from captured pet detail pages"),
     ), "Pet target combat percentages still need a confirmed in-game level stat table.")}
-    ${inventoryComparisonHtml(totalCost, PET_FIELDS, "Pets materials")}
-    <div class="table-wrap pets-table"><table>
-      <thead><tr><th>Pet</th><th>Current</th><th>Target</th><th>Current Stats</th><th>Target Gain</th><th>Cost</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
   `;
 }
 
@@ -5164,34 +5807,127 @@ function moduleTable(title, totalCost, fields, headers, rows, actions = "") {
   `;
 }
 
+const HERO_ASCENSION_TIER_COSTS = [
+  [1, 1, 2, 2, 2, 2],
+  [5, 5, 5, 5, 5, 15],
+  [15, 15, 15, 15, 15, 40],
+  [40, 40, 40, 40, 40, 100],
+  [100, 100, 100, 100, 100, 100],
+];
+const HERO_WIDGET_LEVEL_COSTS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+const HERO_EXCLUSIVE_GEAR_NAMES = {
+  jeronimo: "Dawnbreak",
+  natalia: "Gale Force",
+  molly: "Yeti Spirit",
+  zinman: "Woodpecker",
+  flint: "Dragonbane",
+  philly: "Pharmacologica",
+  alonso: "Captain Ahab",
+  logan: "Fists of Steel",
+  mia: "Fate Crystal",
+  greg: "State Edict",
+  ahmose: "Guardian's Relic",
+  reina: "Ninjaken - Raikiri",
+  lynn: "Ella's Tear",
+  hector: "Steel Fangs",
+  norah: "Snow Cruiser",
+  gwen: "Wings of Hope",
+  wayne: "Power Boomerang",
+  renee: "Illusion Magiball",
+  edith: "Charm Toolkit",
+  bradley: "Thunder Cannon",
+  gordon: "Bonecrux Venom",
+};
+
+function heroShardsToTarget(currentStars, currentTier, targetStars, targetTier = 0) {
+  let total = 0;
+  let stars = Math.max(0, Math.min(5, Number(currentStars) || 0));
+  let tier = Math.max(0, Math.min(5, Number(currentTier) || 0));
+  const toStars = Math.max(0, Math.min(5, Number(targetStars) || 0));
+  const toTier = Math.max(0, Math.min(5, Number(targetTier) || 0));
+  while (stars < 5 && (stars < toStars || (stars === toStars && tier < toTier))) {
+    total += HERO_ASCENSION_TIER_COSTS[stars][tier];
+    tier += 1;
+    if (tier >= 6) {
+      tier = 0;
+      stars += 1;
+    }
+  }
+  return total;
+}
+
+function heroWidgetsToTarget(currentLevel, targetLevel) {
+  const from = Math.max(0, Math.min(10, Number(currentLevel) || 0));
+  const to = Math.max(0, Math.min(10, Number(targetLevel) || 0));
+  let total = 0;
+  for (let level = from + 1; level <= to; level += 1) total += HERO_WIDGET_LEVEL_COSTS[level - 1];
+  return total;
+}
+
 function renderHeroes() {
   const grouped = groupBy(gameData.heroes, "generation");
-  const rows = gameData.heroes
+  const starPips = (count, tier) => {
+    const stars = Math.max(0, Math.min(5, Number(count || 0)));
+    const subTier = Math.max(0, Math.min(5, Number(tier || 0)));
+    const pips = Array.from({ length: 5 }, (_, i) => `<i class="${i < stars ? "on" : i === stars && subTier > 0 ? "part" : ""}"></i>`).join("");
+    const tierLabel = subTier > 0 && stars < 5 ? `<em class="hero-star-tier">T${subTier}</em>` : "";
+    return `<span class="hero-stars" aria-label="${stars} stars, tier ${subTier}">${pips}${tierLabel}</span>`;
+  };
+  let totalShardsNeeded = 0;
+  let totalWidgetsNeeded = 0;
+  const cards = gameData.heroes
     .map((hero) => {
       const saved = state.heroes[hero.hero_id];
-      return `<tr>
-        <td>${visualLabel("hero", hero.name, `${hero.rarity}${hero.generation ? ` | Gen ${hero.generation}` : ""}`)}</td>
-        <td>${visualLabel("troop", hero.troop_type)}</td>
-        <td>${esc(hero.default_role || "-")}</td>
-        <td><input type="checkbox" ${saved.owned ? "checked" : ""} data-path="heroes.${hero.hero_id}.owned" /></td>
-        <td>${numberInput(`heroes.${hero.hero_id}.current_stars`, saved.current_stars)}</td>
-        <td>${numberInput(`heroes.${hero.hero_id}.target_stars`, saved.target_stars)}</td>
-        <td>${numberInput(`heroes.${hero.hero_id}.current_widget_level`, saved.current_widget_level)}</td>
-        <td>${numberInput(`heroes.${hero.hero_id}.target_widget_level`, saved.target_widget_level)}</td>
-      </tr>`;
+      const observed = state.extracted_current?.heroes?.[hero.hero_id] || {};
+      const gearName = HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id];
+      const shardsNeeded = saved.owned
+        ? heroShardsToTarget(saved.current_stars, saved.current_star_tier, saved.target_stars, saved.target_star_tier)
+        : 0;
+      const shardsShort = Math.max(0, shardsNeeded - Number(saved.shards || 0));
+      const widgetsNeeded = saved.owned && gearName ? heroWidgetsToTarget(saved.current_widget_level, saved.target_widget_level) : 0;
+      if (saved.owned) {
+        totalShardsNeeded += shardsNeeded;
+        totalWidgetsNeeded += widgetsNeeded;
+      }
+      const needsRows = [];
+      if (shardsNeeded > 0) needsRows.push(`Shards to target: <strong>${fmt(shardsNeeded)}</strong> (${shardsShort > 0 ? `${fmt(shardsShort)} short` : "covered by stock"})`);
+      if (widgetsNeeded > 0) needsRows.push(`Widgets to +${esc(saved.target_widget_level)}: <strong>${fmt(widgetsNeeded)}</strong>`);
+      return `<div class="hero-roster-card rarity-${normalizeKey(hero.rarity || "rare")} ${saved.owned ? "" : "is-unowned"}">
+        <div class="hero-roster-card__portrait">
+          ${iconHtml("hero", hero.name, "xl", hero.hero_id)}
+          ${hero.generation ? `<span class="hero-gen-badge">S${esc(hero.generation)}</span>` : ""}
+          <span class="hero-troop-badge">${iconHtml("troop", hero.troop_type, "sm")}</span>
+          ${observed.level ? `<span class="hero-level-badge">Lv. ${esc(observed.level)}</span>` : ""}
+        </div>
+        <div class="hero-roster-card__body">
+          <strong>${esc(hero.name)}</strong>
+          <span class="muted">${esc(hero.rarity || "")}${hero.default_role ? ` · ${esc(hero.default_role)}` : ""}</span>
+          ${starPips(saved.current_stars, saved.current_star_tier)}
+          ${gearName ? `<span class="hero-widget-line muted">${esc(gearName)}${Number(saved.current_widget_level) > 0 ? ` +${esc(saved.current_widget_level)}` : " (locked)"}</span>` : ""}
+          <label class="hero-owned-toggle"><input type="checkbox" ${saved.owned ? "checked" : ""} data-path="heroes.${hero.hero_id}.owned" /><span>Owned</span></label>
+          <div class="hero-roster-inputs">
+            <label><span>Stars</span>${numberInput(`heroes.${hero.hero_id}.current_stars`, saved.current_stars)}</label>
+            <label><span>Tier</span>${numberInput(`heroes.${hero.hero_id}.current_star_tier`, saved.current_star_tier || 0)}</label>
+            <label><span>Target</span>${numberInput(`heroes.${hero.hero_id}.target_stars`, saved.target_stars)}</label>
+            <label><span>T. tier</span>${numberInput(`heroes.${hero.hero_id}.target_star_tier`, saved.target_star_tier || 0)}</label>
+            <label><span>Shards</span>${numberInput(`heroes.${hero.hero_id}.shards`, saved.shards || 0)}</label>
+            <label><span>Widget</span>${numberInput(`heroes.${hero.hero_id}.current_widget_level`, saved.current_widget_level)}</label>
+            <label><span>W. target</span>${numberInput(`heroes.${hero.hero_id}.target_widget_level`, saved.target_widget_level)}</label>
+          </div>
+          ${needsRows.length ? `<div class="hero-needs">${needsRows.map((row) => `<span>${row}</span>`).join("")}</div>` : ""}
+        </div>
+      </div>`;
     })
     .join("");
   $("#tab-heroes").innerHTML = `
     <div class="summary-grid">
       <div class="metric blue"><span>Hero rows</span><strong>${fmt(gameData.heroes.length)}</strong></div>
-      <div class="metric amber"><span>Mythic generations</span><strong>${fmt(Object.keys(grouped).filter((x) => x !== "null").length)}</strong></div>
-      <div class="metric green"><span>Owned marked</span><strong>${fmt(Object.values(state.heroes).filter((hero) => hero.owned).length)}</strong></div>
-      <div class="metric purple"><span>Latest seeded gen</span><strong>${fmt(Math.max(...gameData.heroes.map((hero) => hero.generation || 0)))}</strong></div>
+      <div class="metric amber"><span>Shards needed (targets)</span><strong>${fmt(totalShardsNeeded)}</strong></div>
+      <div class="metric green"><span>Widgets needed (targets)</span><strong>${fmt(totalWidgetsNeeded)}</strong></div>
+      <div class="metric purple"><span>Owned marked</span><strong>${fmt(Object.values(state.heroes).filter((hero) => hero.owned).length)}</strong></div>
     </div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Hero</th><th>Troop</th><th>Role</th><th>Owned</th><th>Stars</th><th>Target</th><th>Widget</th><th>Target</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
+    <p class="muted hero-roster-note">Each star has 6 ascension tiers (T1-T6). Shard costs per tier: 0★ 1/1/2/2/2/2 · 1★ 5x5+15 · 2★ 15x5+40 · 3★ 40x5+100 · 4★ 100x6. Exclusive gear widgets per level: 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 (275 total to +10).</p>
+    <div class="hero-roster-grid">${cards}</div>
   `;
 }
 
@@ -5203,7 +5939,7 @@ function renderHeroGear() {
   const primarySummary = heroGearUpgradeSummary(primaryEntries);
   const primarySetInvestments = heroGearSetInvestmentBreakdown(primaryEntries);
   const set2Investment = primarySetInvestments.set_2?.total || makeCost(HERO_GEAR_FIELDS);
-  const set2Labels = (primarySetInvestments.set_2?.sets || []).map((set) => `${set.setLabel}: ${fmt(set.investment.hero_gear_xp)} XP`);
+  const set2Labels = (primarySetInvestments.set_2?.sets || []).map((set) => set.setLabel + ": " + fmt(set.investment.hero_gear_xp) + " XP");
   const allSummary = heroGearUpgradeSummary(gearEntries);
   const capturedGearStats = allSummary.capturedStats;
   const gearRows = gearEntries
@@ -5212,33 +5948,17 @@ function renderHeroGear() {
       const targets = heroGearTargetsFor(heroId);
       const targetCost = heroGearCostToTarget(gearSet, heroId);
       return `<tr>
-        <td>${visualLabel("hero", hero.name, `${hero.rarity}${hero.generation ? ` | Gen ${hero.generation}` : ""}`)}</td>
+        <td>${visualLabel("hero", hero.name, hero.rarity + (hero.generation ? " | Gen " + hero.generation : ""))}</td>
         <td>${visualLabel("troop", gearSet.troop_type || hero.troop_type)}</td>
         <td>${heroGearPiecesHtml(gearSet.gear)}</td>
         <td>${heroGearSpecialHtml(gearSet)}</td>
         <td>${heroGearPieceTargetsHtml(heroId, gearSet)}</td>
-        <td>${numberInput(`hero_gear_targets.heroes.${heroId}.special_enhancement`, targets.specialEnhancement, 0)}</td>
+        <td>${numberInput("hero_gear_targets.heroes." + heroId + ".special_enhancement", targets.specialEnhancement, 0)}</td>
         <td>${costHtml(targetCost, HERO_GEAR_FIELDS)}</td>
       </tr>`;
     })
     .join("");
-  const primaryLoadoutCards = primaryEntries
-    .map((entry) => {
-      const { heroId, gearSet, hero, setLabel } = entry;
-      const targets = heroGearTargetsFor(heroId);
-      const targetCost = heroGearCostToTarget(gearSet, heroId);
-      return heroGearLoadoutHtml(heroId, gearSet, hero, targetCost, targets, setLabel);
-    })
-    .join("");
-  const otherLoadoutCards = gearEntries
-    .filter(([heroId]) => !primaryIds.has(heroId))
-    .map(([heroId, gearSet]) => {
-      const hero = heroRecordFor(heroId);
-      const targets = heroGearTargetsFor(heroId);
-      const targetCost = heroGearCostToTarget(gearSet, heroId);
-      return heroGearLoadoutHtml(heroId, gearSet, hero, targetCost, targets);
-    })
-    .join("");
+
   const totalCost = allSummary.totalCost;
   const levelBulk = bulkTargetControls(
     "Target mastery level",
@@ -5281,8 +6001,128 @@ function renderHeroGear() {
     .map((row) => `<tr><td>${fmt(row.level)}</td><td class="number">${fmt(row.xp)}</td><td class="number">${fmt(row.total_xp)}</td></tr>`)
     .join("");
   const smartPlan = smartRecommendationPlan("hero_gear");
+
+  // Selected Hero Logic
+  const selectedHeroId = state.selected_hero_id || (gearEntries[0] ? gearEntries[0][0] : "edith");
+  const portraitsHtml = gearEntries.map(([heroId, gearSet]) => {
+    const hero = heroRecordFor(heroId);
+    const isActive = heroId === selectedHeroId;
+    const isPrimary = primaryIds.has(heroId);
+    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${isPrimary ? 'primary-set' : ''}" data-select-hero-id="${heroId}" title="${esc(hero.name)}">
+      ${iconHtml("hero", hero.name, "md", heroId)}
+    </button>`;
+  }).join("");
+
+  const selectedEntry = gearEntries.find(([id]) => id === selectedHeroId) || gearEntries[0];
+  let selectedHeroLayoutHtml = "";
+  
+  if (selectedEntry) {
+    const [heroId, gearSet] = selectedEntry;
+    const hero = heroRecordFor(heroId);
+    const targets = heroGearTargetsFor(heroId);
+    const targetCost = heroGearCostToTarget(gearSet, heroId);
+    const isPrimary = primaryIds.has(heroId);
+    const setLabel = isPrimary ? "Primary Set" : "Secondary Set";
+    
+    const byPosition = heroGearPiecesByPosition(gearSet.gear || {});
+    
+    const slotsHtml = HERO_GEAR_POSITION_ORDER.map((position) => {
+      const entry = byPosition[position];
+      if (!entry) {
+        return `<div class="hero-gear-slot-node equipped-slot--empty">
+          <span style="font-size:11px;color:#cbd5e1;font-weight:700;">${esc(HERO_GEAR_POSITION_LABELS[position] || position)}</span>
+          <div style="font-size:12px;color:#94a3b8;margin-top:6px;">Not Equipped</div>
+        </div>`;
+      }
+      
+      const { slot, piece } = entry;
+      const label = heroGearPieceName(slot, piece);
+      const pieceTargets = heroGearPieceTargetsFor(heroId, slot);
+      const pieceCost = heroGearPieceCostToTarget(piece, pieceTargets, slot, hero);
+      const currentEnhancement = heroGearCurrentEnhancement(piece);
+      
+      return `<div class="hero-gear-slot-node border-${chiefGearRarityBorderClass(piece.rarity || 'epic')}">
+        <div class="hero-gear-slot-node__head">
+          <div class="hero-gear-slot-node__icon">
+            ${iconHtml("gear", label, "sm")}
+          </div>
+          <div class="hero-gear-slot-node__title">
+            <strong>${esc(label)}</strong>
+            <span>${esc(HERO_GEAR_POSITION_LABELS[position])}</span>
+          </div>
+        </div>
+        
+        <div class="hero-gear-slot-node__values">
+          <label>
+            <span>Current Lv</span>
+            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.current_level" disabled>
+              <option>Lv ${esc(piece.level || 0)}</option>
+            </select>
+          </label>
+          <label>
+            <span>Target Lv</span>
+            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_level">
+              ${optionList(gameData.hero_gear_mastery_levels.filter(row => row.scope === 'base'), "level", "level", pieceTargets.targetLevel)}
+            </select>
+          </label>
+          
+          <label>
+            <span>Current +</span>
+            <select disabled>
+              <option>+${esc(currentEnhancement)}</option>
+            </select>
+          </label>
+          <label>
+            <span>Target +</span>
+            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_enhancement">
+              ${optionList(Array.from({ length: 101 }, (_, i) => ({ level: i })), "level", "level", pieceTargets.targetEnhancement)}
+            </select>
+          </label>
+        </div>
+        
+        <div class="hero-gear-slot-node__cost">
+          ${gameCostTilesHtml(pieceCost, HERO_GEAR_FIELDS, { emptyText: "Piece at target." })}
+        </div>
+      </div>`;
+    }).join("");
+    
+    selectedHeroLayoutHtml = `
+      <div class="hero-gear-layout">
+        <div class="hero-profile-card">
+          <img src="${assetUrl(`assets/game/hero-${heroId}.png`)}" onerror="this.src='assets/game/hero-wu_ming.png'" alt="${esc(hero.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.1);" />
+          <h3>${esc(hero.name)}</h3>
+          <p>${esc(gearSet.troop_type || hero.troop_type)}</p>
+          <span class="hero-meta-badge">${esc(setLabel)}</span>
+          
+          <div class="hero-profile-card__footer">
+            <label class="compact-field">
+              <span>Target Special</span>
+              <input type="number" data-path="hero_gear_targets.heroes.${heroId}.special_enhancement" value="${targets.specialEnhancement}" min="0" />
+            </label>
+            <section class="gd-section">
+              ${gameSectionBannerHtml("Total Cost to Target")}
+              ${gameCostTilesHtml(targetCost, HERO_GEAR_FIELDS, { emptyText: "All pieces at target." })}
+            </section>
+          </div>
+        </div>
+        <div class="hero-gear-grid-right">
+          ${slotsHtml}
+        </div>
+      </div>
+    `;
+  }
+
   $("#tab-hero-gear").innerHTML = `
     <div class="toolbar"><div><h2>Hero Gear</h2><p>Current sets are loaded from the game extract. Mastery Forging and enhancement materials use workbook tables.</p></div></div>
+    
+    <div class="panel">
+      <h2>Visual Hero Equipment Planner</h2>
+      <div class="hero-selector-strip">
+        ${portraitsHtml}
+      </div>
+      ${selectedHeroLayoutHtml}
+    </div>
+    
     ${upgradeNutshellHtml({
       module: "Hero Gear Primary Sets",
       selected: upgradeSelectionText(primarySummary.selectedPieceCount, "primary gear piece target", "primary gear piece targets"),
@@ -5294,14 +6134,14 @@ function renderHeroGear() {
             statSnapshotCard("Primary Pieces", fmt(primarySummary.pieceCount), "Current account", "Set piece targets to project mastery and empowerment gains"),
           ],
       details: [
-        `${fmt(primaryEntries.length)} primary sets`,
-        `${fmt(trackedHeroes)} tracked loadouts total`,
-        `Primary power ${fmt(primarySummary.totalPower)}`,
-        `${fmt(primarySummary.investedCost.essence_stones)} stones invested`,
-        `${fmt(primarySummary.investedCost.hero_gear_xp)} XP invested`,
-        `${fmt(set2Investment.hero_gear_xp)} Set 2 XP invested`,
-        `${fmt(primarySummary.investedCost.mythic_gear)} mythic gear invested`,
-        `${fmt(primarySummary.investedCost.mithril)} mithril invested`,
+        fmt(primaryEntries.length) + " primary sets",
+        fmt(trackedHeroes) + " tracked loadouts total",
+        "Primary power " + fmt(primarySummary.totalPower),
+        fmt(primarySummary.investedCost.essence_stones) + " stones invested",
+        fmt(primarySummary.investedCost.hero_gear_xp) + " XP invested",
+        fmt(set2Investment.hero_gear_xp) + " Set 2 XP invested",
+        fmt(primarySummary.investedCost.mythic_gear) + " mythic gear invested",
+        fmt(primarySummary.investedCost.mithril) + " mithril invested",
         ...set2Labels,
       ],
       cost: primarySummary.totalCost,
@@ -5309,23 +6149,17 @@ function renderHeroGear() {
       empty: "Set hero gear piece targets above current levels or enhancements to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("hero_gear", "Hero Gear Targets", smartPlan, "Optimizes primary interchangeable hero gear sets using mastery stat gains and enhancement breakpoints.")}
-    ${heroGearPrimaryOverviewHtml(primaryEntries)}
     <div class="summary-grid">
       <div class="metric blue"><span>Tracked sets</span><strong>${fmt(trackedHeroes)}</strong></div>
-      <div class="metric amber"><span>Gear pieces read</span><strong>${fmt(allSummary.pieceCount)}</strong></div>
-      <div class="metric green"><span>Special items read</span><strong>${fmt(allSummary.specialCount)}</strong></div>
       <div class="metric blue"><span>Gear power read</span><strong>${fmt(allSummary.totalPower)}</strong></div>
-      <div class="metric amber"><span>Essence Stones</span><strong>${fmt(totalCost.essence_stones)}</strong></div>
+      <div class="metric amber"><span>Essence Stones to targets</span><strong>${fmt(totalCost.essence_stones)}</strong></div>
       <div class="metric purple"><span>XP to targets</span><strong>${fmt(totalCost.hero_gear_xp)}</strong></div>
-      <div class="metric amber"><span>Stones invested</span><strong>${fmt(allSummary.investedCost.essence_stones)}</strong></div>
-      <div class="metric purple"><span>XP invested</span><strong>${fmt(allSummary.investedCost.hero_gear_xp)}</strong></div>
-      <div class="metric purple"><span>Set 2 XP invested</span><strong>${fmt(set2Investment.hero_gear_xp)}</strong></div>
-      <div class="metric green"><span>Mythic Gear</span><strong>${fmt(totalCost.mythic_gear)}</strong></div>
-      <div class="metric amber"><span>Mithril</span><strong>${fmt(totalCost.mithril)}</strong></div>
-      <div class="metric green"><span>Mythic Gear invested</span><strong>${fmt(allSummary.investedCost.mythic_gear)}</strong></div>
-      <div class="metric amber"><span>Mithril invested</span><strong>${fmt(allSummary.investedCost.mithril)}</strong></div>
+      <div class="metric green"><span>Mythic Gear to targets</span><strong>${fmt(totalCost.mythic_gear)}</strong></div>
+      <div class="metric amber"><span>Mithril to targets</span><strong>${fmt(totalCost.mithril)}</strong></div>
     </div>
     ${inventoryComparisonHtml(totalCost, HERO_GEAR_FIELDS, "All tracked hero gear materials")}
+    <details class="table-disclosure">
+    <summary>Detailed hero gear impact and investment stats</summary>
     ${statImpactPanel("Hero Gear Impact", [
       ...capturedGearStats.map((entry) =>
         statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Captured gear details", "Summed from opened equipped gear detail popups"),
@@ -5341,19 +6175,13 @@ function renderHeroGear() {
       statSnapshotCard("Mythic Gear Invested", fmt(allSummary.investedCost.mythic_gear), "Eligible empowerment", "Calculated from active empowerment material levels"),
       statSnapshotCard("Mithril Invested", fmt(allSummary.investedCost.mithril), "Eligible empowerment", "Calculated from active empowerment material levels"),
     ], "Opened detail popups provide exact current stats; normal + enhancement XP follows the mythic gear guide, while empowerment stats remain gated by mastery level.")}
+    </details>
     <div class="panel hero-gear-actions">
       ${levelBulk}
       ${enhancementBulk}
       ${specialBulk}
     </div>
-    <details class="table-disclosure hero-loadout-disclosure" open>
-      <summary>Primary loadout detail cards</summary>
-      <div class="hero-loadout-grid">${primaryLoadoutCards || `<div class="empty-state"><span class="muted">No hero gear extract loaded yet.</span></div>`}</div>
-    </details>
-    <details class="table-disclosure hero-loadout-disclosure">
-      <summary>Other tracked hero gear loadouts</summary>
-      <div class="hero-loadout-grid">${otherLoadoutCards || `<div class="empty-state"><span class="muted">No additional loadouts captured.</span></div>`}</div>
-    </details>
+    
     <details class="table-disclosure">
       <summary>Full hero gear target table</summary>
       <div class="table-wrap hero-gear-table"><table>
@@ -5373,7 +6201,8 @@ function renderHeroGear() {
 
 function renderExperts() {
   const levelsByExpert = groupBy(gameData.expert_affinity_levels, "expert_id");
-  let totalCost = { expert_affinity: 0, common_sigils: 0 };
+  let totalCost = { expert_affinity: 0, common_sigils: 0, books_of_knowledge: 0 };
+  let totalLearningXp = 0;
   let selectedUpgradeCount = 0;
   const selectedUpgrades = [];
   const selectedImpactCards = [];
@@ -5403,6 +6232,9 @@ function renderExperts() {
         orderKey: "relationship_level",
         fields: [["expert_affinity", "affinity"], ["common_sigils", "sigils"]],
       });
+      const skillPlan = expertSkillPlanner(expert, observed.skills);
+      if (skillPlan.books > 0) cost.books_of_knowledge = skillPlan.books;
+      totalLearningXp += skillPlan.learningXp;
       totalCost = addCost(totalCost, cost);
       if (!costIsEmpty(cost)) {
         selectedUpgradeCount += 1;
@@ -5417,18 +6249,27 @@ function renderExperts() {
         });
       }
       const options = levels.map((level) => ({ ...level, label: level.relationship_label ? `${level.level_code} · ${level.relationship_label}` : level.level_code }));
-      const visibleSkills = Array.isArray(observed.visible_skill_levels) && observed.visible_skill_levels.length
-        ? `<div class="impact-stack"><strong>Visible skills ${observed.visible_skill_levels.map((level) => `Lv.${level}`).join(" / ")}</strong><span>${observed.relationship || ""}</span></div>`
-        : "";
-      return `<tr>
-        <td>${visualLabel("expert", expert.name, [expert.skills.map((skill) => skill.name).join(", "), observed.power ? `Power ${fmt(observed.power)}` : ""].filter(Boolean).join(" | "))}</td>
-        <td><select data-path="experts.${expert.expert_id}.relationship_current">${optionList(options, "label", "level_code", saved.relationship_current)}</select></td>
-        <td><select data-path="experts.${expert.expert_id}.relationship_target">${optionList(options, "label", "level_code", saved.relationship_target)}</select></td>
-        <td><div class="expert-current-stack">${observedStatsHtml(observed)}${visibleSkills}</div></td>
-        <td>${statChangeListHtml(impact.changes)}</td>
-        <td>${costHtml(cost, ["expert_affinity", ["common_sigils", "sigils"]])}</td>
-        <td class="number">${fmt(expert.total_books)}</td>
-      </tr>`;
+      const upgradeSelected = !costIsEmpty(cost);
+      const statRows = impact.changes.map((change) => ({ label: change.label, current: change.current, target: change.target }));
+      const currentLabel = levels.find((level) => String(level.level_code) === String(saved.relationship_current));
+      const targetLabel = levels.find((level) => String(level.level_code) === String(saved.relationship_target));
+      return `<div class="pet-card expert-card">
+        <div class="pet-card__head">
+          <span class="pet-card__portrait">${iconHtml("expert", expert.name, "xl", "expert")}${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</span>
+          <div class="pet-card__title">
+            <strong>${esc(expert.name)}</strong>
+            ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : `<span class="muted">${esc(expert.skills.map((skill) => skill.name).join(", "))}</span>`}
+          </div>
+          ${gameLevelFlowHtml(currentLabel?.relationship_label || saved.relationship_current, targetLabel?.relationship_label || saved.relationship_target)}
+        </div>
+        <div class="gd-select-row">
+          <label class="compact-field"><span>Current</span><select data-path="experts.${expert.expert_id}.relationship_current">${optionList(options, "label", "level_code", saved.relationship_current)}</select></label>
+          <label class="compact-field"><span>Target</span><select data-path="experts.${expert.expert_id}.relationship_target">${optionList(options, "label", "level_code", saved.relationship_target)}</select></label>
+        </div>
+        ${statRows.length ? gameBonusRowsHtml(statRows, "Stat Bonuses") : ""}
+        ${skillPlan.html}
+        ${gameCostTilesHtml(cost, ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"]], { emptyText: "No upgrade selected." })}
+      </div>`;
     })
     .join("");
   const expertTargetOptions = [
@@ -5441,30 +6282,24 @@ function renderExperts() {
   const expertBulk = bulkTargetControls("Quick target", "bulkExpertTarget", expertTargetOptions, [{ action: "experts", label: "Apply all experts" }]);
   const smartPlan = smartRecommendationPlan("experts");
   $("#tab-experts").innerHTML = `
-    <div class="toolbar"><div><h2>Experts</h2><p>Affinity and sigil costs are summed from current exclusive to target inclusive.</p></div>${expertBulk}</div>
+    <div class="toolbar"><div><h2>Experts</h2><p>Affinity and sigil costs are summed from current exclusive to target inclusive. Skill targets add book + Learning XP costs from the workbook.</p></div>${expertBulk}</div>
     ${upgradeNutshellHtml({
       module: "Experts",
       selected: upgradeSelectionText(selectedUpgradeCount, "expert target", "expert targets"),
       upgrades: selectedUpgrades,
       impactCards: selectedImpactCards,
-      details: [`${fmt(gameData.experts.length)} experts`, `${fmt(gameData.expert_affinity_levels.length)} affinity rows`],
+      details: [
+        `${fmt(gameData.experts.length)} experts`,
+        `${fmt(gameData.expert_affinity_levels.length)} affinity rows`,
+        ...(totalLearningXp > 0 ? [`${fmtCompact(totalLearningXp)} Learning XP needed for skill targets`] : []),
+      ],
       cost: totalCost,
-      fields: ["expert_affinity", ["common_sigils", "sigils"]],
-      empty: "Set expert relationship targets above current levels to see material gaps.",
+      fields: ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"]],
+      empty: "Set expert relationship or skill targets above current levels to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("experts", "Expert Targets", smartPlan, "Suggests affordable expert affinity targets by workbook stat gain, power gain, and material pressure.")}
-    <div class="summary-grid">
-      <div class="metric blue"><span>Experts</span><strong>${fmt(gameData.experts.length)}</strong></div>
-      <div class="metric amber"><span>Affinity rows</span><strong>${fmt(gameData.expert_affinity_levels.length)}</strong></div>
-      <div class="metric green"><span>Skill rows</span><strong>${fmt(gameData.expert_skill_levels.length)}</strong></div>
-      <div class="metric purple"><span>Affinity to target</span><strong>${fmt(totalCost.expert_affinity)}</strong></div>
-    </div>
-    ${statImpactPanel("Current Expert Combat Stats", aggregateCards, "Affinity target changes below are exact from the workbook where the source sheet exposes stat columns.")}
-    ${inventoryComparisonHtml(totalCost, ["expert_affinity", ["common_sigils", "sigils"]], "Expert upgrade materials")}
-    <div class="table-wrap experts-table"><table>
-      <thead><tr><th>Expert</th><th>Current</th><th>Target</th><th>Current Stats</th><th>Target Stat Change</th><th>Cost</th><th class="number">Full books</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
+    <div class="pet-card-grid">${rows}</div>
+    ${statImpactPanel("Current Expert Combat Stats", aggregateCards, "Affinity target changes above are exact from the workbook where the source sheet exposes stat columns.")}
   `;
 }
 
@@ -5546,16 +6381,56 @@ function renderResearch() {
       const costNote = selected && costIsEmpty(cost)
         ? node.status === "Active"
           ? "Already active; start cost was spent."
-          : "Exact cost is only captured for the visible next step."
+          : "Exact cost is only captured for the visible next step — this target's full cost is unknown, not free."
         : "No target selected";
-      const effectHtml = selected && changes.length ? statChangeListHtml(changes) : `<span class="muted">${esc(node.effect || costNote)}</span>`;
-      return `<tr>
-        <td>${visualLabel("research", titleFromId(nodeId), node.status || "Available")}</td>
-        <td>${selectInput(`research_targets.war_academy.${nodeId}.current`, saved.current, researchLevelOptions(saved.current, progress.next))}</td>
-        <td>${selectInput(`research_targets.war_academy.${nodeId}.target`, saved.target, researchLevelOptions(saved.current, progress.next))}</td>
-        <td>${effectHtml}</td>
-        <td>${costIsEmpty(cost) ? `<span class="muted">${esc(costNote)}</span>` : costHtml(cost, RESEARCH_COST_FIELDS)}</td>
-      </tr>`;
+      const statRows = selected && changes.length
+        ? changes.map((change) => ({ label: change.label, current: change.current, target: change.target }))
+        : [];
+      return `<div class="research-node-card ${selected ? "is-selected" : ""} ${node.status === "Active" ? "is-active" : ""}">
+        <div class="research-node-card__head">
+          <span class="research-node-card__hex">${iconHtml("research", titleFromId(nodeId), "lg", "research")}</span>
+          <div class="pet-card__title">
+            <strong>${esc(titleFromId(nodeId))}</strong>
+            <span class="muted">${esc(node.status || "Available")}${node.effect ? ` · ${esc(node.effect)}` : ""}</span>
+          </div>
+          ${gameLevelFlowHtml(`Lv. ${current}`, `Lv. ${target}`)}
+        </div>
+        <div class="gd-select-row">
+          <label class="compact-field"><span>Current</span>${selectInput(`research_targets.war_academy.${nodeId}.current`, saved.current, researchLevelOptions(saved.current, progress.next))}</label>
+          <label class="compact-field"><span>Target</span>${selectInput(`research_targets.war_academy.${nodeId}.target`, saved.target, researchLevelOptions(saved.current, progress.next))}</label>
+        </div>
+        ${statRows.length ? gameBonusRowsHtml(statRows, "Research Bonus") : ""}
+        ${costIsEmpty(cost) ? `<p class="gd-note">${esc(costNote)}</p>` : `<section class="gd-section">${gameSectionBannerHtml("Research Cost")}${gameCostTilesHtml(cost, RESEARCH_COST_FIELDS)}</section>`}
+      </div>`;
+    })
+    .join("");
+
+  const regularTrees = currentResearch.regular_trees || {};
+  const regularNodeIsMax = (node) => node.status === "MAX" || Number(node.level || 0) >= Number(node.max_level || 0);
+  const regularTreesHtml = ["growth", "economy", "battle"]
+    .map((treeId) => {
+      const tree = regularTrees[treeId];
+      if (!tree || !Array.isArray(tree.nodes) || !tree.nodes.length) return "";
+      const nodes = tree.nodes
+        .map((node) => {
+          const maxed = regularNodeIsMax(node);
+          const pct = maxed ? 100 : Math.round((Number(node.level || 0) / Math.max(1, Number(node.max_level || 1))) * 100);
+          const timeTail = node.active && node.next_level_time_observed ? ` · next level in ${esc(node.next_level_time_observed)}` : "";
+          return `<div class="regular-node ${maxed ? "is-max" : ""} ${node.active ? "is-active" : ""}" title="Tier ${esc(node.tier ?? "-")}">
+            <span class="regular-node__hex">${iconHtml("research", node.base_name || node.name, "lg", "research")}</span>
+            <div class="regular-node__body">
+              <strong>${esc(node.name)}</strong>
+              <div class="regular-node__meter"><i style="width:${pct}%"></i></div>
+              <span class="regular-node__level">${maxed ? "MAX" : `Lv. ${esc(node.level)}/${esc(node.max_level)}`}${timeTail}</span>
+            </div>
+          </div>`;
+        })
+        .join("");
+      const done = tree.nodes.filter(regularNodeIsMax).length;
+      return `<section class="regular-tree">
+        <div class="regular-tree__head"><h3>${esc(tree.label || titleFromId(treeId))}</h3><span class="muted">${fmt(done)} of ${fmt(tree.nodes.length)} visible nodes maxed</span></div>
+        <div class="regular-node-grid">${nodes}</div>
+      </section>`;
     })
     .join("");
 
@@ -5587,7 +6462,10 @@ function renderResearch() {
     ${t12HiddenNote}
     ${statImpactPanel("Current War Academy Bonuses", academyBonuses, "Live stats captured from the account. Target rows below use only active/available node cards.")}
     <div class="panel">
-      <h2>Regular Research</h2>
+      <h2>Regular Research · Growth, Economy &amp; Battle</h2>
+      ${regularTrees.note ? `<p class="gd-note">${esc(regularTrees.note)}</p>` : ""}
+      ${regularTreesHtml || `<span class="muted">Regular research trees not captured yet.</span>`}
+      <h3 class="regular-tree__subhead">Active regular research target</h3>
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Node</th><th>Current level</th><th>Target level</th><th>Expected effect</th><th>Expected cost</th></tr></thead>
         <tbody>${regularRows}</tbody>
@@ -5595,10 +6473,7 @@ function renderResearch() {
     </div>
     <div class="panel">
       <h2>T11 War Academy Research</h2>
-      <div class="table-wrap research-table"><table>
-        <thead><tr><th>Node</th><th>Current level</th><th>Target level</th><th>Expected stat change</th><th>Expected cost</th></tr></thead>
-        <tbody>${warRows || `<tr><td colspan="5"><span class="muted">No active or available T11 nodes captured.</span></td></tr>`}</tbody>
-      </table></div>
+      <div class="research-node-grid">${warRows || `<span class="muted">No active or available T11 nodes captured.</span>`}</div>
     </div>
   `;
 }
@@ -5794,8 +6669,33 @@ function bindEvents() {
         setAdvisorStatus(`Copy failed: ${error.message}`);
       }
     }
+    
     if (event.target.closest("#runAdvisor")) {
       await runAdvisor();
+    }
+    const selectBuilding = event.target.closest("[data-select-building-id]");
+    if (selectBuilding) {
+      state.selected_building_id = selectBuilding.dataset.selectBuildingId;
+      renderActive();
+      return;
+    }
+    const selectChiefGear = event.target.closest("[data-select-chief-gear-slot]");
+    if (selectChiefGear) {
+      state.selected_chief_gear_slot = selectChiefGear.dataset.selectChiefGearSlot;
+      renderActive();
+      return;
+    }
+    const selectCharmSocket = event.target.closest("[data-select-chief-charm-socket-id]");
+    if (selectCharmSocket) {
+      state.selected_chief_charm_socket_id = selectCharmSocket.dataset.selectChiefCharmSocketId;
+      renderActive();
+      return;
+    }
+    const selectHero = event.target.closest("[data-select-hero-id]");
+    if (selectHero) {
+      state.selected_hero_id = selectHero.dataset.selectHeroId;
+      renderActive();
+      return;
     }
   });
 
@@ -5843,6 +6743,23 @@ function bindEvents() {
     try {
       await loadStateFromCloud();
     } catch (error) {
+      // Shared DB unreachable (e.g. running locally without the API):
+      // fall back to re-reading the bundled game extract so current values
+      // still refresh. Targets are preserved.
+      try {
+        const fresh = await fetchOptionalJson(`data/current-player-state.json?t=${Date.now()}`);
+        if (fresh) {
+          extractedState = fresh.extracted_current || fresh;
+          state = applyExtractedState(state, extractedState);
+          normalizeTargets(state);
+          persistState({ cloud: false });
+          renderActive({ focusNutshell: true });
+          setCloudSyncStatus("Shared DB offline: reloaded local extract");
+          return;
+        }
+      } catch (_) {
+        /* fall through to error status */
+      }
       setCloudSyncStatus(`Cloud error: ${error.message}`);
     }
   });
@@ -5875,6 +6792,9 @@ async function init() {
     gameData = await gameResponse.json();
     templateState = await templateResponse.json();
     extractedState = currentState;
+    if (extractedState && extractedState.extracted_current) {
+      extractedState = extractedState.extracted_current;
+    }
     visualAssets = assetsManifest || {};
     const savedLocalState = readSavedState();
     const localState = stateFromSaved(savedLocalState);
@@ -5892,3 +6812,5 @@ async function init() {
 }
 
 init();
+
+// build: game-replica UI revision
