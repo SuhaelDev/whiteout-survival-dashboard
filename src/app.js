@@ -6417,7 +6417,7 @@ function renderResearch() {
           const pct = maxed ? 100 : Math.round((Number(node.level || 0) / Math.max(1, Number(node.max_level || 1))) * 100);
           const timeTail = node.active && node.next_level_time_observed ? ` · next level in ${esc(node.next_level_time_observed)}` : "";
           return `<div class="regular-node ${maxed ? "is-max" : ""} ${node.active ? "is-active" : ""}" title="Tier ${esc(node.tier ?? "-")}">
-            <span class="regular-node__hex">${iconHtml("research", node.base_name || node.name, "lg", "research")}</span>
+            <span class="regular-node__hex">${iconHtml("research", node.base_name || node.name, "lg", "research")}<span class="regular-node__badge ${maxed ? "is-max" : ""}">${maxed ? "MAX" : `${esc(node.level)}/${esc(node.max_level)}`}</span></span>
             <div class="regular-node__body">
               <strong>${esc(node.name)}</strong>
               <div class="regular-node__meter"><i style="width:${pct}%"></i></div>

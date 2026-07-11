@@ -7,3 +7,6 @@ output
 resources_tmp
 scripts/__pycache__
 *.pyc
+scratch
+node_modules
+.env.local

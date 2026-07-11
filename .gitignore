@@ -10,3 +10,6 @@ scripts/__pycache__/
 *.pyc
 node_modules/
 scratch/
+
+.vercel
+.env*

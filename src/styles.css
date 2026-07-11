@@ -5635,7 +5635,28 @@ select option {
   background: linear-gradient(180deg, rgba(23, 48, 84, 0.55), rgba(14, 32, 58, 0.65));
 }
 
-.regular-node__hex { flex: 0 0 auto; }
+.regular-node__hex { flex: 0 0 auto; position: relative; display: inline-flex; }
+
+.regular-node__badge {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #223a58, #10263f);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.regular-node__badge.is-max {
+  background: linear-gradient(180deg, #2f7d3c, #1d5f28);
+}
 
 .regular-node__body {
   min-width: 0;
