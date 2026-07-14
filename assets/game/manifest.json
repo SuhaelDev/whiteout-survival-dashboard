@@ -1,1149 +1,1157 @@
 {
-  "version": 1,
-  "source": "Cropped from BlueStacks screenshots of the user's Whiteout Survival account where available. Generated SVG icons remain fallback when an asset is not listed. Count-bearing item icons use original screenshots with a dashboard crop mask; no inpainted icon assets are referenced.",
-  "assets": {
-    "1000gems": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "1000heroxp": "assets/game/hero-xp-1000.png",
-    "100coal": {
-      "src": "assets/game/coal-100.png",
-      "hide_count": true
-    },
-    "100gems": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "100iron": {
-      "src": "assets/game/iron-100.png",
-      "hide_count": true
-    },
-    "100kcoal": {
-      "src": "assets/game/coal-100k.png",
-      "hide_count": true
-    },
-    "100kcoalsecured": {
-      "src": "assets/game/coal-100k-secured.png",
-      "hide_count": true
-    },
-    "100kiron": {
-      "src": "assets/game/iron-100k.png",
-      "hide_count": true
-    },
-    "100kironsecured": {
-      "src": "assets/game/iron-100k-secured.png",
-      "hide_count": true
-    },
-    "100kmeat": {
-      "src": "assets/game/meat-100k.png",
-      "hide_count": true
-    },
-    "100kmeatsecured": {
-      "src": "assets/game/meat-100k-secured.png",
-      "hide_count": true
-    },
-    "100kresourcesupplychest": {
-      "src": "assets/game/resource-supply-chest-100k.png",
-      "hide_count": true
-    },
-    "100ksecuredresourcesupplychest": {
-      "src": "assets/game/secured-resource-supply-chest-100k.png",
-      "hide_count": true
-    },
-    "100kwood": {
-      "src": "assets/game/wood-100k.png",
-      "hide_count": true
-    },
-    "100kwoodsecured": {
-      "src": "assets/game/wood-100k-secured.png",
-      "hide_count": true
-    },
-    "10gems": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "10kcoal": {
-      "src": "assets/game/coal-10k.png",
-      "hide_count": true
-    },
-    "10kcoalsecured": {
-      "src": "assets/game/coal-10k-secured.png",
-      "hide_count": true
-    },
-    "10kiron": {
-      "src": "assets/game/iron-10k.png",
-      "hide_count": true
-    },
-    "10kironsecured": {
-      "src": "assets/game/iron-10k-secured.png",
-      "hide_count": true
-    },
-    "10kmeat": {
-      "src": "assets/game/meat-10k.png",
-      "hide_count": true
-    },
-    "10kmeatsecured": {
-      "src": "assets/game/meat-10k-secured.png",
-      "hide_count": true
-    },
-    "10kresourcesupplychest": {
-      "src": "assets/game/resource-supply-chest-10k.png",
-      "hide_count": true
-    },
-    "10ksecuredresourcesupplychest": {
-      "src": "assets/game/secured-resource-supply-chest-10k.png",
-      "hide_count": true
-    },
-    "10kwood": {
-      "src": "assets/game/wood-10k.png",
-      "hide_count": true
-    },
-    "10kwoodsecured": {
-      "src": "assets/game/wood-10k-secured.png",
-      "hide_count": true
-    },
-    "1gems": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "1hspeedup": {
-      "src": "assets/game/speedup-general-1h.png",
-      "hide_count": true
-    },
-    "1kcoal": {
-      "src": "assets/game/coal-1k.png",
-      "hide_count": true
-    },
-    "1kcoalsecured": {
-      "src": "assets/game/coal-1k-secured.png",
-      "hide_count": true
-    },
-    "1kgems": {
-      "src": "assets/game/gems-1k-bag.png",
-      "hide_count": true
-    },
-    "1kheroxp": "assets/game/hero-xp-1000.png",
-    "1kiron": {
-      "src": "assets/game/iron-1k.png",
-      "hide_count": true
-    },
-    "1kironsecured": {
-      "src": "assets/game/iron-1k-secured.png",
-      "hide_count": true
-    },
-    "1kmeat": {
-      "src": "assets/game/meat-1k.png",
-      "hide_count": true
-    },
-    "1kmeatsecured": {
-      "src": "assets/game/meat-1k-secured.png",
-      "hide_count": true
-    },
-    "1kresourcesupplychest": {
-      "src": "assets/game/resource-supply-chest-1k.png",
-      "hide_count": true
-    },
-    "1kwood": {
-      "src": "assets/game/wood-1k.png",
-      "hide_count": true
-    },
-    "1kwoodsecured": {
-      "src": "assets/game/wood-1k-secured.png",
-      "hide_count": true
-    },
-    "1mcoal": {
-      "src": "assets/game/coal-1m.png",
-      "hide_count": true
-    },
-    "1miron": {
-      "src": "assets/game/iron-1m.png",
-      "hide_count": true
-    },
-    "1mmeat": {
-      "src": "assets/game/meat-1m.png",
-      "hide_count": true
-    },
-    "1mmeatsecured": {
-      "src": "assets/game/meat-1m-secured.png",
-      "hide_count": true
-    },
-    "1mspeedup": {
-      "src": "assets/game/speedup-general-1min.png",
-      "hide_count": true
-    },
-    "1mwood": {
-      "src": "assets/game/wood-1m.png",
-      "hide_count": true
-    },
-    "1mwoodsecured": {
-      "src": "assets/game/wood-1m-secured.png",
-      "hide_count": true
-    },
-    "2hshield": {
-      "src": "assets/game/shield-2h.png",
-      "hide_count": true
-    },
-    "3hspeedup": {
-      "src": "assets/game/speedup-general-3h.png",
-      "hide_count": true
-    },
-    "5000heroxp": "assets/game/hero-xp-5000.png",
-    "5kheroxp": "assets/game/hero-xp-5000.png",
-    "5mspeedup": {
-      "src": "assets/game/speedup-general-5min.png",
-      "hide_count": true
-    },
-    "8hshield": {
-      "src": "assets/game/shield-8h.png",
-      "hide_count": true
-    },
-    "8hspeedup": {
-      "src": "assets/game/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "agnes": "assets/game/expert-agnes.png",
-    "ahmose": "assets/game/hero-ahmose.png",
-    "advancedwildmark": {
-      "src": "assets/game/materials/pet-advanced-wild-mark.png",
-      "hide_count": true
-    },
-    "advancedwildmarks": {
-      "src": "assets/game/materials/pet-advanced-wild-mark.png",
-      "hide_count": true
-    },
-    "affinity": {
-      "src": "assets/game/materials/expert-affinity-compass.png",
-      "hide_count": true
-    },
-    "alloy": "assets/game/materials/hardened-alloy.png",
-    "alonso": "assets/game/hero-alonso.png",
-    "amber": "assets/game/materials/lunar-amber.png",
-    "arcticwolf": "assets/game/pet-arctic-wolf.png",
-    "backpackdirectcoal": {
-      "src": "assets/game/coal-1k.png",
-      "hide_count": true
-    },
-    "backpackdirectfc": {
-      "src": "assets/game/fire-crystal.png",
-      "hide_count": true
-    },
-    "backpackdirectiron": {
-      "src": "assets/game/iron-1k.png",
-      "hide_count": true
-    },
-    "backpackdirectmeat": {
-      "src": "assets/game/meat-1k.png",
-      "hide_count": true
-    },
-    "backpackdirectrfc": {
-      "src": "assets/game/refined-fire-crystal.png",
-      "hide_count": true
-    },
-    "backpackdirectshards": {
-      "src": "assets/game/fire-crystal-shard.png",
-      "hide_count": true
-    },
-    "backpackdirectwood": {
-      "src": "assets/game/wood-1k.png",
-      "hide_count": true
-    },
-    "bahiti": "assets/game/hero-bahiti.png",
-    "baldur": "assets/game/expert-baldur.png",
-    "belt": "assets/game/hero-gear-belt-card.png",
-    "blazingmeteor": "assets/game/march-skin-blazing-meteor-i.png",
-    "blazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
-    "bookofknowledge": {
-      "src": "assets/game/materials/books-of-knowledge.png",
-      "hide_count": true
-    },
-    "booksofknowledge": {
-      "src": "assets/game/materials/books-of-knowledge.png",
-      "hide_count": true
-    },
-    "boot": "assets/game/hero-gear-boot-card.png",
-    "boots": "assets/game/hero-gear-boot-card.png",
-    "bradley": "assets/game/hero-bradley.png",
-    "bradleybottomleft": "assets/game/equipped-hero-gear/bradley-bottom_left.png",
-    "bradleybottomright": "assets/game/equipped-hero-gear/bradley-bottom_right.png",
-    "bradleyspecial": "assets/game/equipped-hero-gear/bradley-special.png",
-    "bradleytopleft": "assets/game/equipped-hero-gear/bradley-top_left.png",
-    "bradleytopright": "assets/game/equipped-hero-gear/bradley-top_right.png",
-    "cavehyena": "assets/game/pet-cave-hyena.png",
-    "cavelion": "assets/game/pet-cave-lion.png",
-    "charlie": "assets/game/hero-charlie.png",
-    "charm": "assets/game/chief-charm-slot-clean.png",
-    "charmlancerhex": "assets/game/charms/charm-lancer-hex.png",
-    "charmlancerround": "assets/game/charms/charm-lancer-hex.png",
-    "charminfantryhex": "assets/game/charms/charm-infantry-hex.png",
-    "charminfantryround": "assets/game/charms/charm-infantry-round.png",
-    "charmmarksmanhex": "assets/game/charms/charm-marksman-hex.png",
-    "charmmarksmanround": "assets/game/charms/charm-marksman-round.png",
-    "charmtoolkit": "assets/game/equipped-hero-gear/edith-special.png",
-    "charmdesigns": {
-      "src": "assets/game/materials/charm-designs.png",
-      "hide_count": true
-    },
-    "charmdesignsdesigns": {
-      "src": "assets/game/materials/charm-designs.png",
-      "hide_count": true
-    },
-    "charmguides": {
-      "src": "assets/game/materials/charm-guides.png",
-      "hide_count": true
-    },
-    "charmguidesguides": {
-      "src": "assets/game/materials/charm-guides.png",
-      "hide_count": true
-    },
-    "charmsecrets": {
-      "src": "assets/game/materials/charm-secrets.png",
-      "hide_count": true
-    },
-    "charmsecretssecrets": {
-      "src": "assets/game/materials/charm-secrets.png",
-      "hide_count": true
-    },
-    "secrets": {
-      "src": "assets/game/materials/charm-secrets.png",
-      "hide_count": true
-    },
-    "chestgear": "assets/game/hero-gear-chest-card.png",
-    "chiefcharm": "assets/game/chief-charm-slot-clean.png",
-    "chiefcharms": "assets/game/chief-charm-slot-clean.png",
-    "chiefgearcoat": "assets/game/chief-gear-coat-clean.png",
-    "chiefgearcudgel": "assets/game/chief-gear-cudgel-clean.png",
-    "chiefgearhat": "assets/game/chief-gear-hat-clean.png",
-    "chiefgearpants": "assets/game/chief-gear-pants-clean.png",
-    "chiefgearring": "assets/game/chief-gear-ring-clean.png",
-    "chiefgearwatch": "assets/game/chief-gear-watch-clean.png",
-    "chiefstamina": {
-      "src": "assets/game/chief-stamina.png",
-      "hide_count": true
-    },
-    "cityskincurrentcityskin": "assets/game/city-skin-lost-city.png",
-    "cityskinlostcity": "assets/game/city-skin-lost-city.png",
-    "cloris": "assets/game/hero-cloris.png",
-    "coal": "assets/game/resources/coal.png",
-    "commonexpertsigils": {
-      "src": "assets/game/materials/common-expert-sigil.png",
-      "hide_count": true
-    },
-    "commonwildmark": {
-      "src": "assets/game/materials/pet-common-wild-mark.png",
-      "hide_count": true
-    },
-    "commonwildmarks": {
-      "src": "assets/game/materials/pet-common-wild-mark.png",
-      "hide_count": true
-    },
-    "commonsigils": {
-      "src": "assets/game/materials/common-expert-sigil.png",
-      "hide_count": true
-    },
-    "coat": "assets/game/chief-gear-coat-clean.png",
-    "constructionspeedup": {
-      "src": "assets/game/materials/speedup-construction-1m.png",
-      "hide_count": true
-    },
-    "constructionspeedups": {
-      "src": "assets/game/materials/speedup-construction-1m.png",
-      "hide_count": true
-    },
-    "constructionspeedupsminutes": {
-      "src": "assets/game/materials/speedup-construction-1m.png",
-      "hide_count": true
-    },
-    "constructionspeedupsminutesconstructionspeedups": {
-      "src": "assets/game/materials/speedup-construction-1m.png",
-      "hide_count": true
-    },
-    "compass": {
-      "src": "assets/game/materials/expert-affinity-compass.png",
-      "hide_count": true
-    },
-    "cudgel": "assets/game/chief-gear-cudgel-clean.png",
-    "currentcityskin": "assets/game/city-skin-lost-city.png",
-    "cyrille": "assets/game/expert-cyrille.png",
-    "deploymentcapacityboosti2h": {
-      "src": "assets/game/deployment-capacity-boost-i-2h.png",
-      "hide_count": true
-    },
-    "deploymentcapacityboostii12h": {
-      "src": "assets/game/deployment-capacity-boost-ii-12h.png",
-      "hide_count": true
-    },
-    "deploymentcapacityboostii12hrs": {
-      "src": "assets/game/deployment-capacity-boost-ii-12h.png",
-      "hide_count": true
-    },
-    "designplans": {
-      "src": "assets/game/materials/design-plans.png",
-      "hide_count": true
-    },
-    "designplansplans": {
-      "src": "assets/game/materials/design-plans.png",
-      "hide_count": true
-    },
-    "designs": {
-      "src": "assets/game/materials/charm-designs.png",
-      "hide_count": true
-    },
-    "diamond": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "diamonds": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "energizingpotion": {
-      "src": "assets/game/materials/pet-energizing-potion.png",
-      "hide_count": true
-    },
-    "edith": "assets/game/hero-edith.png",
-    "edithbelt": "assets/game/equipped-hero-gear/edith-bottom_left.png",
-    "edithboots": "assets/game/equipped-hero-gear/edith-bottom_right.png",
-    "edithgauntlets": "assets/game/equipped-hero-gear/edith-top_right.png",
-    "edithgoggles": "assets/game/equipped-hero-gear/edith-top_left.png",
-    "edithspecial": "assets/game/equipped-hero-gear/edith-special.png",
-    "epicgeneralshards": {
-      "src": "assets/game/materials/epic-general-shard-card.png",
-      "hide_count": true
-    },
-    "essencestone": {
-      "src": "assets/game/materials/essence-stone-card.png",
-      "hide_count": true
-    },
-    "essencestones": {
-      "src": "assets/game/materials/essence-stone-card.png",
-      "hide_count": true
-    },
-    "essencestonesessencestones": {
-      "src": "assets/game/materials/essence-stone-card.png",
-      "hide_count": true
-    },
-    "eugene": "assets/game/hero-eugene.png",
-    "equippedbradleybottomleft": "assets/game/equipped-hero-gear/bradley-bottom_left.png",
-    "equippedbradleybottomright": "assets/game/equipped-hero-gear/bradley-bottom_right.png",
-    "equippedbradleytopleft": "assets/game/equipped-hero-gear/bradley-top_left.png",
-    "equippedbradleytopright": "assets/game/equipped-hero-gear/bradley-top_right.png",
-    "equippededithbelt": "assets/game/equipped-hero-gear/edith-bottom_left.png",
-    "equippededithboots": "assets/game/equipped-hero-gear/edith-bottom_right.png",
-    "equippededithgauntlets": "assets/game/equipped-hero-gear/edith-top_right.png",
-    "equippededithgoggles": "assets/game/equipped-hero-gear/edith-top_left.png",
-    "expertaffinity": {
-      "src": "assets/game/materials/expert-affinity-compass.png",
-      "hide_count": true
-    },
-    "expertgiftcompass": {
-      "src": "assets/game/materials/expert-affinity-compass.png",
-      "hide_count": true
-    },
-    "expertgiftfieryheart": {
-      "src": "assets/game/materials/expert-affinity-fiery-heart.png",
-      "hide_count": true
-    },
-    "expertgiftsailofconquest": {
-      "src": "assets/game/materials/expert-affinity-sail-of-conquest.png",
-      "hide_count": true
-    },
-    "expertagnes": "assets/game/expert-agnes.png",
-    "expertbaldur": "assets/game/expert-baldur.png",
-    "expertcyrille": "assets/game/expert-cyrille.png",
-    "expertfabian": "assets/game/expert-fabian.png",
-    "expertholger": "assets/game/expert-holger.png",
-    "expertkathy": "assets/game/expert-kathy.png",
-    "expertromulus": "assets/game/expert-romulus.png",
-    "expertronne": "assets/game/expert-ronne.png",
-    "expertvaleria": "assets/game/expert-valeria.png",
-    "fabian": "assets/game/expert-fabian.png",
-    "fc": "assets/game/resources/fire-crystal.png",
-    "firecrystal": "assets/game/resources/fire-crystal.png",
-    "firecrystals": "assets/game/resources/fire-crystal.png",
-    "firecrystalshard": {
-      "src": "assets/game/fire-crystal-shard.png",
-      "hide_count": true
-    },
-    "firecrystalshards": {
-      "src": "assets/game/fire-crystal-shard.png",
-      "hide_count": true
-    },
-    "firecrystalshardsshards": {
-      "src": "assets/game/fire-crystal-shard.png",
-      "hide_count": true
-    },
-    "firecrystalweeklycardcrate": {
-      "src": "assets/game/fire-crystal-weekly-card-crate.png",
-      "hide_count": true
-    },
-    "fieryheart": {
-      "src": "assets/game/materials/expert-affinity-fiery-heart.png",
-      "hide_count": true
-    },
-    "flint": "assets/game/hero-flint.png",
-    "frostgorilla": "assets/game/pet-frost-gorilla.png",
-    "frostscalechameleon": "assets/game/pet-frostscale-chameleon.png",
-    "gatheringspeedboost": {
-      "src": "assets/game/gathering-speed-boost-8h.png",
-      "hide_count": true
-    },
-    "gatheringspeedboost8h": {
-      "src": "assets/game/gathering-speed-boost-8h.png",
-      "hide_count": true
-    },
-    "gearcoat": "assets/game/chief-gear-coat-clean.png",
-    "gearcudgel": "assets/game/chief-gear-cudgel-clean.png",
-    "gearhat": "assets/game/chief-gear-hat-clean.png",
-    "gearpants": "assets/game/chief-gear-pants-clean.png",
-    "gearring": "assets/game/chief-gear-ring-clean.png",
-    "gearwatch": "assets/game/chief-gear-watch-clean.png",
-    "gearxp": {
-      "src": "assets/game/materials/hero-gear-xp-green.png",
-      "hide_count": true
-    },
-    "gem": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "gems": {
-      "src": "assets/game/gems.png",
-      "hide_count": true
-    },
-    "generalspeedup": {
-      "src": "assets/game/materials/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "generalspeedups": {
-      "src": "assets/game/materials/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "generalspeedupsminutes": {
-      "src": "assets/game/materials/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "generalspeedupsminutesgeneralspeedups": {
-      "src": "assets/game/materials/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "giantelk": "assets/game/pet-giant-elk.png",
-    "gianttapir": "assets/game/pet-giant-tapir.png",
-    "gina": "assets/game/hero-gina.png",
-    "glove": "assets/game/hero-gear-glove-card.png",
-    "gloves": "assets/game/hero-gear-glove-card.png",
-    "goggle": "assets/game/hero-gear-goggle-card.png",
-    "goggles": "assets/game/hero-gear-goggle-card.png",
-    "bonecruxvenom": "assets/game/equipped-hero-gear/gordon-special.png",
-    "gordon": "assets/game/hero-gordon.png",
-    "equippedgordonbottomleft": "assets/game/equipped-hero-gear/gordon-bottom_left.png",
-    "equippedgordonbottomright": "assets/game/equipped-hero-gear/gordon-bottom_right.png",
-    "equippedgordontopleft": "assets/game/equipped-hero-gear/gordon-top_left.png",
-    "equippedgordontopright": "assets/game/equipped-hero-gear/gordon-top_right.png",
-    "greg": "assets/game/hero-greg.png",
-    "guides": {
-      "src": "assets/game/materials/charm-guides.png",
-      "hide_count": true
-    },
-    "gwen": "assets/game/hero-gwen.png",
-    "equippedgwenbottomleft": "assets/game/equipped-hero-gear/gwen-bottom_left.png",
-    "equippedgwenbottomright": "assets/game/equipped-hero-gear/gwen-bottom_right.png",
-    "equippedgwentopleft": "assets/game/equipped-hero-gear/gwen-top_left.png",
-    "equippedgwentopright": "assets/game/equipped-hero-gear/gwen-top_right.png",
-    "hardenedalloy": "assets/game/materials/hardened-alloy.png",
-    "hardenedalloyalloy": "assets/game/materials/hardened-alloy.png",
-    "hat": "assets/game/chief-gear-hat-clean.png",
-    "healingspeedup": {
-      "src": "assets/game/materials/speedup-healing-1m.png",
-      "hide_count": true
-    },
-    "healingspeedups": {
-      "src": "assets/game/materials/speedup-healing-1m.png",
-      "hide_count": true
-    },
-    "healingspeedupsminutes": {
-      "src": "assets/game/materials/speedup-healing-1m.png",
-      "hide_count": true
-    },
-    "healingspeedupsminuteshealingspeedups": {
-      "src": "assets/game/materials/speedup-healing-1m.png",
-      "hide_count": true
-    },
-    "hector": "assets/game/hero-hector.png",
-    "equippedhectorbottomleft": "assets/game/equipped-hero-gear/hector-bottom_left.png",
-    "equippedhectorbottomright": "assets/game/equipped-hero-gear/hector-bottom_right.png",
-    "equippedhectortopleft": "assets/game/equipped-hero-gear/hector-top_left.png",
-    "equippedhectortopright": "assets/game/equipped-hero-gear/hector-top_right.png",
-    "buildingfurnace": "assets/game/buildings/furnace.png",
-    "buildingembassy": "assets/game/buildings/embassy.png",
-    "buildingcommandcenter": "assets/game/buildings/command-center.png",
-    "buildinginfirmary": "assets/game/buildings/infirmary.png",
-    "buildingwaracademy": "assets/game/buildings/war-academy.png",
-    "buildinginfantrycamp": "assets/game/buildings/infantry-camp.png",
-    "buildinglancercamp": "assets/game/buildings/lancer-camp.png",
-    "buildingmarksmancamp": "assets/game/buildings/marksman-camp.png",
-    "researchshieldupgrade": "assets/game/research/regular/shield_upgrade.png",
-    "researchmarksmanarmor": "assets/game/research/regular/marksman_armor.png",
-    "researchlancerarmor": "assets/game/research/regular/lancer_armor.png",
-    "researchweaponsprep": "assets/game/research/regular/weapons_prep.png",
-    "researchreprisaltactics": "assets/game/research/regular/reprisal_tactics.png",
-    "researchprecisiontargeting": "assets/game/research/regular/precision_targeting.png",
-    "researchskirmishing": "assets/game/research/regular/skirmishing.png",
-    "researchdefensiveformations": "assets/game/research/regular/defensive_formations.png",
-    "researchpicketlines": "assets/game/research/regular/picket_lines.png",
-    "researchbulwarkformations": "assets/game/research/regular/bulwark_formations.png",
-    "researchspecialdefensivetraining": "assets/game/research/regular/special_defensive_training.png",
-    "researchsurvivaltechniques": "assets/game/research/regular/survival_techniques.png",
-    "researchassaulttechniques": "assets/game/research/regular/assault_techniques.png",
-    "researchregimentalexpansion": "assets/game/research/regular/regimental_expansion.png",
-    "researchclosecombat": "assets/game/research/regular/close_combat.png",
-    "researchtargetedsniping": "assets/game/research/regular/targeted_sniping.png",
-    "researchlanceupgrade": "assets/game/research/regular/lance_upgrade.png",
-    "researchironmining": "assets/game/research/regular/iron_mining.png",
-    "researchmeatoutput": "assets/game/research/regular/meat_output.png",
-    "researchcoaloutput": "assets/game/research/regular/coal_output.png",
-    "researchwoodoutput": "assets/game/research/regular/wood_output.png",
-    "researchironoutput": "assets/game/research/regular/iron_output.png",
-    "researchfoodgathering": "assets/game/research/regular/food_gathering.png",
-    "researchcoalmining": "assets/game/research/regular/coal_mining.png",
-    "researchwoodgathering": "assets/game/research/regular/wood_gathering.png",
-    "researchtoolenhancement": "assets/game/research/regular/tool_enhancement.png",
-    "researchbandaging": "assets/game/research/regular/bandaging.png",
-    "researchtrainertools": "assets/game/research/regular/trainer_tools.png",
-    "researchtoolingup": "assets/game/research/regular/tooling_up.png",
-    "researchwardexpansion": "assets/game/research/regular/ward_expansion.png",
-    "researchcampexpansion": "assets/game/research/regular/camp_expansion.png",
-    "heliosinfantry": "assets/game/troop-helios-infantry.png",
-    "heliosinfantryfirstaid": {
-      "src": "assets/game/research/helios-infantry-first-aid.png",
-      "hide_count": true
-    },
-    "heliosinfantryhealing": {
-      "src": "assets/game/research/helios-infantry-healing.png",
-      "hide_count": true
-    },
-    "heliosinfantrytraining": {
-      "src": "assets/game/research/helios-infantry-training.png",
-      "hide_count": true
-    },
-    "helioslancer": "assets/game/troop-helios-lancer.png",
-    "helioslancerfirstaid": {
-      "src": "assets/game/research/helios-lancer-first-aid.png",
-      "hide_count": true
-    },
-    "helioslancerhealing": {
-      "src": "assets/game/research/helios-lancer-healing.png",
-      "hide_count": true
-    },
-    "helioslancertraining": {
-      "src": "assets/game/research/helios-lancer-training.png",
-      "hide_count": true
-    },
-    "heliosmarksman": "assets/game/troop-helios-marksman.png",
-    "heliosmarksmanfirstaid": {
-      "src": "assets/game/research/helios-marksman-first-aid.png",
-      "hide_count": true
-    },
-    "heliosmarksmanhealing": {
-      "src": "assets/game/research/helios-marksman-healing.png",
-      "hide_count": true
-    },
-    "heliosmarksmantraining": {
-      "src": "assets/game/research/helios-marksman-training.png",
-      "hide_count": true
-    },
-    "heroahmose": "assets/game/hero-ahmose.png",
-    "heroalonso": "assets/game/hero-alonso.png",
-    "herobahiti": "assets/game/hero-bahiti.png",
-    "herobradley": "assets/game/hero-bradley.png",
-    "herocharlie": "assets/game/hero-charlie.png",
-    "herocloris": "assets/game/hero-cloris.png",
-    "heroedith": "assets/game/hero-edith.png",
-    "heroeugene": "assets/game/hero-eugene.png",
-    "heroflint": "assets/game/hero-flint.png",
-    "herogearbelt": "assets/game/hero-gear-belt-card.png",
-    "herogearboots": "assets/game/hero-gear-boot-card.png",
-    "herogearbottomleft": "assets/game/hero-gear-belt-card.png",
-    "herogearbottomright": "assets/game/hero-gear-boot-card.png",
-    "herogeargauntlets": "assets/game/hero-gear-glove-card.png",
-    "herogeargoggles": "assets/game/hero-gear-goggle-card.png",
-    "herogeartopleft": "assets/game/hero-gear-goggle-card.png",
-    "herogeartopright": "assets/game/hero-gear-glove-card.png",
-    "herogearxp": {
-      "src": "assets/game/materials/hero-gear-xp-green.png",
-      "hide_count": true
-    },
-    "herogearxpgreen": {
-      "src": "assets/game/materials/hero-gear-xp-green.png",
-      "hide_count": true
-    },
-    "herogearxpherogearxp": {
-      "src": "assets/game/materials/hero-gear-xp-green.png",
-      "hide_count": true
-    },
-    "herogearxppurple": {
-      "src": "assets/game/materials/hero-gear-xp-purple.png",
-      "hide_count": true
-    },
-    "herogina": "assets/game/hero-gina.png",
-    "herogordon": "assets/game/hero-gordon.png",
-    "herogreg": "assets/game/hero-greg.png",
-    "herogwen": "assets/game/hero-gwen.png",
-    "herohector": "assets/game/hero-hector.png",
-    "herojasser": "assets/game/hero-jasser.png",
-    "herojeronimo": "assets/game/hero-jeronimo.png",
-    "herojessie": "assets/game/hero-jessie.png",
-    "herolingxue": "assets/game/hero-ling_xue.png",
-    "herologan": "assets/game/hero-logan.png",
-    "herolumakbokan": "assets/game/hero-lumak_bokan.png",
-    "herolynn": "assets/game/hero-lynn.png",
-    "heromia": "assets/game/hero-mia.png",
-    "heromolly": "assets/game/hero-molly.png",
-    "heronatalia": "assets/game/hero-natalia.png",
-    "heronorah": "assets/game/hero-norah.png",
-    "heropatrick": "assets/game/hero-patrick.png",
-    "herophilly": "assets/game/hero-philly.png",
-    "heroreina": "assets/game/hero-reina.png",
-    "herorenee": "assets/game/hero-renee.png",
-    "heroseoyoon": "assets/game/hero-seo_yoon.png",
-    "herosergey": "assets/game/hero-sergey.png",
-    "herosmith": "assets/game/hero-smith.png",
-    "herowayne": "assets/game/hero-wayne.png",
-    "herowuming": "assets/game/hero-wu_ming.png",
-    "herowalisbokan": "assets/game/hero-lumak_bokan.png",
-    "herozinman": "assets/game/hero-zinman.png",
-    "holger": "assets/game/expert-holger.png",
-    "infantry": "assets/game/troop-helios-infantry.png",
-    "iron": "assets/game/resources/iron.png",
-    "ironrhino": "assets/game/pet-iron-rhino.png",
-    "jasser": "assets/game/hero-jasser.png",
-    "jeronimo": "assets/game/hero-jeronimo.png",
-    "jessie": "assets/game/hero-jessie.png",
-    "kathy": "assets/game/expert-kathy.png",
-    "lancer": "assets/game/troop-helios-lancer.png",
-    "leftcharm": "assets/game/chief-charm-slot-clean.png",
-    "learningspeedup": {
-      "src": "assets/game/materials/speedup-learning-1h.png",
-      "hide_count": true
-    },
-    "learningspeedups": {
-      "src": "assets/game/materials/speedup-learning-1h.png",
-      "hide_count": true
-    },
-    "lingxue": "assets/game/hero-ling_xue.png",
-    "logan": "assets/game/hero-logan.png",
-    "lostcity": "assets/game/city-skin-lost-city.png",
-    "lumakbokan": "assets/game/hero-lumak_bokan.png",
-    "lunaramber": "assets/game/materials/lunar-amber.png",
-    "lunaramberamber": "assets/game/materials/lunar-amber.png",
-    "lv1customresourcechest": {
-      "src": "assets/game/custom-resource-chest-lv1.png",
-      "hide_count": true
-    },
-    "lv1customsecuredresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv1.png",
-      "hide_count": true
-    },
-    "lv1securedcustomresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv1.png",
-      "hide_count": true
-    },
-    "lv2customresourcechest": {
-      "src": "assets/game/custom-resource-chest-lv2.png",
-      "hide_count": true
-    },
-    "lv2customsecuredresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv2.png",
-      "hide_count": true
-    },
-    "lv2securedcustomresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv2.png",
-      "hide_count": true
-    },
-    "lv3customresourcechest": {
-      "src": "assets/game/custom-resource-chest-lv3.png",
-      "hide_count": true
-    },
-    "lv3customsecuredresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv3.png",
-      "hide_count": true
-    },
-    "lv3securedcustomresourcechest": {
-      "src": "assets/game/custom-secured-resource-chest-lv3.png",
-      "hide_count": true
-    },
-    "lynn": "assets/game/hero-lynn.png",
-    "mammoth": "assets/game/pet-mammoth.png",
-    "marchingblazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
-    "marchingskin": "assets/game/march-skin-blazing-meteor-i.png",
-    "marchskinblazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
-    "marksman": "assets/game/troop-helios-marksman.png",
-    "meat": "assets/game/resources/meat.png",
-    "mia": "assets/game/hero-mia.png",
-    "mithril": {
-      "src": "assets/game/materials/mithril-card.png",
-      "hide_count": true
-    },
-    "molly": "assets/game/hero-molly.png",
-    "muskox": "assets/game/pet-musk-ox.png",
-    "mythicgear": {
-      "src": "assets/game/materials/mythic-gear.png",
-      "hide_count": true
-    },
-    "mythicgeargear": {
-      "src": "assets/game/materials/mythic-gear.png",
-      "hide_count": true
-    },
-    "mythicgeneralshards": {
-      "src": "assets/game/materials/mythic-general-shard-card.png",
-      "hide_count": true
-    },
-    "natalia": "assets/game/hero-natalia.png",
-    "norah": "assets/game/hero-norah.png",
-    "equippednorahbelt": "assets/game/equipped-hero-gear/norah-bottom_left.png",
-    "equippednorahboots": "assets/game/equipped-hero-gear/norah-bottom_right.png",
-    "equippednorahgauntlets": "assets/game/equipped-hero-gear/norah-top_right.png",
-    "equippednorahgoggles": "assets/game/equipped-hero-gear/norah-top_left.png",
-    "pants": "assets/game/chief-gear-pants-clean.png",
-    "patrick": "assets/game/hero-patrick.png",
-    "petfood": {
-      "src": "assets/game/materials/pet-food.png"
-    },
-    "petfoodfood": {
-      "src": "assets/game/materials/pet-food.png"
-    },
-    "petarcticwolf": "assets/game/pet-arctic-wolf.png",
-    "petcavehyena": "assets/game/pet-cave-hyena.png",
-    "petcavelion": "assets/game/pet-cave-lion.png",
-    "petfrostgorilla": "assets/game/pet-frost-gorilla.png",
-    "petfrostscalechameleon": "assets/game/pet-frostscale-chameleon.png",
-    "petgiantelk": "assets/game/pet-giant-elk.png",
-    "petgianttapir": "assets/game/pet-giant-tapir.png",
-    "petironrhino": "assets/game/pet-iron-rhino.png",
-    "petmammoth": "assets/game/pet-mammoth.png",
-    "petmanuals": {
-      "src": "assets/game/materials/pet-taming-manual.png",
-      "hide_count": true
-    },
-    "petmanualsmanuals": {
-      "src": "assets/game/materials/pet-taming-manual.png",
-      "hide_count": true
-    },
-    "petmanualstamingmanual": {
-      "src": "assets/game/materials/pet-taming-manual.png",
-      "hide_count": true
-    },
-    "petmuskox": "assets/game/pet-musk-ox.png",
-    "petpotions": {
-      "src": "assets/game/materials/pet-energizing-potion.png",
-      "hide_count": true
-    },
-    "petpotionsenergizingpotion": {
-      "src": "assets/game/materials/pet-energizing-potion.png",
-      "hide_count": true
-    },
-    "petpotionspotions": {
-      "src": "assets/game/materials/pet-energizing-potion.png",
-      "hide_count": true
-    },
-    "petsabertoothtiger": "assets/game/pet-sabertooth-tiger.png",
-    "petserum": {
-      "src": "assets/game/materials/pet-strengthening-serum.png",
-      "hide_count": true
-    },
-    "petserumserum": {
-      "src": "assets/game/materials/pet-strengthening-serum.png",
-      "hide_count": true
-    },
-    "petserumstrengtheningserum": {
-      "src": "assets/game/materials/pet-strengthening-serum.png",
-      "hide_count": true
-    },
-    "petsnowape": "assets/game/pet-snow-ape.png",
-    "petsnowleopard": "assets/game/pet-snow-leopard.png",
-    "pettitanroc": "assets/game/pet-titan-roc.png",
-    "philly": "assets/game/hero-philly.png",
-    "pocketwatch": {
-      "src": "assets/game/pocket-watch.png",
-      "hide_count": true
-    },
-    "polish": "assets/game/materials/polishing-solution.png",
-    "polishingsolution": "assets/game/materials/polishing-solution.png",
-    "polishingsolutionpolish": "assets/game/materials/polishing-solution.png",
-    "raregeneralshards": {
-      "src": "assets/game/materials/rare-general-shard-card.png",
-      "hide_count": true
-    },
-    "refinedfirecrystal": "assets/game/resources/refined-fire-crystal.png",
-    "refinedfirecrystals": "assets/game/resources/refined-fire-crystal.png",
-    "reina": "assets/game/hero-reina.png",
-    "renee": "assets/game/hero-renee.png",
-    "researchspeedup": {
-      "src": "assets/game/materials/speedup-research-1m.png",
-      "hide_count": true
-    },
-    "researchspeedups": {
-      "src": "assets/game/materials/speedup-research-1m.png",
-      "hide_count": true
-    },
-    "researchspeedupsminutes": {
-      "src": "assets/game/materials/speedup-research-1m.png",
-      "hide_count": true
-    },
-    "researchspeedupsminutesresearchspeedups": {
-      "src": "assets/game/materials/speedup-research-1m.png",
-      "hide_count": true
-    },
-    "rfc": "assets/game/resources/refined-fire-crystal.png",
-    "rightcharm": "assets/game/chief-charm-slot-clean.png",
-    "ring": "assets/game/chief-gear-ring-clean.png",
-    "romulus": "assets/game/expert-romulus.png",
-    "ronne": "assets/game/expert-ronne.png",
-    "sailofconquest": {
-      "src": "assets/game/materials/expert-affinity-sail-of-conquest.png",
-      "hide_count": true
-    },
-    "sabertoothtiger": "assets/game/pet-sabertooth-tiger.png",
-    "seoyoon": "assets/game/hero-seo_yoon.png",
-    "sergey": "assets/game/hero-sergey.png",
-    "shield": {
-      "src": "assets/game/shield-2h.png",
-      "hide_count": true
-    },
-    "shards": {
-      "src": "assets/game/fire-crystal-shard.png",
-      "hide_count": true
-    },
-    "sigils": {
-      "src": "assets/game/materials/common-expert-sigil.png",
-      "hide_count": true
-    },
-    "smith": "assets/game/hero-smith.png",
-    "snowape": "assets/game/pet-snow-ape.png",
-    "snowcruiser": "assets/game/equipped-hero-gear/norah-special.png",
-    "snowleopard": "assets/game/pet-snow-leopard.png",
-    "speedupconstruction": {
-      "src": "assets/game/materials/speedup-construction-1m.png",
-      "hide_count": true
-    },
-    "speedupgeneral": {
-      "src": "assets/game/materials/speedup-general-8h.png",
-      "hide_count": true
-    },
-    "speeduphealing": {
-      "src": "assets/game/materials/speedup-healing-1m.png",
-      "hide_count": true
-    },
-    "speedupresearch": {
-      "src": "assets/game/materials/speedup-research-1m.png",
-      "hide_count": true
-    },
-    "speeduptraining": {
-      "src": "assets/game/materials/speedup-training-1m.png",
-      "hide_count": true
-    },
-    "steel": "assets/game/materials/steel-ingot.png",
-    "steelfangs": "assets/game/equipped-hero-gear/hector-special.png",
-    "stamina": {
-      "src": "assets/game/chief-stamina.png",
-      "hide_count": true
-    },
-    "strengtheningserum": {
-      "src": "assets/game/materials/pet-strengthening-serum.png",
-      "hide_count": true
-    },
-    "tamingmanual": {
-      "src": "assets/game/materials/pet-taming-manual.png",
-      "hide_count": true
-    },
-    "titanroc": "assets/game/pet-titan-roc.png",
-    "thundercannon": "assets/game/equipped-hero-gear/bradley-special.png",
-    "topcharm": "assets/game/chief-charm-slot-clean.png",
-    "totaltroops": "assets/game/troop-helios-infantry.png",
-    "trainingspeedup": {
-      "src": "assets/game/materials/speedup-training-1m.png",
-      "hide_count": true
-    },
-    "trainingspeedups": {
-      "src": "assets/game/materials/speedup-training-1m.png",
-      "hide_count": true
-    },
-    "trainingspeedupsminutes": {
-      "src": "assets/game/materials/speedup-training-1m.png",
-      "hide_count": true
-    },
-    "trainingspeedupsminutestrainingspeedups": {
-      "src": "assets/game/materials/speedup-training-1m.png",
-      "hide_count": true
-    },
-    "transferpass": {
-      "src": "assets/game/transfer-pass.png",
-      "hide_count": true
-    },
-    "troopheliosinfantry": "assets/game/troop-helios-infantry.png",
-    "troophelioslancer": "assets/game/troop-helios-lancer.png",
-    "troopheliosmarksman": "assets/game/troop-helios-marksman.png",
-    "troops": "assets/game/troop-helios-infantry.png",
-    "valeria": "assets/game/expert-valeria.png",
-    "warhymntestament": {
-      "src": "assets/game/warhymn-testament.png",
-      "hide_count": true
-    },
-    "watch": "assets/game/chief-gear-watch-clean.png",
-    "wayne": "assets/game/hero-wayne.png",
-    "wingsofhope": "assets/game/equipped-hero-gear/gwen-special.png",
-    "wood": "assets/game/resources/wood.png",
-    "wuming": "assets/game/hero-wu_ming.png",
-    "captainahab": "assets/game/equipped-hero-gear/alonso-special.png",
-    "dawnbreak": "assets/game/equipped-hero-gear/jeronimo-special.png",
-    "dragonbane": "assets/game/equipped-hero-gear/flint-special.png",
-    "ellastear": "assets/game/equipped-hero-gear/lynn-special.png",
-    "equippedahmosebelt": "assets/game/equipped-hero-gear/ahmose-bottom_left.png",
-    "equippedahmoseboots": "assets/game/equipped-hero-gear/ahmose-bottom_right.png",
-    "equippedahmosegauntlets": "assets/game/equipped-hero-gear/ahmose-top_right.png",
-    "equippedahmosegoggles": "assets/game/equipped-hero-gear/ahmose-top_left.png",
-    "equippedalonsobelt": "assets/game/equipped-hero-gear/alonso-bottom_left.png",
-    "equippedalonsoboots": "assets/game/equipped-hero-gear/alonso-bottom_right.png",
-    "equippedalonsogauntlets": "assets/game/equipped-hero-gear/alonso-top_right.png",
-    "equippedalonsogoggles": "assets/game/equipped-hero-gear/alonso-top_left.png",
-    "equippedflintbelt": "assets/game/equipped-hero-gear/flint-bottom_left.png",
-    "equippedflintboots": "assets/game/equipped-hero-gear/flint-bottom_right.png",
-    "equippedflintgauntlets": "assets/game/equipped-hero-gear/flint-top_right.png",
-    "equippedflintgoggles": "assets/game/equipped-hero-gear/flint-top_left.png",
-    "equippedjeronimobottomleft": "assets/game/equipped-hero-gear/jeronimo-bottom_left.png",
-    "equippedjeronimobottomright": "assets/game/equipped-hero-gear/jeronimo-bottom_right.png",
-    "equippedjeronimotopleft": "assets/game/equipped-hero-gear/jeronimo-top_left.png",
-    "equippedjeronimotopright": "assets/game/equipped-hero-gear/jeronimo-top_right.png",
-    "equippedlynnbelt": "assets/game/equipped-hero-gear/lynn-bottom_left.png",
-    "equippedlynnboots": "assets/game/equipped-hero-gear/lynn-bottom_right.png",
-    "equippedlynngauntlets": "assets/game/equipped-hero-gear/lynn-top_right.png",
-    "equippedlynngoggles": "assets/game/equipped-hero-gear/lynn-top_left.png",
-    "equippedmiabottomleft": "assets/game/equipped-hero-gear/mia-bottom_left.png",
-    "equippedmiabottomright": "assets/game/equipped-hero-gear/mia-bottom_right.png",
-    "equippedmiatopleft": "assets/game/equipped-hero-gear/mia-top_left.png",
-    "equippedmiatopright": "assets/game/equipped-hero-gear/mia-top_right.png",
-    "equippedreinabottomleft": "assets/game/equipped-hero-gear/reina-bottom_left.png",
-    "equippedreinabottomright": "assets/game/equipped-hero-gear/reina-bottom_right.png",
-    "equippedreinatopleft": "assets/game/equipped-hero-gear/reina-top_left.png",
-    "equippedreinatopright": "assets/game/equipped-hero-gear/reina-top_right.png",
-    "equippedwaynebottomleft": "assets/game/equipped-hero-gear/wayne-bottom_left.png",
-    "equippedwaynebottomright": "assets/game/equipped-hero-gear/wayne-bottom_right.png",
-    "equippedwaynetopleft": "assets/game/equipped-hero-gear/wayne-top_left.png",
-    "equippedwaynetopright": "assets/game/equipped-hero-gear/wayne-top_right.png",
-    "equippededithtopleft": "assets/game/equipped-hero-gear/edith-top_left.png",
-    "equippededithtopright": "assets/game/equipped-hero-gear/edith-top_right.png",
-    "equippededithbottomleft": "assets/game/equipped-hero-gear/edith-bottom_left.png",
-    "equippededithbottomright": "assets/game/equipped-hero-gear/edith-bottom_right.png",
-    "equippednorahtopleft": "assets/game/equipped-hero-gear/norah-top_left.png",
-    "equippednorahtopright": "assets/game/equipped-hero-gear/norah-top_right.png",
-    "equippednorahbottomleft": "assets/game/equipped-hero-gear/norah-bottom_left.png",
-    "equippednorahbottomright": "assets/game/equipped-hero-gear/norah-bottom_right.png",
-    "equippedlynntopleft": "assets/game/equipped-hero-gear/lynn-top_left.png",
-    "equippedlynntopright": "assets/game/equipped-hero-gear/lynn-top_right.png",
-    "equippedlynnbottomleft": "assets/game/equipped-hero-gear/lynn-bottom_left.png",
-    "equippedlynnbottomright": "assets/game/equipped-hero-gear/lynn-bottom_right.png",
-    "equippedahmosetopleft": "assets/game/equipped-hero-gear/ahmose-top_left.png",
-    "equippedahmosetopright": "assets/game/equipped-hero-gear/ahmose-top_right.png",
-    "equippedahmosebottomleft": "assets/game/equipped-hero-gear/ahmose-bottom_left.png",
-    "equippedahmosebottomright": "assets/game/equipped-hero-gear/ahmose-bottom_right.png",
-    "equippedflinttopleft": "assets/game/equipped-hero-gear/flint-top_left.png",
-    "equippedflinttopright": "assets/game/equipped-hero-gear/flint-top_right.png",
-    "equippedflintbottomleft": "assets/game/equipped-hero-gear/flint-bottom_left.png",
-    "equippedflintbottomright": "assets/game/equipped-hero-gear/flint-bottom_right.png",
-    "equippedalonsotopleft": "assets/game/equipped-hero-gear/alonso-top_left.png",
-    "equippedalonsotopright": "assets/game/equipped-hero-gear/alonso-top_right.png",
-    "equippedalonsobottomleft": "assets/game/equipped-hero-gear/alonso-bottom_left.png",
-    "equippedalonsobottomright": "assets/game/equipped-hero-gear/alonso-bottom_right.png",
-    "equippedgregtopleft": "assets/game/equipped-hero-gear/greg-top_left.png",
-    "equippedgregtopright": "assets/game/equipped-hero-gear/greg-top_right.png",
-    "equippedgregbottomleft": "assets/game/equipped-hero-gear/greg-bottom_left.png",
-    "equippedgregbottomright": "assets/game/equipped-hero-gear/greg-bottom_right.png",
-    "equippedmollytopleft": "assets/game/equipped-hero-gear/molly-top_left.png",
-    "equippedmollytopright": "assets/game/equipped-hero-gear/molly-top_right.png",
-    "equippedmollybottomleft": "assets/game/equipped-hero-gear/molly-bottom_left.png",
-    "equippedmollybottomright": "assets/game/equipped-hero-gear/molly-bottom_right.png",
-    "equippedphillytopleft": "assets/game/equipped-hero-gear/philly-top_left.png",
-    "equippedphillytopright": "assets/game/equipped-hero-gear/philly-top_right.png",
-    "equippedphillybottomleft": "assets/game/equipped-hero-gear/philly-bottom_left.png",
-    "equippedphillybottomright": "assets/game/equipped-hero-gear/philly-bottom_right.png",
-    "equippedginatopleft": "assets/game/equipped-hero-gear/gina-top_left.png",
-    "equippedginatopright": "assets/game/equipped-hero-gear/gina-top_right.png",
-    "equippedginabottomleft": "assets/game/equipped-hero-gear/gina-bottom_left.png",
-    "equippedginabottomright": "assets/game/equipped-hero-gear/gina-bottom_right.png",
-    "equippedjessietopleft": "assets/game/equipped-hero-gear/jessie-top_left.png",
-    "equippedjessietopright": "assets/game/equipped-hero-gear/jessie-top_right.png",
-    "equippedjessiebottomleft": "assets/game/equipped-hero-gear/jessie-bottom_left.png",
-    "equippedjessiebottomright": "assets/game/equipped-hero-gear/jessie-bottom_right.png",
-    "equippedsergeytopleft": "assets/game/equipped-hero-gear/sergey-top_left.png",
-    "equippedsergeytopright": "assets/game/equipped-hero-gear/sergey-top_right.png",
-    "equippedsergeybottomleft": "assets/game/equipped-hero-gear/sergey-bottom_left.png",
-    "equippedsergeybottomright": "assets/game/equipped-hero-gear/sergey-bottom_right.png",
-    "equippedlogantopleft": "assets/game/equipped-hero-gear/logan-top_left.png",
-    "equippedlogantopright": "assets/game/equipped-hero-gear/logan-top_right.png",
-    "equippedloganbottomleft": "assets/game/equipped-hero-gear/logan-bottom_left.png",
-    "equippedloganbottomright": "assets/game/equipped-hero-gear/logan-bottom_right.png",
-    "equippedpatricktopleft": "assets/game/equipped-hero-gear/patrick-top_left.png",
-    "equippedpatricktopright": "assets/game/equipped-hero-gear/patrick-top_right.png",
-    "equippedpatrickbottomleft": "assets/game/equipped-hero-gear/patrick-bottom_left.png",
-    "equippedpatrickbottomright": "assets/game/equipped-hero-gear/patrick-bottom_right.png",
-    "equippedbahititopleft": "assets/game/equipped-hero-gear/bahiti-top_left.png",
-    "equippedbahititopright": "assets/game/equipped-hero-gear/bahiti-top_right.png",
-    "equippedbahitibottomleft": "assets/game/equipped-hero-gear/bahiti-bottom_left.png",
-    "equippedbahitibottomright": "assets/game/equipped-hero-gear/bahiti-bottom_right.png",
-    "equippedjassertopleft": "assets/game/equipped-hero-gear/jasser-top_left.png",
-    "equippedjassertopright": "assets/game/equipped-hero-gear/jasser-top_right.png",
-    "equippedjasserbottomleft": "assets/game/equipped-hero-gear/jasser-bottom_left.png",
-    "equippedjasserbottomright": "assets/game/equipped-hero-gear/jasser-bottom_right.png",
-    "equippedseoyoontopleft": "assets/game/equipped-hero-gear/seo_yoon-top_left.png",
-    "equippedseoyoontopright": "assets/game/equipped-hero-gear/seo_yoon-top_right.png",
-    "equippedseoyoonbottomleft": "assets/game/equipped-hero-gear/seo_yoon-bottom_left.png",
-    "equippedseoyoonbottomright": "assets/game/equipped-hero-gear/seo_yoon-bottom_right.png",
-    "equippedlumakbokantopleft": "assets/game/equipped-hero-gear/lumak_bokan-top_left.png",
-    "equippedlumakbokantopright": "assets/game/equipped-hero-gear/lumak_bokan-top_right.png",
-    "equippedlumakbokanbottomleft": "assets/game/equipped-hero-gear/lumak_bokan-bottom_left.png",
-    "equippedlumakbokanbottomright": "assets/game/equipped-hero-gear/lumak_bokan-bottom_right.png",
-    "equippedlingxuetopleft": "assets/game/equipped-hero-gear/ling_xue-top_left.png",
-    "equippedlingxuetopright": "assets/game/equipped-hero-gear/ling_xue-top_right.png",
-    "equippedlingxuebottomleft": "assets/game/equipped-hero-gear/ling_xue-bottom_left.png",
-    "equippedlingxuebottomright": "assets/game/equipped-hero-gear/ling_xue-bottom_right.png",
-    "equippedzinmantopleft": "assets/game/equipped-hero-gear/zinman-top_left.png",
-    "equippedzinmantopright": "assets/game/equipped-hero-gear/zinman-top_right.png",
-    "equippedzinmanbottomleft": "assets/game/equipped-hero-gear/zinman-bottom_left.png",
-    "equippedzinmanbottomright": "assets/game/equipped-hero-gear/zinman-bottom_right.png",
-    "equippedcloristopleft": "assets/game/equipped-hero-gear/cloris-top_left.png",
-    "equippedcloristopright": "assets/game/equipped-hero-gear/cloris-top_right.png",
-    "equippedclorisbottomleft": "assets/game/equipped-hero-gear/cloris-bottom_left.png",
-    "equippedclorisbottomright": "assets/game/equipped-hero-gear/cloris-bottom_right.png",
-    "equippedcharlietopleft": "assets/game/equipped-hero-gear/charlie-top_left.png",
-    "equippedcharlietopright": "assets/game/equipped-hero-gear/charlie-top_right.png",
-    "equippedcharliebottomleft": "assets/game/equipped-hero-gear/charlie-bottom_left.png",
-    "equippedcharliebottomright": "assets/game/equipped-hero-gear/charlie-bottom_right.png",
-    "equippedsmithtopleft": "assets/game/equipped-hero-gear/smith-top_left.png",
-    "equippedsmithtopright": "assets/game/equipped-hero-gear/smith-top_right.png",
-    "equippedsmithbottomleft": "assets/game/equipped-hero-gear/smith-bottom_left.png",
-    "equippedsmithbottomright": "assets/game/equipped-hero-gear/smith-bottom_right.png",
-    "equippedeugenetopleft": "assets/game/equipped-hero-gear/eugene-top_left.png",
-    "equippedeugenetopright": "assets/game/equipped-hero-gear/eugene-top_right.png",
-    "equippedeugenebottomleft": "assets/game/equipped-hero-gear/eugene-bottom_left.png",
-    "equippedeugenebottomright": "assets/game/equipped-hero-gear/eugene-bottom_right.png",
-    "equippedreneetopleft": "assets/game/equipped-hero-gear/renee-top_left.png",
-    "equippedreneetopright": "assets/game/equipped-hero-gear/renee-top_right.png",
-    "equippedreneebottomleft": "assets/game/equipped-hero-gear/renee-bottom_left.png",
-    "equippedreneebottomright": "assets/game/equipped-hero-gear/renee-bottom_right.png",
-    "equippednataliatopleft": "assets/game/equipped-hero-gear/natalia-top_left.png",
-    "equippednataliatopright": "assets/game/equipped-hero-gear/natalia-top_right.png",
-    "equippednataliabottomleft": "assets/game/equipped-hero-gear/natalia-bottom_left.png",
-    "equippednataliabottomright": "assets/game/equipped-hero-gear/natalia-bottom_right.png",
-    "fatecrystal": "assets/game/equipped-hero-gear/mia-special.png",
-    "fistsofsteel": "assets/game/equipped-hero-gear/logan-special.png",
-    "galeforce": "assets/game/equipped-hero-gear/natalia-special.png",
-    "guardiansrelic": "assets/game/equipped-hero-gear/ahmose-special.png",
-    "illusionmagiball": "assets/game/equipped-hero-gear/renee-special.png",
-    "ninjakkenraikiri": "assets/game/equipped-hero-gear/reina-special.png",
-    "pharmacologica": "assets/game/equipped-hero-gear/philly-special.png",
-    "powerboomerang": "assets/game/equipped-hero-gear/wayne-special.png",
-    "stateedict": "assets/game/equipped-hero-gear/greg-special.png",
-    "woodpecker": "assets/game/equipped-hero-gear/zinman-special.png",
-    "yetispirit": "assets/game/equipped-hero-gear/molly-special.png",
-    "zinman": "assets/game/hero-zinman.png"
-  }
+ "version": 1,
+ "source": "Cropped from BlueStacks screenshots of the user's Whiteout Survival account where available. Generated SVG icons remain fallback when an asset is not listed. Count-bearing item icons use original screenshots with a dashboard crop mask; no inpainted icon assets are referenced.",
+ "assets": {
+  "1000gems": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "1000heroxp": "assets/game/hero-xp-1000.png",
+  "100coal": {
+   "src": "assets/game/coal-100.png",
+   "hide_count": true
+  },
+  "100gems": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "100iron": {
+   "src": "assets/game/iron-100.png",
+   "hide_count": true
+  },
+  "100kcoal": {
+   "src": "assets/game/coal-100k.png",
+   "hide_count": true
+  },
+  "100kcoalsecured": {
+   "src": "assets/game/coal-100k-secured.png",
+   "hide_count": true
+  },
+  "100kiron": {
+   "src": "assets/game/iron-100k.png",
+   "hide_count": true
+  },
+  "100kironsecured": {
+   "src": "assets/game/iron-100k-secured.png",
+   "hide_count": true
+  },
+  "100kmeat": {
+   "src": "assets/game/meat-100k.png",
+   "hide_count": true
+  },
+  "100kmeatsecured": {
+   "src": "assets/game/meat-100k-secured.png",
+   "hide_count": true
+  },
+  "100kresourcesupplychest": {
+   "src": "assets/game/resource-supply-chest-100k.png",
+   "hide_count": true
+  },
+  "100ksecuredresourcesupplychest": {
+   "src": "assets/game/secured-resource-supply-chest-100k.png",
+   "hide_count": true
+  },
+  "100kwood": {
+   "src": "assets/game/wood-100k.png",
+   "hide_count": true
+  },
+  "100kwoodsecured": {
+   "src": "assets/game/wood-100k-secured.png",
+   "hide_count": true
+  },
+  "10gems": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "10kcoal": {
+   "src": "assets/game/coal-10k.png",
+   "hide_count": true
+  },
+  "10kcoalsecured": {
+   "src": "assets/game/coal-10k-secured.png",
+   "hide_count": true
+  },
+  "10kiron": {
+   "src": "assets/game/iron-10k.png",
+   "hide_count": true
+  },
+  "10kironsecured": {
+   "src": "assets/game/iron-10k-secured.png",
+   "hide_count": true
+  },
+  "10kmeat": {
+   "src": "assets/game/meat-10k.png",
+   "hide_count": true
+  },
+  "10kmeatsecured": {
+   "src": "assets/game/meat-10k-secured.png",
+   "hide_count": true
+  },
+  "10kresourcesupplychest": {
+   "src": "assets/game/resource-supply-chest-10k.png",
+   "hide_count": true
+  },
+  "10ksecuredresourcesupplychest": {
+   "src": "assets/game/secured-resource-supply-chest-10k.png",
+   "hide_count": true
+  },
+  "10kwood": {
+   "src": "assets/game/wood-10k.png",
+   "hide_count": true
+  },
+  "10kwoodsecured": {
+   "src": "assets/game/wood-10k-secured.png",
+   "hide_count": true
+  },
+  "1gems": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "1hspeedup": {
+   "src": "assets/game/speedup-general-1h.png",
+   "hide_count": true
+  },
+  "1kcoal": {
+   "src": "assets/game/coal-1k.png",
+   "hide_count": true
+  },
+  "1kcoalsecured": {
+   "src": "assets/game/coal-1k-secured.png",
+   "hide_count": true
+  },
+  "1kgems": {
+   "src": "assets/game/gems-1k-bag.png",
+   "hide_count": true
+  },
+  "1kheroxp": "assets/game/hero-xp-1000.png",
+  "1kiron": {
+   "src": "assets/game/iron-1k.png",
+   "hide_count": true
+  },
+  "1kironsecured": {
+   "src": "assets/game/iron-1k-secured.png",
+   "hide_count": true
+  },
+  "1kmeat": {
+   "src": "assets/game/meat-1k.png",
+   "hide_count": true
+  },
+  "1kmeatsecured": {
+   "src": "assets/game/meat-1k-secured.png",
+   "hide_count": true
+  },
+  "1kresourcesupplychest": {
+   "src": "assets/game/resource-supply-chest-1k.png",
+   "hide_count": true
+  },
+  "1kwood": {
+   "src": "assets/game/wood-1k.png",
+   "hide_count": true
+  },
+  "1kwoodsecured": {
+   "src": "assets/game/wood-1k-secured.png",
+   "hide_count": true
+  },
+  "1mcoal": {
+   "src": "assets/game/coal-1m.png",
+   "hide_count": true
+  },
+  "1miron": {
+   "src": "assets/game/iron-1m.png",
+   "hide_count": true
+  },
+  "1mmeat": {
+   "src": "assets/game/meat-1m.png",
+   "hide_count": true
+  },
+  "1mmeatsecured": {
+   "src": "assets/game/meat-1m-secured.png",
+   "hide_count": true
+  },
+  "1mspeedup": {
+   "src": "assets/game/speedup-general-1min.png",
+   "hide_count": true
+  },
+  "1mwood": {
+   "src": "assets/game/wood-1m.png",
+   "hide_count": true
+  },
+  "1mwoodsecured": {
+   "src": "assets/game/wood-1m-secured.png",
+   "hide_count": true
+  },
+  "2hshield": {
+   "src": "assets/game/shield-2h.png",
+   "hide_count": true
+  },
+  "3hspeedup": {
+   "src": "assets/game/speedup-general-3h.png",
+   "hide_count": true
+  },
+  "5000heroxp": "assets/game/hero-xp-5000.png",
+  "5kheroxp": "assets/game/hero-xp-5000.png",
+  "5mspeedup": {
+   "src": "assets/game/speedup-general-5min.png",
+   "hide_count": true
+  },
+  "8hshield": {
+   "src": "assets/game/shield-8h.png",
+   "hide_count": true
+  },
+  "8hspeedup": {
+   "src": "assets/game/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "agnes": "assets/game/expert-agnes.png",
+  "ahmose": "assets/game/hero-ahmose.png",
+  "advancedwildmark": {
+   "src": "assets/game/materials/pet-advanced-wild-mark.png",
+   "hide_count": true
+  },
+  "advancedwildmarks": {
+   "src": "assets/game/materials/pet-advanced-wild-mark.png",
+   "hide_count": true
+  },
+  "affinity": {
+   "src": "assets/game/materials/expert-affinity-compass.png",
+   "hide_count": true
+  },
+  "alloy": "assets/game/materials/hardened-alloy.png",
+  "alonso": "assets/game/hero-alonso.png",
+  "amber": "assets/game/materials/lunar-amber.png",
+  "arcticwolf": "assets/game/pet-arctic-wolf.png",
+  "backpackdirectcoal": {
+   "src": "assets/game/coal-1k.png",
+   "hide_count": true
+  },
+  "backpackdirectfc": {
+   "src": "assets/game/fire-crystal.png",
+   "hide_count": true
+  },
+  "backpackdirectiron": {
+   "src": "assets/game/iron-1k.png",
+   "hide_count": true
+  },
+  "backpackdirectmeat": {
+   "src": "assets/game/meat-1k.png",
+   "hide_count": true
+  },
+  "backpackdirectrfc": {
+   "src": "assets/game/refined-fire-crystal.png",
+   "hide_count": true
+  },
+  "backpackdirectshards": {
+   "src": "assets/game/fire-crystal-shard.png",
+   "hide_count": true
+  },
+  "backpackdirectwood": {
+   "src": "assets/game/wood-1k.png",
+   "hide_count": true
+  },
+  "bahiti": "assets/game/hero-bahiti.png",
+  "baldur": "assets/game/expert-baldur.png",
+  "belt": "assets/game/hero-gear-belt-card.png",
+  "blazingmeteor": "assets/game/march-skin-blazing-meteor-i.png",
+  "blazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
+  "bookofknowledge": {
+   "src": "assets/game/materials/books-of-knowledge.png",
+   "hide_count": true
+  },
+  "booksofknowledge": {
+   "src": "assets/game/materials/books-of-knowledge.png",
+   "hide_count": true
+  },
+  "boot": "assets/game/hero-gear-boot-card.png",
+  "boots": "assets/game/hero-gear-boot-card.png",
+  "bradley": "assets/game/hero-bradley.png",
+  "bradleybottomleft": "assets/game/equipped-hero-gear/bradley-bottom_left.png",
+  "bradleybottomright": "assets/game/equipped-hero-gear/bradley-bottom_right.png",
+  "bradleyspecial": "assets/game/equipped-hero-gear/bradley-special.png",
+  "bradleytopleft": "assets/game/equipped-hero-gear/bradley-top_left.png",
+  "bradleytopright": "assets/game/equipped-hero-gear/bradley-top_right.png",
+  "cavehyena": "assets/game/pet-cave-hyena.png",
+  "cavelion": "assets/game/pet-cave-lion.png",
+  "charlie": "assets/game/hero-charlie.png",
+  "charm": "assets/game/chief-charm-slot-clean.png",
+  "charmlancerhex": "assets/game/charms/charm-lancer-hex.png",
+  "charmlancerround": "assets/game/charms/charm-lancer-hex.png",
+  "charminfantryhex": "assets/game/charms/charm-infantry-hex.png",
+  "charminfantryround": "assets/game/charms/charm-infantry-round.png",
+  "charmmarksmanhex": "assets/game/charms/charm-marksman-hex.png",
+  "charmmarksmanround": "assets/game/charms/charm-marksman-round.png",
+  "charmtoolkit": "assets/game/equipped-hero-gear/edith-special.png",
+  "charmdesigns": {
+   "src": "assets/game/materials/charm-designs.png",
+   "hide_count": true
+  },
+  "charmdesignsdesigns": {
+   "src": "assets/game/materials/charm-designs.png",
+   "hide_count": true
+  },
+  "charmguides": {
+   "src": "assets/game/materials/charm-guides.png",
+   "hide_count": true
+  },
+  "charmguidesguides": {
+   "src": "assets/game/materials/charm-guides.png",
+   "hide_count": true
+  },
+  "charmsecrets": {
+   "src": "assets/game/materials/charm-secrets.png",
+   "hide_count": true
+  },
+  "charmsecretssecrets": {
+   "src": "assets/game/materials/charm-secrets.png",
+   "hide_count": true
+  },
+  "secrets": {
+   "src": "assets/game/materials/charm-secrets.png",
+   "hide_count": true
+  },
+  "chestgear": "assets/game/hero-gear-chest-card.png",
+  "chiefcharm": "assets/game/chief-charm-slot-clean.png",
+  "chiefcharms": "assets/game/chief-charm-slot-clean.png",
+  "chiefgearcoat": "assets/game/chief-gear-coat-clean.png",
+  "chiefgearcudgel": "assets/game/chief-gear-cudgel-clean.png",
+  "chiefgearhat": "assets/game/chief-gear-hat-clean.png",
+  "chiefgearpants": "assets/game/chief-gear-pants-clean.png",
+  "chiefgearring": "assets/game/chief-gear-ring-clean.png",
+  "chiefgearwatch": "assets/game/chief-gear-watch-clean.png",
+  "chiefstamina": "assets/game/materials/chief-stamina-can.png",
+  "cityskincurrentcityskin": "assets/game/city-skin-lost-city.png",
+  "cityskinlostcity": "assets/game/city-skin-lost-city.png",
+  "cloris": "assets/game/hero-cloris.png",
+  "coal": "assets/game/resources/coal.png",
+  "commonexpertsigils": {
+   "src": "assets/game/materials/common-expert-sigil.png",
+   "hide_count": true
+  },
+  "commonwildmark": {
+   "src": "assets/game/materials/pet-common-wild-mark.png",
+   "hide_count": true
+  },
+  "commonwildmarks": {
+   "src": "assets/game/materials/pet-common-wild-mark.png",
+   "hide_count": true
+  },
+  "commonsigils": {
+   "src": "assets/game/materials/common-expert-sigil.png",
+   "hide_count": true
+  },
+  "coat": "assets/game/chief-gear-coat-clean.png",
+  "constructionspeedup": {
+   "src": "assets/game/materials/speedup-construction-1m.png",
+   "hide_count": true
+  },
+  "constructionspeedups": {
+   "src": "assets/game/materials/speedup-construction-1m.png",
+   "hide_count": true
+  },
+  "constructionspeedupsminutes": {
+   "src": "assets/game/materials/speedup-construction-1m.png",
+   "hide_count": true
+  },
+  "constructionspeedupsminutesconstructionspeedups": {
+   "src": "assets/game/materials/speedup-construction-1m.png",
+   "hide_count": true
+  },
+  "compass": {
+   "src": "assets/game/materials/expert-affinity-compass.png",
+   "hide_count": true
+  },
+  "cudgel": "assets/game/chief-gear-cudgel-clean.png",
+  "currentcityskin": "assets/game/city-skin-lost-city.png",
+  "cyrille": "assets/game/expert-cyrille.png",
+  "deploymentcapacityboosti2h": {
+   "src": "assets/game/deployment-capacity-boost-i-2h.png",
+   "hide_count": true
+  },
+  "deploymentcapacityboostii12h": {
+   "src": "assets/game/deployment-capacity-boost-ii-12h.png",
+   "hide_count": true
+  },
+  "deploymentcapacityboostii12hrs": {
+   "src": "assets/game/deployment-capacity-boost-ii-12h.png",
+   "hide_count": true
+  },
+  "designplans": {
+   "src": "assets/game/materials/design-plans.png",
+   "hide_count": true
+  },
+  "designplansplans": {
+   "src": "assets/game/materials/design-plans.png",
+   "hide_count": true
+  },
+  "designs": {
+   "src": "assets/game/materials/charm-designs.png",
+   "hide_count": true
+  },
+  "diamond": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "diamonds": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "energizingpotion": {
+   "src": "assets/game/materials/pet-energizing-potion.png",
+   "hide_count": true
+  },
+  "edith": "assets/game/hero-edith.png",
+  "edithbelt": "assets/game/equipped-hero-gear/edith-bottom_left.png",
+  "edithboots": "assets/game/equipped-hero-gear/edith-bottom_right.png",
+  "edithgauntlets": "assets/game/equipped-hero-gear/edith-top_right.png",
+  "edithgoggles": "assets/game/equipped-hero-gear/edith-top_left.png",
+  "edithspecial": "assets/game/equipped-hero-gear/edith-special.png",
+  "epicgeneralshards": {
+   "src": "assets/game/materials/epic-general-shard-card.png",
+   "hide_count": true
+  },
+  "essencestone": {
+   "src": "assets/game/materials/essence-stone-card.png",
+   "hide_count": true
+  },
+  "essencestones": {
+   "src": "assets/game/materials/essence-stone-card.png",
+   "hide_count": true
+  },
+  "essencestonesessencestones": {
+   "src": "assets/game/materials/essence-stone-card.png",
+   "hide_count": true
+  },
+  "eugene": "assets/game/hero-eugene.png",
+  "equippedbradleybottomleft": "assets/game/equipped-hero-gear/bradley-bottom_left.png",
+  "equippedbradleybottomright": "assets/game/equipped-hero-gear/bradley-bottom_right.png",
+  "equippedbradleytopleft": "assets/game/equipped-hero-gear/bradley-top_left.png",
+  "equippedbradleytopright": "assets/game/equipped-hero-gear/bradley-top_right.png",
+  "equippededithbelt": "assets/game/equipped-hero-gear/edith-bottom_left.png",
+  "equippededithboots": "assets/game/equipped-hero-gear/edith-bottom_right.png",
+  "equippededithgauntlets": "assets/game/equipped-hero-gear/edith-top_right.png",
+  "equippededithgoggles": "assets/game/equipped-hero-gear/edith-top_left.png",
+  "expertaffinity": {
+   "src": "assets/game/materials/expert-affinity-compass.png",
+   "hide_count": true
+  },
+  "expertgiftcompass": {
+   "src": "assets/game/materials/expert-affinity-compass.png",
+   "hide_count": true
+  },
+  "expertgiftfieryheart": {
+   "src": "assets/game/materials/expert-affinity-fiery-heart.png",
+   "hide_count": true
+  },
+  "expertgiftsailofconquest": {
+   "src": "assets/game/materials/expert-affinity-sail-of-conquest.png",
+   "hide_count": true
+  },
+  "expertagnes": "assets/game/expert-agnes.png",
+  "expertbaldur": "assets/game/expert-baldur.png",
+  "expertcyrille": "assets/game/expert-cyrille.png",
+  "expertfabian": "assets/game/expert-fabian.png",
+  "expertholger": "assets/game/expert-holger.png",
+  "expertkathy": "assets/game/expert-kathy.png",
+  "expertromulus": "assets/game/expert-romulus.png",
+  "expertronne": "assets/game/expert-ronne.png",
+  "expertvaleria": "assets/game/expert-valeria.png",
+  "fabian": "assets/game/expert-fabian.png",
+  "fc": "assets/game/resources/fire-crystal.png",
+  "firecrystal": "assets/game/resources/fire-crystal.png",
+  "firecrystals": "assets/game/resources/fire-crystal.png",
+  "firecrystalshard": {
+   "src": "assets/game/fire-crystal-shard.png",
+   "hide_count": true
+  },
+  "firecrystalshards": {
+   "src": "assets/game/fire-crystal-shard.png",
+   "hide_count": true
+  },
+  "firecrystalshardsshards": {
+   "src": "assets/game/fire-crystal-shard.png",
+   "hide_count": true
+  },
+  "firecrystalweeklycardcrate": {
+   "src": "assets/game/fire-crystal-weekly-card-crate.png",
+   "hide_count": true
+  },
+  "fieryheart": {
+   "src": "assets/game/materials/expert-affinity-fiery-heart.png",
+   "hide_count": true
+  },
+  "flint": "assets/game/hero-flint.png",
+  "frostgorilla": "assets/game/pet-frost-gorilla.png",
+  "frostscalechameleon": "assets/game/pet-frostscale-chameleon.png",
+  "gatheringspeedboost": {
+   "src": "assets/game/gathering-speed-boost-8h.png",
+   "hide_count": true
+  },
+  "gatheringspeedboost8h": {
+   "src": "assets/game/gathering-speed-boost-8h.png",
+   "hide_count": true
+  },
+  "gearcoat": "assets/game/chief-gear-coat-clean.png",
+  "gearcudgel": "assets/game/chief-gear-cudgel-clean.png",
+  "gearhat": "assets/game/chief-gear-hat-clean.png",
+  "gearpants": "assets/game/chief-gear-pants-clean.png",
+  "gearring": "assets/game/chief-gear-ring-clean.png",
+  "gearwatch": "assets/game/chief-gear-watch-clean.png",
+  "gearxp": {
+   "src": "assets/game/materials/hero-gear-xp-green.png",
+   "hide_count": true
+  },
+  "gem": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "gems": {
+   "src": "assets/game/gems.png",
+   "hide_count": true
+  },
+  "generalspeedup": {
+   "src": "assets/game/materials/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "generalspeedups": {
+   "src": "assets/game/materials/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "generalspeedupsminutes": {
+   "src": "assets/game/materials/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "generalspeedupsminutesgeneralspeedups": {
+   "src": "assets/game/materials/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "giantelk": "assets/game/pet-giant-elk.png",
+  "gianttapir": "assets/game/pet-giant-tapir.png",
+  "gina": "assets/game/hero-gina.png",
+  "glove": "assets/game/hero-gear-glove-card.png",
+  "gloves": "assets/game/hero-gear-glove-card.png",
+  "goggle": "assets/game/hero-gear-goggle-card.png",
+  "goggles": "assets/game/hero-gear-goggle-card.png",
+  "bonecruxvenom": "assets/game/equipped-hero-gear/gordon-special.png",
+  "gordon": "assets/game/hero-gordon.png",
+  "equippedgordonbottomleft": "assets/game/equipped-hero-gear/gordon-bottom_left.png",
+  "equippedgordonbottomright": "assets/game/equipped-hero-gear/gordon-bottom_right.png",
+  "equippedgordontopleft": "assets/game/equipped-hero-gear/gordon-top_left.png",
+  "equippedgordontopright": "assets/game/equipped-hero-gear/gordon-top_right.png",
+  "greg": "assets/game/hero-greg.png",
+  "guides": {
+   "src": "assets/game/materials/charm-guides.png",
+   "hide_count": true
+  },
+  "gwen": "assets/game/hero-gwen.png",
+  "equippedgwenbottomleft": "assets/game/equipped-hero-gear/gwen-bottom_left.png",
+  "equippedgwenbottomright": "assets/game/equipped-hero-gear/gwen-bottom_right.png",
+  "equippedgwentopleft": "assets/game/equipped-hero-gear/gwen-top_left.png",
+  "equippedgwentopright": "assets/game/equipped-hero-gear/gwen-top_right.png",
+  "hardenedalloy": "assets/game/materials/hardened-alloy.png",
+  "hardenedalloyalloy": "assets/game/materials/hardened-alloy.png",
+  "hat": "assets/game/chief-gear-hat-clean.png",
+  "healingspeedup": {
+   "src": "assets/game/materials/speedup-healing-1m.png",
+   "hide_count": true
+  },
+  "healingspeedups": {
+   "src": "assets/game/materials/speedup-healing-1m.png",
+   "hide_count": true
+  },
+  "healingspeedupsminutes": {
+   "src": "assets/game/materials/speedup-healing-1m.png",
+   "hide_count": true
+  },
+  "healingspeedupsminuteshealingspeedups": {
+   "src": "assets/game/materials/speedup-healing-1m.png",
+   "hide_count": true
+  },
+  "hector": "assets/game/hero-hector.png",
+  "equippedhectorbottomleft": "assets/game/equipped-hero-gear/hector-bottom_left.png",
+  "equippedhectorbottomright": "assets/game/equipped-hero-gear/hector-bottom_right.png",
+  "equippedhectortopleft": "assets/game/equipped-hero-gear/hector-top_left.png",
+  "equippedhectortopright": "assets/game/equipped-hero-gear/hector-top_right.png",
+  "buildingfurnace": "assets/game/buildings/furnace.png",
+  "buildingembassy": "assets/game/buildings/embassy.png",
+  "buildingcommandcenter": "assets/game/buildings/command-center.png",
+  "buildinginfirmary": "assets/game/buildings/infirmary.png",
+  "buildingwaracademy": "assets/game/buildings/war-academy.png",
+  "buildinginfantrycamp": "assets/game/buildings/infantry-camp.png",
+  "buildinglancercamp": "assets/game/buildings/lancer-camp.png",
+  "buildingmarksmancamp": "assets/game/buildings/marksman-camp.png",
+  "researchshieldupgrade": "assets/game/research/regular/shield_upgrade.png",
+  "researchmarksmanarmor": "assets/game/research/regular/marksman_armor.png",
+  "researchlancerarmor": "assets/game/research/regular/lancer_armor.png",
+  "researchweaponsprep": "assets/game/research/regular/weapons_prep.png",
+  "researchreprisaltactics": "assets/game/research/regular/reprisal_tactics.png",
+  "researchprecisiontargeting": "assets/game/research/regular/precision_targeting.png",
+  "researchskirmishing": "assets/game/research/regular/skirmishing.png",
+  "researchdefensiveformations": "assets/game/research/regular/defensive_formations.png",
+  "researchpicketlines": "assets/game/research/regular/picket_lines.png",
+  "researchbulwarkformations": "assets/game/research/regular/bulwark_formations.png",
+  "researchspecialdefensivetraining": "assets/game/research/regular/special_defensive_training.png",
+  "researchsurvivaltechniques": "assets/game/research/regular/survival_techniques.png",
+  "researchassaulttechniques": "assets/game/research/regular/assault_techniques.png",
+  "researchregimentalexpansion": "assets/game/research/regular/regimental_expansion.png",
+  "researchclosecombat": "assets/game/research/regular/close_combat.png",
+  "researchtargetedsniping": "assets/game/research/regular/targeted_sniping.png",
+  "researchlanceupgrade": "assets/game/research/regular/lance_upgrade.png",
+  "researchironmining": "assets/game/research/regular/iron_mining.png",
+  "researchmeatoutput": "assets/game/research/regular/meat_output.png",
+  "researchcoaloutput": "assets/game/research/regular/coal_output.png",
+  "researchwoodoutput": "assets/game/research/regular/wood_output.png",
+  "researchironoutput": "assets/game/research/regular/iron_output.png",
+  "researchfoodgathering": "assets/game/research/regular/food_gathering.png",
+  "researchcoalmining": "assets/game/research/regular/coal_mining.png",
+  "researchwoodgathering": "assets/game/research/regular/wood_gathering.png",
+  "researchtoolenhancement": "assets/game/research/regular/tool_enhancement.png",
+  "researchbandaging": "assets/game/research/regular/bandaging.png",
+  "researchtrainertools": "assets/game/research/regular/trainer_tools.png",
+  "researchtoolingup": "assets/game/research/regular/tooling_up.png",
+  "researchwardexpansion": "assets/game/research/regular/ward_expansion.png",
+  "researchcampexpansion": "assets/game/research/regular/camp_expansion.png",
+  "heliosinfantry": "assets/game/troop-helios-infantry.png",
+  "heliosinfantryfirstaid": {
+   "src": "assets/game/research/helios-infantry-first-aid.png",
+   "hide_count": true
+  },
+  "heliosinfantryhealing": {
+   "src": "assets/game/research/helios-infantry-healing.png",
+   "hide_count": true
+  },
+  "heliosinfantrytraining": {
+   "src": "assets/game/research/helios-infantry-training.png",
+   "hide_count": true
+  },
+  "helioslancer": "assets/game/troop-helios-lancer.png",
+  "helioslancerfirstaid": {
+   "src": "assets/game/research/helios-lancer-first-aid.png",
+   "hide_count": true
+  },
+  "helioslancerhealing": {
+   "src": "assets/game/research/helios-lancer-healing.png",
+   "hide_count": true
+  },
+  "helioslancertraining": {
+   "src": "assets/game/research/helios-lancer-training.png",
+   "hide_count": true
+  },
+  "heliosmarksman": "assets/game/troop-helios-marksman.png",
+  "heliosmarksmanfirstaid": {
+   "src": "assets/game/research/helios-marksman-first-aid.png",
+   "hide_count": true
+  },
+  "heliosmarksmanhealing": {
+   "src": "assets/game/research/helios-marksman-healing.png",
+   "hide_count": true
+  },
+  "heliosmarksmantraining": {
+   "src": "assets/game/research/helios-marksman-training.png",
+   "hide_count": true
+  },
+  "heroahmose": "assets/game/hero-ahmose.png",
+  "heroalonso": "assets/game/hero-alonso.png",
+  "herobahiti": "assets/game/hero-bahiti.png",
+  "herobradley": "assets/game/hero-bradley.png",
+  "herocharlie": "assets/game/hero-charlie.png",
+  "herocloris": "assets/game/hero-cloris.png",
+  "heroedith": "assets/game/hero-edith.png",
+  "heroeugene": "assets/game/hero-eugene.png",
+  "heroflint": "assets/game/hero-flint.png",
+  "herogearbelt": "assets/game/hero-gear-belt-card.png",
+  "herogearboots": "assets/game/hero-gear-boot-card.png",
+  "herogearbottomleft": "assets/game/hero-gear-belt-card.png",
+  "herogearbottomright": "assets/game/hero-gear-boot-card.png",
+  "herogeargauntlets": "assets/game/hero-gear-glove-card.png",
+  "herogeargoggles": "assets/game/hero-gear-goggle-card.png",
+  "herogeartopleft": "assets/game/hero-gear-goggle-card.png",
+  "herogeartopright": "assets/game/hero-gear-glove-card.png",
+  "herogearxp": {
+   "src": "assets/game/materials/hero-gear-xp-green.png",
+   "hide_count": true
+  },
+  "herogearxpgreen": {
+   "src": "assets/game/materials/hero-gear-xp-green.png",
+   "hide_count": true
+  },
+  "herogearxpherogearxp": {
+   "src": "assets/game/materials/hero-gear-xp-green.png",
+   "hide_count": true
+  },
+  "herogearxppurple": {
+   "src": "assets/game/materials/hero-gear-xp-purple.png",
+   "hide_count": true
+  },
+  "herogina": "assets/game/hero-gina.png",
+  "herogordon": "assets/game/hero-gordon.png",
+  "herogreg": "assets/game/hero-greg.png",
+  "herogwen": "assets/game/hero-gwen.png",
+  "herohector": "assets/game/hero-hector.png",
+  "herojasser": "assets/game/hero-jasser.png",
+  "herojeronimo": "assets/game/hero-jeronimo.png",
+  "herojessie": "assets/game/hero-jessie.png",
+  "herolingxue": "assets/game/hero-ling_xue.png",
+  "herologan": "assets/game/hero-logan.png",
+  "herolumakbokan": "assets/game/hero-lumak_bokan.png",
+  "herolynn": "assets/game/hero-lynn.png",
+  "heromia": "assets/game/hero-mia.png",
+  "heromolly": "assets/game/hero-molly.png",
+  "heronatalia": "assets/game/hero-natalia.png",
+  "heronorah": "assets/game/hero-norah.png",
+  "heropatrick": "assets/game/hero-patrick.png",
+  "herophilly": "assets/game/hero-philly.png",
+  "heroreina": "assets/game/hero-reina.png",
+  "herorenee": "assets/game/hero-renee.png",
+  "heroseoyoon": "assets/game/hero-seo_yoon.png",
+  "herosergey": "assets/game/hero-sergey.png",
+  "herosmith": "assets/game/hero-smith.png",
+  "herowayne": "assets/game/hero-wayne.png",
+  "herowuming": "assets/game/hero-wu_ming.png",
+  "herowalisbokan": "assets/game/hero-lumak_bokan.png",
+  "herozinman": "assets/game/hero-zinman.png",
+  "holger": "assets/game/expert-holger.png",
+  "infantry": "assets/game/troop-helios-infantry.png",
+  "iron": "assets/game/resources/iron.png",
+  "ironrhino": "assets/game/pet-iron-rhino.png",
+  "jasser": "assets/game/hero-jasser.png",
+  "jeronimo": "assets/game/hero-jeronimo.png",
+  "jessie": "assets/game/hero-jessie.png",
+  "kathy": "assets/game/expert-kathy.png",
+  "lancer": "assets/game/troop-helios-lancer.png",
+  "leftcharm": "assets/game/chief-charm-slot-clean.png",
+  "learningspeedup": {
+   "src": "assets/game/materials/speedup-learning-1h.png",
+   "hide_count": true
+  },
+  "learningspeedups": {
+   "src": "assets/game/materials/speedup-learning-1h.png",
+   "hide_count": true
+  },
+  "lingxue": "assets/game/hero-ling_xue.png",
+  "logan": "assets/game/hero-logan.png",
+  "lostcity": "assets/game/city-skin-lost-city.png",
+  "lumakbokan": "assets/game/hero-lumak_bokan.png",
+  "lunaramber": "assets/game/materials/lunar-amber.png",
+  "lunaramberamber": "assets/game/materials/lunar-amber.png",
+  "lv1customresourcechest": {
+   "src": "assets/game/custom-resource-chest-lv1.png",
+   "hide_count": true
+  },
+  "lv1customsecuredresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv1.png",
+   "hide_count": true
+  },
+  "lv1securedcustomresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv1.png",
+   "hide_count": true
+  },
+  "lv2customresourcechest": {
+   "src": "assets/game/custom-resource-chest-lv2.png",
+   "hide_count": true
+  },
+  "lv2customsecuredresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv2.png",
+   "hide_count": true
+  },
+  "lv2securedcustomresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv2.png",
+   "hide_count": true
+  },
+  "lv3customresourcechest": {
+   "src": "assets/game/custom-resource-chest-lv3.png",
+   "hide_count": true
+  },
+  "lv3customsecuredresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv3.png",
+   "hide_count": true
+  },
+  "lv3securedcustomresourcechest": {
+   "src": "assets/game/custom-secured-resource-chest-lv3.png",
+   "hide_count": true
+  },
+  "lynn": "assets/game/hero-lynn.png",
+  "mammoth": "assets/game/pet-mammoth.png",
+  "marchingblazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
+  "marchingskin": "assets/game/march-skin-blazing-meteor-i.png",
+  "marchskinblazingmeteori": "assets/game/march-skin-blazing-meteor-i.png",
+  "marksman": "assets/game/troop-helios-marksman.png",
+  "meat": "assets/game/resources/meat.png",
+  "mia": "assets/game/hero-mia.png",
+  "mithril": {
+   "src": "assets/game/materials/mithril-card.png",
+   "hide_count": true
+  },
+  "molly": "assets/game/hero-molly.png",
+  "muskox": "assets/game/pet-musk-ox.png",
+  "mythicgear": {
+   "src": "assets/game/materials/mythic-gear.png",
+   "hide_count": true
+  },
+  "mythicgeargear": {
+   "src": "assets/game/materials/mythic-gear.png",
+   "hide_count": true
+  },
+  "mythicgeneralshards": {
+   "src": "assets/game/materials/mythic-general-shard-card.png",
+   "hide_count": true
+  },
+  "natalia": "assets/game/hero-natalia.png",
+  "norah": "assets/game/hero-norah.png",
+  "equippednorahbelt": "assets/game/equipped-hero-gear/norah-bottom_left.png",
+  "equippednorahboots": "assets/game/equipped-hero-gear/norah-bottom_right.png",
+  "equippednorahgauntlets": "assets/game/equipped-hero-gear/norah-top_right.png",
+  "equippednorahgoggles": "assets/game/equipped-hero-gear/norah-top_left.png",
+  "pants": "assets/game/chief-gear-pants-clean.png",
+  "patrick": "assets/game/hero-patrick.png",
+  "petfood": {
+   "src": "assets/game/materials/pet-food.png"
+  },
+  "petfoodfood": {
+   "src": "assets/game/materials/pet-food.png"
+  },
+  "petarcticwolf": "assets/game/pet-arctic-wolf.png",
+  "petcavehyena": "assets/game/pet-cave-hyena.png",
+  "petcavelion": "assets/game/pet-cave-lion.png",
+  "petfrostgorilla": "assets/game/pet-frost-gorilla.png",
+  "petfrostscalechameleon": "assets/game/pet-frostscale-chameleon.png",
+  "petgiantelk": "assets/game/pet-giant-elk.png",
+  "petgianttapir": "assets/game/pet-giant-tapir.png",
+  "petironrhino": "assets/game/pet-iron-rhino.png",
+  "petmammoth": "assets/game/pet-mammoth.png",
+  "petmanuals": {
+   "src": "assets/game/materials/pet-taming-manual.png",
+   "hide_count": true
+  },
+  "petmanualsmanuals": {
+   "src": "assets/game/materials/pet-taming-manual.png",
+   "hide_count": true
+  },
+  "petmanualstamingmanual": {
+   "src": "assets/game/materials/pet-taming-manual.png",
+   "hide_count": true
+  },
+  "petmuskox": "assets/game/pet-musk-ox.png",
+  "petpotions": {
+   "src": "assets/game/materials/pet-energizing-potion.png",
+   "hide_count": true
+  },
+  "petpotionsenergizingpotion": {
+   "src": "assets/game/materials/pet-energizing-potion.png",
+   "hide_count": true
+  },
+  "petpotionspotions": {
+   "src": "assets/game/materials/pet-energizing-potion.png",
+   "hide_count": true
+  },
+  "petsabertoothtiger": "assets/game/pet-sabertooth-tiger.png",
+  "petserum": {
+   "src": "assets/game/materials/pet-strengthening-serum.png",
+   "hide_count": true
+  },
+  "petserumserum": {
+   "src": "assets/game/materials/pet-strengthening-serum.png",
+   "hide_count": true
+  },
+  "petserumstrengtheningserum": {
+   "src": "assets/game/materials/pet-strengthening-serum.png",
+   "hide_count": true
+  },
+  "petsnowape": "assets/game/pet-snow-ape.png",
+  "petsnowleopard": "assets/game/pet-snow-leopard.png",
+  "pettitanroc": "assets/game/pet-titan-roc.png",
+  "philly": "assets/game/hero-philly.png",
+  "pocketwatch": {
+   "src": "assets/game/pocket-watch.png",
+   "hide_count": true
+  },
+  "polish": "assets/game/materials/polishing-solution.png",
+  "polishingsolution": "assets/game/materials/polishing-solution.png",
+  "polishingsolutionpolish": "assets/game/materials/polishing-solution.png",
+  "raregeneralshards": {
+   "src": "assets/game/materials/rare-general-shard-card.png",
+   "hide_count": true
+  },
+  "refinedfirecrystal": "assets/game/resources/refined-fire-crystal.png",
+  "refinedfirecrystals": "assets/game/resources/refined-fire-crystal.png",
+  "reina": "assets/game/hero-reina.png",
+  "renee": "assets/game/hero-renee.png",
+  "researchspeedup": {
+   "src": "assets/game/materials/speedup-research-1m.png",
+   "hide_count": true
+  },
+  "researchspeedups": {
+   "src": "assets/game/materials/speedup-research-1m.png",
+   "hide_count": true
+  },
+  "researchspeedupsminutes": {
+   "src": "assets/game/materials/speedup-research-1m.png",
+   "hide_count": true
+  },
+  "researchspeedupsminutesresearchspeedups": {
+   "src": "assets/game/materials/speedup-research-1m.png",
+   "hide_count": true
+  },
+  "rfc": "assets/game/resources/refined-fire-crystal.png",
+  "rightcharm": "assets/game/chief-charm-slot-clean.png",
+  "ring": "assets/game/chief-gear-ring-clean.png",
+  "romulus": "assets/game/expert-romulus.png",
+  "ronne": "assets/game/expert-ronne.png",
+  "sailofconquest": {
+   "src": "assets/game/materials/expert-affinity-sail-of-conquest.png",
+   "hide_count": true
+  },
+  "sabertoothtiger": "assets/game/pet-sabertooth-tiger.png",
+  "seoyoon": "assets/game/hero-seo_yoon.png",
+  "sergey": "assets/game/hero-sergey.png",
+  "shield": {
+   "src": "assets/game/shield-2h.png",
+   "hide_count": true
+  },
+  "shards": {
+   "src": "assets/game/fire-crystal-shard.png",
+   "hide_count": true
+  },
+  "sigils": {
+   "src": "assets/game/materials/common-expert-sigil.png",
+   "hide_count": true
+  },
+  "smith": "assets/game/hero-smith.png",
+  "snowape": "assets/game/pet-snow-ape.png",
+  "snowcruiser": "assets/game/equipped-hero-gear/norah-special.png",
+  "snowleopard": "assets/game/pet-snow-leopard.png",
+  "speedupconstruction": {
+   "src": "assets/game/materials/speedup-construction-1m.png",
+   "hide_count": true
+  },
+  "speedupgeneral": {
+   "src": "assets/game/materials/speedup-general-8h.png",
+   "hide_count": true
+  },
+  "speeduphealing": {
+   "src": "assets/game/materials/speedup-healing-1m.png",
+   "hide_count": true
+  },
+  "speedupresearch": {
+   "src": "assets/game/materials/speedup-research-1m.png",
+   "hide_count": true
+  },
+  "speeduptraining": {
+   "src": "assets/game/materials/speedup-training-1m.png",
+   "hide_count": true
+  },
+  "steel": "assets/game/materials/steel-ingot.png",
+  "steelfangs": "assets/game/equipped-hero-gear/hector-special.png",
+  "stamina": "assets/game/materials/chief-stamina-can.png",
+  "strengtheningserum": {
+   "src": "assets/game/materials/pet-strengthening-serum.png",
+   "hide_count": true
+  },
+  "tamingmanual": {
+   "src": "assets/game/materials/pet-taming-manual.png",
+   "hide_count": true
+  },
+  "titanroc": "assets/game/pet-titan-roc.png",
+  "thundercannon": "assets/game/equipped-hero-gear/bradley-special.png",
+  "topcharm": "assets/game/chief-charm-slot-clean.png",
+  "totaltroops": "assets/game/troop-helios-infantry.png",
+  "trainingspeedup": {
+   "src": "assets/game/materials/speedup-training-1m.png",
+   "hide_count": true
+  },
+  "trainingspeedups": {
+   "src": "assets/game/materials/speedup-training-1m.png",
+   "hide_count": true
+  },
+  "trainingspeedupsminutes": {
+   "src": "assets/game/materials/speedup-training-1m.png",
+   "hide_count": true
+  },
+  "trainingspeedupsminutestrainingspeedups": {
+   "src": "assets/game/materials/speedup-training-1m.png",
+   "hide_count": true
+  },
+  "transferpass": {
+   "src": "assets/game/transfer-pass.png",
+   "hide_count": true
+  },
+  "troopheliosinfantry": "assets/game/troop-helios-infantry.png",
+  "troophelioslancer": "assets/game/troop-helios-lancer.png",
+  "troopheliosmarksman": "assets/game/troop-helios-marksman.png",
+  "troops": "assets/game/troop-helios-infantry.png",
+  "valeria": "assets/game/expert-valeria.png",
+  "warhymntestament": {
+   "src": "assets/game/warhymn-testament.png",
+   "hide_count": true
+  },
+  "watch": "assets/game/chief-gear-watch-clean.png",
+  "wayne": "assets/game/hero-wayne.png",
+  "wingsofhope": "assets/game/equipped-hero-gear/gwen-special.png",
+  "wood": "assets/game/resources/wood.png",
+  "wuming": "assets/game/hero-wu_ming.png",
+  "captainahab": "assets/game/equipped-hero-gear/alonso-special.png",
+  "dawnbreak": "assets/game/equipped-hero-gear/jeronimo-special.png",
+  "dragonbane": "assets/game/equipped-hero-gear/flint-special.png",
+  "ellastear": "assets/game/equipped-hero-gear/lynn-special.png",
+  "equippedahmosebelt": "assets/game/equipped-hero-gear/ahmose-bottom_left.png",
+  "equippedahmoseboots": "assets/game/equipped-hero-gear/ahmose-bottom_right.png",
+  "equippedahmosegauntlets": "assets/game/equipped-hero-gear/ahmose-top_right.png",
+  "equippedahmosegoggles": "assets/game/equipped-hero-gear/ahmose-top_left.png",
+  "equippedalonsobelt": "assets/game/equipped-hero-gear/alonso-bottom_left.png",
+  "equippedalonsoboots": "assets/game/equipped-hero-gear/alonso-bottom_right.png",
+  "equippedalonsogauntlets": "assets/game/equipped-hero-gear/alonso-top_right.png",
+  "equippedalonsogoggles": "assets/game/equipped-hero-gear/alonso-top_left.png",
+  "equippedflintbelt": "assets/game/equipped-hero-gear/flint-bottom_left.png",
+  "equippedflintboots": "assets/game/equipped-hero-gear/flint-bottom_right.png",
+  "equippedflintgauntlets": "assets/game/equipped-hero-gear/flint-top_right.png",
+  "equippedflintgoggles": "assets/game/equipped-hero-gear/flint-top_left.png",
+  "equippedjeronimobottomleft": "assets/game/equipped-hero-gear/jeronimo-bottom_left.png",
+  "equippedjeronimobottomright": "assets/game/equipped-hero-gear/jeronimo-bottom_right.png",
+  "equippedjeronimotopleft": "assets/game/equipped-hero-gear/jeronimo-top_left.png",
+  "equippedjeronimotopright": "assets/game/equipped-hero-gear/jeronimo-top_right.png",
+  "equippedlynnbelt": "assets/game/equipped-hero-gear/lynn-bottom_left.png",
+  "equippedlynnboots": "assets/game/equipped-hero-gear/lynn-bottom_right.png",
+  "equippedlynngauntlets": "assets/game/equipped-hero-gear/lynn-top_right.png",
+  "equippedlynngoggles": "assets/game/equipped-hero-gear/lynn-top_left.png",
+  "equippedmiabottomleft": "assets/game/equipped-hero-gear/mia-bottom_left.png",
+  "equippedmiabottomright": "assets/game/equipped-hero-gear/mia-bottom_right.png",
+  "equippedmiatopleft": "assets/game/equipped-hero-gear/mia-top_left.png",
+  "equippedmiatopright": "assets/game/equipped-hero-gear/mia-top_right.png",
+  "equippedreinabottomleft": "assets/game/equipped-hero-gear/reina-bottom_left.png",
+  "equippedreinabottomright": "assets/game/equipped-hero-gear/reina-bottom_right.png",
+  "equippedreinatopleft": "assets/game/equipped-hero-gear/reina-top_left.png",
+  "equippedreinatopright": "assets/game/equipped-hero-gear/reina-top_right.png",
+  "equippedwaynebottomleft": "assets/game/equipped-hero-gear/wayne-bottom_left.png",
+  "equippedwaynebottomright": "assets/game/equipped-hero-gear/wayne-bottom_right.png",
+  "equippedwaynetopleft": "assets/game/equipped-hero-gear/wayne-top_left.png",
+  "equippedwaynetopright": "assets/game/equipped-hero-gear/wayne-top_right.png",
+  "equippededithtopleft": "assets/game/equipped-hero-gear/edith-top_left.png",
+  "equippededithtopright": "assets/game/equipped-hero-gear/edith-top_right.png",
+  "equippededithbottomleft": "assets/game/equipped-hero-gear/edith-bottom_left.png",
+  "equippededithbottomright": "assets/game/equipped-hero-gear/edith-bottom_right.png",
+  "equippednorahtopleft": "assets/game/equipped-hero-gear/norah-top_left.png",
+  "equippednorahtopright": "assets/game/equipped-hero-gear/norah-top_right.png",
+  "equippednorahbottomleft": "assets/game/equipped-hero-gear/norah-bottom_left.png",
+  "equippednorahbottomright": "assets/game/equipped-hero-gear/norah-bottom_right.png",
+  "equippedlynntopleft": "assets/game/equipped-hero-gear/lynn-top_left.png",
+  "equippedlynntopright": "assets/game/equipped-hero-gear/lynn-top_right.png",
+  "equippedlynnbottomleft": "assets/game/equipped-hero-gear/lynn-bottom_left.png",
+  "equippedlynnbottomright": "assets/game/equipped-hero-gear/lynn-bottom_right.png",
+  "equippedahmosetopleft": "assets/game/equipped-hero-gear/ahmose-top_left.png",
+  "equippedahmosetopright": "assets/game/equipped-hero-gear/ahmose-top_right.png",
+  "equippedahmosebottomleft": "assets/game/equipped-hero-gear/ahmose-bottom_left.png",
+  "equippedahmosebottomright": "assets/game/equipped-hero-gear/ahmose-bottom_right.png",
+  "equippedflinttopleft": "assets/game/equipped-hero-gear/flint-top_left.png",
+  "equippedflinttopright": "assets/game/equipped-hero-gear/flint-top_right.png",
+  "equippedflintbottomleft": "assets/game/equipped-hero-gear/flint-bottom_left.png",
+  "equippedflintbottomright": "assets/game/equipped-hero-gear/flint-bottom_right.png",
+  "equippedalonsotopleft": "assets/game/equipped-hero-gear/alonso-top_left.png",
+  "equippedalonsotopright": "assets/game/equipped-hero-gear/alonso-top_right.png",
+  "equippedalonsobottomleft": "assets/game/equipped-hero-gear/alonso-bottom_left.png",
+  "equippedalonsobottomright": "assets/game/equipped-hero-gear/alonso-bottom_right.png",
+  "equippedgregtopleft": "assets/game/equipped-hero-gear/greg-top_left.png",
+  "equippedgregtopright": "assets/game/equipped-hero-gear/greg-top_right.png",
+  "equippedgregbottomleft": "assets/game/equipped-hero-gear/greg-bottom_left.png",
+  "equippedgregbottomright": "assets/game/equipped-hero-gear/greg-bottom_right.png",
+  "equippedmollytopleft": "assets/game/equipped-hero-gear/molly-top_left.png",
+  "equippedmollytopright": "assets/game/equipped-hero-gear/molly-top_right.png",
+  "equippedmollybottomleft": "assets/game/equipped-hero-gear/molly-bottom_left.png",
+  "equippedmollybottomright": "assets/game/equipped-hero-gear/molly-bottom_right.png",
+  "equippedphillytopleft": "assets/game/equipped-hero-gear/philly-top_left.png",
+  "equippedphillytopright": "assets/game/equipped-hero-gear/philly-top_right.png",
+  "equippedphillybottomleft": "assets/game/equipped-hero-gear/philly-bottom_left.png",
+  "equippedphillybottomright": "assets/game/equipped-hero-gear/philly-bottom_right.png",
+  "equippedginatopleft": "assets/game/equipped-hero-gear/gina-top_left.png",
+  "equippedginatopright": "assets/game/equipped-hero-gear/gina-top_right.png",
+  "equippedginabottomleft": "assets/game/equipped-hero-gear/gina-bottom_left.png",
+  "equippedginabottomright": "assets/game/equipped-hero-gear/gina-bottom_right.png",
+  "equippedjessietopleft": "assets/game/equipped-hero-gear/jessie-top_left.png",
+  "equippedjessietopright": "assets/game/equipped-hero-gear/jessie-top_right.png",
+  "equippedjessiebottomleft": "assets/game/equipped-hero-gear/jessie-bottom_left.png",
+  "equippedjessiebottomright": "assets/game/equipped-hero-gear/jessie-bottom_right.png",
+  "equippedsergeytopleft": "assets/game/equipped-hero-gear/sergey-top_left.png",
+  "equippedsergeytopright": "assets/game/equipped-hero-gear/sergey-top_right.png",
+  "equippedsergeybottomleft": "assets/game/equipped-hero-gear/sergey-bottom_left.png",
+  "equippedsergeybottomright": "assets/game/equipped-hero-gear/sergey-bottom_right.png",
+  "equippedlogantopleft": "assets/game/equipped-hero-gear/logan-top_left.png",
+  "equippedlogantopright": "assets/game/equipped-hero-gear/logan-top_right.png",
+  "equippedloganbottomleft": "assets/game/equipped-hero-gear/logan-bottom_left.png",
+  "equippedloganbottomright": "assets/game/equipped-hero-gear/logan-bottom_right.png",
+  "equippedpatricktopleft": "assets/game/equipped-hero-gear/patrick-top_left.png",
+  "equippedpatricktopright": "assets/game/equipped-hero-gear/patrick-top_right.png",
+  "equippedpatrickbottomleft": "assets/game/equipped-hero-gear/patrick-bottom_left.png",
+  "equippedpatrickbottomright": "assets/game/equipped-hero-gear/patrick-bottom_right.png",
+  "equippedbahititopleft": "assets/game/equipped-hero-gear/bahiti-top_left.png",
+  "equippedbahititopright": "assets/game/equipped-hero-gear/bahiti-top_right.png",
+  "equippedbahitibottomleft": "assets/game/equipped-hero-gear/bahiti-bottom_left.png",
+  "equippedbahitibottomright": "assets/game/equipped-hero-gear/bahiti-bottom_right.png",
+  "equippedjassertopleft": "assets/game/equipped-hero-gear/jasser-top_left.png",
+  "equippedjassertopright": "assets/game/equipped-hero-gear/jasser-top_right.png",
+  "equippedjasserbottomleft": "assets/game/equipped-hero-gear/jasser-bottom_left.png",
+  "equippedjasserbottomright": "assets/game/equipped-hero-gear/jasser-bottom_right.png",
+  "equippedseoyoontopleft": "assets/game/equipped-hero-gear/seo_yoon-top_left.png",
+  "equippedseoyoontopright": "assets/game/equipped-hero-gear/seo_yoon-top_right.png",
+  "equippedseoyoonbottomleft": "assets/game/equipped-hero-gear/seo_yoon-bottom_left.png",
+  "equippedseoyoonbottomright": "assets/game/equipped-hero-gear/seo_yoon-bottom_right.png",
+  "equippedlumakbokantopleft": "assets/game/equipped-hero-gear/lumak_bokan-top_left.png",
+  "equippedlumakbokantopright": "assets/game/equipped-hero-gear/lumak_bokan-top_right.png",
+  "equippedlumakbokanbottomleft": "assets/game/equipped-hero-gear/lumak_bokan-bottom_left.png",
+  "equippedlumakbokanbottomright": "assets/game/equipped-hero-gear/lumak_bokan-bottom_right.png",
+  "equippedlingxuetopleft": "assets/game/equipped-hero-gear/ling_xue-top_left.png",
+  "equippedlingxuetopright": "assets/game/equipped-hero-gear/ling_xue-top_right.png",
+  "equippedlingxuebottomleft": "assets/game/equipped-hero-gear/ling_xue-bottom_left.png",
+  "equippedlingxuebottomright": "assets/game/equipped-hero-gear/ling_xue-bottom_right.png",
+  "equippedzinmantopleft": "assets/game/equipped-hero-gear/zinman-top_left.png",
+  "equippedzinmantopright": "assets/game/equipped-hero-gear/zinman-top_right.png",
+  "equippedzinmanbottomleft": "assets/game/equipped-hero-gear/zinman-bottom_left.png",
+  "equippedzinmanbottomright": "assets/game/equipped-hero-gear/zinman-bottom_right.png",
+  "equippedcloristopleft": "assets/game/equipped-hero-gear/cloris-top_left.png",
+  "equippedcloristopright": "assets/game/equipped-hero-gear/cloris-top_right.png",
+  "equippedclorisbottomleft": "assets/game/equipped-hero-gear/cloris-bottom_left.png",
+  "equippedclorisbottomright": "assets/game/equipped-hero-gear/cloris-bottom_right.png",
+  "equippedcharlietopleft": "assets/game/equipped-hero-gear/charlie-top_left.png",
+  "equippedcharlietopright": "assets/game/equipped-hero-gear/charlie-top_right.png",
+  "equippedcharliebottomleft": "assets/game/equipped-hero-gear/charlie-bottom_left.png",
+  "equippedcharliebottomright": "assets/game/equipped-hero-gear/charlie-bottom_right.png",
+  "equippedsmithtopleft": "assets/game/equipped-hero-gear/smith-top_left.png",
+  "equippedsmithtopright": "assets/game/equipped-hero-gear/smith-top_right.png",
+  "equippedsmithbottomleft": "assets/game/equipped-hero-gear/smith-bottom_left.png",
+  "equippedsmithbottomright": "assets/game/equipped-hero-gear/smith-bottom_right.png",
+  "equippedeugenetopleft": "assets/game/equipped-hero-gear/eugene-top_left.png",
+  "equippedeugenetopright": "assets/game/equipped-hero-gear/eugene-top_right.png",
+  "equippedeugenebottomleft": "assets/game/equipped-hero-gear/eugene-bottom_left.png",
+  "equippedeugenebottomright": "assets/game/equipped-hero-gear/eugene-bottom_right.png",
+  "equippedreneetopleft": "assets/game/equipped-hero-gear/renee-top_left.png",
+  "equippedreneetopright": "assets/game/equipped-hero-gear/renee-top_right.png",
+  "equippedreneebottomleft": "assets/game/equipped-hero-gear/renee-bottom_left.png",
+  "equippedreneebottomright": "assets/game/equipped-hero-gear/renee-bottom_right.png",
+  "equippednataliatopleft": "assets/game/equipped-hero-gear/natalia-top_left.png",
+  "equippednataliatopright": "assets/game/equipped-hero-gear/natalia-top_right.png",
+  "equippednataliabottomleft": "assets/game/equipped-hero-gear/natalia-bottom_left.png",
+  "equippednataliabottomright": "assets/game/equipped-hero-gear/natalia-bottom_right.png",
+  "fatecrystal": "assets/game/equipped-hero-gear/mia-special.png",
+  "fistsofsteel": "assets/game/equipped-hero-gear/logan-special.png",
+  "galeforce": "assets/game/equipped-hero-gear/natalia-special.png",
+  "guardiansrelic": "assets/game/equipped-hero-gear/ahmose-special.png",
+  "illusionmagiball": "assets/game/equipped-hero-gear/renee-special.png",
+  "ninjakkenraikiri": "assets/game/equipped-hero-gear/reina-special.png",
+  "pharmacologica": "assets/game/equipped-hero-gear/philly-special.png",
+  "powerboomerang": "assets/game/equipped-hero-gear/wayne-special.png",
+  "stateedict": "assets/game/equipped-hero-gear/greg-special.png",
+  "woodpecker": "assets/game/equipped-hero-gear/zinman-special.png",
+  "yetispirit": "assets/game/equipped-hero-gear/molly-special.png",
+  "zinman": "assets/game/hero-zinman.png",
+  "petcustomchests": {
+   "src": "assets/game/materials/pet-custom-chest.png",
+   "hide_count": true
+  },
+  "petcustomchest": {
+   "src": "assets/game/materials/pet-custom-chest.png",
+   "hide_count": true
+  },
+  "petadvcustomchests": {
+   "src": "assets/game/materials/pet-custom-chest.png",
+   "hide_count": true
+  },
+  "staminacans": "assets/game/materials/chief-stamina-can.png",
+  "staminacans10": "assets/game/materials/chief-stamina-can.png"
+ }
 }

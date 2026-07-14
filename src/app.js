@@ -15,6 +15,9 @@ const MODULES = [
   ["pets", "Pets"],
   ["experts", "Experts"],
   ["research", "Research"],
+  ["t12-research", "T12 Research"],
+  ["troops", "Troop Training"],
+  ["svs", "SvS Planner"],
   ["resources", "Resources"],
   ["sources", "Sources"],
 ];
@@ -49,7 +52,19 @@ const RESOURCE_LABELS = {
   books_of_knowledge: "Books",
   steel: "Steel",
   fire_crystal_shards: "Shards",
+  chief_stamina: "Chief Stamina",
+  stamina_cans: "Stamina Cans",
+  pet_custom_chests: "Pet Custom Chests",
+  common_wild_marks: "Common Wild Mark",
+  advanced_wild_marks: "Advanced Wild Mark",
+  healing_speedups_minutes: "Healing Speedups",
+  learning_speedups_minutes: "Learning Speedups",
+  construction_speedups_minutes: "Construction Speedups",
+  research_speedups_minutes: "Research Speedups",
+  training_speedups_minutes: "Training Speedups",
+  general_speedups_minutes: "General Speedups",
 };
+for (let gen = 1; gen <= 16; gen += 1) RESOURCE_LABELS[`widgets_gen${gen}`] = `Widgets Gen ${gen}`;
 
 const BUILDING_FIELDS = ["meat", "wood", "coal", "iron", "fire_crystals", "refined_fire_crystals"];
 const GEAR_FIELDS = [
@@ -74,6 +89,10 @@ const PET_FIELDS = [
   ["pet_potions", "potions"],
   ["pet_serum", "serum"],
 ];
+const PET_CHECK_FIELDS = [...PET_FIELDS, ["pet_custom_chests", "chests"]];
+const PET_QUALITY_TIERS = ["None", "Green", "Blue", "Purple", "Gold"];
+const TROOP_TYPES = ["infantry", "lancer", "marksman"];
+const SVS_SPEEDUP_POINTS_PER_MINUTE = 30;
 const HERO_GEAR_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
 const HERO_GEAR_INVESTMENT_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
 const HERO_GEAR_MAX_ENHANCEMENT = 100;
@@ -153,6 +172,15 @@ const MATERIAL_EXCHANGE_SETS = {
       { id: "charm_designs_to_secrets", from: "charm_designs", fromQty: 40, to: "charm_secrets", toQty: 1, limit: 50 },
     ],
   },
+  pet_chests: {
+    label: "Pet Adv. Custom Chest",
+    fields: PET_CHECK_FIELDS,
+    rules: [
+      { id: "chest_to_serum", from: "pet_custom_chests", fromQty: 1, to: "pet_serum", toQty: 1, limit: 100000 },
+      { id: "chest_to_potions", from: "pet_custom_chests", fromQty: 1, to: "pet_potions", toQty: 2, limit: 100000 },
+      { id: "chest_to_manuals", from: "pet_custom_chests", fromQty: 1, to: "pet_manuals", toQty: 7, limit: 100000 },
+    ],
+  },
 };
 const T12_RESEARCH_FIELDS = [
   ["steel", "steel"],
@@ -188,15 +216,37 @@ const CALCULATOR_INVENTORY_GROUPS = [
   { title: "Chief Gear", note: "Gear level and star upgrades", fields: GEAR_FIELDS },
   { title: "Chief Charms", note: "Charm levels by troop group", fields: CHARM_FIELDS },
   { title: "Hero Gear", note: "Level, enhancement, mastery, and special gear materials", fields: ["hero_gear_xp", "mythic_gear", "mithril", "essence_stones"] },
-  { title: "Pets", note: "Pet level upgrade materials", fields: PET_FIELDS },
+  {
+    title: "Pets",
+    note: "Level materials, wild marks, and custom chests",
+    fields: [...PET_FIELDS, "pet_custom_chests", "common_wild_marks", "advanced_wild_marks"],
+  },
   { title: "Experts", note: "Affinity, sigils, and learning books", fields: ["expert_affinity", "common_sigils", "books_of_knowledge"] },
   { title: "War Academy", note: "Academy research resources", fields: ["steel", "fire_crystal_shards"] },
   {
+    title: "Hero Shards & Widgets",
+    note: "General shards plus exclusive-gear widgets by hero generation",
+    fields: ["mythic_general_shards", "epic_general_shards", "rare_general_shards"],
+  },
+  {
+    title: "Chief Items",
+    note: "Stamina for pet adventures, beast hunts, and rallies",
+    fields: ["chief_stamina", "stamina_cans"],
+  },
+  {
     title: "Speedups",
     note: "Enter speedups as total minutes",
-    fields: ["construction_speedups_minutes", "general_speedups_minutes", "research_speedups_minutes", "training_speedups_minutes", "learning_speedups_minutes"],
+    fields: [
+      "construction_speedups_minutes",
+      "general_speedups_minutes",
+      "research_speedups_minutes",
+      "training_speedups_minutes",
+      "learning_speedups_minutes",
+      "healing_speedups_minutes",
+    ],
   },
 ];
+const WIDGET_GEN_FIELDS = Array.from({ length: 16 }, (_, i) => `widgets_gen${i + 1}`);
 const CONSTRUCTION_BUFF_DEFS = [
   ["minister", "Minister construction buff"],
   ["pet", "Pet construction buff"],
@@ -763,7 +813,13 @@ const RESOURCE_ICON_KIND = {
   books_of_knowledge: "book",
   steel: "ingot",
   fire_crystal_shards: "shard",
+  chief_stamina: "stamina",
+  stamina_cans: "stamina",
+  pet_custom_chests: "chest",
+  common_wild_marks: "shard",
+  advanced_wild_marks: "shard",
 };
+for (let gen = 1; gen <= 16; gen += 1) RESOURCE_ICON_KIND[`widgets_gen${gen}`] = "widget";
 
 function iconKind(scope, label = "") {
   if (RESOURCE_ICON_KIND[scope]) return RESOURCE_ICON_KIND[scope];
@@ -841,6 +897,12 @@ function iconShape(kind) {
       return '<path d="M12 3l8 3v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-3z"/>';
     case "speedup":
       return '<path d="M12 7v6l4 2"/><path d="M21 12a9 9 0 11-3-7"/><path d="M18 3h3v3"/>';
+    case "widget":
+      return '<path d="M12 8a4 4 0 110 8 4 4 0 010-8z"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>';
+    case "stamina":
+      return '<path d="M6 8c0-2 2.7-3 6-3s6 1 6 3v8c0 2-2.7 3-6 3s-6-1-6-3V8z"/><path d="M6 8c0 2 2.7 3 6 3s6-1 6-3"/>';
+    case "chest":
+      return '<path d="M4 10c0-3 3-5 8-5s8 2 8 5v9H4v-9z"/><path d="M4 12h16M12 12v4"/>';
     case "march":
       return '<path d="M4 17l5-10 5 10"/><path d="M14 17l3-6 3 6"/><path d="M6 17h15"/>';
     case "city":
@@ -907,7 +969,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260711c";
+const ASSET_CACHE_VERSION = "20260715a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1245,6 +1307,15 @@ function expertSkillLevelRows(skillId) {
   return sortByNumber((gameData.expert_skill_levels || []).filter((row) => row.skill_id === skillId), "skill_level");
 }
 
+function expertXpPerMinute() {
+  return Number(gameData.expert_learning?.xp_per_learning_minute || 60);
+}
+
+function learningTimeText(xp) {
+  const minutes = Math.ceil(Number(xp || 0) / expertXpPerMinute());
+  return timeFmt(minutes * 60);
+}
+
 function expertSkillPlanner(expert, skills) {
   let books = 0;
   let learningXp = 0;
@@ -1273,18 +1344,19 @@ function expertSkillPlanner(expert, skills) {
           : `<span class="muted">max</span>`;
       const costLine =
         stepBooks || stepXp
-          ? `<div class="expert-skill-cost">Lv. ${current} → ${target}: <strong>${fmt(stepBooks)}</strong> books · <strong>${fmtCompact(stepXp)}</strong> XP</div>`
+          ? `<div class="expert-skill-cost">Lv. ${current} → ${target}: <strong>${fmt(stepBooks)}</strong> books · <strong>${fmtCompact(stepXp)}</strong> XP <span class="muted">(≈ ${learningTimeText(stepXp)} of learning / speedups)</span></div>`
           : "";
       return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="gd-bonus-values"><strong>Lv. ${esc(skill.level ?? "-")}</strong>${ready ? `<strong class="gd-gain">ready</strong>` : ""}${targetControl}</span></div>${costLine}`;
     })
     .join("");
-  if (!body) return { html: "", books: 0, learningXp: 0 };
+  if (!body) return { html: "", books: 0, learningXp: 0, learningMinutes: 0 };
+  const learningMinutes = Math.ceil(learningXp / expertXpPerMinute());
   const totalLine =
     books || learningXp
-      ? `<div class="expert-skill-cost expert-skill-cost--total">Skill plan total: <strong>${fmt(books)}</strong> books · <strong>${fmtCompact(learningXp)}</strong> Learning XP</div>`
+      ? `<div class="expert-skill-cost expert-skill-cost--total">Skill plan total: <strong>${fmt(books)}</strong> books · <strong>${fmtCompact(learningXp)}</strong> Learning XP ≈ <strong>${learningTimeText(learningXp)}</strong> of learning time</div>`
       : "";
   const html = `<section class="gd-section">${gameSectionBannerHtml("Expert Skills")}<div class="gd-bonus-list">${body}</div>${totalLine}</section>`;
-  return { html, books, learningXp };
+  return { html, books, learningXp, learningMinutes };
 }
 
 function gamePrereqRowHtml(label, met, detail = "") {
@@ -2155,6 +2227,11 @@ function materialExchangePlan(cost, fields, exchangeKey) {
     oneStep("charm_designs_to_secrets");
     oneStep("charm_designs_to_guides");
     oneStep("charm_guides_to_designs");
+  } else if (exchangeKey === "pet_chests") {
+    // Fill the rarest gaps first: serum, then potions, then manuals.
+    oneStep("chest_to_serum");
+    oneStep("chest_to_potions");
+    oneStep("chest_to_manuals");
   }
 
   const gap = keys.reduce((acc, key) => {
@@ -5692,15 +5769,82 @@ function renderCharms() {
   `;
 }
 
+function petLevelNumber(code) {
+  return Number(String(code ?? "0")) || 0;
+}
+
+/* Passive Troop ATK/DEF % for a pet at a given level code.
+ * Anchors from wostools.net: post_advancement[k] applies right after the k-th
+ * advancement; pre_advancement[k] is the value at level (k+1)*10 before advancing.
+ * Whole levels interpolate linearly inside their 10-level block. */
+function petTroopAdAt(pet, levelCode) {
+  const post = pet.troop_ad_post_advancement;
+  const pre = pet.troop_ad_pre_advancement;
+  if (!Array.isArray(post) || !post.length) return null;
+  const level = petLevelNumber(levelCode);
+  const isAdvanced = Math.abs(level - Math.round(level)) > 1e-9;
+  if (level <= 0) return post[0];
+  if (isAdvanced) return post[Math.min(Math.round(level - 0.1) / 10, post.length - 1)] ?? post.at(-1);
+  const k = Math.floor((level - 1) / 10);
+  const start = post[Math.min(k, post.length - 1)] ?? post.at(-1);
+  const end = pre?.[k] ?? start;
+  const within = level - k * 10;
+  return start + ((end - start) * within) / 10;
+}
+
+function petSkillLevelAt(pet, levelCode) {
+  const level = petLevelNumber(levelCode);
+  const isAdvanced = Math.abs(level - Math.round(level)) > 1e-9;
+  // Skill improves with each completed advancement (10.1, 20.1, ...).
+  return isAdvanced ? Math.round((level - 0.1) / 10) : Math.max(0, Math.floor((level - (level % 10 === 0 ? 10 : level % 10)) / 10));
+}
+
+function petSkillEffectAt(pet, levelCode) {
+  const effects = pet.skill_effects || [];
+  if (!effects.length) return null;
+  const skillLevel = petSkillLevelAt(pet, levelCode);
+  if (skillLevel <= 0) return { level: 0, text: "Locked until first advancement" };
+  const idx = Math.min(skillLevel, effects.length) - 1;
+  return { level: skillLevel, text: effects[idx] };
+}
+
+function petQualityIndex(tier) {
+  const idx = PET_QUALITY_TIERS.indexOf(String(tier || "None"));
+  return idx < 0 ? 0 : idx;
+}
+
+function petRefinementCost(pet, fromTier, toTier) {
+  const costs = pet.refinement_costs || [];
+  const from = petQualityIndex(fromTier);
+  const to = petQualityIndex(toTier);
+  const total = { common_wild_marks: 0, advanced_wild_marks: 0 };
+  for (let i = from; i < to; i += 1) {
+    const step = costs[i]; // costs[0] = None->Green etc.
+    if (!step) continue;
+    total.common_wild_marks += Number(step.common_wild_marks || 0);
+    total.advanced_wild_marks += Number(step.advanced_wild_marks || 0);
+  }
+  return total;
+}
+
+function petRarityBadge(pet) {
+  const rarity = String(pet.rarity || "");
+  if (!rarity) return "";
+  return `<span class="pet-rarity-badge pet-rarity-badge--${rarity.toLowerCase()}">${esc(rarity)} · max ${fmt(pet.max_level || 100)}</span>`;
+}
+
 function renderPets() {
   const levelsByPet = groupBy(gameData.pet_levels, "pet_id");
   let totalCost = makeCost(PET_FIELDS);
   let totalSvsGain = 0;
   let selectedUpgradeCount = 0;
+  let refineCommon = 0;
+  let refineAdvanced = 0;
   const selectedUpgrades = [];
   const observedPets = gameData.pets.map((pet) => state.extracted_current?.pets?.[pet.pet_id]).filter(Boolean);
   const observedPower = observedPets.reduce((total, pet) => total + Number(pet.power || 0), 0);
   const aggregateStats = Object.values(observedAggregateStats(observedPets));
+  const rates = gameData.svs_point_rates || {};
   const rows = gameData.pets
     .map((pet) => {
       const levels = (levelsByPet[pet.pet_id] || []).map((row, idx) => ({ ...row, order: idx, label: row.level_code }));
@@ -5730,14 +5874,66 @@ function renderPets() {
       }
       totalSvsGain += svsGain;
       const upgradeSelected = String(saved.current) !== String(saved.target);
-      const statRows = observedStatEntries(observed)
-        .map((entry) => ({ label: entry.label, current: entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value) }));
+
+      // Passive Troop ATK/DEF percent modelled per 0.1 advancement step.
+      const adCurrent = petTroopAdAt(pet, saved.current);
+      const adTarget = petTroopAdAt(pet, saved.target);
+      const statRows = [];
+      if (adCurrent != null) {
+        statRows.push({
+          label: "Troop ATK/DEF (base)",
+          current: `${adCurrent.toFixed(2)}%`,
+          target: upgradeSelected && adTarget != null && adTarget !== adCurrent ? `${adTarget.toFixed(2)}%` : null,
+        });
+      }
+      const skillCurrent = petSkillEffectAt(pet, saved.current);
+      const skillTarget = petSkillEffectAt(pet, saved.target);
+      if (skillCurrent) {
+        statRows.push({
+          label: `${pet.skill_name || "Skill"} Lv.${skillCurrent.level}`,
+          current: skillCurrent.text,
+          target: upgradeSelected && skillTarget && skillTarget.level !== skillCurrent.level ? `Lv.${skillTarget.level}: ${skillTarget.text}` : null,
+        });
+      }
+      observedStatEntries(observed).forEach((entry) =>
+        statRows.push({ label: `${entry.label} (captured)`, current: entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value) }),
+      );
+
+      // Refinement planning (wild marks per quality tier).
+      const qualityCurrent = saved.quality_current || "None";
+      const qualityTarget = saved.quality_target || qualityCurrent;
+      const attempts = Math.max(1, Number(saved.refine_attempts_per_tier || 1));
+      const refineCost = petRefinementCost(pet, qualityCurrent, qualityTarget);
+      const refineNeedCommon = refineCost.common_wild_marks * attempts;
+      const refineNeedAdvanced = refineCost.advanced_wild_marks * attempts;
+      refineCommon += refineNeedCommon;
+      refineAdvanced += refineNeedAdvanced;
+      const refineSvs = refineNeedCommon * Number(rates.common_wild_mark || 1150) + refineNeedAdvanced * Number(rates.advanced_wild_mark || 15000);
+      const refineLadder = (pet.refinement_costs || [])
+        .map((step) => `${esc(step.tier)}: ${step.advanced_wild_marks ? `${fmt(step.advanced_wild_marks)} adv.` : `${fmt(step.common_wild_marks)} common`}`)
+        .join(" · ");
+      const qualityOptions = PET_QUALITY_TIERS.map((tier) => [tier, tier]);
+      const refinementHtml = `
+        <section class="gd-section">
+          ${gameSectionBannerHtml("Refinement (Wild Marks)")}
+          <div class="gd-select-row">
+            <label class="compact-field"><span>Quality now</span>${selectInput(`pets.${pet.pet_id}.quality_current`, qualityCurrent, qualityOptions)}</label>
+            <label class="compact-field"><span>Quality target</span>${selectInput(`pets.${pet.pet_id}.quality_target`, qualityTarget, qualityOptions)}</label>
+            <label class="compact-field"><span>Attempts/tier</span>${numberInput(`pets.${pet.pet_id}.refine_attempts_per_tier`, attempts, 1)}</label>
+          </div>
+          ${refineNeedCommon || refineNeedAdvanced
+            ? `<div class="gd-time-row"><span>Marks for plan:</span><strong>${refineNeedCommon ? `${fmt(refineNeedCommon)} common` : ""}${refineNeedCommon && refineNeedAdvanced ? " + " : ""}${refineNeedAdvanced ? `${fmt(refineNeedAdvanced)} advanced` : ""}</strong><span class="muted">≈ ${fmt(refineSvs)} SvS pts</span></div>`
+            : `<p class="gd-note">Pick a higher quality target to plan wild marks. Refinement rerolls are RNG — attempts/tier budgets extra rolls.</p>`}
+          <p class="gd-note">Per-attempt cost — ${refineLadder || "n/a"}</p>
+        </section>`;
+
       return `<div class="pet-card">
         <div class="pet-card__head">
           <span class="pet-card__portrait">${iconHtml("pet", pet.name, "xl", "pet")}${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</span>
           <div class="pet-card__title">
             <strong>${esc(pet.name)}</strong>
-            ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : `<span class="muted">Not captured</span>`}
+            ${petRarityBadge(pet)}
+            ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : ""}
           </div>
           ${gameLevelFlowHtml(`Lv. ${saved.current}`, `Lv. ${saved.target}`)}
         </div>
@@ -5745,9 +5941,10 @@ function renderPets() {
           <label class="compact-field"><span>Current</span><select data-path="pets.${pet.pet_id}.current">${optionList(levels, "label", "level_code", saved.current)}</select></label>
           <label class="compact-field"><span>Target</span><select data-path="pets.${pet.pet_id}.target">${optionList(levels, "label", "level_code", saved.target)}</select></label>
         </div>
-        ${statRows.length ? gameBonusRowsHtml(statRows, "Current Bonuses") : ""}
+        ${statRows.length ? gameBonusRowsHtml(statRows, "Bonuses & Skill") : ""}
         ${upgradeSelected ? `<div class="gd-time-row"><span>SVS gain:</span><strong class="gd-gain">${signedFmt(svsGain)}</strong></div>` : ""}
         ${gameCostTilesHtml(cost, PET_FIELDS, { emptyText: "No upgrade selected." })}
+        ${refinementHtml}
       </div>`;
     })
     .join("");
@@ -5760,30 +5957,40 @@ function renderPets() {
   ];
   const petBulk = bulkTargetControls("Quick target", "bulkPetTarget", petTargetOptions, [{ action: "pets", label: "Apply all pets" }]);
   const smartPlan = smartRecommendationPlan("pets");
+  const chestNote = gameData.pet_material_chest?.note || "";
+  const refineDetails = [];
+  if (refineCommon) refineDetails.push(`${fmt(refineCommon)} common wild marks planned`);
+  if (refineAdvanced) refineDetails.push(`${fmt(refineAdvanced)} advanced wild marks planned`);
   $("#tab-pets").innerHTML = `
-    <div class="toolbar"><div><h2>Pets</h2><p>Current combat bonuses are captured from the account. Target costs and SVS points use the workbook pet table.</p></div>${petBulk}</div>
+    <div class="toolbar"><div><h2>Pets</h2><p>Costs, max levels, and SVS points come from the workbook pet table. Passive stats and skill steps per 0.1 advancement are cross-referenced with wostools.net.</p></div>${petBulk}</div>
     ${upgradeNutshellHtml({
       module: "Pets",
       selected: upgradeSelectionText(selectedUpgradeCount, "pet target", "pet targets"),
       upgrades: selectedUpgrades,
       impactCards: [
-        statSnapshotCard("Target SVS Gain", signedFmt(totalSvsGain), "Workbook pet table", "Combat target stat table still needs full in-game extraction"),
+        statSnapshotCard("Target SVS Gain", signedFmt(totalSvsGain), "Workbook pet table", "Advancement points x 50 SvS each"),
+        ...(refineCommon || refineAdvanced
+          ? [statSnapshotCard("Refinement Marks", `${fmt(refineCommon)} common · ${fmt(refineAdvanced)} adv.`, "Quality targets on pet cards", "1,150 / 15,000 SvS pts per mark when spent")]
+          : []),
         ...aggregateStats
-          .slice(0, 6)
+          .slice(0, 5)
           .map((entry) =>
             statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current pet stats", "Captured from the account"),
           ),
       ],
-      details: [`Target SVS ${signedFmt(totalSvsGain)}`, `Power read ${fmt(observedPower)}`],
+      details: [`Target SVS ${signedFmt(totalSvsGain)}`, `Power read ${fmt(observedPower)}`, ...refineDetails],
       cost: totalCost,
-      fields: PET_FIELDS,
+      fields: PET_CHECK_FIELDS,
+      exchangeKey: "pet_chests",
       empty: "Set pet targets above current levels to see material gaps.",
     })}
-    ${smartRecommendationPanelHtml("pets", "Pet Targets", smartPlan, "Uses available pet materials to maximize workbook SVS gain; combat stat target rows still need full extraction.")}
+    ${inventoryComparisonHtml(totalCost, PET_CHECK_FIELDS, "Pet materials incl. custom chest coverage", "pet_chests")}
+    ${chestNote ? `<p class="gd-note">${esc(chestNote)} Chests are applied to the rarest shortfalls first (serum → potions → manuals).</p>` : ""}
+    ${smartRecommendationPanelHtml("pets", "Pet Targets", smartPlan, "Uses available pet materials to maximize workbook SVS gain.")}
     <div class="pet-card-grid">${rows}</div>
     ${statImpactPanel("Observed Pet Combat Stats", aggregateStats.map((entry) =>
       statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current read", "Summed from captured pet detail pages"),
-    ), "Pet target combat percentages still need a confirmed in-game level stat table.")}
+    ), "Base Troop ATK/DEF per pet level now uses the wostools.net anchor table; refinement quality multiplies the base passive.")}
   `;
 }
 
@@ -5875,6 +6082,8 @@ function renderHeroes() {
   };
   let totalShardsNeeded = 0;
   let totalWidgetsNeeded = 0;
+  const widgetsByGen = {};
+  const shardsByRarity = { mythic: 0, epic: 0, rare: 0 };
   const cards = gameData.heroes
     .map((hero) => {
       const saved = state.heroes[hero.hero_id];
@@ -5888,6 +6097,11 @@ function renderHeroes() {
       if (saved.owned) {
         totalShardsNeeded += shardsNeeded;
         totalWidgetsNeeded += widgetsNeeded;
+        if (widgetsNeeded > 0 && hero.generation) {
+          widgetsByGen[hero.generation] = (widgetsByGen[hero.generation] || 0) + widgetsNeeded;
+        }
+        const rarityKey = normalizeKey(hero.rarity || "");
+        if (shardsShort > 0 && rarityKey in shardsByRarity) shardsByRarity[rarityKey] += shardsShort;
       }
       const needsRows = [];
       if (shardsNeeded > 0) needsRows.push(`Shards to target: <strong>${fmt(shardsNeeded)}</strong> (${shardsShort > 0 ? `${fmt(shardsShort)} short` : "covered by stock"})`);
@@ -5919,6 +6133,48 @@ function renderHeroes() {
       </div>`;
     })
     .join("");
+  const generalShards = {
+    mythic: availableInventoryValue("mythic_general_shards"),
+    epic: availableInventoryValue("epic_general_shards"),
+    rare: availableInventoryValue("rare_general_shards"),
+  };
+  const shardCoverageRows = Object.entries(shardsByRarity)
+    .filter(([, needed]) => needed > 0)
+    .map(([rarity, needed]) => {
+      const have = generalShards[rarity] || 0;
+      const short = Math.max(0, needed - have);
+      return `<div class="coverage-row ${short ? "is-lacking" : needed ? "is-excess" : "is-none"}">
+        <span class="coverage-row__name">${visualResourceLabel(`${rarity}_general_shards`, `${titleFromId(rarity)} general shards`)}</span>
+        <span class="coverage-row__value">${fmt(needed)}</span>
+        <span class="coverage-row__value">${fmt(have)}</span>
+        ${short ? coverageChipHtml("lacking", `&#10007; short ${fmt(short)}`, "After per-hero shard stock") : coverageChipHtml("excess", "&#10003; covered", "General shards cover the remaining gap")}
+      </div>`;
+    })
+    .join("");
+  const widgetGenRows = Object.entries(widgetsByGen)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([gen, needed]) => {
+      const have = availableInventoryValue(`widgets_gen${gen}`);
+      const short = Math.max(0, needed - have);
+      return `<div class="coverage-row ${short ? "is-lacking" : "is-excess"}">
+        <span class="coverage-row__name">${visualResourceLabel(`widgets_gen${gen}`, `Widgets · Gen ${gen}`)}</span>
+        <span class="coverage-row__value">${fmt(needed)}</span>
+        <span class="coverage-row__value">${fmt(have)}</span>
+        ${short ? coverageChipHtml("lacking", `&#10007; short ${fmt(short)}`, "Buy or save widgets for this generation") : coverageChipHtml("excess", "&#10003; covered", "Backpack widgets cover this generation")}
+      </div>`;
+    })
+    .join("");
+  const widgetShardPanel = `
+    <div class="inventory-check">
+      <div class="inventory-check__head"><span>Shard & widget coverage (backpack)</span><strong>${fmt(totalShardsNeeded)} shards · ${fmt(totalWidgetsNeeded)} widgets</strong></div>
+      <div class="coverage-table">
+        <div class="coverage-row coverage-row--head"><span>Item</span><span>Required</span><span>You have</span><span>Status</span></div>
+        ${shardCoverageRows || ""}
+        ${widgetGenRows || ""}
+        ${!shardCoverageRows && !widgetGenRows ? `<div class="coverage-row is-none"><span class="coverage-row__name">No shard or widget gaps for current targets</span><span></span><span></span>${coverageChipHtml("none", "&ndash;", "")}</div>` : ""}
+      </div>
+      <p class="gd-note">Shard gaps assume hero-specific shards first, then general shards of the same rarity. Widgets are tracked per hero generation — edit counts on the Resources page.</p>
+    </div>`;
   $("#tab-heroes").innerHTML = `
     <div class="summary-grid">
       <div class="metric blue"><span>Hero rows</span><strong>${fmt(gameData.heroes.length)}</strong></div>
@@ -5926,6 +6182,7 @@ function renderHeroes() {
       <div class="metric green"><span>Widgets needed (targets)</span><strong>${fmt(totalWidgetsNeeded)}</strong></div>
       <div class="metric purple"><span>Owned marked</span><strong>${fmt(Object.values(state.heroes).filter((hero) => hero.owned).length)}</strong></div>
     </div>
+    ${widgetShardPanel}
     <p class="muted hero-roster-note">Each star has 6 ascension tiers (T1-T6). Shard costs per tier: 0★ 1/1/2/2/2/2 · 1★ 5x5+15 · 2★ 15x5+40 · 3★ 40x5+100 · 4★ 100x6. Exclusive gear widgets per level: 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 (275 total to +10).</p>
     <div class="hero-roster-grid">${cards}</div>
   `;
@@ -6281,17 +6538,34 @@ function renderExperts() {
   ];
   const expertBulk = bulkTargetControls("Quick target", "bulkExpertTarget", expertTargetOptions, [{ action: "experts", label: "Apply all experts" }]);
   const smartPlan = smartRecommendationPlan("experts");
+  const totalLearningMinutes = Math.ceil(totalLearningXp / expertXpPerMinute());
+  const learningSpeedupsHave = availableInventoryValue("learning_speedups_minutes");
+  const learningShort = Math.max(0, totalLearningMinutes - learningSpeedupsHave);
+  const learningCard = totalLearningXp > 0
+    ? statSnapshotCard(
+        "Learning time for skill targets",
+        timeFmt(totalLearningMinutes * 60),
+        `${fmtCompact(totalLearningXp)} XP at ${fmt(expertXpPerMinute())} XP/min`,
+        learningShort > 0
+          ? `You hold ${timeFmt(learningSpeedupsHave * 60)} of learning speedups — ${timeFmt(learningShort * 60)} short`
+          : `Covered by your ${timeFmt(learningSpeedupsHave * 60)} of learning speedups`,
+      )
+    : null;
   $("#tab-experts").innerHTML = `
-    <div class="toolbar"><div><h2>Experts</h2><p>Affinity and sigil costs are summed from current exclusive to target inclusive. Skill targets add book + Learning XP costs from the workbook.</p></div>${expertBulk}</div>
+    <div class="toolbar"><div><h2>Experts</h2><p>Affinity and sigil costs are summed from current exclusive to target inclusive. Skill targets add books + Learning XP; XP accrues at ${fmt(expertXpPerMinute())}/min of learning, so speedup hours are shown per skill.</p></div>${expertBulk}</div>
     ${upgradeNutshellHtml({
       module: "Experts",
       selected: upgradeSelectionText(selectedUpgradeCount, "expert target", "expert targets"),
       upgrades: selectedUpgrades,
-      impactCards: selectedImpactCards,
+      impactCards: [learningCard, ...selectedImpactCards].filter(Boolean),
       details: [
         `${fmt(gameData.experts.length)} experts`,
-        `${fmt(gameData.expert_affinity_levels.length)} affinity rows`,
-        ...(totalLearningXp > 0 ? [`${fmtCompact(totalLearningXp)} Learning XP needed for skill targets`] : []),
+        ...(totalLearningXp > 0
+          ? [
+              `${fmtCompact(totalLearningXp)} Learning XP ≈ ${timeFmt(totalLearningMinutes * 60)} of learning`,
+              learningShort > 0 ? `${timeFmt(learningShort * 60)} of learning speedups still missing` : "Learning speedups cover the plan",
+            ]
+          : []),
       ],
       cost: totalCost,
       fields: ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"]],
@@ -6435,12 +6709,14 @@ function renderResearch() {
     .join("");
 
   const visibleWarCount = Object.values(academy.visible_nodes || {}).filter((node) => !/max|complete|completed/i.test(String(node.status || ""))).length;
-  const t12HiddenNote = T12_UNLOCKED
-    ? ""
-    : `<div class="locked-note">${visualLabel("research", "T12 hidden", "This account has not unlocked T12 yet.")}</div>`;
+  const t12HiddenNote = `<div class="locked-note">${visualLabel(
+    "research",
+    "T12 Exalted research moved",
+    `${T12_UNLOCKED ? "" : "Not unlocked on this account yet. "}Full cost planning lives on the dedicated T12 Research page.`,
+  )}<a class="target-reset-button" href="?tab=t12-research">Open T12 Research</a></div>`;
   const smartPlan = smartRecommendationPlan("research");
   $("#tab-research").innerHTML = `
-    <div class="toolbar"><div><h2>Research And War Academy</h2><p>Only active or available nodes are shown. Completed nodes and locked T12 rows are hidden for this account.</p></div></div>
+    <div class="toolbar"><div><h2>Research And War Academy</h2><p>Only active or available nodes are shown. T12 Exalted research has its own page in the sidebar.</p></div></div>
     ${upgradeNutshellHtml({
       module: "Research",
       selected: upgradeSelectionText(selectedCount, "research target", "research targets"),
@@ -6478,12 +6754,539 @@ function renderResearch() {
   `;
 }
 
+/* ------------------------------------------------------------------ Troops */
+
+function troopTierRows(troopType) {
+  return sortByNumber((gameData.troop_tiers || []).filter((row) => row.troop_type === troopType), "tier");
+}
+
+function troopTierRecord(troopType, tier) {
+  return (gameData.troop_tiers || []).find((row) => row.troop_type === troopType && Number(row.tier) === Number(tier)) || null;
+}
+
+function troopPlanState() {
+  state.troop_plan ||= {};
+  const plan = state.troop_plan;
+  if (plan.mode == null) plan.mode = "train";
+  if (plan.troop_type == null) plan.troop_type = "all";
+  if (plan.quantity == null) plan.quantity = 1581;
+  if (plan.from_tier == null) plan.from_tier = 10;
+  if (plan.to_tier == null) plan.to_tier = 11;
+  if (plan.speed_pct == null) plan.speed_pct = Number(state.profile?.training_speed_pct || 0);
+  return plan;
+}
+
+function troopPlanComputation(plan = troopPlanState()) {
+  const types = plan.troop_type === "all" ? TROOP_TYPES : [plan.troop_type];
+  const speedDivisor = 1 + Math.max(0, Number(plan.speed_pct || 0)) / 100;
+  const quantity = Math.max(0, Number(plan.quantity || 0));
+  const perType = [];
+  for (const type of types) {
+    const target = troopTierRecord(type, plan.to_tier);
+    if (!target) continue;
+    const source = plan.mode === "promote" ? troopTierRecord(type, plan.from_tier) : null;
+    if (plan.mode === "promote" && !source) continue;
+    const baseSeconds = Number(target.base_seconds) - (source ? Number(source.base_seconds) : 0);
+    const perTroopSeconds = Math.max(0, baseSeconds) / speedDivisor;
+    const cost = {
+      meat: (Number(target.meat) - (source ? Number(source.meat) : 0)) * quantity,
+      wood: (Number(target.wood) - (source ? Number(source.wood) : 0)) * quantity,
+      coal: (Number(target.coal) - (source ? Number(source.coal) : 0)) * quantity,
+      iron: (Number(target.iron) - (source ? Number(source.iron) : 0)) * quantity,
+    };
+    const points = (Number(target.svs_points) - (source ? Number(source.svs_points) : 0)) * quantity;
+    perType.push({
+      type,
+      seconds: perTroopSeconds * quantity,
+      perTroopSeconds,
+      cost,
+      points,
+    });
+  }
+  const totals = perType.reduce(
+    (acc, entry) => {
+      acc.seconds += entry.seconds;
+      acc.points += entry.points;
+      ["meat", "wood", "coal", "iron"].forEach((key) => {
+        acc.cost[key] += entry.cost[key];
+      });
+      return acc;
+    },
+    { seconds: 0, points: 0, cost: { meat: 0, wood: 0, coal: 0, iron: 0 } },
+  );
+  totals.minutes = totals.seconds / 60;
+  totals.speedupPoints = Math.round(totals.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE);
+  return { perType, totals, quantity, speedDivisor };
+}
+
+function renderTroops() {
+  if (!gameData.troop_tiers?.length) {
+    $("#tab-troops").innerHTML = `<div class="empty-state"><h2>Troop data missing</h2><p>Rebuild game data from the workbook.</p></div>`;
+    return;
+  }
+  const plan = troopPlanState();
+  const { perType, totals, quantity } = troopPlanComputation(plan);
+  const trainingMinutesNeeded = Math.ceil(totals.minutes);
+  const trainingSpeedupsHave = availableInventoryValue("training_speedups_minutes");
+  const currentCounts = TROOP_TYPES.map((type) => {
+    const rows = Object.entries(state.troops || {}).filter(([id]) => id.startsWith(type));
+    const total = rows.reduce((sum, [, entry]) => sum + Number(entry.current || 0), 0);
+    return { type, total };
+  });
+  const tierOptions = [...new Set((gameData.troop_tiers || []).map((row) => row.tier))].sort((a, b) => a - b).map((tier) => [tier, `Tier ${tier}`]);
+  const costFields = ["meat", "wood", "coal", "iron"];
+  const totalCost = makeCost(costFields);
+  Object.assign(totalCost, totals.cost);
+
+  const perTypeRows = perType
+    .map(
+      (entry) => `<tr>
+        <td>${visualLabel("troop", titleFromId(entry.type))}</td>
+        <td>${timeFmt(entry.seconds)}</td>
+        <td>${fmtCompact(entry.cost.meat)}</td>
+        <td>${fmtCompact(entry.cost.wood)}</td>
+        <td>${fmtCompact(entry.cost.coal)}</td>
+        <td>${fmtCompact(entry.cost.iron)}</td>
+        <td>${fmt(entry.points)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  const tierTable = TROOP_TYPES.map((type) => {
+    const rows = troopTierRows(type)
+      .map(
+        (row) => `<tr>
+          <td>T${esc(row.tier)}</td>
+          <td>${fmt(row.svs_points)}</td>
+          <td>${Number(row.base_seconds).toFixed(0)}s</td>
+          <td>${fmt(row.meat)}</td>
+          <td>${fmt(row.wood)}</td>
+          <td>${fmt(row.coal)}</td>
+          <td>${fmt(row.iron)}</td>
+        </tr>`,
+      )
+      .join("");
+    return `<details class="table-disclosure"><summary>${esc(titleFromId(type))} tier data (per troop, base speed)</summary>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Tier</th><th>SvS pts</th><th>Base time</th><th>Meat</th><th>Wood</th><th>Coal</th><th>Iron</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div></details>`;
+  }).join("");
+
+  $("#tab-troops").innerHTML = `
+    <div class="toolbar"><div><h2>Troop Training & Promotion</h2><p>Workbook troop table: training/promotion time, resource cost, and SvS points. Promotion costs are the difference between tiers.</p></div></div>
+    <div class="summary-grid">
+      ${currentCounts
+        .map(
+          (entry, idx) => `<div class="metric ${["blue", "amber", "green"][idx]}"><span>${esc(titleFromId(entry.type))} on hand</span><strong>${fmt(entry.total)}</strong></div>`,
+        )
+        .join("")}
+      <div class="metric purple"><span>Training speed</span><strong>${fmt(plan.speed_pct)}%</strong></div>
+    </div>
+    <div class="panel">
+      <h2>Plan a batch</h2>
+      <div class="gd-select-row troop-plan-controls">
+        <label class="compact-field"><span>Mode</span>${selectInput("troop_plan.mode", plan.mode, [["train", "Train new"], ["promote", "Promote existing"]])}</label>
+        <label class="compact-field"><span>Troops</span>${selectInput("troop_plan.troop_type", plan.troop_type, [["all", "All 3 types"], ...TROOP_TYPES.map((type) => [type, titleFromId(type)])])}</label>
+        ${plan.mode === "promote" ? `<label class="compact-field"><span>From tier</span>${selectInput("troop_plan.from_tier", plan.from_tier, tierOptions)}</label>` : ""}
+        <label class="compact-field"><span>${plan.mode === "promote" ? "To tier" : "Tier"}</span>${selectInput("troop_plan.to_tier", plan.to_tier, tierOptions)}</label>
+        <label class="compact-field"><span>Quantity ${plan.troop_type === "all" ? "(each type)" : ""}</span>${numberInput("troop_plan.quantity", quantity, 0)}</label>
+        <label class="compact-field"><span>Training speed %</span>${numberInput("troop_plan.speed_pct", plan.speed_pct, 0)}</label>
+      </div>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Type</th><th>Time</th><th>Meat</th><th>Wood</th><th>Coal</th><th>Iron</th><th>SvS pts (troops)</th></tr></thead>
+        <tbody>${perTypeRows || `<tr><td colspan="7"><span class="muted">Pick a valid tier combination.</span></td></tr>`}</tbody>
+        <tfoot><tr><th>Total</th><th>${timeFmt(totals.seconds)}</th><th>${fmtCompact(totals.cost.meat)}</th><th>${fmtCompact(totals.cost.wood)}</th><th>${fmtCompact(totals.cost.coal)}</th><th>${fmtCompact(totals.cost.iron)}</th><th>${fmt(totals.points)}</th></tr></tfoot>
+      </table></div>
+      <div class="summary-grid">
+        <div class="metric blue"><span>Wall-clock time</span><strong>${timeFmt(totals.seconds)}</strong></div>
+        <div class="metric amber"><span>Training speedups needed</span><strong>${fmt(trainingMinutesNeeded)} min</strong></div>
+        <div class="metric ${trainingSpeedupsHave >= trainingMinutesNeeded ? "green" : "purple"}"><span>Speedups held</span><strong>${fmt(trainingSpeedupsHave)} min ${trainingSpeedupsHave >= trainingMinutesNeeded ? "✓" : `(short ${fmt(trainingMinutesNeeded - trainingSpeedupsHave)})`}</strong></div>
+        <div class="metric green"><span>SvS pts (troops + speedups)</span><strong>${fmt(totals.points + totals.speedupPoints)}</strong></div>
+      </div>
+      ${inventoryComparisonHtml(totalCost, costFields, "Troop batch resources")}
+      <p class="gd-note">Speedup points assume ${fmt(SVS_SPEEDUP_POINTS_PER_MINUTE)} pts per minute. Training troops on the troop day usually beats burning the same speedups on other days.</p>
+    </div>
+    <div class="panel">
+      <h2>Reference tables</h2>
+      ${tierTable}
+    </div>
+  `;
+}
+
+/* ------------------------------------------------------------------ SvS Planner */
+
+function svsPlanState() {
+  state.svs_plan ||= {};
+  const plan = state.svs_plan;
+  if (plan.valeria_level == null) plan.valeria_level = 0;
+  if (plan.lucky_wheel_spins == null) plan.lucky_wheel_spins = 0;
+  if (plan.include_speedups == null) plan.include_speedups = true;
+  if (plan.include_shards == null) plan.include_shards = true;
+  if (plan.include_marks == null) plan.include_marks = true;
+  return plan;
+}
+
+function svsGearPoints() {
+  const gearLevels = sortByNumber(gameData.chief_gear_levels, "sequence").map((row, idx) => ({ ...row, order: idx }));
+  return Object.entries(state.chief_gear || {}).reduce((sum, [, saved]) => {
+    if (!saved?.current || !saved?.target) return sum;
+    return (
+      sum +
+      rangeSum(gearLevels, saved.current, saved.target, { idKey: "gear_level_code", orderKey: "order", field: "svs_points" })
+    );
+  }, 0);
+}
+
+function svsCharmPoints() {
+  const charmLevels = sortByNumber(gameData.chief_charm_levels, "charm_level").map((row) => ({
+    ...row,
+    level_code: String(row.charm_level),
+    order: Number(row.charm_level),
+  }));
+  return Object.entries(state.charms || {}).reduce((sum, [, saved]) => {
+    if (saved?.current == null || saved?.target == null) return sum;
+    return (
+      sum +
+      rangeSum(charmLevels, String(saved.current), String(saved.target), { idKey: "level_code", orderKey: "order", field: "svs_points" })
+    );
+  }, 0);
+}
+
+function svsPetPoints() {
+  const levelsByPet = groupBy(gameData.pet_levels, "pet_id");
+  return gameData.pets.reduce((sum, pet) => {
+    const saved = state.pets[pet.pet_id];
+    if (!saved) return sum;
+    const levels = (levelsByPet[pet.pet_id] || []).map((row, idx) => ({ ...row, order: idx }));
+    return sum + rangeSum(levels, saved.current, saved.target, { idKey: "level_code", orderKey: "order", field: "svs_points" });
+  }, 0);
+}
+
+function svsPetMarks() {
+  return gameData.pets.reduce(
+    (acc, pet) => {
+      const saved = state.pets[pet.pet_id];
+      if (!saved) return acc;
+      const attempts = Math.max(1, Number(saved.refine_attempts_per_tier || 1));
+      const cost = petRefinementCost(pet, saved.quality_current || "None", saved.quality_target || saved.quality_current || "None");
+      acc.common += cost.common_wild_marks * attempts;
+      acc.advanced += cost.advanced_wild_marks * attempts;
+      return acc;
+    },
+    { common: 0, advanced: 0 },
+  );
+}
+
+function svsExpertPlanTotals() {
+  let books = 0;
+  let learningXp = 0;
+  let sigils = 0;
+  const levelsByExpert = groupBy(gameData.expert_affinity_levels, "expert_id");
+  gameData.experts.forEach((expert) => {
+    const saved = state.experts[expert.expert_id];
+    if (!saved) return;
+    const observed = state.extracted_current?.experts?.[expert.expert_id] || {};
+    const skillPlan = expertSkillPlanner(expert, observed.skills);
+    books += skillPlan.books;
+    learningXp += skillPlan.learningXp;
+    const levels = levelsByExpert[expert.expert_id] || [];
+    const cost = rangeCost(levels, saved.relationship_current, saved.relationship_target, {
+      idKey: "level_code",
+      orderKey: "relationship_level",
+      fields: [["expert_affinity", "affinity"], ["common_sigils", "sigils"]],
+    });
+    sigils += Number(cost.common_sigils || 0);
+  });
+  return { books, learningXp, sigils, learningMinutes: Math.ceil(learningXp / expertXpPerMinute()) };
+}
+
+function svsBuildingCrystals() {
+  const cost = allBuildingCosts();
+  return { fc: Number(cost.fire_crystals || 0), rfc: Number(cost.refined_fire_crystals || 0) };
+}
+
+function svsT12Totals() {
+  const targets = state.t12_targets || {};
+  let shards = 0;
+  let minutes = 0;
+  (gameData.t12_research_levels || []).forEach((row) => {
+    const saved = targets[row.node_id];
+    if (!saved) return;
+    const current = Number(saved.current || 0);
+    const target = Number(saved.target || 0);
+    if (Number(row.level) > current && Number(row.level) <= target) {
+      shards += Number(row.fire_crystal_shards || 0);
+      minutes += Number(row.research_minutes || 0);
+    }
+  });
+  return { shards, minutes };
+}
+
+function renderSvs() {
+  const plan = svsPlanState();
+  const rates = gameData.svs_point_rates || {};
+  const valeriaMultiplier = 1 + (Number(rates.valeria_well_prepared_pct_per_level || 2) / 100) * Math.max(0, Math.min(10, Number(plan.valeria_level || 0)));
+  const gearPts = svsGearPoints();
+  const charmPts = svsCharmPoints();
+  const petPts = svsPetPoints();
+  const marks = svsPetMarks();
+  const expertTotals = svsExpertPlanTotals();
+  const crystals = svsBuildingCrystals();
+  const t12 = svsT12Totals();
+  const troop = troopPlanComputation();
+
+  const speedupFields = [
+    ["construction_speedups_minutes", "Construction speedups"],
+    ["research_speedups_minutes", "Research speedups"],
+    ["training_speedups_minutes", "Training speedups"],
+    ["learning_speedups_minutes", "Learning speedups"],
+    ["general_speedups_minutes", "General speedups"],
+  ];
+  const speedupMinutesTotal = plan.include_speedups
+    ? speedupFields.reduce((sum, [key]) => sum + availableInventoryValue(key), 0)
+    : 0;
+
+  const shardEntries = plan.include_shards
+    ? [
+        { label: "Mythic hero shards", qty: availableInventoryValue("mythic_general_shards"), rate: Number(rates.mythic_hero_shard || 3040) },
+        { label: "Epic hero shards", qty: availableInventoryValue("epic_general_shards"), rate: Number(rates.epic_hero_shard || 1220) },
+        { label: "Rare hero shards", qty: availableInventoryValue("rare_general_shards"), rate: Number(rates.rare_hero_shard || 350) },
+      ]
+    : [];
+  const markEntries = plan.include_marks
+    ? [
+        { label: "Common wild marks (planned)", qty: marks.common, rate: Number(rates.common_wild_mark || 1150) },
+        { label: "Advanced wild marks (planned)", qty: marks.advanced, rate: Number(rates.advanced_wild_mark || 15000) },
+      ]
+    : [];
+
+  const dayFlags = (rule) =>
+    ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      .map((day, idx) => ({ day: ["Mon", "Tue", "Wed", "Thu", "Fri"][idx], flag: String(rule?.[day] || "") }))
+      .filter((entry) => /yes|today/i.test(entry.flag))
+      .map((entry) => `<span class="coverage-chip ${/yes/i.test(entry.flag) ? "coverage-chip--excess" : "coverage-chip--none"}">${entry.day}${/today\?/i.test(entry.flag) ? "?" : ""}</span>`)
+      .join(" ");
+  const ruleFor = (idFragment) => (gameData.svs_scoring_rules || []).find((rule) => rule.activity_id?.includes(idFragment));
+
+  const activityRows = [
+    { id: "chief_gear", label: "Upgrade Chief Gear (targets)", pts: gearPts, note: `${fmt(rates.chief_gear_per_power || 36)} pts per power`, rule: ruleFor("chief_gear") },
+    { id: "chief_charms", label: "Upgrade Chief Charms (targets)", pts: charmPts, note: `${fmt(rates.chief_charm_per_power || 70)} pts per power`, rule: ruleFor("charms") },
+    { id: "pets", label: "Pet advancement (targets)", pts: petPts, note: "50 pts per advancement point", rule: ruleFor("advance_pets") },
+    ...markEntries.map((entry) => ({
+      id: `marks_${entry.label}`,
+      label: entry.label,
+      pts: entry.qty * entry.rate,
+      note: `${fmt(entry.qty)} × ${fmt(entry.rate)}`,
+      rule: ruleFor("wild_marks"),
+    })),
+    { id: "fc", label: "Fire Crystals for building (targets)", pts: crystals.fc * Number(rates.fire_crystal || 2000), note: `${fmt(crystals.fc)} FC × ${fmt(rates.fire_crystal || 2000)}`, rule: ruleFor("fire_crystals_for_building") },
+    { id: "rfc", label: "Refined FC for building (targets)", pts: crystals.rfc * Number(rates.refined_fire_crystal || 30000), note: `${fmt(crystals.rfc)} RFC × ${fmt(rates.refined_fire_crystal || 30000)}`, rule: ruleFor("refined_fire_crystals") },
+    { id: "t12_shards", label: "FC Shards for T12 research (targets)", pts: t12.shards * Number(rates.fire_crystal_shard_research || 1000), note: `${fmt(t12.shards)} shards × ${fmt(rates.fire_crystal_shard_research || 1000)}`, rule: ruleFor("fire_crystal_shards") },
+    { id: "t12_time", label: "Research speedups for T12 plan", pts: Math.round(t12.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE), note: `${timeFmt(t12.minutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("speedups_for_research") },
+    { id: "troops", label: "Troop plan (train/promote)", pts: troop.totals.points, note: "From the Troop Training page plan", rule: ruleFor("train_promote") || ruleFor("troops") },
+    { id: "troop_speedups", label: "Training speedups for troop plan", pts: troop.totals.speedupPoints, note: `${timeFmt(troop.totals.seconds)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("speedups_for_troops") },
+    { id: "expert_books", label: "Books of Knowledge (skill targets)", pts: expertTotals.books * Number(rates.book_of_knowledge || 60), note: `${fmt(expertTotals.books)} books × ${fmt(rates.book_of_knowledge || 60)}`, rule: ruleFor("book_of_knowledge") },
+    { id: "expert_learning", label: "Learning speedups (skill targets)", pts: expertTotals.learningMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${timeFmt(expertTotals.learningMinutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("learning") },
+    { id: "expert_sigils", label: "Expert sigils (affinity targets)", pts: expertTotals.sigils * Number(rates.expert_sigil || 6000), note: `${fmt(expertTotals.sigils)} sigils × ${fmt(rates.expert_sigil || 6000)}`, rule: ruleFor("expert_sigil") },
+    ...shardEntries.map((entry) => ({
+      id: `shards_${entry.label}`,
+      label: `${entry.label} (inventory)`,
+      pts: entry.qty * entry.rate,
+      note: `${fmt(entry.qty)} × ${fmt(entry.rate)}`,
+      rule: ruleFor("hero_shards") || ruleFor("mythic"),
+    })),
+    { id: "speedups", label: "Burn remaining speedups (inventory)", pts: speedupMinutesTotal * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${fmt(speedupMinutesTotal)} min × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: null },
+    { id: "wheel", label: "Lucky Wheel spins", pts: Number(plan.lucky_wheel_spins || 0) * Number(rates.lucky_wheel_spin || 8000), note: `${fmt(plan.lucky_wheel_spins)} spins × ${fmt(rates.lucky_wheel_spin || 8000)}`, rule: ruleFor("lucky_wheel") },
+  ];
+
+  const basePoints = activityRows.reduce((sum, row) => sum + Number(row.pts || 0), 0);
+  const boostedPoints = Math.round(basePoints * valeriaMultiplier);
+
+  const rows = activityRows
+    .filter((row) => Number(row.pts || 0) > 0)
+    .map(
+      (row) => `<tr>
+        <td>${esc(row.label)}<br><span class="muted">${esc(row.note)}</span></td>
+        <td>${fmt(row.pts)}</td>
+        <td>${row.rule ? dayFlags(row.rule) || "&ndash;" : "&ndash;"}</td>
+      </tr>`,
+    )
+    .join("");
+
+  const scheduleRows = (gameData.svs_scoring_rules || [])
+    .map(
+      (rule) => `<tr>
+        <td>${esc(rule.activity)}</td>
+        <td>${esc(rule.points_formula || "-")}</td>
+        <td>${dayFlags(rule) || "&ndash;"}</td>
+        <td>${esc(rule.notes || "")}</td>
+      </tr>`,
+    )
+    .join("");
+
+  $("#tab-svs").innerHTML = `
+    <div class="toolbar"><div><h2>SvS Prep Planner</h2><p>Projects prep-week points from your selected targets and inventory using the workbook point rates. Best-day chips follow the workbook schedule.</p></div></div>
+    <div class="summary-grid">
+      <div class="metric blue"><span>Projected base points</span><strong>${fmt(basePoints)}</strong></div>
+      <div class="metric green"><span>With Valeria ×${valeriaMultiplier.toFixed(2)}</span><strong>${fmt(boostedPoints)}</strong></div>
+      <div class="metric amber"><span>Gear + charm points</span><strong>${fmt(gearPts + charmPts)}</strong></div>
+      <div class="metric purple"><span>Pets + marks points</span><strong>${fmt(petPts + markEntries.reduce((sum, entry) => sum + entry.qty * entry.rate, 0))}</strong></div>
+    </div>
+    <div class="panel">
+      <h2>Plan inputs</h2>
+      <div class="gd-select-row troop-plan-controls">
+        <label class="compact-field"><span>Valeria "Well Prepared" level</span>${numberInput("svs_plan.valeria_level", plan.valeria_level, 0, 1)}</label>
+        <label class="compact-field"><span>Lucky Wheel spins</span>${numberInput("svs_plan.lucky_wheel_spins", plan.lucky_wheel_spins, 0)}</label>
+        <label class="compact-field svs-toggle"><span>Burn all speedups</span>${checkboxInput("svs_plan.include_speedups", plan.include_speedups)}</label>
+        <label class="compact-field svs-toggle"><span>Use hero shards</span>${checkboxInput("svs_plan.include_shards", plan.include_shards)}</label>
+        <label class="compact-field svs-toggle"><span>Spend wild marks</span>${checkboxInput("svs_plan.include_marks", plan.include_marks)}</label>
+      </div>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Activity (auto from targets/inventory)</th><th>Points</th><th>Best day</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="3"><span class="muted">No point sources yet — set upgrade targets or add inventory.</span></td></tr>`}</tbody>
+        <tfoot><tr><th>Total (base)</th><th>${fmt(basePoints)}</th><th></th></tr><tr><th>Total with Valeria</th><th>${fmt(boostedPoints)}</th><th></th></tr></tfoot>
+      </table></div>
+      <p class="gd-note">Troop and T12 rows follow the plans on their own pages. Speedup burn assumes every remaining minute is used on a matching day at ${SVS_SPEEDUP_POINTS_PER_MINUTE} pts/min.</p>
+    </div>
+    <div class="panel">
+      <h2>Workbook prep-week schedule</h2>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Activity</th><th>Rate</th><th>Best day</th><th>Notes</th></tr></thead>
+        <tbody>${scheduleRows}</tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+/* ------------------------------------------------------------------ T12 Research */
+
+function t12NodeTargets(nodeId, maxLevel) {
+  state.t12_targets ||= {};
+  state.t12_targets[nodeId] ||= { current: 0, target: 0 };
+  const entry = state.t12_targets[nodeId];
+  entry.current = Math.max(0, Math.min(maxLevel, Number(entry.current || 0)));
+  entry.target = Math.max(entry.current, Math.min(maxLevel, Number(entry.target || 0)));
+  return entry;
+}
+
+function renderT12() {
+  const rows = gameData.t12_research_levels || [];
+  if (!rows.length) {
+    $("#tab-t12-research").innerHTML = `<div class="empty-state"><h2>T12 data missing</h2></div>`;
+    return;
+  }
+  const byNode = groupBy(rows, "node_id");
+  const fields = T12_RESEARCH_FIELDS;
+  let totalCost = makeCost(fields);
+  let totalMinutes = 0;
+  let totalPower = 0;
+  let selectedCount = 0;
+
+  const typeSections = TROOP_TYPES.map((type) => {
+    const nodes = Object.entries(byNode)
+      .filter(([, levels]) => levels[0]?.troop_type === type)
+      .sort(([a], [b]) => a.localeCompare(b));
+    const cards = nodes
+      .map(([nodeId, levels]) => {
+        const sorted = sortByNumber(levels, "level");
+        const maxLevel = Number(sorted.at(-1).level);
+        const saved = t12NodeTargets(nodeId, maxLevel);
+        const stepRows = sorted.filter((row) => Number(row.level) > saved.current && Number(row.level) <= saved.target);
+        const cost = stepRows.reduce((acc, row) => {
+          fields.forEach((field) => {
+            const key = fieldKey(field);
+            acc[key] += Number(row[key] || 0);
+          });
+          return acc;
+        }, makeCost(fields));
+        const minutes = stepRows.reduce((sum, row) => sum + Number(row.research_minutes || 0), 0);
+        const power = stepRows.reduce((sum, row) => sum + Number(row.power || 0), 0);
+        const statNow = sorted.filter((row) => Number(row.level) <= saved.current).reduce((sum, row) => sum + Number(row.stat_percent || 0), 0);
+        const statTarget = statNow + stepRows.reduce((sum, row) => sum + Number(row.stat_percent || 0), 0);
+        if (stepRows.length) {
+          selectedCount += 1;
+          totalCost = addCost(totalCost, cost);
+          totalMinutes += minutes;
+          totalPower += power;
+        }
+        const levelOptions = [[0, "Level 0"], ...sorted.map((row) => [row.level, `Level ${row.level}`])];
+        return `<div class="research-node-card ${stepRows.length ? "is-selected" : ""}">
+          <div class="research-node-card__head">
+            <span class="research-node-card__hex">${iconHtml("research", sorted[0].node_name, "lg", "research")}</span>
+            <div class="pet-card__title">
+              <strong>${esc(sorted[0].node_name)}</strong>
+              <span class="muted">${esc(titleFromId(type))} · ${fmt(maxLevel)} levels · ${statNow.toFixed(1)}% now</span>
+            </div>
+            ${gameLevelFlowHtml(`Lv. ${saved.current}`, `Lv. ${saved.target}`)}
+          </div>
+          <div class="gd-select-row">
+            <label class="compact-field"><span>Current</span>${selectInput(`t12_targets.${nodeId}.current`, saved.current, levelOptions)}</label>
+            <label class="compact-field"><span>Target</span>${selectInput(`t12_targets.${nodeId}.target`, saved.target, levelOptions)}</label>
+          </div>
+          ${stepRows.length
+            ? `${gameBonusRowsHtml(
+                [
+                  { label: "Stat", current: `${statNow.toFixed(1)}%`, target: `${statTarget.toFixed(1)}%` },
+                  { label: "Research time", current: timeFmt(minutes * 60) },
+                  { label: "Power", current: `+${fmt(power)}` },
+                ],
+                "Step Impact",
+              )}${gameCostTilesHtml(cost, fields)}`
+            : `<p class="gd-note">No step selected.</p>`}
+        </div>`;
+      })
+      .join("");
+    return `<div class="panel"><h2>${esc(titleFromId(type))} T12 nodes</h2><div class="research-node-grid">${cards}</div></div>`;
+  }).join("");
+
+  const totalsCards = (gameData.t12_totals || [])
+    .map(
+      (row) => `<div class="metric blue"><span>${esc(titleFromId(row.troop_type))} full T12 line</span><strong>${fmt(row.steel)} steel · ${fmt(row.refined_fire_crystals)} RFC · ${fmt(row.fire_crystal_shards)} shards</strong></div>`,
+    )
+    .join("");
+  const researchSpeedupsHave = availableInventoryValue("research_speedups_minutes");
+  const shardsPts = Number(totalCost.fire_crystal_shards || 0) * Number(gameData.svs_point_rates?.fire_crystal_shard_research || 1000);
+  const timePts = Math.round(totalMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE);
+
+  $("#tab-t12-research").innerHTML = `
+    <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>Every T12 node/level from the workbook with steel, RFC, FC shard, and resource costs. ${T12_UNLOCKED ? "" : "This account has not unlocked T12 yet — use this page for forward planning."}</p></div></div>
+    ${upgradeNutshellHtml({
+      module: "T12 Research",
+      selected: upgradeSelectionText(selectedCount, "T12 node", "T12 nodes"),
+      upgrades: [],
+      impactCards: [
+        statSnapshotCard("Research time", timeFmt(totalMinutes * 60), "Sum of selected levels", researchSpeedupsHave >= totalMinutes ? "Covered by research speedups" : `Research speedups held: ${fmt(researchSpeedupsHave)} min`),
+        statSnapshotCard("Power gain", `+${fmt(totalPower)}`, "Sum of selected levels", ""),
+        statSnapshotCard("SvS points", fmt(shardsPts + timePts), "Shards ×1,000 + minutes ×30", ""),
+      ],
+      details: [`${timeFmt(totalMinutes * 60)} research time`, `+${fmt(totalPower)} power`],
+      cost: totalCost,
+      fields,
+      empty: "Select node targets below to see the full T12 bill of materials.",
+    })}
+    <div class="summary-grid">${totalsCards}</div>
+    ${inventoryComparisonHtml(totalCost, fields, "T12 research materials")}
+    ${typeSections}
+  `;
+}
+
 function renderResources() {
   const grouped = groupBy(gameData.resource_types, "category");
+  const gensWithExclusive = [...new Set(
+    gameData.heroes
+      .filter((hero) => HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id] && hero.generation)
+      .map((hero) => Number(hero.generation)),
+  )].sort((a, b) => a - b);
+  const widgetGroup = {
+    title: "Widgets by Generation",
+    note: "Exclusive-gear widgets in your backpack, one pool per hero generation",
+    fields: gensWithExclusive.map((gen) => `widgets_gen${gen}`),
+  };
   $("#tab-resources").innerHTML = `
     <div class="toolbar"><div><h2>Resources</h2><p>Edit the single current value used by every upgrade calculator. Changes save to the shared database automatically.</p></div></div>
     <div class="inventory-editor">
-      ${CALCULATOR_INVENTORY_GROUPS.map(inventoryEditorGroup).join("")}
+      ${[...CALCULATOR_INVENTORY_GROUPS, widgetGroup].map(inventoryEditorGroup).join("")}
     </div>
     ${currentProgressEditorHtml()}
     <details class="table-disclosure resource-disclosure">
@@ -6575,6 +7378,9 @@ function renderActive(options = {}) {
     pets: renderPets,
     experts: renderExperts,
     research: renderResearch,
+    "t12-research": renderT12,
+    troops: renderTroops,
+    svs: renderSvs,
     resources: renderResources,
     sources: renderSources,
   };
@@ -6669,7 +7475,7 @@ function bindEvents() {
         setAdvisorStatus(`Copy failed: ${error.message}`);
       }
     }
-    
+
     if (event.target.closest("#runAdvisor")) {
       await runAdvisor();
     }
@@ -6812,5 +7618,4 @@ async function init() {
 }
 
 init();
-
-// build: game-replica UI revision
+/* wave4 build marker: pets/troops/svs/t12 pages + backpack resources. */
