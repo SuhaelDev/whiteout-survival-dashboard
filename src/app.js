@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716a";
+const ASSET_CACHE_VERSION = "20260716b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -8365,9 +8365,11 @@ function hero3dBuildScene() {
       model.traverse((child) => {
         if (child.isMesh) {
           child.frustumCulled = false;
+          if (/visor/i.test(child.name || "")) child.visible = false;
           if (child.material) {
-            child.material.roughness = Math.min(1, (child.material.roughness ?? 0.8) + 0.1);
-            child.material.envMapIntensity = 0.6;
+            child.material.roughness = Math.min(1, (child.material.roughness ?? 0.8) + 0.15);
+            child.material.envMapIntensity = 0.5;
+            child.material.color = new T2.Color(0x9fb2c6); // cool the camo toward winter slate
           }
         }
       });
@@ -8379,6 +8381,13 @@ function hero3dBuildScene() {
       Object.entries(HERO3D_SLOTS).forEach(([part, spec]) => {
         HERO3D.bones[part] = model.getObjectByName(spec.bone) || model.getObjectByName(spec.bone.replace(":", "")) || null;
       });
+      try {
+        hero3dBuildOutfit(model);
+        HERO3D.mixer.update(0);
+        hero3dUpdateOutfit();
+      } catch (error) {
+        /* outfit is decorative — never block the hero */
+      }
       // re-frame the current focus now that the real body is in place
       hero3dSetFocus(HERO3D.mode, HERO3D.focusPart, HERO3D.focusSocket, true);
     },
@@ -8387,6 +8396,131 @@ function hero3dBuildScene() {
       hero3dShowFallback();
     },
   );
+}
+
+const HERO3D_OUTFIT_SPECS = [
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.1, 0.01] },
+  { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.05, 0.01] },
+  { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.04, 0] },
+  { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.08, 0] },
+  { bone: "mixamorig:LeftArm", kind: "shoulderFur", offset: [0, 0.02, 0] },
+  { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0, 0.02, 0] },
+  { bone: "mixamorig:LeftHand", kind: "mitten", offset: [0, 0.05, 0] },
+  { bone: "mixamorig:RightHand", kind: "mitten", offset: [0, 0.05, 0] },
+  { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, 0.33, 0.01] },
+  { bone: "mixamorig:RightLeg", kind: "bootCuff", offset: [0, 0.33, 0.01] },
+  { bone: "mixamorig:LeftFoot", kind: "boot", offset: [0, 0.06, 0.03] },
+  { bone: "mixamorig:RightFoot", kind: "boot", offset: [0, 0.06, 0.03] },
+];
+
+function hero3dOutfitPiece(T, kind, materials) {
+  const { fur, leather, cloth, clothDark, gold } = materials;
+  const group = new T.Group();
+  if (kind === "ushanka") {
+    const band = new T.Mesh(new T.TorusGeometry(0.112, 0.05, 12, 24), fur);
+    band.rotation.x = Math.PI / 2;
+    group.add(band);
+    const dome = new T.Mesh(new T.SphereGeometry(0.115, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), leather);
+    dome.position.y = 0.015;
+    group.add(dome);
+    const badge = new T.Mesh(new T.CircleGeometry(0.022, 16), gold);
+    badge.position.set(0, 0.045, 0.132);
+    group.add(badge);
+    [-1, 1].forEach((side) => {
+      const flap = new T.Mesh(new T.BoxGeometry(0.045, 0.11, 0.07), fur);
+      flap.position.set(side * 0.115, -0.075, -0.01);
+      flap.rotation.z = side * 0.12;
+      group.add(flap);
+    });
+  } else if (kind === "collar") {
+    const collar = new T.Mesh(new T.TorusGeometry(0.14, 0.068, 12, 24), fur);
+    collar.rotation.x = Math.PI / 2;
+    group.add(collar);
+  } else if (kind === "coat") {
+    const body = new T.Mesh(new T.CylinderGeometry(0.195, 0.235, 0.4, 20, 1, true), cloth);
+    group.add(body);
+    const placket = new T.Mesh(new T.BoxGeometry(0.036, 0.38, 0.014), clothDark);
+    placket.position.set(0, 0, 0.208);
+    group.add(placket);
+    [0.12, 0.02, -0.08].forEach((y) => {
+      const button = new T.Mesh(new T.SphereGeometry(0.013, 10, 8), gold);
+      button.position.set(0.035, y, 0.215);
+      group.add(button);
+    });
+    const belt = new T.Mesh(new T.TorusGeometry(0.225, 0.024, 10, 24), clothDark);
+    belt.rotation.x = Math.PI / 2;
+    belt.position.y = -0.17;
+    group.add(belt);
+    const buckle = new T.Mesh(new T.BoxGeometry(0.055, 0.042, 0.015), gold);
+    buckle.position.set(0, -0.17, 0.235);
+    group.add(buckle);
+  } else if (kind === "skirt") {
+    const skirt = new T.Mesh(new T.CylinderGeometry(0.235, 0.33, 0.34, 20, 1, true), cloth);
+    group.add(skirt);
+    const hem = new T.Mesh(new T.TorusGeometry(0.325, 0.028, 10, 26), fur);
+    hem.rotation.x = Math.PI / 2;
+    hem.position.y = -0.17;
+    group.add(hem);
+  } else if (kind === "shoulderFur") {
+    const pad = new T.Mesh(new T.SphereGeometry(0.082, 14, 10), fur);
+    pad.scale.set(1.25, 0.72, 1.25);
+    group.add(pad);
+  } else if (kind === "mitten") {
+    const mitt = new T.Mesh(new T.SphereGeometry(0.068, 14, 10), leather);
+    mitt.scale.set(1, 0.85, 1.2);
+    group.add(mitt);
+    const cuff = new T.Mesh(new T.TorusGeometry(0.062, 0.026, 10, 18), fur);
+    cuff.rotation.x = Math.PI / 2;
+    cuff.position.y = 0.05;
+    group.add(cuff);
+  } else if (kind === "bootCuff") {
+    const cuff = new T.Mesh(new T.TorusGeometry(0.073, 0.034, 10, 18), fur);
+    cuff.rotation.x = Math.PI / 2;
+    group.add(cuff);
+  } else if (kind === "boot") {
+    const boot = new T.Mesh(new T.SphereGeometry(0.085, 14, 10), leather);
+    boot.scale.set(0.95, 0.62, 1.55);
+    group.add(boot);
+  }
+  return group;
+}
+
+function hero3dBuildOutfit(model) {
+  const T = HERO3D.lib;
+  const materials = {
+    fur: new T.MeshStandardMaterial({ color: 0xe9eff5, roughness: 0.95, metalness: 0.02 }),
+    leather: new T.MeshStandardMaterial({ color: 0x5d4030, roughness: 0.8, metalness: 0.05 }),
+    cloth: new T.MeshStandardMaterial({ color: 0x2f4157, roughness: 0.85, metalness: 0.05, side: T.DoubleSide }),
+    clothDark: new T.MeshStandardMaterial({ color: 0x22303f, roughness: 0.85, metalness: 0.05 }),
+    gold: new T.MeshStandardMaterial({ color: 0xffd257, roughness: 0.35, metalness: 0.6 }),
+  };
+  HERO3D.outfit = [];
+  HERO3D_OUTFIT_SPECS.forEach((spec) => {
+    const bone = model.getObjectByName(spec.bone) || model.getObjectByName(spec.bone.replace(":", ""));
+    if (!bone) return;
+    const piece = hero3dOutfitPiece(T, spec.kind, materials);
+    HERO3D.rig.add(piece);
+    HERO3D.outfit.push({ piece, bone, offset: new T.Vector3(...spec.offset), kind: spec.kind });
+  });
+}
+
+function hero3dUpdateOutfit() {
+  if (!HERO3D.outfit?.length) return;
+  const T = HERO3D.lib;
+  const pos = (HERO3D.__oPos ||= new T.Vector3());
+  const quat = (HERO3D.__oQuat ||= new T.Quaternion());
+  const rigQuat = (HERO3D.__oRigQuat ||= new T.Quaternion());
+  const offset = (HERO3D.__oOff ||= new T.Vector3());
+  HERO3D.rig.getWorldQuaternion(rigQuat).invert();
+  HERO3D.outfit.forEach((item) => {
+    item.bone.getWorldPosition(pos);
+    item.bone.getWorldQuaternion(quat);
+    HERO3D.rig.worldToLocal(pos);
+    quat.premultiply(rigQuat);
+    offset.copy(item.offset).applyQuaternion(quat);
+    item.piece.position.copy(pos).add(offset);
+    item.piece.quaternion.copy(quat);
+  });
 }
 
 function hero3dEnsureBadgePlates() {
@@ -8469,6 +8603,7 @@ function hero3dAnimate() {
   const t = HERO3D.clock ? HERO3D.clock.elapsedTime : 0;
 
   HERO3D.mixer?.update(delta);
+  hero3dUpdateOutfit();
 
   // keep badges glued to their bones (rig-local so drag rotation stays coherent)
   const T = HERO3D.lib;
@@ -8641,4 +8776,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave8 build marker: rigged GLB hero with bone-anchored gear badges; sidebar scroll-to-top. */
+/* wave9 build marker: Whiteout-style chief outfit layered on the rigged hero. */
