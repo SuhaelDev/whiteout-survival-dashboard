@@ -7210,9 +7210,13 @@ function renderT12() {
           return acc;
         }, makeCost(fields));
         const minutes = stepRows.reduce((sum, row) => sum + Number(row.research_minutes || 0), 0);
-        const power = stepRows.reduce((sum, row) => sum + Number(row.power || 0), 0);
-        const statNow = sorted.filter((row) => Number(row.level) <= saved.current).reduce((sum, row) => sum + Number(row.stat_percent || 0), 0);
-        const statTarget = statNow + stepRows.reduce((sum, row) => sum + Number(row.stat_percent || 0), 0);
+        // Power and stat columns are CUMULATIVE in the workbook; costs/minutes are per level.
+        const rowAt = (level) => sorted.filter((row) => Number(row.level) <= level).at(-1);
+        const currentRow = rowAt(saved.current);
+        const targetRow = rowAt(saved.target);
+        const statNow = Number(currentRow?.stat_percent || 0);
+        const statTarget = Number(targetRow?.stat_percent || statNow);
+        const power = Math.max(0, Number(targetRow?.power || 0) - Number(currentRow?.power || 0));
         if (stepRows.length) {
           selectedCount += 1;
           totalCost = addCost(totalCost, cost);

@@ -4779,6 +4779,7 @@ summary:hover {
 /* Status badge fixes for contrast */
 .status-pill, .badge {
   color: #ffffff !important;
+  background-color: #159a62 !important; /* strong green default */
 }
 
 .status-pill.gap {
@@ -5744,6 +5745,40 @@ select option {
   border-top: 1px solid rgba(148, 163, 184, 0.25);
   padding-top: 8px;
 }
-#tab-t12-research .research-node-grid {
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+
+/* T12 / research node cards (game-dialog style, previously unstyled) */
+.research-node-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
 }
+.research-node-card {
+  background: linear-gradient(180deg, var(--gd-bg-top), var(--gd-bg-bottom));
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--gd-ink);
+  box-shadow: 0 10px 24px rgba(2, 8, 20, 0.45);
+}
+.research-node-card.is-selected {
+  border-color: #7fd18f;
+  box-shadow: 0 10px 24px rgba(2, 8, 20, 0.45), 0 0 0 2px rgba(93, 190, 110, 0.35);
+}
+.research-node-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.research-node-card__hex .game-icon {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 12px !important;
+}
+.research-node-card .muted { color: #5f7ba1; }
+.research-node-card .gd-level-flow { flex-basis: 100%; justify-content: flex-start; }
+.research-node-card .gd-note { color: #5f7ba1; }
