@@ -8399,18 +8399,18 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.1, 0.01] },
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.09, 0.01] },
   { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.05, 0.01] },
-  { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.04, 0] },
-  { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.08, 0] },
-  { bone: "mixamorig:LeftArm", kind: "shoulderFur", offset: [0, 0.02, 0] },
-  { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0, 0.02, 0] },
-  { bone: "mixamorig:LeftHand", kind: "mitten", offset: [0, 0.05, 0] },
-  { bone: "mixamorig:RightHand", kind: "mitten", offset: [0, 0.05, 0] },
-  { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, 0.33, 0.01] },
-  { bone: "mixamorig:RightLeg", kind: "bootCuff", offset: [0, 0.33, 0.01] },
-  { bone: "mixamorig:LeftFoot", kind: "boot", offset: [0, 0.06, 0.03] },
-  { bone: "mixamorig:RightFoot", kind: "boot", offset: [0, 0.06, 0.03] },
+  { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.03, 0] },
+  { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
+  { bone: "mixamorig:LeftArm", kind: "shoulderFur", offset: [-0.02, 0.03, 0] },
+  { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0.02, 0.03, 0] },
+  { bone: "mixamorig:LeftHand", kind: "mitten", offset: [0, -0.04, 0.01] },
+  { bone: "mixamorig:RightHand", kind: "mitten", offset: [0, -0.04, 0.01] },
+  { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, -0.3, 0.01] },
+  { bone: "mixamorig:RightLeg", kind: "bootCuff", offset: [0, -0.3, 0.01] },
+  { bone: "mixamorig:LeftFoot", kind: "boot", offset: [0, -0.03, 0.05] },
+  { bone: "mixamorig:RightFoot", kind: "boot", offset: [0, -0.03, 0.05] },
 ];
 
 function hero3dOutfitPiece(T, kind, materials) {
@@ -8437,7 +8437,7 @@ function hero3dOutfitPiece(T, kind, materials) {
     collar.rotation.x = Math.PI / 2;
     group.add(collar);
   } else if (kind === "coat") {
-    const body = new T.Mesh(new T.CylinderGeometry(0.195, 0.235, 0.4, 20, 1, true), cloth);
+    const body = new T.Mesh(new T.CylinderGeometry(0.185, 0.215, 0.38, 20, 1, true), cloth);
     group.add(body);
     const placket = new T.Mesh(new T.BoxGeometry(0.036, 0.38, 0.014), clothDark);
     placket.position.set(0, 0, 0.208);
@@ -8447,19 +8447,19 @@ function hero3dOutfitPiece(T, kind, materials) {
       button.position.set(0.035, y, 0.215);
       group.add(button);
     });
-    const belt = new T.Mesh(new T.TorusGeometry(0.225, 0.024, 10, 24), clothDark);
+    const belt = new T.Mesh(new T.TorusGeometry(0.212, 0.024, 10, 24), clothDark);
     belt.rotation.x = Math.PI / 2;
     belt.position.y = -0.17;
     group.add(belt);
     const buckle = new T.Mesh(new T.BoxGeometry(0.055, 0.042, 0.015), gold);
-    buckle.position.set(0, -0.17, 0.235);
+    buckle.position.set(0, -0.17, 0.222);
     group.add(buckle);
   } else if (kind === "skirt") {
-    const skirt = new T.Mesh(new T.CylinderGeometry(0.235, 0.33, 0.34, 20, 1, true), cloth);
+    const skirt = new T.Mesh(new T.CylinderGeometry(0.215, 0.27, 0.3, 20, 1, true), cloth);
     group.add(skirt);
-    const hem = new T.Mesh(new T.TorusGeometry(0.325, 0.028, 10, 26), fur);
+    const hem = new T.Mesh(new T.TorusGeometry(0.265, 0.026, 10, 26), fur);
     hem.rotation.x = Math.PI / 2;
-    hem.position.y = -0.17;
+    hem.position.y = -0.15;
     group.add(hem);
   } else if (kind === "shoulderFur") {
     const pad = new T.Mesh(new T.SphereGeometry(0.082, 14, 10), fur);
@@ -8508,18 +8508,10 @@ function hero3dUpdateOutfit() {
   if (!HERO3D.outfit?.length) return;
   const T = HERO3D.lib;
   const pos = (HERO3D.__oPos ||= new T.Vector3());
-  const quat = (HERO3D.__oQuat ||= new T.Quaternion());
-  const rigQuat = (HERO3D.__oRigQuat ||= new T.Quaternion());
-  const offset = (HERO3D.__oOff ||= new T.Vector3());
-  HERO3D.rig.getWorldQuaternion(rigQuat).invert();
   HERO3D.outfit.forEach((item) => {
     item.bone.getWorldPosition(pos);
-    item.bone.getWorldQuaternion(quat);
     HERO3D.rig.worldToLocal(pos);
-    quat.premultiply(rigQuat);
-    offset.copy(item.offset).applyQuaternion(quat);
-    item.piece.position.copy(pos).add(offset);
-    item.piece.quaternion.copy(quat);
+    item.piece.position.copy(pos).add(item.offset);
   });
 }
 
