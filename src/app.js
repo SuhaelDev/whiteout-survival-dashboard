@@ -8417,6 +8417,7 @@ function hero3dBuildScene() {
       }
       const scale = 1.72 / height;
       model.scale.setScalar(scale);
+      model.rotation.y = Math.PI; // face the camera's forward (+Z) side
       model.position.y = 0.08;
       model.traverse((child) => {
         if (child.isMesh) {
@@ -8463,8 +8464,8 @@ const HERO3D_OUTFIT_SPECS = [
   { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0.01, 0.045, 0] },
   { bone: "mixamorig:LeftHand", kind: "mitten", offset: [0, -0.04, 0.01] },
   { bone: "mixamorig:RightHand", kind: "mitten", offset: [0, -0.04, 0.01] },
-  { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, -0.3, 0.01] },
-  { bone: "mixamorig:RightLeg", kind: "bootCuff", offset: [0, -0.3, 0.01] },
+  { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, -0.37, 0.01] },
+  { bone: "mixamorig:RightLeg", kind: "bootCuff", offset: [0, -0.37, 0.01] },
   { bone: "mixamorig:LeftFoot", kind: "boot", offset: [0, -0.03, 0.05] },
   { bone: "mixamorig:RightFoot", kind: "boot", offset: [0, -0.03, 0.05] },
 ];
