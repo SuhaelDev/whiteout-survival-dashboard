@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260715b";
+const ASSET_CACHE_VERSION = "20260715c";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -2341,6 +2341,59 @@ function researchCostFromNode(node = {}) {
   }, makeCost(RESEARCH_COST_FIELDS));
 }
 
+let warAcademyLevelsCache = null;
+function warAcademyNodeRows(nodeId) {
+  if (!warAcademyLevelsCache) warAcademyLevelsCache = groupBy(gameData.war_academy_levels || [], "node_id");
+  return sortByNumber(warAcademyLevelsCache[nodeId] || [], "level");
+}
+
+function warAcademyMaxLevel(nodeId) {
+  const rows = warAcademyNodeRows(nodeId);
+  return rows.length ? Number(rows.at(-1).level || 0) : 0;
+}
+
+function warAcademyEffectChange(effect) {
+  const text = String(effect || "").replaceAll(",", "");
+  const pct = text.match(/^\+?([\d.]+)%\s+(.+)$/);
+  if (pct) return { label: pct[2], delta: Number(pct[1]), type: "percent" };
+  const num = text.match(/^\+?(\d+)\s+(.+)$/);
+  if (num) return { label: num[2], delta: Number(num[1]), type: "number" };
+  return null;
+}
+
+function warAcademyRangeCost(nodeId, currentLevel, targetLevel) {
+  const rows = warAcademyNodeRows(nodeId).filter(
+    (row) => Number(row.level) > Number(currentLevel || 0) && Number(row.level) <= Number(targetLevel || 0),
+  );
+  const cost = makeCost(RESEARCH_COST_FIELDS);
+  let seconds = 0;
+  let power = 0;
+  const changeMap = {};
+  rows.forEach((row) => {
+    RESEARCH_COST_FIELDS.forEach((field) => {
+      const key = fieldKey(field);
+      cost[key] += Number(row[key] || 0);
+    });
+    seconds += Number(row.research_seconds || 0);
+    power += Number(row.power || 0);
+    const change = warAcademyEffectChange(row.effect);
+    if (change) {
+      const entry = (changeMap[`${change.label}|${change.type}`] ||= { label: change.label, type: change.type, delta: 0 });
+      entry.delta += change.delta;
+    }
+  });
+  return { cost, seconds, minutes: Math.round(seconds / 60), power, steps: rows.length, changes: Object.values(changeMap) };
+}
+
+function warAcademyLevelOptions(nodeId, currentLevel, fallbackNext) {
+  const max = warAcademyMaxLevel(nodeId);
+  if (!max) return researchLevelOptions(currentLevel, fallbackNext);
+  const current = Math.max(0, Math.min(max, Number(currentLevel || 0)));
+  const options = [];
+  for (let level = current; level <= max; level += 1) options.push([level, level ? `Level ${level}` : "Not started"]);
+  return options;
+}
+
 function romanToNumber(value) {
   const map = { i: 1, v: 5, x: 10 };
   return [...String(value || "").toLowerCase()].reduce((total, char, index, chars) => {
@@ -2651,7 +2704,21 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
     : blocked
       ? "Next best changes are not affordable"
       : "No recommendation available";
-  const comparisonTitle = plan.exchangeKey ? "Material coverage (with exchange)" : "Material coverage";
+  const blockedShown = blocked ? plan.blockedCandidates.slice(0, 3) : [];
+  const coverageCost = plan.selected.length
+    ? plan.totalCost
+    : blockedShown.length
+      ? blockedShown.reduce((acc, candidate) => addCost(acc, candidate.cost || {}), makeCost(plan.fields))
+      : plan.totalCost;
+  const comparisonTitle = plan.selected.length
+    ? plan.exchangeKey
+      ? "Material coverage (with exchange)"
+      : "Material coverage"
+    : blockedShown.length
+      ? "Material coverage — next best steps shown above (not yet affordable)"
+      : plan.exchangeKey
+        ? "Material coverage (with exchange)"
+        : "Material coverage";
   return `<section class="panel smart-panel">
     <div class="smart-panel__head">
       <div>
@@ -2670,7 +2737,7 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
       ${hidden ? `<em>${fmt(hidden)} more in plan</em>` : ""}
     </div>
     <div class="smart-card-grid">${cards}</div>
-    ${inventoryComparisonHtml(plan.totalCost, plan.fields, comparisonTitle, plan.exchangeKey)}
+    ${inventoryComparisonHtml(coverageCost, plan.fields, comparisonTitle, plan.exchangeKey)}
   </section>`;
 }
 
@@ -5320,12 +5387,28 @@ function smartResearchPlan() {
           if (/max|complete|completed/i.test(String(node.status || ""))) return null;
           const progress = parseResearchLevelProgress(node);
           const current = Number(targetState[nodeId] ?? progress.current);
-          if (current !== progress.current) return null;
-          const next = Number(progress.next || current + 1);
-          if (next <= current) return null;
-          const cost = researchCostFromNode(node);
-          const changes = researchImpactChanges(node, true);
-          const powerProgress = parseStatProgress(node.power);
+          const maxLevel = warAcademyMaxLevel(nodeId);
+          const next = current + 1;
+          if (maxLevel ? next > maxLevel : current !== progress.current) return null;
+          const isCapturedStep = current === progress.current && next === Number(progress.next || current + 1);
+          const range = maxLevel ? warAcademyRangeCost(nodeId, current, next) : null;
+          let cost;
+          let changes;
+          let powerDelta;
+          if (range && !costIsEmpty(range.cost)) {
+            cost = range.cost;
+            powerDelta = range.power;
+            changes = range.changes.map((change) => numericStatChange(change.label, 0, change.delta, change.type));
+            if (isCapturedStep) {
+              const captured = researchImpactChanges(node, true);
+              if (captured.length) changes = captured;
+            }
+          } else {
+            if (!isCapturedStep) return null;
+            cost = researchCostFromNode(node);
+            changes = researchImpactChanges(node, true);
+            powerDelta = parseStatProgress(node.power)?.delta || 0;
+          }
           return {
             kind: "research",
             scope: "research",
@@ -5336,10 +5419,10 @@ function smartResearchPlan() {
             to: `Level ${next}`,
             fields: RESEARCH_COST_FIELDS,
             cost,
-            powerDelta: powerProgress?.delta || 0,
+            powerDelta,
             changes,
             updates: [
-              { path: `research_targets.war_academy.${nodeId}.current`, value: current },
+              { path: `research_targets.war_academy.${nodeId}.current`, value: progress.current },
               { path: `research_targets.war_academy.${nodeId}.target`, value: next },
             ],
             applyToPlan: () => {
@@ -5528,19 +5611,41 @@ function renderChiefGear() {
   const avatarSilhouette = `
     <div class="chief-avatar-container">
       <svg class="chief-avatar-silhouette" viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- head -->
-        <circle cx="50" cy="30" r="12" fill="#00d2ff" opacity="0.8"/>
-        <!-- body -->
-        <path d="M30 48 C 30 48, 20 70, 18 100 L 40 100 L 50 70 L 60 100 L 82 100 C 80 70, 70 48, 70 48 L 50 50 Z" fill="#00d2ff" opacity="0.6"/>
-        <!-- glowing chest detail -->
-        <path d="M50 55 L 43 70 L 50 82 L 57 70 Z" fill="#2cf5f5" opacity="0.9"/>
-        <!-- shoulders/pauldrons details -->
-        <path d="M28 48 L 36 54 M 72 48 L 64 54" stroke="#2cf5f5" stroke-width="2" opacity="0.8"/>
-        <!-- ice particles -->
-        <circle cx="25" cy="40" r="1.5" fill="#2cf5f5" opacity="0.7"/>
-        <circle cx="75" cy="45" r="1" fill="#2cf5f5" opacity="0.7"/>
-        <circle cx="35" cy="85" r="1" fill="#2cf5f5" opacity="0.7"/>
-        <circle cx="65" cy="90" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+        <!-- cudgel angled behind the coat -->
+        <g opacity="0.55">
+          <path d="M67 30 L73 32 L62 72 L56 70 Z" fill="#00d2ff" opacity="0.55"/>
+          <ellipse cx="71" cy="25" rx="7" ry="9" transform="rotate(18 71 25)" fill="#00d2ff" opacity="0.7"/>
+          <circle cx="67" cy="19" r="1.6" fill="#2cf5f5"/>
+          <circle cx="75" cy="23" r="1.6" fill="#2cf5f5"/>
+          <circle cx="74" cy="30" r="1.6" fill="#2cf5f5"/>
+        </g>
+        <!-- fur hat -->
+        <path d="M36 26 Q50 8 64 26 Z" fill="#00d2ff" opacity="0.85"/>
+        <rect x="33" y="24" width="34" height="7" rx="3.5" fill="#2cf5f5" opacity="0.65"/>
+        <circle cx="50" cy="18" r="2.2" fill="#eafcff" opacity="0.9"/>
+        <!-- greatcoat with split hem over the pants -->
+        <path d="M50 36 L66 42 L75 58 L66 64 L64 56 L64 110 L53 110 L53 78 L47 78 L47 110 L36 110 L36 56 L34 64 L25 58 L34 42 Z" fill="#00d2ff" opacity="0.6"/>
+        <!-- collar -->
+        <path d="M44 42 L50 54 L56 42 Z" fill="#2cf5f5" opacity="0.85"/>
+        <!-- belt + buckle -->
+        <rect x="36" y="72" width="28" height="5" fill="#2cf5f5" opacity="0.5"/>
+        <rect x="46.5" y="70.5" width="7" height="8" rx="1.5" fill="#eafcff" opacity="0.85"/>
+        <!-- pocket watch on a chain -->
+        <path d="M58 64 Q63 70 60 77" stroke="#2cf5f5" stroke-width="1.4" stroke-dasharray="2 2" opacity="0.9" fill="none"/>
+        <circle cx="60" cy="82" r="5" stroke="#2cf5f5" stroke-width="1.6" fill="#0d141b" opacity="0.95"/>
+        <path d="M60 79.5 L60 82 L62 83.5" stroke="#eafcff" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+        <!-- ring with a set stone -->
+        <circle cx="40" cy="86" r="3.6" stroke="#2cf5f5" stroke-width="1.6" fill="none" opacity="0.95"/>
+        <path d="M40 78.6 L42.6 81.4 L40 84 L37.4 81.4 Z" fill="#eafcff" opacity="0.95"/>
+        <!-- boots under the split hem -->
+        <path d="M36 110 L47 110 L47 116 L34 116 Z" fill="#00d2ff" opacity="0.35"/>
+        <path d="M53 110 L64 110 L66 116 L53 116 Z" fill="#00d2ff" opacity="0.35"/>
+        <!-- drifting frost -->
+        <circle cx="24" cy="40" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="78" cy="48" r="1" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="30" cy="95" r="1" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="72" cy="100" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+        <circle cx="50" cy="128" r="1.2" fill="#2cf5f5" opacity="0.5"/>
       </svg>
     </div>
   `;
@@ -5631,6 +5736,40 @@ function renderChiefGear() {
     ${smartRecommendationPanelHtml("chief_gear", "Chief Gear Targets", smartPlan, "Suggests affordable chief gear target changes by stat gain and material pressure.")}
     ${inventoryComparisonHtml(totalCost, GEAR_FIELDS, "Combined gear upgrade materials", "chief_gear")}
   `;
+}
+
+function charmShowcaseHtml() {
+  return `<div class="charm-showcase" aria-hidden="true">
+    <svg viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 22 Q160 58 306 22" stroke="#2cf5f5" stroke-width="2" stroke-dasharray="5 6" opacity="0.55" fill="none"/>
+      <!-- infantry hex charm -->
+      <g transform="translate(80 46)">
+        <line x1="0" y1="-22" x2="0" y2="-16" stroke="#2cf5f5" stroke-width="1.5" opacity="0.7"/>
+        <path d="M0 -16 L14 -8 L14 8 L0 16 L-14 8 L-14 -8 Z" fill="#3ce3a7" opacity="0.28" stroke="#3ce3a7" stroke-width="2"/>
+        <path d="M0 -9 L8 -4.5 L8 4.5 L0 9 L-8 4.5 L-8 -4.5 Z" fill="#3ce3a7" opacity="0.75"/>
+        <path d="M-3 -3 L0 -6 L3 -3" stroke="#eafcff" stroke-width="1.2" opacity="0.9" fill="none"/>
+      </g>
+      <!-- lancer kite charm -->
+      <g transform="translate(160 58)">
+        <line x1="0" y1="-28" x2="0" y2="-18" stroke="#2cf5f5" stroke-width="1.5" opacity="0.7"/>
+        <path d="M0 -18 L13 0 L0 18 L-13 0 Z" fill="#4fb7ff" opacity="0.28" stroke="#4fb7ff" stroke-width="2"/>
+        <path d="M0 -10 L7 0 L0 10 L-7 0 Z" fill="#4fb7ff" opacity="0.8"/>
+        <circle cx="0" cy="0" r="2" fill="#eafcff" opacity="0.9"/>
+      </g>
+      <!-- marksman round charm -->
+      <g transform="translate(240 46)">
+        <line x1="0" y1="-22" x2="0" y2="-15" stroke="#2cf5f5" stroke-width="1.5" opacity="0.7"/>
+        <circle r="15" fill="#ffc35c" opacity="0.26" stroke="#ffc35c" stroke-width="2"/>
+        <circle r="8" fill="#ffc35c" opacity="0.8"/>
+        <circle cx="-3" cy="-3" r="2" fill="#fff6e3" opacity="0.9"/>
+      </g>
+      <!-- sparkles -->
+      <path d="M40 62 l2.5 5 5 2.5 -5 2.5 -2.5 5 -2.5 -5 -5 -2.5 5 -2.5 Z" fill="#2cf5f5" opacity="0.6"/>
+      <path d="M282 58 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2 Z" fill="#2cf5f5" opacity="0.6"/>
+      <circle cx="120" cy="20" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+      <circle cx="205" cy="24" r="1.5" fill="#2cf5f5" opacity="0.7"/>
+    </svg>
+  </div>`;
 }
 
 function charmArtKey(gearSlotId, level) {
@@ -5830,7 +5969,7 @@ function renderCharms() {
 
   $("#tab-charms").innerHTML = `
     <div class="toolbar"><div><h2>Chief Charms</h2><p>Grouped by the troop type of the gear piece each charm is attached to.</p></div>${charmBulk}</div>
-    
+    ${charmShowcaseHtml()}
     <div class="chief-gear-layout-container">
       <div class="chief-gear-editor-view">
         ${editorHtml}
@@ -6000,9 +6139,6 @@ function renderPets() {
       refineCommon += refineNeedCommon;
       refineAdvanced += refineNeedAdvanced;
       const refineSvs = refineNeedCommon * Number(rates.common_wild_mark || 1150) + refineNeedAdvanced * Number(rates.advanced_wild_mark || 15000);
-      const refineLadder = (pet.refinement_costs || [])
-        .map((step) => `${esc(step.tier)}: ${step.advanced_wild_marks ? `${fmt(step.advanced_wild_marks)} adv.` : `${fmt(step.common_wild_marks)} common`}`)
-        .join(" · ");
       const refineStats = saved.refine_stats || null;
       let refineStatsHtml = "";
       if (refineStats) {
@@ -6027,8 +6163,7 @@ function renderPets() {
           </div>
           ${refineNeedCommon || refineNeedAdvanced
             ? `<div class="gd-time-row"><span>Marks for plan:</span><strong>${refineNeedCommon ? `${fmt(refineNeedCommon)} common` : ""}${refineNeedCommon && refineNeedAdvanced ? " + " : ""}${refineNeedAdvanced ? `${fmt(refineNeedAdvanced)} advanced` : ""}</strong><span class="muted">≈ ${fmt(refineSvs)} SvS pts</span></div>`
-            : `<p class="gd-note">Pick a higher quality target to plan wild marks. Refinement rerolls are RNG — attempts/tier budgets extra rolls.</p>`}
-          <p class="gd-note">Per-attempt cost — ${refineLadder || "n/a"}</p>
+            : ""}
         </section>`;
 
       return `<div class="pet-card">
@@ -6092,10 +6227,45 @@ function renderPets() {
     ${chestNote ? `<p class="gd-note">${esc(chestNote)} Chests are applied to the rarest shortfalls first (serum → potions → manuals).</p>` : ""}
     ${smartRecommendationPanelHtml("pets", "Pet Targets", smartPlan, "Uses available pet materials to maximize workbook SVS gain.")}
     <div class="pet-card-grid">${rows}</div>
+    ${petRefinementInfoPanelHtml()}
     ${statImpactPanel("Observed Pet Combat Stats", aggregateStats.map((entry) =>
       statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current read", "Summed from captured pet detail pages"),
     ), "Base Troop ATK/DEF per pet level now uses the wostools.net anchor table; refinement quality multiplies the base passive.")}
   `;
+}
+
+function petRefinementInfoPanelHtml() {
+  const groups = new Map();
+  (gameData.pets || []).forEach((pet) => {
+    const costs = pet.refinement_costs || [];
+    if (!costs.length) return;
+    const key = JSON.stringify(costs.map((step) => [step.tier, step.common_wild_marks || 0, step.advanced_wild_marks || 0]));
+    if (!groups.has(key)) groups.set(key, { costs, rarities: new Set(), sort: Number(costs[0]?.common_wild_marks || 0) });
+    groups.get(key).rarities.add(String(pet.rarity || "?"));
+  });
+  const tiers = ["Green", "Blue", "Purple", "Gold"];
+  const ladderRows = [...groups.values()]
+    .sort((a, b) => a.sort - b.sort)
+    .map((group) => {
+      const cells = tiers
+        .map((tier) => {
+          const step = (group.costs || []).find((entry) => String(entry.tier).toLowerCase() === tier.toLowerCase());
+          if (!step) return "<td>&ndash;</td>";
+          return `<td>${step.advanced_wild_marks ? `${fmt(step.advanced_wild_marks)} advanced` : `${fmt(step.common_wild_marks)} common`}</td>`;
+        })
+        .join("");
+      return `<tr><td>${esc([...group.rarities].join(" / "))}</td>${cells}</tr>`;
+    })
+    .join("");
+  return `<section class="panel refine-info-panel">
+    <h2>Refinement (Wild Marks) — Reference</h2>
+    <p class="gd-note">Pick a higher quality target on a pet card to plan wild marks. Refinement rolls are RNG — the Attempts/tier field budgets extra rolls per quality tier. The captured bars on each card show every stat's current % against the shared cap at the pet's advancement.</p>
+    <div class="table-wrap compact-table"><table>
+      <thead><tr><th>Pet rarity</th>${tiers.map((tier) => `<th>${tier} / attempt</th>`).join("")}</tr></thead>
+      <tbody>${ladderRows}</tbody>
+    </table></div>
+    <p class="gd-note">Marks earn SvS points when spent — 1,150 per common, 15,000 per advanced. Best days: Day 3 (Beast Slay) and Day 5 (Power Boost).</p>
+  </section>`;
 }
 
 function moduleTable(title, totalCost, fields, headers, rows, actions = "") {
@@ -6683,6 +6853,8 @@ function renderResearch() {
   const academy = currentResearch.war_academy || {};
   let totalCost = makeCost(RESEARCH_COST_FIELDS);
   let selectedCount = 0;
+  let totalWarSeconds = 0;
+  const researchSpeedupsHave = availableInventoryValue("research_speedups_minutes");
   const selectedUpgrades = [];
   const totalResearchChanges = {};
   const academyBonuses = Object.entries(academy.aggregate_bonuses || {}).map(([key, value]) =>
@@ -6738,11 +6910,22 @@ function renderResearch() {
       const target = Number(saved.target || 0);
       const current = Number(saved.current || 0);
       const selected = target > current;
-      const cost = selected && current === progress.current && target === progress.next ? researchCostFromNode(node) : makeCost(RESEARCH_COST_FIELDS);
-      const changes = researchImpactChanges(node, selected);
+      const maxLevel = warAcademyMaxLevel(nodeId);
+      const capturedStep = current === progress.current && target === progress.next;
+      const tableRange = selected && maxLevel ? warAcademyRangeCost(nodeId, current, target) : null;
+      const cost = tableRange && !costIsEmpty(tableRange.cost)
+        ? tableRange.cost
+        : selected && capturedStep
+          ? researchCostFromNode(node)
+          : makeCost(RESEARCH_COST_FIELDS);
+      const capturedChanges = selected && capturedStep ? researchImpactChanges(node, true) : [];
+      const changes = capturedChanges.length
+        ? capturedChanges
+        : (tableRange?.changes || []).map((change) => numericStatChange(change.label, 0, change.delta, change.type));
       if (selected) {
         selectedCount += 1;
         totalCost = addCost(totalCost, cost);
+        totalWarSeconds += tableRange?.seconds || 0;
         mergeNumericStatChanges(totalResearchChanges, changes);
         selectedUpgrades.push({
           kind: "research",
@@ -6756,10 +6939,15 @@ function renderResearch() {
       const costNote = selected && costIsEmpty(cost)
         ? node.status === "Active"
           ? "Already active; start cost was spent."
-          : "Exact cost is only captured for the visible next step — this target's full cost is unknown, not free."
+          : "Cost table missing for this node — capture the in-game card to add it."
         : "No target selected";
-      const statRows = selected && changes.length
-        ? changes.map((change) => ({ label: change.label, current: change.current, target: change.target }))
+      const statRows = selected
+        ? capturedChanges.length
+          ? capturedChanges.map((change) => ({ label: change.label, current: change.current, target: change.target }))
+          : (tableRange?.changes || []).map((change) => ({
+              label: change.label,
+              current: change.type === "percent" ? `+${change.delta.toFixed(2)}%` : `+${fmt(change.delta)}`,
+            }))
         : [];
       return `<div class="research-node-card ${selected ? "is-selected" : ""} ${node.status === "Active" ? "is-active" : ""}">
         <div class="research-node-card__head">
@@ -6771,11 +6959,11 @@ function renderResearch() {
           ${gameLevelFlowHtml(`Lv. ${current}`, `Lv. ${target}`)}
         </div>
         <div class="gd-select-row">
-          <label class="compact-field"><span>Current</span>${selectInput(`research_targets.war_academy.${nodeId}.current`, saved.current, researchLevelOptions(saved.current, progress.next))}</label>
-          <label class="compact-field"><span>Target</span>${selectInput(`research_targets.war_academy.${nodeId}.target`, saved.target, researchLevelOptions(saved.current, progress.next))}</label>
+          <label class="compact-field"><span>Current</span>${selectInput(`research_targets.war_academy.${nodeId}.current`, saved.current, warAcademyLevelOptions(nodeId, 0, progress.next))}</label>
+          <label class="compact-field"><span>Target</span>${selectInput(`research_targets.war_academy.${nodeId}.target`, saved.target, warAcademyLevelOptions(nodeId, saved.current, progress.next))}</label>
         </div>
         ${statRows.length ? gameBonusRowsHtml(statRows, "Research Bonus") : ""}
-        ${costIsEmpty(cost) ? `<p class="gd-note">${esc(costNote)}</p>` : `<section class="gd-section">${gameSectionBannerHtml("Research Cost")}${gameCostTilesHtml(cost, RESEARCH_COST_FIELDS)}</section>`}
+        ${costIsEmpty(cost) ? `<p class="gd-note">${esc(costNote)}</p>` : `<section class="gd-section">${gameSectionBannerHtml("Research Cost")}${gameCostTilesHtml(cost, RESEARCH_COST_FIELDS)}${tableRange?.seconds ? `<div class="gd-time-row"><span>Research time:</span><strong>${timeFmt(tableRange.seconds)}</strong><span class="muted">≈ ${fmt(tableRange.minutes)} min of research speedups</span></div>` : ""}</section>`}
       </div>`;
   };
   const warTroopKeyOf = (nodeId) => {
@@ -6827,20 +7015,31 @@ function renderResearch() {
     .join("");
 
   const visibleWarCount = Object.values(academy.visible_nodes || {}).filter((node) => !/max|complete|completed/i.test(String(node.status || ""))).length;
-  const t12HiddenNote = `<div class="locked-note">${visualLabel(
-    "research",
-    "T12 Exalted research moved",
-    `${T12_UNLOCKED ? "" : "Not unlocked on this account yet. "}Full cost planning lives on the dedicated T12 Research page.`,
-  )}<a class="target-reset-button" href="?tab=t12-research">Open T12 Research</a></div>`;
   const smartPlan = smartRecommendationPlan("research");
   $("#tab-research").innerHTML = `
-    <div class="toolbar"><div><h2>Research And War Academy</h2><p>Only active or available nodes are shown. T12 Exalted research has its own page in the sidebar.</p></div></div>
+    <div class="toolbar"><div><h2>Research And War Academy</h2><p>Only active or available nodes are shown. Targets can plan every remaining level — costs come from the full wostools.net War Academy table. T12 Exalted research has its own page in the sidebar.</p></div></div>
     ${upgradeNutshellHtml({
       module: "Research",
       selected: upgradeSelectionText(selectedCount, "research target", "research targets"),
       upgrades: selectedUpgrades,
-      impactCards: aggregateStatCards(totalResearchChanges, "Captured War Academy next-step card"),
-      details: [`${fmt(visibleWarCount)} T11 nodes visible`, T12_UNLOCKED ? "T12 unlocked" : "T12 hidden"],
+      impactCards: [
+        ...(totalWarSeconds
+          ? [statSnapshotCard(
+              "Research time",
+              timeFmt(totalWarSeconds),
+              "Sum of selected War Academy levels",
+              researchSpeedupsHave >= Math.round(totalWarSeconds / 60)
+                ? "Covered by research speedups on hand"
+                : `Holding ${fmt(researchSpeedupsHave)} min of research speedups`,
+            )]
+          : []),
+        ...aggregateStatCards(totalResearchChanges, "War Academy cost table (wostools.net) + captured cards"),
+      ],
+      details: [
+        `${fmt(visibleWarCount)} T11 nodes visible`,
+        ...(totalWarSeconds ? [`${timeFmt(totalWarSeconds)} research time in plan`] : []),
+        T12_UNLOCKED ? "T12 unlocked" : "T12 hidden",
+      ],
       cost: totalCost,
       fields: RESEARCH_COST_FIELDS,
       empty: "Set regular or War Academy targets above current levels to see resource gaps.",
@@ -6853,7 +7052,6 @@ function renderResearch() {
       <div class="metric purple"><span>Visible T11 nodes</span><strong>${fmt(visibleWarCount)}</strong></div>
     </div>
     ${inventoryComparisonHtml(totalCost, RESEARCH_COST_FIELDS, "Combined research target resources")}
-    ${t12HiddenNote}
     ${statImpactPanel("Current War Academy Bonuses", academyBonuses, "Live stats captured from the account. Target rows below use only active/available node cards.")}
     <div class="panel">
       <h2>Regular Research · Growth, Economy &amp; Battle</h2>
@@ -7107,6 +7305,13 @@ function svsPlanState() {
   if (plan.include_speedups == null) plan.include_speedups = true;
   if (plan.include_shards == null) plan.include_shards = true;
   if (plan.include_marks == null) plan.include_marks = true;
+  if (plan.beast_hunts == null) plan.beast_hunts = 0;
+  if (plan.beast_tier == null) plan.beast_tier = "26_30";
+  if (plan.polar_rallies == null) plan.polar_rallies = 0;
+  if (plan.gather_meat == null) plan.gather_meat = 0;
+  if (plan.gather_wood == null) plan.gather_wood = 0;
+  if (plan.gather_coal == null) plan.gather_coal = 0;
+  if (plan.gather_iron == null) plan.gather_iron = 0;
   return plan;
 }
 
@@ -7206,6 +7411,19 @@ function svsT12Totals() {
   return { shards, minutes };
 }
 
+function svsWarAcademyTotals() {
+  const targets = state.research_targets?.war_academy || {};
+  let shards = 0;
+  let minutes = 0;
+  Object.entries(targets).forEach(([nodeId, saved]) => {
+    if (!saved) return;
+    const range = warAcademyRangeCost(nodeId, saved.current, saved.target);
+    shards += Number(range.cost.fire_crystal_shards || 0);
+    minutes += range.minutes;
+  });
+  return { shards, minutes };
+}
+
 function renderSvs() {
   const plan = svsPlanState();
   const rates = gameData.svs_point_rates || {};
@@ -7217,6 +7435,7 @@ function renderSvs() {
   const expertTotals = svsExpertPlanTotals();
   const crystals = svsBuildingCrystals();
   const t12 = svsT12Totals();
+  const wa = svsWarAcademyTotals();
   const troop = troopPlanComputation();
   const heroGearCost = allHeroGearCosts();
   const widgetsPlanned = gameData.heroes.reduce((sum, hero) => {
@@ -7226,15 +7445,27 @@ function renderSvs() {
   }, 0);
 
   const speedupFields = [
-    ["construction_speedups_minutes", "Construction speedups"],
-    ["research_speedups_minutes", "Research speedups"],
-    ["training_speedups_minutes", "Training speedups"],
-    ["learning_speedups_minutes", "Learning speedups"],
-    ["general_speedups_minutes", "General speedups"],
+    "construction_speedups_minutes",
+    "research_speedups_minutes",
+    "training_speedups_minutes",
+    "learning_speedups_minutes",
+    "general_speedups_minutes",
   ];
-  const speedupMinutesTotal = plan.include_speedups
-    ? speedupFields.reduce((sum, [key]) => sum + availableInventoryValue(key), 0)
-    : 0;
+  const speedupInventoryMinutes = speedupFields.reduce((sum, key) => sum + availableInventoryValue(key), 0);
+  const plannedSpeedupMinutes = t12.minutes + wa.minutes + expertTotals.learningMinutes + Math.round(troop.totals.minutes || 0);
+  const burnMinutes = plan.include_speedups ? Math.max(0, speedupInventoryMinutes - plannedSpeedupMinutes) : 0;
+
+  const BEAST_HUNT_POINTS = { "1_10": 9000, "11_15": 9750, "16_20": 10500, "21_25": 11250, "26_30": 12000 };
+  const beastTier = BEAST_HUNT_POINTS[plan.beast_tier] ? plan.beast_tier : "26_30";
+  const beastPts = Math.max(0, Number(plan.beast_hunts || 0)) * BEAST_HUNT_POINTS[beastTier];
+  const polarPts = Math.max(0, Number(plan.polar_rallies || 0)) * 30000;
+  const gatherPts = Math.round(
+    (Number(plan.gather_meat || 0) / 1000) * Number(rates.gather_meat_per_1000 || 2) +
+      (Number(plan.gather_wood || 0) / 1000) * Number(rates.gather_wood_per_1000 || 2) +
+      (Number(plan.gather_coal || 0) / 200) * Number(rates.gather_coal_per_200 || 2) +
+      (Number(plan.gather_iron || 0) / 50) * Number(rates.gather_iron_per_50 || 2),
+  );
+  const staminaCans = availableInventoryValue("stamina_cans");
 
   const shardEntries = plan.include_shards
     ? [
@@ -7249,50 +7480,55 @@ function renderSvs() {
         { label: "Advanced wild marks (planned)", qty: marks.advanced, rate: Number(rates.advanced_wild_mark || 15000) },
       ]
     : [];
-
-  const dayFlags = (rule) =>
-    ["monday", "tuesday", "wednesday", "thursday", "friday"]
-      .map((day, idx) => ({ day: ["Mon", "Tue", "Wed", "Thu", "Fri"][idx], flag: String(rule?.[day] || "") }))
-      .filter((entry) => /yes|today/i.test(entry.flag))
-      .map((entry) => `<span class="coverage-chip ${/yes/i.test(entry.flag) ? "coverage-chip--excess" : "coverage-chip--none"}">${entry.day}${/today\?/i.test(entry.flag) ? "?" : ""}</span>`)
-      .join(" ");
-  const ruleFor = (idFragment) => (gameData.svs_scoring_rules || []).find((rule) => rule.activity_id?.includes(idFragment));
+  const markPts = markEntries.reduce((sum, entry) => sum + entry.qty * entry.rate, 0);
 
   const activityRows = [
-    { id: "chief_gear", label: "Upgrade Chief Gear (targets)", pts: gearPts, note: `${fmt(rates.chief_gear_per_power || 36)} pts per power`, rule: ruleFor("chief_gear") },
-    { id: "chief_charms", label: "Upgrade Chief Charms (targets)", pts: charmPts, note: `${fmt(rates.chief_charm_per_power || 70)} pts per power`, rule: ruleFor("charms") },
-    { id: "pets", label: "Pet advancement (targets)", pts: petPts, note: "50 pts per advancement point", rule: ruleFor("advance_pets") },
+    { id: "chief_gear", label: "Upgrade Chief Gear (targets)", pts: gearPts, note: `${fmt(rates.chief_gear_per_power || 36)} pts per gear score point`, days: [[5, "high"]] },
+    { id: "chief_charms", label: "Upgrade Chief Charms (targets)", pts: charmPts, note: `${fmt(rates.chief_charm_per_power || 70)} pts per charm score point`, days: [[1, "high"], [3, "high"], [4, "high"]] },
+    { id: "pets", label: "Pet advancement (targets)", pts: petPts, note: "50 pts per advancement point", days: [[3, "high"], [5, "high"]] },
     ...markEntries.map((entry) => ({
       id: `marks_${entry.label}`,
       label: entry.label,
       pts: entry.qty * entry.rate,
       note: `${fmt(entry.qty)} × ${fmt(entry.rate)}`,
-      rule: ruleFor("wild_marks"),
+      days: [[3, "high"], [5, "high"]],
     })),
-    { id: "fc", label: "Fire Crystals for building (targets)", pts: crystals.fc * Number(rates.fire_crystal || 2000), note: `${fmt(crystals.fc)} FC × ${fmt(rates.fire_crystal || 2000)}`, rule: ruleFor("fire_crystals_for_building") },
-    { id: "rfc", label: "Refined FC for building (targets)", pts: crystals.rfc * Number(rates.refined_fire_crystal || 30000), note: `${fmt(crystals.rfc)} RFC × ${fmt(rates.refined_fire_crystal || 30000)}`, rule: ruleFor("refined_fire_crystals") },
-    { id: "t12_shards", label: "FC Shards for T12 research (targets)", pts: t12.shards * Number(rates.fire_crystal_shard_research || 1000), note: `${fmt(t12.shards)} shards × ${fmt(rates.fire_crystal_shard_research || 1000)}`, rule: ruleFor("fire_crystal_shards") },
-    { id: "t12_time", label: "Research speedups for T12 plan", pts: Math.round(t12.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE), note: `${timeFmt(t12.minutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("speedups_for_research") },
-    { id: "troops", label: "Troop plan (train/promote)", pts: troop.totals.points, note: "Troop points only — speedups you burn are counted once in the speedup row", rule: ruleFor("train_promote") || ruleFor("troops") },
-    { id: "expert_books", label: "Books of Knowledge (skill targets)", pts: expertTotals.books * Number(rates.book_of_knowledge || 60), note: `${fmt(expertTotals.books)} books × ${fmt(rates.book_of_knowledge || 60)}`, rule: ruleFor("book_of_knowledge") },
-    { id: "expert_learning", label: "Learning speedups (skill targets)", pts: expertTotals.learningMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${timeFmt(expertTotals.learningMinutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("learning") },
-    { id: "expert_sigils", label: "Expert sigils (affinity targets)", pts: expertTotals.sigils * Number(rates.expert_sigil || 6000), note: `${fmt(expertTotals.sigils)} sigils × ${fmt(rates.expert_sigil || 6000)}`, rule: ruleFor("expert_sigil") },
+    { id: "fc", label: "Fire Crystals for building (targets)", pts: crystals.fc * Number(rates.fire_crystal || 2000), note: `${fmt(crystals.fc)} FC × ${fmt(rates.fire_crystal || 2000)}`, days: [[1, "high"], [5, "high"], [2, "medium"]] },
+    { id: "rfc", label: "Refined FC for building (targets)", pts: crystals.rfc * Number(rates.refined_fire_crystal || 30000), note: `${fmt(crystals.rfc)} RFC × ${fmt(rates.refined_fire_crystal || 30000)}`, days: [[1, "high"], [5, "high"], [2, "medium"]] },
+    { id: "t12_shards", label: "FC Shards for T12 research (targets)", pts: t12.shards * Number(rates.fire_crystal_shard_research || 1000), note: `${fmt(t12.shards)} shards × ${fmt(rates.fire_crystal_shard_research || 1000)}`, days: [[1, "high"], [2, "high"], [5, "high"]] },
+    { id: "t12_time", label: "Research speedups for T12 plan", pts: Math.round(t12.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE), note: `${timeFmt(t12.minutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, days: [[1, "high"], [2, "high"], [5, "high"]] },
+    { id: "wa_shards", label: "FC Shards for War Academy research (targets)", pts: wa.shards * Number(rates.fire_crystal_shard_research || 1000), note: `${fmt(wa.shards)} shards × ${fmt(rates.fire_crystal_shard_research || 1000)}`, days: [[1, "high"], [2, "high"], [5, "high"]] },
+    { id: "wa_time", label: "Research speedups for War Academy plan", pts: Math.round(wa.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE), note: `${timeFmt(wa.minutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, days: [[1, "high"], [2, "high"], [5, "high"]] },
+    { id: "troops", label: "Troop plan (train/promote)", pts: troop.totals.points, note: "Troop points only — planned training speedup minutes are deducted from the burn row", days: [[4, "high"]] },
+    { id: "expert_books", label: "Books of Knowledge (skill targets)", pts: expertTotals.books * Number(rates.book_of_knowledge || 60), note: `${fmt(expertTotals.books)} books × ${fmt(rates.book_of_knowledge || 60)}`, days: [[2, "high"], [3, "high"]] },
+    { id: "expert_learning", label: "Learning speedups (skill targets)", pts: expertTotals.learningMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${timeFmt(expertTotals.learningMinutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, days: [[5, "high"], [2, "medium"]] },
+    { id: "expert_sigils", label: "Expert sigils (affinity targets)", pts: expertTotals.sigils * Number(rates.expert_sigil || 6000), note: `${fmt(expertTotals.sigils)} sigils × ${fmt(rates.expert_sigil || 6000)}`, days: [[2, "high"], [3, "high"]] },
     ...shardEntries.map((entry) => ({
       id: `shards_${entry.label}`,
       label: `${entry.label} (inventory)`,
       pts: entry.qty * entry.rate,
       note: `${fmt(entry.qty)} × ${fmt(entry.rate)}`,
-      rule: ruleFor("hero_shards") || ruleFor("mythic"),
+      days: [[2, "high"], [3, "medium"]],
     })),
-    { id: "widgets", label: "Widgets for exclusive gear (targets)", pts: widgetsPlanned * Number(rates.widget || 8000), note: `${fmt(widgetsPlanned)} widgets × ${fmt(rates.widget || 8000)}`, rule: ruleFor("widgets") },
-    { id: "essence", label: "Essence stones for hero gear (targets)", pts: Number(heroGearCost.essence_stones || 0) * Number(rates.essence_stone || 4000), note: `${fmt(heroGearCost.essence_stones || 0)} stones × ${fmt(rates.essence_stone || 4000)}`, rule: ruleFor("essence") },
-    { id: "mithril", label: "Mithril for hero gear (targets)", pts: Number(heroGearCost.mithril || 0) * Number(rates.mithril || 144000), note: `${fmt(heroGearCost.mithril || 0)} mithril × ${fmt(rates.mithril || 144000)}`, rule: ruleFor("mithril") },
-    { id: "speedups", label: "Burn remaining speedups (inventory)", pts: speedupMinutesTotal * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${fmt(speedupMinutesTotal)} min × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: null },
-    { id: "wheel", label: "Lucky Wheel spins", pts: Number(plan.lucky_wheel_spins || 0) * Number(rates.lucky_wheel_spin || 8000), note: `${fmt(plan.lucky_wheel_spins)} spins × ${fmt(rates.lucky_wheel_spin || 8000)}`, rule: ruleFor("lucky_wheel") },
+    { id: "widgets", label: "Widgets for exclusive gear (targets)", pts: widgetsPlanned * Number(rates.widget || 8000), note: `${fmt(widgetsPlanned)} widgets × ${fmt(rates.widget || 8000)}`, days: [[4, "high"], [5, "high"]] },
+    { id: "essence", label: "Essence stones for hero gear (targets)", pts: Number(heroGearCost.essence_stones || 0) * Number(rates.essence_stone || 4000), note: `${fmt(heroGearCost.essence_stones || 0)} stones × ${fmt(rates.essence_stone || 4000)}`, days: [[4, "high"], [5, "high"]] },
+    { id: "mithril", label: "Mithril for hero gear (targets)", pts: Number(heroGearCost.mithril || 0) * Number(rates.mithril || 144000), note: `${fmt(heroGearCost.mithril || 0)} mithril × ${fmt(rates.mithril || 144000)}`, days: [[4, "high"], [5, "high"]] },
+    { id: "beasts", label: "Beast hunts (plan input)", pts: beastPts, note: `${fmt(plan.beast_hunts || 0)} hunts × ${fmt(BEAST_HUNT_POINTS[beastTier])} pts (Lv ${beastTier.replace("_", "-")})`, days: [[3, "high"]] },
+    { id: "polar", label: "Polar Terror rallies (plan input)", pts: polarPts, note: `${fmt(plan.polar_rallies || 0)} rallies × 30,000 pts`, days: [[3, "high"]] },
+    { id: "gathering", label: "Wilderness gathering (plan input)", pts: gatherPts, note: "2 pts per 1k meat / 1k wood / 200 coal / 50 iron gathered", days: [[2, "high"]] },
+    { id: "speedups", label: "Burn remaining speedups (inventory minus planned use)", pts: burnMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${fmt(burnMinutes)} min left after ${fmt(plannedSpeedupMinutes)} planned min × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, days: [[5, "high"], [1, "medium"], [2, "medium"]] },
+    { id: "wheel", label: "Lucky Wheel spins", pts: Number(plan.lucky_wheel_spins || 0) * Number(rates.lucky_wheel_spin || 8000), note: `${fmt(plan.lucky_wheel_spins)} spins × ${fmt(rates.lucky_wheel_spin || 8000)}`, days: [[2, "high"], [3, "medium"]] },
   ];
 
   const basePoints = activityRows.reduce((sum, row) => sum + Number(row.pts || 0), 0);
   const boostedPoints = Math.round(basePoints * valeriaMultiplier);
+
+  const DAY_NAMES = { 1: "Day 1", 2: "Day 2", 3: "Day 3", 4: "Day 4", 5: "Day 5" };
+  const DAY_FOCUS = { 1: "City Construction", 2: "Research", 3: "Beast Slay", 4: "Hero Development", 5: "Power Boost" };
+  const dayChips = (days = []) =>
+    days
+      .map(([day, tier]) => `<span class="coverage-chip ${tier === "high" ? "coverage-chip--excess" : "coverage-chip--none"}" title="${tier === "high" ? "High" : "Medium"} value on ${DAY_NAMES[day]} · ${DAY_FOCUS[day]}">${DAY_NAMES[day]}</span>`)
+      .join(" ");
 
   const rows = activityRows
     .filter((row) => Number(row.pts || 0) > 0)
@@ -7300,52 +7536,75 @@ function renderSvs() {
       (row) => `<tr>
         <td>${esc(row.label)}<br><span class="muted">${esc(row.note)}</span></td>
         <td>${fmt(row.pts)}</td>
-        <td>${row.rule ? dayFlags(row.rule) || "&ndash;" : "&ndash;"}</td>
+        <td>${dayChips(row.days) || "&ndash;"}</td>
       </tr>`,
     )
     .join("");
 
-  const scheduleRows = (gameData.svs_scoring_rules || [])
-    .map(
-      (rule) => `<tr>
-        <td>${esc(rule.activity)}</td>
-        <td>${esc(rule.points_formula || "-")}</td>
-        <td>${dayFlags(rule) || "&ndash;"}</td>
-        <td>${esc(rule.notes || "")}</td>
-      </tr>`,
-    )
-    .join("");
+  const dayTotals = [1, 2, 3, 4, 5].map((day) => ({
+    day,
+    pts: activityRows.reduce((sum, row) => {
+      const primaryDay = (row.days || []).find(([, tier]) => tier === "high")?.[0];
+      return sum + (primaryDay === day ? Number(row.pts || 0) : 0);
+    }, 0),
+  }));
 
   $("#tab-svs").innerHTML = `
-    <div class="toolbar"><div><h2>SvS Prep Planner</h2><p>Projects prep-week points from your selected targets and inventory using the workbook point rates. Best-day chips follow the workbook schedule.</p></div></div>
+    <div class="toolbar"><div><h2>SvS Prep Planner</h2><p>Projects prep-week points from your selected targets and inventory. Point rates and day mapping follow the wostools.net SvS Prep Phase guide.</p></div></div>
     <div class="summary-grid">
       <div class="metric blue"><span>Projected base points</span><strong>${fmt(basePoints)}</strong></div>
       <div class="metric green"><span>With Valeria ×${valeriaMultiplier.toFixed(2)}</span><strong>${fmt(boostedPoints)}</strong></div>
       <div class="metric amber"><span>Gear + charm points</span><strong>${fmt(gearPts + charmPts)}</strong></div>
-      <div class="metric purple"><span>Pets + marks points</span><strong>${fmt(petPts + markEntries.reduce((sum, entry) => sum + entry.qty * entry.rate, 0))}</strong></div>
+      <div class="metric purple"><span>Pets + marks points</span><strong>${fmt(petPts + markPts)}</strong></div>
     </div>
     <div class="panel">
       <h2>Plan inputs</h2>
       <div class="gd-select-row troop-plan-controls">
         <label class="compact-field"><span>Valeria "Well Prepared" level</span>${numberInput("svs_plan.valeria_level", plan.valeria_level, 0, 1)}</label>
-        <label class="compact-field"><span>Lucky Wheel spins</span>${numberInput("svs_plan.lucky_wheel_spins", plan.lucky_wheel_spins, 0)}</label>
+        <label class="compact-field"><span>Lucky Wheel spins (Day 2)</span>${numberInput("svs_plan.lucky_wheel_spins", plan.lucky_wheel_spins, 0)}</label>
         <label class="compact-field svs-toggle"><span>Burn all speedups</span>${checkboxInput("svs_plan.include_speedups", plan.include_speedups)}</label>
         <label class="compact-field svs-toggle"><span>Use hero shards</span>${checkboxInput("svs_plan.include_shards", plan.include_shards)}</label>
         <label class="compact-field svs-toggle"><span>Spend wild marks</span>${checkboxInput("svs_plan.include_marks", plan.include_marks)}</label>
       </div>
+      <div class="gd-select-row troop-plan-controls">
+        <label class="compact-field"><span>Polar Terror rallies (Day 3)</span>${numberInput("svs_plan.polar_rallies", plan.polar_rallies, 0)}</label>
+        <label class="compact-field"><span>Beast hunts (Day 3)</span>${numberInput("svs_plan.beast_hunts", plan.beast_hunts, 0)}</label>
+        <label class="compact-field"><span>Beast level</span>${selectInput("svs_plan.beast_tier", beastTier, [["1_10", "Lv 1-10 · 9,000 pts"], ["11_15", "Lv 11-15 · 9,750 pts"], ["16_20", "Lv 16-20 · 10,500 pts"], ["21_25", "Lv 21-25 · 11,250 pts"], ["26_30", "Lv 26-30 · 12,000 pts"]])}</label>
+      </div>
+      <div class="gd-select-row troop-plan-controls">
+        <label class="compact-field"><span>Meat gathered (Day 2)</span>${numberInput("svs_plan.gather_meat", plan.gather_meat, 0)}</label>
+        <label class="compact-field"><span>Wood gathered (Day 2)</span>${numberInput("svs_plan.gather_wood", plan.gather_wood, 0)}</label>
+        <label class="compact-field"><span>Coal gathered (Day 2)</span>${numberInput("svs_plan.gather_coal", plan.gather_coal, 0)}</label>
+        <label class="compact-field"><span>Iron gathered (Day 2)</span>${numberInput("svs_plan.gather_iron", plan.gather_iron, 0)}</label>
+      </div>
+      <p class="gd-note">Chief stamina on hand: ${fmt(staminaCans)} cans ≈ ${fmt(staminaCans * 10)} stamina for beast hunts and Polar Terror rallies.</p>
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Activity (auto from targets/inventory)</th><th>Points</th><th>Best day</th></tr></thead>
         <tbody>${rows || `<tr><td colspan="3"><span class="muted">No point sources yet — set upgrade targets or add inventory.</span></td></tr>`}</tbody>
         <tfoot><tr><th>Total (base)</th><th>${fmt(basePoints)}</th><th></th></tr><tr><th>Total with Valeria</th><th>${fmt(boostedPoints)}</th><th></th></tr></tfoot>
       </table></div>
-      <p class="gd-note">Troop and T12 rows follow the plans on their own pages. Speedup burn assumes every remaining minute is used on a matching day at ${SVS_SPEEDUP_POINTS_PER_MINUTE} pts/min.</p>
+      <p class="gd-note">Troop, T12, and War Academy rows follow the plans on their own pages. The burn row deducts the ${fmt(plannedSpeedupMinutes)} speedup minutes already committed to those plans, so nothing is counted twice.</p>
     </div>
     <div class="panel">
-      <h2>Workbook prep-week schedule</h2>
+      <h2>Projected points by best day</h2>
+      <div class="summary-grid">
+        ${dayTotals.map(({ day, pts }, idx) => `<div class="metric ${["blue", "green", "amber", "purple", "blue"][idx]}"><span>${DAY_NAMES[day]} · ${DAY_FOCUS[day]}</span><strong>${fmt(pts)}</strong></div>`).join("")}
+      </div>
+      <p class="gd-note">Each activity is assigned to its first high-value day. Activities with several green days can be shifted between them without losing value.</p>
+    </div>
+    <div class="panel">
+      <h2>Prep day schedule — wostools.net guide</h2>
       <div class="table-wrap compact-table"><table>
-        <thead><tr><th>Activity</th><th>Rate</th><th>Best day</th><th>Notes</th></tr></thead>
-        <tbody>${scheduleRows}</tbody>
+        <thead><tr><th>Day</th><th>Focus</th><th>Spend on this day</th></tr></thead>
+        <tbody>
+          <tr><td>Day 1</td><td>City Construction</td><td>Start FC / Refined FC building upgrades, construction speedups, chief charm score. FC shards + research speedups are also high value today.</td></tr>
+          <tr><td>Day 2</td><td>Research</td><td>FC shards, research speedups, Lucky Wheel, hero shards, expert sigils, Books of Knowledge, gathering returns. Start long troop training for Day 4.</td></tr>
+          <tr><td>Day 3</td><td>Beast Slay</td><td>Pet advancement + wild marks, chief charm score, beast hunts and Polar Terror rallies, sigils + books.</td></tr>
+          <tr><td>Day 4</td><td>Hero Development</td><td>Troop training / promotion finishes, essence stones, widgets, mithril, chief charm score.</td></tr>
+          <tr><td>Day 5</td><td>Power Boost</td><td>Pets + wild marks, chief gear score, every speedup type, FC / RFC / FC shards, essence + widgets + mithril.</td></tr>
+        </tbody>
       </table></div>
+      <p class="gd-note">Valeria's "Well Prepared" (+2%/level) multiplies every prep point scored. Day chips above mark high (green) and medium (grey) value days from the guide.</p>
     </div>
   `;
 }
@@ -7832,4 +8091,4 @@ async function init() {
 }
 
 init();
-/* wave5 build marker: pet refine capture, fresh icons, extract auto-reapply. */
+/* wave6 build marker: full War Academy cost table, SvS guide-day model, refine info card, gear/charm showcase. */

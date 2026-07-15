@@ -5810,3 +5810,37 @@ select option {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
+
+
+/* ---- Wave 6: refinement contrast on light pet cards ---- */
+.refine-stat-row__label { color: #3d5a7e; font-weight: 700; }
+.refine-stat-row__val { color: var(--gd-ink-strong); font-weight: 700; }
+.refine-stat-row__bar { background: rgba(74, 103, 136, 0.28); }
+.refine-stats .gd-time-row { background: rgba(79, 148, 255, 0.12); color: #35507a; border-color: rgba(93, 141, 199, 0.4); }
+.refine-stats .gd-time-row strong { color: var(--gd-ink-strong); }
+.refine-stats .gd-time-row .muted { color: #5f7ba1; }
+
+/* ---- Wave 6: consolidated refinement reference panel ---- */
+.refine-info-panel .gd-note { font-size: 12px; color: var(--muted); }
+.refine-info-panel table td, .refine-info-panel table th { white-space: nowrap; }
+
+/* ---- Wave 6: chief charm showcase banner ---- */
+.charm-showcase {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px 2px;
+  margin-bottom: 14px;
+  background: radial-gradient(circle, rgba(23, 32, 42, 0.6) 0%, rgba(13, 20, 27, 0.95) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
+}
+.charm-showcase svg {
+  width: min(440px, 100%);
+  height: auto;
+  filter: drop-shadow(0 0 14px rgba(0, 210, 255, 0.35));
+  animation: float 4s ease-in-out infinite;
+}
