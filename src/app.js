@@ -8423,10 +8423,12 @@ function hero3dSetFocus(mode, part, socket, immediate = false) {
   }
   HERO3D.lookFrom = HERO3D.lookTo ? HERO3D.lookTo.clone() : new T.Vector3(0, 1.02, 0);
   HERO3D.lookTo = new T.Vector3(...view.look);
-  HERO3D.tweenT = immediate ? 1 : 0;
-  if (immediate) {
+  const jump = immediate || (typeof document !== "undefined" && document.visibilityState !== "visible");
+  HERO3D.tweenT = jump ? 1 : 0;
+  if (jump) {
     HERO3D.camera.position.copy(HERO3D.camTo);
     HERO3D.camera.lookAt(HERO3D.lookTo);
+    HERO3D.renderer?.render(HERO3D.scene, HERO3D.camera);
   }
 }
 
