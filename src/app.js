@@ -2345,6 +2345,22 @@ function researchCostStatusHtml(cost, fields, note = "") {
   return `<div>${costHtml(cost, fields)}${inventoryComparisonHtml(cost, fields, "This research step")}</div>`;
 }
 
+function titleCaseWords(value) {
+  return String(value || "")
+    .replaceAll("_", " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function materialDisplayLabel(key, fields = []) {
+  if (RESOURCE_LABELS[key]) return RESOURCE_LABELS[key];
+  const field = fields.find((entry) => fieldKey(entry) === key);
+  const alias = Array.isArray(field) ? field[1] : key;
+  return titleCaseWords(alias);
+}
+
 function inventorySnapshot(fields) {
   return fieldKeys(fields).reduce((acc, key) => {
     acc[key] = availableInventoryValue(key);
@@ -2382,9 +2398,9 @@ function inventoryComparisonHtml(cost, fields, title = "Inventory check", exchan
           ? coverageChipHtml("excess", `&#10003; excess +${fmt(spare)}`, "Covered with spare stock left over")
           : coverageChipHtml("excess", "&#10003; covered exactly", "Covered with nothing to spare");
       }
-      const label = Array.isArray(fields.find((field) => fieldKey(field) === key)) ? fields.find((field) => fieldKey(field) === key)[1] : RESOURCE_LABELS[key] || key;
+      const label = materialDisplayLabel(key, fields);
       return `<div class="coverage-row ${stateClass}">
-        <span class="coverage-row__name">${visualResourceLabel(key, typeof label === "string" ? label : RESOURCE_LABELS[key] || key)}</span>
+        <span class="coverage-row__name">${visualResourceLabel(key, label)}</span>
         <span class="coverage-row__value">${required > 0 ? fmt(required) : "&ndash;"}</span>
         <span class="coverage-row__value">${fmt(have)}</span>
         ${chip}
@@ -6301,7 +6317,7 @@ function renderHeroGear() {
       return `<div class="hero-gear-slot-node border-${chiefGearRarityBorderClass(piece.rarity || 'epic')}">
         <div class="hero-gear-slot-node__head">
           <div class="hero-gear-slot-node__icon">
-            ${iconHtml("gear", label, "sm")}
+            ${iconHtml("gear", label, "lg", `equipped ${heroId} ${position}`)}
           </div>
           <div class="hero-gear-slot-node__title">
             <strong>${esc(label)}</strong>
@@ -6539,6 +6555,7 @@ function renderExperts() {
   const expertBulk = bulkTargetControls("Quick target", "bulkExpertTarget", expertTargetOptions, [{ action: "experts", label: "Apply all experts" }]);
   const smartPlan = smartRecommendationPlan("experts");
   const totalLearningMinutes = Math.ceil(totalLearningXp / expertXpPerMinute());
+  if (totalLearningMinutes > 0) totalCost.learning_speedups_minutes = totalLearningMinutes;
   const learningSpeedupsHave = availableInventoryValue("learning_speedups_minutes");
   const learningShort = Math.max(0, totalLearningMinutes - learningSpeedupsHave);
   const learningCard = totalLearningXp > 0
@@ -6568,7 +6585,7 @@ function renderExperts() {
           : []),
       ],
       cost: totalCost,
-      fields: ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"]],
+      fields: ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"], "learning_speedups_minutes"],
       empty: "Set expert relationship or skill targets above current levels to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("experts", "Expert Targets", smartPlan, "Suggests affordable expert affinity targets by workbook stat gain, power gain, and material pressure.")}
@@ -6764,28 +6781,70 @@ function troopTierRecord(troopType, tier) {
   return (gameData.troop_tiers || []).find((row) => row.troop_type === troopType && Number(row.tier) === Number(tier)) || null;
 }
 
+const TROOP_POWER_BY_TIER = { 1: 3, 2: 4, 3: 6, 4: 9, 5: 13, 6: 20, 7: 28, 8: 38, 9: 50, 10: 66, 11: 80, 12: 178 };
+const TROOP_GOV_BUFFS = {
+  none: { label: "None", speed: 0, capacity: 0 },
+  vp: { label: "Vice President (+10% Spd)", speed: 10, capacity: 0 },
+  svp: { label: "Supreme VP (+15% Spd)", speed: 15, capacity: 0 },
+  moe: { label: "Min. of Education (+50% Spd, +200 Cap)", speed: 50, capacity: 200 },
+  smoe: { label: "Supreme Min. (+75% Spd, +300 Cap)", speed: 75, capacity: 300 },
+};
+const TROOP_MOBILIZE_SPEED = 30; // President skill "Mobilize"
+const TROOP_CAPACITY_BOOST_PCT = 200; // Training Capacity Boost item
+
 function troopPlanState() {
   state.troop_plan ||= {};
   const plan = state.troop_plan;
-  if (plan.mode == null) plan.mode = "train";
-  if (plan.troop_type == null) plan.troop_type = "all";
-  if (plan.quantity == null) plan.quantity = 1581;
-  if (plan.from_tier == null) plan.from_tier = 10;
-  if (plan.to_tier == null) plan.to_tier = 11;
   if (plan.speed_pct == null) plan.speed_pct = Number(state.profile?.training_speed_pct || 0);
+  if (plan.base_capacity == null) plan.base_capacity = 1581;
+  if (plan.gov_buff == null || !TROOP_GOV_BUFFS[plan.gov_buff]) plan.gov_buff = "none";
+  if (plan.mobilize == null) plan.mobilize = false;
+  if (plan.capacity_boost == null) plan.capacity_boost = false;
+  if (!plan.types || typeof plan.types !== "object") {
+    // migrate the old single-plan shape
+    const legacyTypes = plan.troop_type === "all" || !plan.troop_type ? TROOP_TYPES : [plan.troop_type];
+    plan.types = {};
+    TROOP_TYPES.forEach((type) => {
+      plan.types[type] = {
+        enabled: legacyTypes.includes(type),
+        mode: plan.mode === "promote" ? "promote" : "train",
+        from_tier: Number(plan.from_tier || 10),
+        to_tier: Number(plan.to_tier || 11),
+        quantity: Number(plan.quantity || 1581),
+      };
+    });
+  }
+  TROOP_TYPES.forEach((type) => {
+    plan.types[type] ||= { enabled: type === "infantry", mode: "train", from_tier: 10, to_tier: 11, quantity: 1581 };
+  });
   return plan;
 }
 
+function troopTotalSpeedPct(plan = troopPlanState()) {
+  const gov = TROOP_GOV_BUFFS[plan.gov_buff] || TROOP_GOV_BUFFS.none;
+  return Math.max(0, Number(plan.speed_pct || 0)) + gov.speed + (plan.mobilize ? TROOP_MOBILIZE_SPEED : 0);
+}
+
+function troopEffectiveCapacity(plan = troopPlanState()) {
+  const gov = TROOP_GOV_BUFFS[plan.gov_buff] || TROOP_GOV_BUFFS.none;
+  const base = Math.max(1, Number(plan.base_capacity || 0)) + gov.capacity;
+  return Math.max(1, Math.round(base * (plan.capacity_boost ? 1 + TROOP_CAPACITY_BOOST_PCT / 100 : 1)));
+}
+
 function troopPlanComputation(plan = troopPlanState()) {
-  const types = plan.troop_type === "all" ? TROOP_TYPES : [plan.troop_type];
-  const speedDivisor = 1 + Math.max(0, Number(plan.speed_pct || 0)) / 100;
-  const quantity = Math.max(0, Number(plan.quantity || 0));
+  const speedDivisor = 1 + troopTotalSpeedPct(plan) / 100;
+  const capacity = troopEffectiveCapacity(plan);
   const perType = [];
-  for (const type of types) {
-    const target = troopTierRecord(type, plan.to_tier);
+  for (const type of TROOP_TYPES) {
+    const entry = plan.types[type];
+    if (!entry?.enabled) continue;
+    const quantity = Math.max(0, Number(entry.quantity || 0));
+    if (!quantity) continue;
+    const promote = entry.mode === "promote";
+    const target = troopTierRecord(type, entry.to_tier);
     if (!target) continue;
-    const source = plan.mode === "promote" ? troopTierRecord(type, plan.from_tier) : null;
-    if (plan.mode === "promote" && !source) continue;
+    const source = promote ? troopTierRecord(type, entry.from_tier) : null;
+    if (promote && !source) continue;
     const baseSeconds = Number(target.base_seconds) - (source ? Number(source.base_seconds) : 0);
     const perTroopSeconds = Math.max(0, baseSeconds) / speedDivisor;
     const cost = {
@@ -6795,28 +6854,38 @@ function troopPlanComputation(plan = troopPlanState()) {
       iron: (Number(target.iron) - (source ? Number(source.iron) : 0)) * quantity,
     };
     const points = (Number(target.svs_points) - (source ? Number(source.svs_points) : 0)) * quantity;
+    const power = ((TROOP_POWER_BY_TIER[entry.to_tier] || 0) - (source ? TROOP_POWER_BY_TIER[entry.from_tier] || 0 : 0)) * quantity;
     perType.push({
       type,
+      mode: entry.mode,
+      fromTier: entry.from_tier,
+      toTier: entry.to_tier,
+      quantity,
       seconds: perTroopSeconds * quantity,
       perTroopSeconds,
+      batches: Math.ceil(quantity / capacity),
+      batchSeconds: Math.min(quantity, capacity) * perTroopSeconds,
       cost,
       points,
+      power,
     });
   }
   const totals = perType.reduce(
     (acc, entry) => {
       acc.seconds += entry.seconds;
       acc.points += entry.points;
+      acc.power += entry.power;
+      acc.batches += entry.batches;
       ["meat", "wood", "coal", "iron"].forEach((key) => {
         acc.cost[key] += entry.cost[key];
       });
       return acc;
     },
-    { seconds: 0, points: 0, cost: { meat: 0, wood: 0, coal: 0, iron: 0 } },
+    { seconds: 0, points: 0, power: 0, batches: 0, cost: { meat: 0, wood: 0, coal: 0, iron: 0 } },
   );
   totals.minutes = totals.seconds / 60;
   totals.speedupPoints = Math.round(totals.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE);
-  return { perType, totals, quantity, speedDivisor };
+  return { perType, totals, capacity, speedDivisor };
 }
 
 function renderTroops() {
@@ -6825,7 +6894,8 @@ function renderTroops() {
     return;
   }
   const plan = troopPlanState();
-  const { perType, totals, quantity } = troopPlanComputation(plan);
+  const { perType, totals, capacity } = troopPlanComputation(plan);
+  const totalSpeed = troopTotalSpeedPct(plan);
   const trainingMinutesNeeded = Math.ceil(totals.minutes);
   const trainingSpeedupsHave = availableInventoryValue("training_speedups_minutes");
   const currentCounts = TROOP_TYPES.map((type) => {
@@ -6837,26 +6907,30 @@ function renderTroops() {
   const costFields = ["meat", "wood", "coal", "iron"];
   const totalCost = makeCost(costFields);
   Object.assign(totalCost, totals.cost);
+  const govOptions = Object.entries(TROOP_GOV_BUFFS).map(([value, buff]) => [value, buff.label]);
 
-  const perTypeRows = perType
-    .map(
-      (entry) => `<tr>
-        <td>${visualLabel("troop", titleFromId(entry.type))}</td>
-        <td>${timeFmt(entry.seconds)}</td>
-        <td>${fmtCompact(entry.cost.meat)}</td>
-        <td>${fmtCompact(entry.cost.wood)}</td>
-        <td>${fmtCompact(entry.cost.coal)}</td>
-        <td>${fmtCompact(entry.cost.iron)}</td>
-        <td>${fmt(entry.points)}</td>
-      </tr>`,
-    )
-    .join("");
+  const typeRows = TROOP_TYPES.map((type) => {
+    const entry = plan.types[type];
+    const result = perType.find((row) => row.type === type);
+    return `<tr class="${entry.enabled ? "" : "troop-row--off"}">
+      <td><label class="svs-toggle troop-enable">${checkboxInput(`troop_plan.types.${type}.enabled`, entry.enabled)}<span>${visualLabel("troop", titleFromId(type))}</span></label></td>
+      <td>${selectInput(`troop_plan.types.${type}.mode`, entry.mode, [["train", "Train new"], ["promote", "Promote"]])}</td>
+      <td>${entry.mode === "promote" ? selectInput(`troop_plan.types.${type}.from_tier`, entry.from_tier, tierOptions) : `<span class="muted">&ndash;</span>`}</td>
+      <td>${selectInput(`troop_plan.types.${type}.to_tier`, entry.to_tier, tierOptions)}</td>
+      <td>${numberInput(`troop_plan.types.${type}.quantity`, entry.quantity, 0)}</td>
+      <td>${result ? timeFmt(result.seconds) : "&ndash;"}</td>
+      <td>${result ? fmt(result.batches) : "&ndash;"}</td>
+      <td>${result ? `+${fmt(result.power)}` : "&ndash;"}</td>
+      <td>${result ? fmt(result.points) : "&ndash;"}</td>
+    </tr>`;
+  }).join("");
 
   const tierTable = TROOP_TYPES.map((type) => {
     const rows = troopTierRows(type)
       .map(
         (row) => `<tr>
           <td>T${esc(row.tier)}</td>
+          <td>${fmt(TROOP_POWER_BY_TIER[row.tier] || 0)}</td>
           <td>${fmt(row.svs_points)}</td>
           <td>${Number(row.base_seconds).toFixed(0)}s</td>
           <td>${fmt(row.meat)}</td>
@@ -6868,47 +6942,55 @@ function renderTroops() {
       .join("");
     return `<details class="table-disclosure"><summary>${esc(titleFromId(type))} tier data (per troop, base speed)</summary>
       <div class="table-wrap compact-table"><table>
-        <thead><tr><th>Tier</th><th>SvS pts</th><th>Base time</th><th>Meat</th><th>Wood</th><th>Coal</th><th>Iron</th></tr></thead>
+        <thead><tr><th>Tier</th><th>Power</th><th>SvS Pts</th><th>Base Time</th><th>Meat</th><th>Wood</th><th>Coal</th><th>Iron</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div></details>`;
   }).join("");
 
   $("#tab-troops").innerHTML = `
-    <div class="toolbar"><div><h2>Troop Training & Promotion</h2><p>Workbook troop table: training/promotion time, resource cost, and SvS points. Promotion costs are the difference between tiers.</p></div></div>
+    <div class="toolbar"><div><h2>Troop Training & Promotion</h2><p>Workbook troop table with the full government/president buff stack. Promotion costs are the per-tier differences.</p></div></div>
     <div class="summary-grid">
       ${currentCounts
         .map(
           (entry, idx) => `<div class="metric ${["blue", "amber", "green"][idx]}"><span>${esc(titleFromId(entry.type))} on hand</span><strong>${fmt(entry.total)}</strong></div>`,
         )
         .join("")}
-      <div class="metric purple"><span>Training speed</span><strong>${fmt(plan.speed_pct)}%</strong></div>
+      <div class="metric purple"><span>Total speed bonus</span><strong>${fmt(totalSpeed)}%</strong></div>
     </div>
     <div class="panel">
-      <h2>Plan a batch</h2>
+      <h2>Training Speed & Capacity Bonuses</h2>
       <div class="gd-select-row troop-plan-controls">
-        <label class="compact-field"><span>Mode</span>${selectInput("troop_plan.mode", plan.mode, [["train", "Train new"], ["promote", "Promote existing"]])}</label>
-        <label class="compact-field"><span>Troops</span>${selectInput("troop_plan.troop_type", plan.troop_type, [["all", "All 3 types"], ...TROOP_TYPES.map((type) => [type, titleFromId(type)])])}</label>
-        ${plan.mode === "promote" ? `<label class="compact-field"><span>From tier</span>${selectInput("troop_plan.from_tier", plan.from_tier, tierOptions)}</label>` : ""}
-        <label class="compact-field"><span>${plan.mode === "promote" ? "To tier" : "Tier"}</span>${selectInput("troop_plan.to_tier", plan.to_tier, tierOptions)}</label>
-        <label class="compact-field"><span>Quantity ${plan.troop_type === "all" ? "(each type)" : ""}</span>${numberInput("troop_plan.quantity", quantity, 0)}</label>
-        <label class="compact-field"><span>Training speed %</span>${numberInput("troop_plan.speed_pct", plan.speed_pct, 0)}</label>
+        <label class="compact-field"><span>Training Speed % (base)</span>${numberInput("troop_plan.speed_pct", plan.speed_pct, 0)}</label>
+        <label class="compact-field"><span>Training Capacity (base)</span>${numberInput("troop_plan.base_capacity", plan.base_capacity, 1)}</label>
+        <label class="compact-field"><span>Government Buff</span>${selectInput("troop_plan.gov_buff", plan.gov_buff, govOptions)}</label>
+        <label class="compact-field svs-toggle"><span>Mobilize (+${TROOP_MOBILIZE_SPEED}% Spd)</span>${checkboxInput("troop_plan.mobilize", plan.mobilize)}</label>
+        <label class="compact-field svs-toggle"><span>Capacity Boost (+${TROOP_CAPACITY_BOOST_PCT}%)</span>${checkboxInput("troop_plan.capacity_boost", plan.capacity_boost)}</label>
       </div>
+      <div class="summary-grid">
+        <div class="metric blue"><span>Total speed bonus</span><strong>${fmt(totalSpeed)}%</strong></div>
+        <div class="metric amber"><span>Effective batch capacity</span><strong>${fmt(capacity)}</strong></div>
+        <div class="metric green"><span>Speedups held</span><strong>${fmt(trainingSpeedupsHave)} min</strong></div>
+        <div class="metric purple"><span>Enter base capacity</span><strong>without minister bonus</strong></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Plan Batches Per Troop Type</h2>
       <div class="table-wrap compact-table"><table>
-        <thead><tr><th>Type</th><th>Time</th><th>Meat</th><th>Wood</th><th>Coal</th><th>Iron</th><th>SvS pts (troops)</th></tr></thead>
-        <tbody>${perTypeRows || `<tr><td colspan="7"><span class="muted">Pick a valid tier combination.</span></td></tr>`}</tbody>
-        <tfoot><tr><th>Total</th><th>${timeFmt(totals.seconds)}</th><th>${fmtCompact(totals.cost.meat)}</th><th>${fmtCompact(totals.cost.wood)}</th><th>${fmtCompact(totals.cost.coal)}</th><th>${fmtCompact(totals.cost.iron)}</th><th>${fmt(totals.points)}</th></tr></tfoot>
+        <thead><tr><th>Type</th><th>Mode</th><th>From</th><th>To / Tier</th><th>Quantity</th><th>Time</th><th>Batches</th><th>Power</th><th>SvS Pts</th></tr></thead>
+        <tbody>${typeRows}</tbody>
+        <tfoot><tr><th colspan="5">Total</th><th>${timeFmt(totals.seconds)}</th><th>${fmt(totals.batches)}</th><th>+${fmt(totals.power)}</th><th>${fmt(totals.points)}</th></tr></tfoot>
       </table></div>
       <div class="summary-grid">
         <div class="metric blue"><span>Wall-clock time</span><strong>${timeFmt(totals.seconds)}</strong></div>
         <div class="metric amber"><span>Training speedups needed</span><strong>${fmt(trainingMinutesNeeded)} min</strong></div>
-        <div class="metric ${trainingSpeedupsHave >= trainingMinutesNeeded ? "green" : "purple"}"><span>Speedups held</span><strong>${fmt(trainingSpeedupsHave)} min ${trainingSpeedupsHave >= trainingMinutesNeeded ? "✓" : `(short ${fmt(trainingMinutesNeeded - trainingSpeedupsHave)})`}</strong></div>
-        <div class="metric green"><span>SvS pts (troops + speedups)</span><strong>${fmt(totals.points + totals.speedupPoints)}</strong></div>
+        <div class="metric ${trainingSpeedupsHave >= trainingMinutesNeeded ? "green" : "purple"}"><span>Speedups held</span><strong>${fmt(trainingSpeedupsHave)} min ${trainingSpeedupsHave >= trainingMinutesNeeded ? "✓" : `(short ${fmt(Math.max(0, trainingMinutesNeeded - trainingSpeedupsHave))})`}</strong></div>
+        <div class="metric green"><span>Total power gain</span><strong>+${fmt(totals.power)}</strong></div>
       </div>
-      ${inventoryComparisonHtml(totalCost, costFields, "Troop batch resources")}
-      <p class="gd-note">Speedup points assume ${fmt(SVS_SPEEDUP_POINTS_PER_MINUTE)} pts per minute. Training troops on the troop day usually beats burning the same speedups on other days.</p>
+      ${inventoryComparisonHtml(totalCost, costFields, "Troop Batch Resources")}
+      <p class="gd-note">SvS points count the troops themselves. Speedups you burn earn their own ${fmt(SVS_SPEEDUP_POINTS_PER_MINUTE)}/min on speedup days and are tracked on the SvS Planner. Batch capacity = (base + government bonus) ${plan.capacity_boost ? `× ${1 + TROOP_CAPACITY_BOOST_PCT / 100}` : "(Capacity Boost off)"}.</p>
     </div>
     <div class="panel">
-      <h2>Reference tables</h2>
+      <h2>Reference Tables</h2>
       ${tierTable}
     </div>
   `;
@@ -7090,8 +7172,7 @@ function renderSvs() {
     { id: "rfc", label: "Refined FC for building (targets)", pts: crystals.rfc * Number(rates.refined_fire_crystal || 30000), note: `${fmt(crystals.rfc)} RFC × ${fmt(rates.refined_fire_crystal || 30000)}`, rule: ruleFor("refined_fire_crystals") },
     { id: "t12_shards", label: "FC Shards for T12 research (targets)", pts: t12.shards * Number(rates.fire_crystal_shard_research || 1000), note: `${fmt(t12.shards)} shards × ${fmt(rates.fire_crystal_shard_research || 1000)}`, rule: ruleFor("fire_crystal_shards") },
     { id: "t12_time", label: "Research speedups for T12 plan", pts: Math.round(t12.minutes * SVS_SPEEDUP_POINTS_PER_MINUTE), note: `${timeFmt(t12.minutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("speedups_for_research") },
-    { id: "troops", label: "Troop plan (train/promote)", pts: troop.totals.points, note: "From the Troop Training page plan", rule: ruleFor("train_promote") || ruleFor("troops") },
-    { id: "troop_speedups", label: "Training speedups for troop plan", pts: troop.totals.speedupPoints, note: `${timeFmt(troop.totals.seconds)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("speedups_for_troops") },
+    { id: "troops", label: "Troop plan (train/promote)", pts: troop.totals.points, note: "Troop points only — speedups you burn are counted once in the speedup row", rule: ruleFor("train_promote") || ruleFor("troops") },
     { id: "expert_books", label: "Books of Knowledge (skill targets)", pts: expertTotals.books * Number(rates.book_of_knowledge || 60), note: `${fmt(expertTotals.books)} books × ${fmt(rates.book_of_knowledge || 60)}`, rule: ruleFor("book_of_knowledge") },
     { id: "expert_learning", label: "Learning speedups (skill targets)", pts: expertTotals.learningMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${timeFmt(expertTotals.learningMinutes * 60)} × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: ruleFor("learning") },
     { id: "expert_sigils", label: "Expert sigils (affinity targets)", pts: expertTotals.sigils * Number(rates.expert_sigil || 6000), note: `${fmt(expertTotals.sigils)} sigils × ${fmt(rates.expert_sigil || 6000)}`, rule: ruleFor("expert_sigil") },
@@ -7192,10 +7273,14 @@ function renderT12() {
   let totalPower = 0;
   let selectedCount = 0;
 
+  const nodeOrder = {};
+  rows.forEach((row, idx) => {
+    if (!(row.node_id in nodeOrder)) nodeOrder[row.node_id] = idx;
+  });
   const typeSections = TROOP_TYPES.map((type) => {
     const nodes = Object.entries(byNode)
       .filter(([, levels]) => levels[0]?.troop_type === type)
-      .sort(([a], [b]) => a.localeCompare(b));
+      .sort(([a], [b]) => (nodeOrder[a] ?? 0) - (nodeOrder[b] ?? 0));
     const cards = nodes
       .map(([nodeId, levels]) => {
         const sorted = sortByNumber(levels, "level");
@@ -7210,12 +7295,15 @@ function renderT12() {
           return acc;
         }, makeCost(fields));
         const minutes = stepRows.reduce((sum, row) => sum + Number(row.research_minutes || 0), 0);
-        // Power and stat columns are CUMULATIVE in the workbook; costs/minutes are per level.
+        // Power (and stat where present) are CUMULATIVE; costs/minutes are per level.
         const rowAt = (level) => sorted.filter((row) => Number(row.level) <= level).at(-1);
         const currentRow = rowAt(saved.current);
         const targetRow = rowAt(saved.target);
         const statNow = Number(currentRow?.stat_percent || 0);
         const statTarget = Number(targetRow?.stat_percent || statNow);
+        const hasStat = sorted.some((row) => row.stat_percent != null);
+        const effectText = String(targetRow?.effect || sorted[0]?.effect || "");
+        const requirementText = String(sorted[0]?.requirements || "");
         const power = Math.max(0, Number(targetRow?.power || 0) - Number(currentRow?.power || 0));
         if (stepRows.length) {
           selectedCount += 1;
@@ -7229,7 +7317,8 @@ function renderT12() {
             <span class="research-node-card__hex">${iconHtml("research", sorted[0].node_name, "lg", "research")}</span>
             <div class="pet-card__title">
               <strong>${esc(sorted[0].node_name)}</strong>
-              <span class="muted">${esc(titleFromId(type))} · ${fmt(maxLevel)} levels · ${statNow.toFixed(1)}% now</span>
+              <span class="muted">${esc(titleFromId(type))} · ${fmt(maxLevel)} levels${requirementText ? ` · needs ${esc(requirementText)}` : ""}</span>
+              ${effectText ? `<span class="muted">${esc(effectText)}</span>` : ""}
             </div>
             ${gameLevelFlowHtml(`Lv. ${saved.current}`, `Lv. ${saved.target}`)}
           </div>
@@ -7240,8 +7329,9 @@ function renderT12() {
           ${stepRows.length
             ? `${gameBonusRowsHtml(
                 [
-                  { label: "Stat", current: `${statNow.toFixed(1)}%`, target: `${statTarget.toFixed(1)}%` },
-                  { label: "Research time", current: timeFmt(minutes * 60) },
+                  ...(hasStat ? [{ label: "Stat", current: `${statNow.toFixed(1)}%`, target: `${statTarget.toFixed(1)}%` }] : []),
+                  ...(effectText ? [{ label: "Per level", current: effectText }] : []),
+                  { label: "Research time", current: minutes ? timeFmt(minutes * 60) : "instant" },
                   { label: "Power", current: `+${fmt(power)}` },
                 ],
                 "Step Impact",
@@ -7263,7 +7353,7 @@ function renderT12() {
   const timePts = Math.round(totalMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE);
 
   $("#tab-t12-research").innerHTML = `
-    <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>Every T12 node/level from the workbook with steel, RFC, FC shard, and resource costs. ${T12_UNLOCKED ? "" : "This account has not unlocked T12 yet — use this page for forward planning."}</p></div></div>
+    <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>Full verified pipeline (wostools.net cross-check): 5 sequence-gated Exalted unlock tracks per troop type, then Molten I/II/III branches, the gateway skill, and Solar Supremacy. ${T12_UNLOCKED ? "" : "Not unlocked on this account yet — use this page for forward planning."}</p></div></div>
     ${upgradeNutshellHtml({
       module: "T12 Research",
       selected: upgradeSelectionText(selectedCount, "T12 node", "T12 nodes"),

@@ -5782,3 +5782,8 @@ select option {
 .research-node-card .muted { color: #5f7ba1; }
 .research-node-card .gd-level-flow { flex-basis: 100%; justify-content: flex-start; }
 .research-node-card .gd-note { color: #5f7ba1; }
+
+.troop-row--off td { opacity: 0.45; }
+.troop-enable { gap: 8px; display: inline-flex; align-items: center; }
+.troop-enable input { width: 16px; height: 16px; accent-color: #38bdf8; }
+#tab-troops td input[type="number"] { max-width: 110px; }
