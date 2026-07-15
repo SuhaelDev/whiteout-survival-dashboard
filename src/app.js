@@ -8345,11 +8345,20 @@ function hero3dBuildScene() {
     (gltf) => {
       const model = gltf.scene;
       const T2 = HERO3D.lib;
-      const box = new T2.Box3().setFromObject(model);
-      const height = Math.max(0.01, box.max.y - box.min.y);
+      model.updateMatrixWorld(true);
+      const headTop = model.getObjectByName("mixamorig:HeadTop_End") || model.getObjectByName("mixamorigHeadTop_End");
+      let height;
+      if (headTop) {
+        const probe = new T2.Vector3();
+        headTop.getWorldPosition(probe);
+        height = Math.max(0.2, probe.y);
+      } else {
+        const box = new T2.Box3().setFromObject(model);
+        height = Math.max(0.2, box.max.y - box.min.y);
+      }
       const scale = 1.72 / height;
       model.scale.setScalar(scale);
-      model.position.y = -box.min.y * scale + 0.08;
+      model.position.y = 0.08;
       model.traverse((child) => {
         if (child.isMesh) {
           child.frustumCulled = false;
