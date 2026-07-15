@@ -5798,3 +5798,15 @@ select option {
 .refine-stat-row__bar { height: 8px; border-radius: 4px; background: rgba(148, 178, 208, 0.22); overflow: hidden; }
 .refine-stat-row__bar span { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #4fb7ff, #9adcff); }
 .refine-stat-row__val { font-variant-numeric: tabular-nums; color: #eaf3fb; white-space: nowrap; }
+
+/* Live value fineprint under resource inputs */
+.value-fineprint {
+  display: block;
+  margin-top: 3px;
+  min-height: 13px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}

@@ -764,6 +764,54 @@ function checkboxInput(path, checked) {
   return `<input type="checkbox" ${checked ? "checked" : ""} data-path="${esc(path)}" />`;
 }
 
+// Live "fineprint" previews under resource inputs so big numbers are easy to sanity-check.
+const FINEPRINT_ABBREV_FIELDS = new Set(["meat", "wood", "coal", "iron"]);
+
+function abbreviatedNumberText(value) {
+  const num = Math.abs(Number(value) || 0);
+  if (num < 1000) return "";
+  const units = [
+    [1e12, "T"],
+    [1e9, "B"],
+    [1e6, "M"],
+    [1e3, "K"],
+  ];
+  for (const [size, suffix] of units) {
+    if (num >= size) {
+      const scaled = num / size;
+      const text = scaled >= 100 ? String(Math.round(scaled)) : scaled.toFixed(2).replace(/\.?0+$/, "");
+      return `= ${text}${suffix}`;
+    }
+  }
+  return "";
+}
+
+function speedupDurationText(minutesValue) {
+  const minutes = Math.max(0, Math.round(Number(minutesValue) || 0));
+  if (!minutes) return "";
+  if (minutes < 60) return `= ${minutes}m`;
+  if (minutes < 1440) {
+    const hours = Math.floor(minutes / 60);
+    const rem = minutes % 60;
+    return `= ${hours}h${rem ? ` ${rem}m` : ""}`;
+  }
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  return `= ${days}d${hours ? ` ${hours}h` : ""}`;
+}
+
+function resourceFineprintText(resourceId, value) {
+  if (String(resourceId).endsWith("_speedups_minutes")) return speedupDurationText(value);
+  if (FINEPRINT_ABBREV_FIELDS.has(String(resourceId))) return abbreviatedNumberText(value);
+  return null;
+}
+
+function resourceFineprintHtml(resourceId, value) {
+  const fine = resourceFineprintText(resourceId, value);
+  if (fine === null) return "";
+  return `<small class="value-fineprint" data-fineprint-for="resources.${esc(resourceId)}">${esc(fine)}</small>`;
+}
+
 function textInput(path, value) {
   return `<input type="text" value="${esc(value ?? "")}" data-path="${esc(path)}" />`;
 }
@@ -1059,6 +1107,7 @@ function resourceEditorCard(resourceId) {
     <label>
       <span>Current value</span>
       ${numberInput(`resources.${resourceId}`, used)}
+      ${resourceFineprintHtml(resourceId, used)}
     </label>
   </div>`;
 }
@@ -7457,6 +7506,7 @@ function renderResources() {
                     (resource) => `<div class="compact-field">
                       <label>${visualResourceLabel(resource.resource_id, resource.name)}</label>
                       ${numberInput(`resources.${resource.resource_id}`, state.resources[resource.resource_id] || 0)}
+                      ${resourceFineprintHtml(resource.resource_id, state.resources[resource.resource_id] || 0)}
                     </div>`,
                   )
                   .join("")}
@@ -7582,6 +7632,15 @@ function bindEvents() {
     const target = event.target;
     if (!target.matches("input[data-path], textarea[data-path]")) return;
     setPath(state, target.dataset.path, controlValue(target));
+    const path = target.dataset.path || "";
+    if (path.startsWith("resources.")) {
+      const fine = resourceFineprintText(path.slice("resources.".length), target.value);
+      if (fine !== null) {
+        document.querySelectorAll(`[data-fineprint-for="${path}"]`).forEach((el) => {
+          el.textContent = fine;
+        });
+      }
+    }
     scheduleSave();
   });
 
