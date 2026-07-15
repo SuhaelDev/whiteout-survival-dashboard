@@ -8222,9 +8222,10 @@ function hero3dShowFallback() {
 function hero3dBadgeTexture(T, iconKey) {
   HERO3D.textures ||= {};
   if (HERO3D.textures[iconKey]) return HERO3D.textures[iconKey];
-  const path = visualAssets?.[iconKey];
+  const entry = (visualAssets?.assets || visualAssets || {})[iconKey];
+  const path = typeof entry === "string" ? entry : entry?.src;
   if (!path) return null;
-  const texture = new T.TextureLoader().load(path);
+  const texture = new T.TextureLoader().load(assetUrl(path));
   texture.colorSpace = T.SRGBColorSpace;
   HERO3D.textures[iconKey] = texture;
   return texture;
