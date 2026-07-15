@@ -8417,7 +8417,7 @@ function hero3dBuildScene() {
       }
       const scale = 1.72 / height;
       model.scale.setScalar(scale);
-      model.rotation.y = Math.PI; // face the camera's forward (+Z) side
+      model.rotation.y = Math.PI + 0.58; // face the camera's forward (+Z) side (idle pose stands ~33° off-axis)
       model.position.y = 0.08;
       model.traverse((child) => {
         if (child.isMesh) {
