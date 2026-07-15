@@ -7035,6 +7035,12 @@ function renderSvs() {
   const crystals = svsBuildingCrystals();
   const t12 = svsT12Totals();
   const troop = troopPlanComputation();
+  const heroGearCost = allHeroGearCosts();
+  const widgetsPlanned = gameData.heroes.reduce((sum, hero) => {
+    const saved = state.heroes[hero.hero_id];
+    if (!saved?.owned || !HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id]) return sum;
+    return sum + heroWidgetsToTarget(saved.current_widget_level, saved.target_widget_level);
+  }, 0);
 
   const speedupFields = [
     ["construction_speedups_minutes", "Construction speedups"],
@@ -7096,6 +7102,9 @@ function renderSvs() {
       note: `${fmt(entry.qty)} × ${fmt(entry.rate)}`,
       rule: ruleFor("hero_shards") || ruleFor("mythic"),
     })),
+    { id: "widgets", label: "Widgets for exclusive gear (targets)", pts: widgetsPlanned * Number(rates.widget || 8000), note: `${fmt(widgetsPlanned)} widgets × ${fmt(rates.widget || 8000)}`, rule: ruleFor("widgets") },
+    { id: "essence", label: "Essence stones for hero gear (targets)", pts: Number(heroGearCost.essence_stones || 0) * Number(rates.essence_stone || 4000), note: `${fmt(heroGearCost.essence_stones || 0)} stones × ${fmt(rates.essence_stone || 4000)}`, rule: ruleFor("essence") },
+    { id: "mithril", label: "Mithril for hero gear (targets)", pts: Number(heroGearCost.mithril || 0) * Number(rates.mithril || 144000), note: `${fmt(heroGearCost.mithril || 0)} mithril × ${fmt(rates.mithril || 144000)}`, rule: ruleFor("mithril") },
     { id: "speedups", label: "Burn remaining speedups (inventory)", pts: speedupMinutesTotal * SVS_SPEEDUP_POINTS_PER_MINUTE, note: `${fmt(speedupMinutesTotal)} min × ${SVS_SPEEDUP_POINTS_PER_MINUTE}/min`, rule: null },
     { id: "wheel", label: "Lucky Wheel spins", pts: Number(plan.lucky_wheel_spins || 0) * Number(rates.lucky_wheel_spin || 8000), note: `${fmt(plan.lucky_wheel_spins)} spins × ${fmt(rates.lucky_wheel_spin || 8000)}`, rule: ruleFor("lucky_wheel") },
   ];
