@@ -5787,3 +5787,14 @@ select option {
 .troop-enable { gap: 8px; display: inline-flex; align-items: center; }
 .troop-enable input { width: 16px; height: 16px; accent-color: #38bdf8; }
 #tab-troops td input[type="number"] { max-width: 110px; }
+
+.war-branch { margin-top: 14px; }
+.war-branch__head { margin: 0 0 10px; }
+
+/* Pet refinement captured stats (wave 5) */
+.refine-stats { display: grid; gap: 4px; margin: 6px 0 10px; }
+.refine-stat-row { display: grid; grid-template-columns: 132px 1fr auto; gap: 8px; align-items: center; font-size: 12px; }
+.refine-stat-row__label { color: rgba(224, 236, 248, 0.75); white-space: nowrap; }
+.refine-stat-row__bar { height: 8px; border-radius: 4px; background: rgba(148, 178, 208, 0.22); overflow: hidden; }
+.refine-stat-row__bar span { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #4fb7ff, #9adcff); }
+.refine-stat-row__val { font-variant-numeric: tabular-nums; color: #eaf3fb; white-space: nowrap; }

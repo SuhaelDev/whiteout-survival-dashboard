@@ -53,7 +53,7 @@ const RESOURCE_LABELS = {
   steel: "Steel",
   fire_crystal_shards: "Shards",
   chief_stamina: "Chief Stamina",
-  stamina_cans: "Stamina Cans",
+  stamina_cans: "Stamina Cans (10)",
   pet_custom_chests: "Pet Custom Chests",
   common_wild_marks: "Common Wild Mark",
   advanced_wild_marks: "Advanced Wild Mark",
@@ -91,6 +91,14 @@ const PET_FIELDS = [
 ];
 const PET_CHECK_FIELDS = [...PET_FIELDS, ["pet_custom_chests", "chests"]];
 const PET_QUALITY_TIERS = ["None", "Green", "Blue", "Purple", "Gold"];
+const PET_REFINE_STATS = [
+  ["infantry_lethality", "Infantry Lethality"],
+  ["infantry_health", "Infantry Health"],
+  ["lancer_lethality", "Lancer Lethality"],
+  ["lancer_health", "Lancer Health"],
+  ["marksman_lethality", "Marksman Lethality"],
+  ["marksman_health", "Marksman Health"],
+];
 const TROOP_TYPES = ["infantry", "lancer", "marksman"];
 const SVS_SPEEDUP_POINTS_PER_MINUTE = 30;
 const HERO_GEAR_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
@@ -230,8 +238,8 @@ const CALCULATOR_INVENTORY_GROUPS = [
   },
   {
     title: "Chief Items",
-    note: "Stamina for pet adventures, beast hunts, and rallies",
-    fields: ["chief_stamina", "stamina_cans"],
+    note: "Stamina cans for pet adventures, beast hunts, and rallies (each can = 10 stamina)",
+    fields: ["stamina_cans"],
   },
   {
     title: "Speedups",
@@ -344,8 +352,17 @@ function stateFromSaved(savedState) {
   const baseline = extractedBaselineState();
   normalizeTargets(baseline);
   if (!savedState) return baseline;
-  const merged = mergeDeep(baseline, savedState);
+  let merged = mergeDeep(baseline, savedState);
   if (extractedState) merged.extracted_current = extractedState;
+  // Re-apply the bundled game extract on top of saved/cloud state whenever the
+  // extract is newer than the last one this state absorbed. Keeps deployed
+  // captures (backpack counts, pet refinement, notes) flowing into live DBs.
+  const extractTime = Date.parse(extractedState?.extracted_at || "");
+  const appliedTime = Date.parse(savedState?.extract_applied_at || "");
+  if (Number.isFinite(extractTime) && (!Number.isFinite(appliedTime) || extractTime > appliedTime)) {
+    merged = applyExtractedState(merged, extractedState);
+    merged.extract_applied_at = extractedState.extracted_at;
+  }
   normalizeTargets(merged);
   return merged;
 }
@@ -453,12 +470,15 @@ function applyExtractedState(baseState, extracted) {
   Object.entries(extracted.resources || {}).forEach(([key, value]) => {
     if (typeof value === "number") next.resources[key] = value;
   });
-  const speedups = extracted.resources?.speedups || {};
-  next.resources.general_speedups_minutes = speedupMinutes(speedups.general);
-  next.resources.construction_speedups_minutes = speedupMinutes(speedups.construction);
-  next.resources.research_speedups_minutes = speedupMinutes(speedups.research);
-  next.resources.training_speedups_minutes = speedupMinutes(speedups.training);
-  next.resources.learning_speedups_minutes = speedupMinutes(speedups.learning);
+  const speedups = extracted.resources?.speedups || null;
+  if (speedups) {
+    next.resources.general_speedups_minutes = speedupMinutes(speedups.general);
+    next.resources.construction_speedups_minutes = speedupMinutes(speedups.construction);
+    next.resources.research_speedups_minutes = speedupMinutes(speedups.research);
+    next.resources.training_speedups_minutes = speedupMinutes(speedups.training);
+    next.resources.learning_speedups_minutes = speedupMinutes(speedups.learning);
+    if (speedups.healing) next.resources.healing_speedups_minutes = speedupMinutes(speedups.healing);
+  }
 
   Object.entries(extracted.buildings || {}).forEach(([buildingId, building]) => {
     if (!next.buildings[buildingId] || !building.current) return;
@@ -492,12 +512,15 @@ function applyExtractedState(baseState, extracted) {
 
   const petIdByName = Object.fromEntries(gameData.pets.map((pet) => [normalizeKey(pet.name), pet.pet_id]));
   Object.entries(extracted.pets || {}).forEach(([petId, pet]) => {
-    const level = pet?.level ?? pet?.current_level;
-    if (!pet || typeof pet !== "object" || level == null) return;
+    if (!pet || typeof pet !== "object") return;
+    const level = pet.level ?? pet.current_level ?? pet.current;
     const mappedId = next.pets[petId] ? petId : petIdByName[normalizeKey(pet.name)];
     if (!mappedId || !next.pets[mappedId]) return;
-    next.pets[mappedId].current = String(level);
-    next.pets[mappedId].power = pet.power;
+    if (level != null) next.pets[mappedId].current = String(level);
+    if (pet.power != null) next.pets[mappedId].power = pet.power;
+    if (pet.refine_stats && typeof pet.refine_stats === "object") {
+      next.pets[mappedId].refine_stats = clone(pet.refine_stats);
+    }
   });
 
   Object.entries(extracted.experts || {}).forEach(([expertId, expert]) => {
@@ -509,15 +532,18 @@ function applyExtractedState(baseState, extracted) {
 
   if (next.research.normal_research_center) {
     next.research.normal_research_center.priority = "Active";
-    next.research.normal_research_center.current_note = extracted.research?.active_research?.name || "";
+    next.research.normal_research_center.current_note =
+      extracted.research?.active_research?.name || extracted.research?.normal_research_center?.current_note || next.research.normal_research_center.current_note || "";
   }
   if (next.research.war_academy_helios) {
     next.research.war_academy_helios.priority = "Active";
-    next.research.war_academy_helios.current_note = extracted.research?.war_academy?.active_research?.name || "";
+    next.research.war_academy_helios.current_note =
+      extracted.research?.war_academy?.active_research?.name || extracted.research?.war_academy_helios?.current_note || next.research.war_academy_helios.current_note || "";
   }
   if (next.research.current_experts) {
     next.research.current_experts.priority = "Active";
-    next.research.current_experts.current_note = extracted.experts?.active_learning?.expert || "";
+    next.research.current_experts.current_note =
+      extracted.experts?.active_learning?.expert || extracted.research?.current_experts?.current_note || next.research.current_experts.current_note || "";
   }
 
   return next;
@@ -969,7 +995,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260715a";
+const ASSET_CACHE_VERSION = "20260715b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5928,10 +5954,23 @@ function renderPets() {
       const refineLadder = (pet.refinement_costs || [])
         .map((step) => `${esc(step.tier)}: ${step.advanced_wild_marks ? `${fmt(step.advanced_wild_marks)} adv.` : `${fmt(step.common_wild_marks)} common`}`)
         .join(" · ");
+      const refineStats = saved.refine_stats || null;
+      let refineStatsHtml = "";
+      if (refineStats) {
+        const cap = Number(refineStats.cap || 0);
+        const rows = PET_REFINE_STATS.map(([key, label]) => {
+          const val = Number(refineStats[key] || 0);
+          const pct = cap > 0 ? Math.min(100, (val / cap) * 100) : 0;
+          return `<div class="refine-stat-row"><span class="refine-stat-row__label">${label}</span><div class="refine-stat-row__bar"><span style="width:${pct.toFixed(1)}%"></span></div><span class="refine-stat-row__val">${val.toFixed(2)}% / ${cap.toFixed(2)}%</span></div>`;
+        }).join("");
+        const avg = PET_REFINE_STATS.reduce((sum, [key]) => sum + Number(refineStats[key] || 0), 0) / PET_REFINE_STATS.length;
+        refineStatsHtml = `<div class="refine-stats"><div class="gd-time-row"><span>Captured in game:</span><strong>${cap ? Math.round((avg / cap) * 100) : 0}% of cap filled</strong><span class="muted">avg ${avg.toFixed(2)}% · cap ${cap.toFixed(2)}% per stat</span></div>${rows}</div>`;
+      }
       const qualityOptions = PET_QUALITY_TIERS.map((tier) => [tier, tier]);
       const refinementHtml = `
         <section class="gd-section">
           ${gameSectionBannerHtml("Refinement (Wild Marks)")}
+          ${refineStatsHtml}
           <div class="gd-select-row">
             <label class="compact-field"><span>Quality now</span>${selectInput(`pets.${pet.pet_id}.quality_current`, qualityCurrent, qualityOptions)}</label>
             <label class="compact-field"><span>Quality target</span>${selectInput(`pets.${pet.pet_id}.quality_target`, qualityTarget, qualityOptions)}</label>
@@ -6368,10 +6407,6 @@ function renderHeroGear() {
           <span class="hero-meta-badge">${esc(setLabel)}</span>
           
           <div class="hero-profile-card__footer">
-            <label class="compact-field">
-              <span>Target Special</span>
-              <input type="number" data-path="hero_gear_targets.heroes.${heroId}.special_enhancement" value="${targets.specialEnhancement}" min="0" />
-            </label>
             <section class="gd-section">
               ${gameSectionBannerHtml("Total Cost to Target")}
               ${gameCostTilesHtml(targetCost, HERO_GEAR_FIELDS, { emptyText: "All pieces at target." })}
@@ -6452,7 +6487,6 @@ function renderHeroGear() {
     <div class="panel hero-gear-actions">
       ${levelBulk}
       ${enhancementBulk}
-      ${specialBulk}
     </div>
     
     <details class="table-disclosure">
@@ -6507,6 +6541,7 @@ function renderExperts() {
       });
       const skillPlan = expertSkillPlanner(expert, observed.skills);
       if (skillPlan.books > 0) cost.books_of_knowledge = skillPlan.books;
+      if (skillPlan.learningMinutes > 0) cost.learning_speedups_minutes = skillPlan.learningMinutes;
       totalLearningXp += skillPlan.learningXp;
       totalCost = addCost(totalCost, cost);
       if (!costIsEmpty(cost)) {
@@ -6541,7 +6576,7 @@ function renderExperts() {
         </div>
         ${statRows.length ? gameBonusRowsHtml(statRows, "Stat Bonuses") : ""}
         ${skillPlan.html}
-        ${gameCostTilesHtml(cost, ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"]], { emptyText: "No upgrade selected." })}
+        ${gameCostTilesHtml(cost, ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"], "learning_speedups_minutes"], { emptyText: "No upgrade selected." })}
       </div>`;
     })
     .join("");
@@ -6646,9 +6681,9 @@ function renderResearch() {
     });
   }
 
-  const warRows = Object.entries(academy.visible_nodes || {})
-    .filter(([, node]) => !/max|complete|completed/i.test(String(node.status || "")))
-    .map(([nodeId, node]) => {
+  const warNodeEntries = Object.entries(academy.visible_nodes || {})
+    .filter(([, node]) => !/max|complete|completed/i.test(String(node.status || "")));
+  const warNodeCardHtml = ([nodeId, node]) => {
       const progress = parseResearchLevelProgress(node);
       const saved = ensureResearchTarget("war_academy", nodeId, progress.current);
       const target = Number(saved.target || 0);
@@ -6693,6 +6728,23 @@ function renderResearch() {
         ${statRows.length ? gameBonusRowsHtml(statRows, "Research Bonus") : ""}
         ${costIsEmpty(cost) ? `<p class="gd-note">${esc(costNote)}</p>` : `<section class="gd-section">${gameSectionBannerHtml("Research Cost")}${gameCostTilesHtml(cost, RESEARCH_COST_FIELDS)}</section>`}
       </div>`;
+  };
+  const warTroopKeyOf = (nodeId) => {
+    const text = normalizeKey(nodeId);
+    if (text.includes("infantry")) return "infantry";
+    if (text.includes("lancer")) return "lancer";
+    if (text.includes("marksman")) return "marksman";
+    return "other";
+  };
+  const warSections = ["infantry", "lancer", "marksman", "other"]
+    .map((troop) => {
+      const entries = warNodeEntries.filter(([nodeId]) => warTroopKeyOf(nodeId) === troop);
+      if (!entries.length) return "";
+      const heading = troop === "other" ? "Other Nodes" : `${titleFromId(troop)} Branch`;
+      return `<section class="war-branch">
+        <h3 class="war-branch__head">${visualLabel("troop", heading)}</h3>
+        <div class="research-node-grid">${entries.map(warNodeCardHtml).join("")}</div>
+      </section>`;
     })
     .join("");
 
@@ -6766,7 +6818,7 @@ function renderResearch() {
     </div>
     <div class="panel">
       <h2>T11 War Academy Research</h2>
-      <div class="research-node-grid">${warRows || `<span class="muted">No active or available T11 nodes captured.</span>`}</div>
+      ${warSections || `<span class="muted">No active or available T11 nodes captured.</span>`}
     </div>
   `;
 }
@@ -7721,4 +7773,4 @@ async function init() {
 }
 
 init();
-/* wave4 build marker: pets/troops/svs/t12 pages + backpack resources. */
+/* wave5 build marker: pet refine capture, fresh icons, extract auto-reapply. */

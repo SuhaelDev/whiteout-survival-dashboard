@@ -23,33 +23,38 @@
     "refined_fire_crystals": 134,
     "steel": 1700000,
     "fire_crystal_shards": 407,
-    "hardened_alloy": 142422,
-    "polishing_solution": 1168,
-    "design_plans": 528,
+    "hardened_alloy": 560752,
+    "polishing_solution": 6057,
+    "design_plans": 3213,
     "lunar_amber": 0,
-    "charm_guides": 5142,
-    "charm_designs": 5358,
+    "charm_guides": 7253,
+    "charm_designs": 6593,
     "charm_secrets": 0,
-    "mythic_general_shards": 0,
-    "epic_general_shards": 0,
+    "mythic_general_shards": 61,
+    "epic_general_shards": 582,
     "rare_general_shards": 0,
-    "hero_gear_xp": 0,
+    "hero_gear_xp": 7520,
     "mythic_gear": 0,
-    "mithril": 137,
-    "essence_stones": 493,
+    "mithril": 145,
+    "essence_stones": 598,
     "pet_food": 189495,
-    "pet_manuals": 987,
-    "pet_potions": 107,
-    "pet_serum": 120,
+    "pet_manuals": 1089,
+    "pet_potions": 137,
+    "pet_serum": 2,
     "common_sigils": 0,
     "books_of_knowledge": 19400,
-    "learning_speedups_minutes": 240,
-    "construction_speedups_minutes": 61560,
-    "research_speedups_minutes": 11151,
-    "training_speedups_minutes": 3783,
-    "general_speedups_minutes": 26635,
+    "learning_speedups_minutes": 5280,
+    "construction_speedups_minutes": 79899,
+    "research_speedups_minutes": 16932,
+    "training_speedups_minutes": 8443,
+    "general_speedups_minutes": 138679,
     "diamonds": 411897,
-    "expert_affinity": 328280
+    "expert_affinity": 328280,
+    "common_wild_marks": 219,
+    "advanced_wild_marks": 37,
+    "stamina_cans": 1576,
+    "healing_speedups_minutes": 4637,
+    "pet_custom_chests": 0
   },
   "buildings": {
     "furnace": {
@@ -863,72 +868,198 @@
     "cave_hyena": {
       "current": "50",
       "target": "100.1",
-      "power": 523800
+      "power": 523800,
+      "refine_stats": {
+        "infantry_lethality": 2.49,
+        "infantry_health": 2.38,
+        "lancer_lethality": 2.22,
+        "lancer_health": 2.01,
+        "marksman_lethality": 2.33,
+        "marksman_health": 2.1,
+        "cap": 3.35
+      }
     },
     "arctic_wolf": {
       "current": "60",
       "target": "100.1",
-      "power": 1025880
+      "power": 1025880,
+      "refine_stats": {
+        "infantry_lethality": 4.36,
+        "infantry_health": 4.1,
+        "lancer_lethality": 4.24,
+        "lancer_health": 4.24,
+        "marksman_lethality": 4.03,
+        "marksman_health": 4.16,
+        "cap": 6.7
+      }
     },
     "musk_ox": {
       "current": "60",
       "target": "100.1",
-      "power": 852960
+      "power": 852960,
+      "refine_stats": {
+        "infantry_lethality": 2.56,
+        "infantry_health": 3.35,
+        "lancer_lethality": 2.98,
+        "lancer_health": 2.25,
+        "marksman_lethality": 2.92,
+        "marksman_health": 2.72,
+        "cap": 4.02
+      }
     },
     "giant_tapir": {
       "current": "70",
       "target": "100.1",
-      "power": 1458720
+      "power": 1458720,
+      "refine_stats": {
+        "infantry_lethality": 6.66,
+        "infantry_health": 6.04,
+        "lancer_lethality": 6.93,
+        "lancer_health": 6.08,
+        "marksman_lethality": 6.87,
+        "marksman_health": 6.06,
+        "cap": 10.06
+      }
     },
     "titan_roc": {
       "current": "70",
       "target": "100.1",
-      "power": 1925400
+      "power": 1925400,
+      "refine_stats": {
+        "infantry_lethality": 11.9,
+        "infantry_health": 12.57,
+        "lancer_lethality": 11.04,
+        "lancer_health": 11.87,
+        "marksman_lethality": 11.89,
+        "marksman_health": 10.7,
+        "cap": 14.08
+      }
     },
     "giant_elk": {
       "current": "70",
       "target": "100.1",
-      "power": 2006160
+      "power": 2006160,
+      "refine_stats": {
+        "infantry_lethality": 9.93,
+        "infantry_health": 9.5,
+        "lancer_lethality": 8.85,
+        "lancer_health": 9.12,
+        "marksman_lethality": 8.74,
+        "marksman_health": 9.14,
+        "cap": 14.53
+      }
     },
     "snow_leopard": {
       "current": "80",
       "target": "100.1",
-      "power": 2242560
+      "power": 2242560,
+      "refine_stats": {
+        "infantry_lethality": 9.45,
+        "infantry_health": 9.57,
+        "lancer_lethality": 8.73,
+        "lancer_health": 9.6,
+        "marksman_lethality": 9.33,
+        "marksman_health": 9.52,
+        "cap": 14.53
+      }
     },
     "cave_lion": {
       "current": "100",
       "target": "100.1",
-      "power": 3323640
+      "power": 3323640,
+      "refine_stats": {
+        "infantry_lethality": 15.29,
+        "infantry_health": 15.47,
+        "lancer_lethality": 14.85,
+        "lancer_health": 14.08,
+        "marksman_lethality": 14.33,
+        "marksman_health": 14.19,
+        "cap": 22.35
+      }
     },
     "snow_ape": {
       "current": "80",
       "target": "100.1",
-      "power": 2928840
+      "power": 2928840,
+      "refine_stats": {
+        "infantry_lethality": 16.91,
+        "infantry_health": 15.67,
+        "lancer_lethality": 14.4,
+        "lancer_health": 17.21,
+        "marksman_lethality": 17.36,
+        "marksman_health": 18.52,
+        "cap": 22.35
+      }
     },
     "iron_rhino": {
       "current": "70",
       "target": "100.1",
-      "power": 2049960
+      "power": 2049960,
+      "refine_stats": {
+        "infantry_lethality": 8.05,
+        "infantry_health": 7.37,
+        "lancer_lethality": 8.32,
+        "lancer_health": 7.78,
+        "marksman_lethality": 8.36,
+        "marksman_health": 7.65,
+        "cap": 14.75
+      }
     },
     "sabertooth_tiger": {
       "current": "80",
       "target": "100.1",
-      "power": 2976840
+      "power": 2976840,
+      "refine_stats": {
+        "infantry_lethality": 14.8,
+        "infantry_health": 15.99,
+        "lancer_lethality": 15.21,
+        "lancer_health": 15.24,
+        "marksman_lethality": 15.64,
+        "marksman_health": 14.89,
+        "cap": 24.58
+      }
     },
     "mammoth": {
       "current": "70",
       "target": "100.1",
-      "power": 2163360
+      "power": 2163360,
+      "refine_stats": {
+        "infantry_lethality": 7.37,
+        "infantry_health": 7.65,
+        "lancer_lethality": 7.53,
+        "lancer_health": 8.01,
+        "marksman_lethality": 7.82,
+        "marksman_health": 7.98,
+        "cap": 14.75
+      }
     },
     "frost_gorilla": {
       "current": "70",
       "target": "100.1",
-      "power": 2159760
+      "power": 2159760,
+      "refine_stats": {
+        "infantry_lethality": 7.81,
+        "infantry_health": 7.61,
+        "lancer_lethality": 7.85,
+        "lancer_health": 7.79,
+        "marksman_lethality": 7.45,
+        "marksman_health": 7.55,
+        "cap": 14.75
+      }
     },
     "frostscale_chameleon": {
       "current": "70",
       "target": "100.1",
-      "power": 2512920
+      "power": 2512920,
+      "refine_stats": {
+        "infantry_lethality": 12.08,
+        "infantry_health": 12.51,
+        "lancer_lethality": 11.87,
+        "lancer_health": 12.73,
+        "marksman_lethality": 13.67,
+        "marksman_health": 12.63,
+        "cap": 17.43
+      }
     },
     "abyssal_shelldragon": {
       "current": "0",
@@ -1240,7 +1371,7 @@
       "priority": "Active"
     },
     "war_academy_helios": {
-      "current_note": "Helios Lancer Healing",
+      "current_note": "Helios Marksman Training",
       "target_note": "",
       "priority": "Active"
     },
@@ -1256,8 +1387,8 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": null,
-    "extraction_status": "in_progress",
+    "extracted_at": "2026-07-15T16:50:00+08:00",
+    "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
     },
@@ -1356,21 +1487,21 @@
       "fire_crystal_shards": 407,
       "pet_wild_marks": 167,
       "pet_advanced_wild_marks": 9,
-      "hardened_alloy": 142422,
-      "polishing_solution": 1168,
-      "design_plans": 528,
+      "hardened_alloy": 560752,
+      "polishing_solution": 6057,
+      "design_plans": 3213,
       "lunar_amber": 0,
-      "charm_guides": 5142,
-      "charm_designs": 5358,
+      "charm_guides": 7253,
+      "charm_designs": 6593,
       "charm_secrets": 0,
-      "pet_manuals": 987,
-      "pet_potions": 107,
-      "pet_serum": 120,
+      "pet_manuals": 1089,
+      "pet_potions": 137,
+      "pet_serum": 2,
       "pet_food": 189495,
       "expert_affinity": 328280,
       "books_of_knowledge": 19400,
-      "essence_stones": 493,
-      "mithril": 137,
+      "essence_stones": 598,
+      "mithril": 145,
       "resource_displays": {
         "meat": "1.0B",
         "wood": "510.9M",
@@ -1391,36 +1522,36 @@
       },
       "speedups": {
         "general": {
-          "1m": 516,
-          "5m": 1254,
-          "1h": 1711,
-          "3h": 11
+          "1m": 504,
+          "5m": 1595,
+          "1h": 2095,
+          "3h": 25
         },
         "construction": {
-          "1m": 16402,
-          "5m": 8625,
-          "1h": 161
+          "1m": 17109,
+          "5m": 9726,
+          "1h": 236
         },
         "training": {
-          "1m": 922,
-          "5m": 954,
-          "1h": 119
+          "1m": 418,
+          "5m": 669,
+          "1h": 78
         },
         "research": {
-          "1m": 2426,
-          "5m": 465,
-          "1h": 69
+          "1m": 3232,
+          "5m": 1348,
+          "1h": 116
         },
         "healing": {
-          "1m": 150,
-          "5m": 818,
-          "1h": 105
+          "1m": 197,
+          "5m": 888
         },
         "learning": {
-          "1h": 16,
+          "5m": 120,
+          "1h": 18,
           "3h": 20
         },
-        "recount_note": "Full backpack Speedup tab recount 2026-07-10 sweep."
+        "recount_note": "Full backpack Speedup tab recount 2026-07-15 (fresh capture)."
       },
       "backpack_direct_resource_value": {
         "meat": 928946000,
@@ -1794,7 +1925,14 @@
             "effect": "Visible in Bonus tab bottom row; not opened because selected bonus cards expose a Use button."
           }
         ]
-      }
+      },
+      "common_wild_marks": 219,
+      "advanced_wild_marks": 37,
+      "epic_general_shards": 582,
+      "mythic_general_shards": 61,
+      "stamina_cans": 1576,
+      "hero_gear_xp": 7520,
+      "pet_custom_chests": 0
     },
     "buildings": {
       "furnace": {
@@ -1954,17 +2092,61 @@
         "power": 335170,
         "active_research_timer_observed": "7d 08:40:28 (Assault Techniques VI)",
         "details_table": [
-          { "level": 20, "research_speed": "2.0%", "power": 94996 },
-          { "level": 21, "research_speed": "2.1%", "power": 107624 },
-          { "level": 22, "research_speed": "2.2%", "power": 126566 },
-          { "level": 23, "research_speed": "2.3%", "power": 145508 },
-          { "level": 24, "research_speed": "2.4%", "power": 164450 },
-          { "level": 25, "research_speed": "2.5%", "power": 183392 },
-          { "level": 26, "research_speed": "2.6%", "power": 211222 },
-          { "level": 27, "research_speed": "2.7%", "power": 239052 },
-          { "level": 28, "research_speed": "2.8%", "power": 266882 },
-          { "level": 29, "research_speed": "2.9%", "power": 294712 },
-          { "level": 30, "research_speed": "3.0%", "power": 335170 }
+          {
+            "level": 20,
+            "research_speed": "2.0%",
+            "power": 94996
+          },
+          {
+            "level": 21,
+            "research_speed": "2.1%",
+            "power": 107624
+          },
+          {
+            "level": 22,
+            "research_speed": "2.2%",
+            "power": 126566
+          },
+          {
+            "level": 23,
+            "research_speed": "2.3%",
+            "power": 145508
+          },
+          {
+            "level": 24,
+            "research_speed": "2.4%",
+            "power": 164450
+          },
+          {
+            "level": 25,
+            "research_speed": "2.5%",
+            "power": 183392
+          },
+          {
+            "level": 26,
+            "research_speed": "2.6%",
+            "power": 211222
+          },
+          {
+            "level": 27,
+            "research_speed": "2.7%",
+            "power": 239052
+          },
+          {
+            "level": 28,
+            "research_speed": "2.8%",
+            "power": 266882
+          },
+          {
+            "level": 29,
+            "research_speed": "2.9%",
+            "power": 294712
+          },
+          {
+            "level": 30,
+            "research_speed": "3.0%",
+            "power": 335170
+          }
         ]
       },
       "chief_orders": {
@@ -3596,7 +3778,16 @@
         "current_level": 100,
         "power": 3323640,
         "troops_attack_percent": 31.46,
-        "troops_defense_percent": 31.46
+        "troops_defense_percent": 31.46,
+        "refine_stats": {
+          "infantry_lethality": 15.29,
+          "infantry_health": 15.47,
+          "lancer_lethality": 14.85,
+          "lancer_health": 14.08,
+          "marksman_lethality": 14.33,
+          "marksman_health": 14.19,
+          "cap": 22.35
+        }
       },
       "sabertooth_tiger": {
         "name": "Saber-tooth Tiger",
@@ -3604,7 +3795,16 @@
         "current_level": 80,
         "power": 2976840,
         "troops_attack_percent": 26.05,
-        "troops_defense_percent": 26.05
+        "troops_defense_percent": 26.05,
+        "refine_stats": {
+          "infantry_lethality": 14.8,
+          "infantry_health": 15.99,
+          "lancer_lethality": 15.21,
+          "lancer_health": 15.24,
+          "marksman_lethality": 15.64,
+          "marksman_health": 14.89,
+          "cap": 24.58
+        }
       },
       "snow_ape": {
         "name": "Snow Ape",
@@ -3612,7 +3812,16 @@
         "current_level": 80,
         "power": 2928840,
         "troops_attack_percent": 24,
-        "troops_defense_percent": 24
+        "troops_defense_percent": 24,
+        "refine_stats": {
+          "infantry_lethality": 16.91,
+          "infantry_health": 15.67,
+          "lancer_lethality": 14.4,
+          "lancer_health": 17.21,
+          "marksman_lethality": 17.36,
+          "marksman_health": 18.52,
+          "cap": 22.35
+        }
       },
       "frostscale_chameleon": {
         "name": "Frostscale Chameleon",
@@ -3620,7 +3829,16 @@
         "current_level": 70,
         "power": 2512920,
         "troops_attack_percent": 22.32,
-        "troops_defense_percent": 22.32
+        "troops_defense_percent": 22.32,
+        "refine_stats": {
+          "infantry_lethality": 12.08,
+          "infantry_health": 12.51,
+          "lancer_lethality": 11.87,
+          "lancer_health": 12.73,
+          "marksman_lethality": 13.67,
+          "marksman_health": 12.63,
+          "cap": 17.43
+        }
       },
       "snow_leopard": {
         "name": "Snow Leopard",
@@ -3628,7 +3846,16 @@
         "current_level": 80,
         "power": 2242560,
         "troops_attack_percent": 21.78,
-        "troops_defense_percent": 21.78
+        "troops_defense_percent": 21.78,
+        "refine_stats": {
+          "infantry_lethality": 9.45,
+          "infantry_health": 9.57,
+          "lancer_lethality": 8.73,
+          "lancer_health": 9.6,
+          "marksman_lethality": 9.33,
+          "marksman_health": 9.52,
+          "cap": 14.53
+        }
       },
       "mammoth": {
         "name": "Mammoth",
@@ -3636,7 +3863,16 @@
         "current_level": 70,
         "power": 2163360,
         "troops_attack_percent": 22.32,
-        "troops_defense_percent": 22.32
+        "troops_defense_percent": 22.32,
+        "refine_stats": {
+          "infantry_lethality": 7.37,
+          "infantry_health": 7.65,
+          "lancer_lethality": 7.53,
+          "lancer_health": 8.01,
+          "marksman_lethality": 7.82,
+          "marksman_health": 7.98,
+          "cap": 14.75
+        }
       },
       "frost_gorilla": {
         "name": "Frost Gorilla",
@@ -3644,7 +3880,16 @@
         "current_level": 70,
         "power": 2159760,
         "troops_attack_percent": 22.32,
-        "troops_defense_percent": 22.32
+        "troops_defense_percent": 22.32,
+        "refine_stats": {
+          "infantry_lethality": 7.81,
+          "infantry_health": 7.61,
+          "lancer_lethality": 7.85,
+          "lancer_health": 7.79,
+          "marksman_lethality": 7.45,
+          "marksman_health": 7.55,
+          "cap": 14.75
+        }
       },
       "iron_rhino": {
         "name": "Iron Rhino",
@@ -3652,7 +3897,16 @@
         "current_level": 70,
         "power": 2049960,
         "troops_attack_percent": 20.55,
-        "troops_defense_percent": 20.55
+        "troops_defense_percent": 20.55,
+        "refine_stats": {
+          "infantry_lethality": 8.05,
+          "infantry_health": 7.37,
+          "lancer_lethality": 8.32,
+          "lancer_health": 7.78,
+          "marksman_lethality": 8.36,
+          "marksman_health": 7.65,
+          "cap": 14.75
+        }
       },
       "giant_elk": {
         "name": "Giant Elk",
@@ -3660,7 +3914,16 @@
         "current_level": 70,
         "power": 2006160,
         "troops_attack_percent": 18.65,
-        "troops_defense_percent": 18.65
+        "troops_defense_percent": 18.65,
+        "refine_stats": {
+          "infantry_lethality": 9.93,
+          "infantry_health": 9.5,
+          "lancer_lethality": 8.85,
+          "lancer_health": 9.12,
+          "marksman_lethality": 8.74,
+          "marksman_health": 9.14,
+          "cap": 14.53
+        }
       },
       "titan_roc": {
         "name": "Titan Roc",
@@ -3668,7 +3931,16 @@
         "current_level": 70,
         "power": 1925400,
         "troops_attack_percent": 15.08,
-        "troops_defense_percent": 15.08
+        "troops_defense_percent": 15.08,
+        "refine_stats": {
+          "infantry_lethality": 11.9,
+          "infantry_health": 12.57,
+          "lancer_lethality": 11.04,
+          "lancer_health": 11.87,
+          "marksman_lethality": 11.89,
+          "marksman_health": 10.7,
+          "cap": 14.08
+        }
       },
       "giant_tapir": {
         "name": "Giant Tapir",
@@ -3676,7 +3948,16 @@
         "current_level": 70,
         "power": 1458720,
         "troops_attack_percent": 13.82,
-        "troops_defense_percent": 13.82
+        "troops_defense_percent": 13.82,
+        "refine_stats": {
+          "infantry_lethality": 6.66,
+          "infantry_health": 6.04,
+          "lancer_lethality": 6.93,
+          "lancer_health": 6.08,
+          "marksman_lethality": 6.87,
+          "marksman_health": 6.06,
+          "cap": 10.06
+        }
       },
       "arctic_wolf": {
         "name": "Arctic Wolf",
@@ -3684,7 +3965,16 @@
         "current_level": 60,
         "power": 1025880,
         "troops_attack_percent": 10.06,
-        "troops_defense_percent": 10.06
+        "troops_defense_percent": 10.06,
+        "refine_stats": {
+          "infantry_lethality": 4.36,
+          "infantry_health": 4.1,
+          "lancer_lethality": 4.24,
+          "lancer_health": 4.24,
+          "marksman_lethality": 4.03,
+          "marksman_health": 4.16,
+          "cap": 6.7
+        }
       },
       "musk_ox": {
         "name": "Musk Ox",
@@ -3692,7 +3982,16 @@
         "current_level": 60,
         "power": 852960,
         "troops_attack_percent": 9.05,
-        "troops_defense_percent": 9.05
+        "troops_defense_percent": 9.05,
+        "refine_stats": {
+          "infantry_lethality": 2.56,
+          "infantry_health": 3.35,
+          "lancer_lethality": 2.98,
+          "lancer_health": 2.25,
+          "marksman_lethality": 2.92,
+          "marksman_health": 2.72,
+          "cap": 4.02
+        }
       },
       "cave_hyena": {
         "name": "Cave Hyena",
@@ -3700,7 +3999,16 @@
         "current_level": 50,
         "power": 523800,
         "troops_attack_percent": 5.02,
-        "troops_defense_percent": 5.02
+        "troops_defense_percent": 5.02,
+        "refine_stats": {
+          "infantry_lethality": 2.49,
+          "infantry_health": 2.38,
+          "lancer_lethality": 2.22,
+          "lancer_health": 2.01,
+          "marksman_lethality": 2.33,
+          "marksman_health": 2.1,
+          "cap": 3.35
+        }
       },
       "pet_skill_grid_observed": {
         "visible_levels": [
@@ -3722,8 +4030,22 @@
         "notes": "Read from Pet Skill panel. Two bottom-row icons were partially visible without readable levels."
       },
       "pet_skill_grid_2026_07_10": {
-        "visible_levels": [5, 7, 8, 9, 7, 6, 8, 7],
-        "visible_cooldowns": ["11:52:53", "07:52:55", "11:52:54", "1d 01:30:38"],
+        "visible_levels": [
+          5,
+          7,
+          8,
+          9,
+          7,
+          6,
+          8,
+          7
+        ],
+        "visible_cooldowns": [
+          "11:52:53",
+          "07:52:55",
+          "11:52:54",
+          "1d 01:30:38"
+        ],
         "notes": "Re-read during 2026-07-10 sweep."
       },
       "refinement": {
@@ -3734,20 +4056,146 @@
           "marks_per_refine": 1
         },
         "pets": {
-          "cave_lion": { "power": 3323640, "max_percent": 22.35, "infantry_lethality": 15.29, "infantry_health": 15.47, "lancer_lethality": 14.85, "lancer_health": 14.08, "marksman_lethality": 14.33, "marksman_health": 14.19 },
-          "sabertooth_tiger": { "power": 2976840, "max_percent": 24.58, "infantry_lethality": 14.8, "infantry_health": 15.99, "lancer_lethality": 15.21, "lancer_health": 15.24, "marksman_lethality": 15.64, "marksman_health": 14.89 },
-          "snow_ape": { "power": 2928840, "max_percent": 22.35, "infantry_lethality": 16.91, "infantry_health": 15.67, "lancer_lethality": 14.4, "lancer_health": 17.21, "marksman_lethality": 17.36, "marksman_health": 18.52 },
-          "frostscale_chameleon": { "power": 2512920, "max_percent": 17.43, "infantry_lethality": 12.08, "infantry_health": 12.51, "lancer_lethality": 11.87, "lancer_health": 12.73, "marksman_lethality": 13.67, "marksman_health": 12.63 },
-          "snow_leopard": { "power": 2242560, "max_percent": 14.53, "infantry_lethality": 9.45, "infantry_health": 9.57, "lancer_lethality": 8.73, "lancer_health": 9.6, "marksman_lethality": 9.33, "marksman_health": 9.52 },
-          "mammoth": { "power": 2163360, "max_percent": 14.75, "infantry_lethality": 7.37, "infantry_health": 7.65, "lancer_lethality": 7.53, "lancer_health": 8.01, "marksman_lethality": 7.82, "marksman_health": 7.98 },
-          "frost_gorilla": { "power": 2159760, "max_percent": 14.75, "infantry_lethality": 7.81, "infantry_health": 7.61, "lancer_lethality": 7.85, "lancer_health": 7.79, "marksman_lethality": 7.45, "marksman_health": 7.55 },
-          "iron_rhino": { "power": 2049960, "max_percent": 14.75, "infantry_lethality": 8.05, "infantry_health": 7.37, "lancer_lethality": 8.32, "lancer_health": 7.78, "marksman_lethality": 8.36, "marksman_health": 7.65 },
-          "giant_elk": { "power": 2006160, "max_percent": 14.53, "infantry_lethality": 9.93, "infantry_health": 9.5, "lancer_lethality": 8.85, "lancer_health": 9.12, "marksman_lethality": 8.74, "marksman_health": 9.14 },
-          "titan_roc": { "power": 1925400, "max_percent": 14.08, "infantry_lethality": 11.9, "infantry_health": 12.57, "lancer_lethality": 11.04, "lancer_health": 11.87, "marksman_lethality": 11.89, "marksman_health": 10.7 },
-          "giant_tapir": { "power": 1458720, "max_percent": 10.06, "infantry_lethality": 6.66, "infantry_health": 6.04, "lancer_lethality": 6.93, "lancer_health": 6.08, "marksman_lethality": 6.87, "marksman_health": 6.06 },
-          "arctic_wolf": { "power": 1025880, "max_percent": 6.7, "infantry_lethality": 4.36, "infantry_health": 4.1, "lancer_lethality": 4.24, "lancer_health": 4.24, "marksman_lethality": 4.03, "marksman_health": 4.16 },
-          "musk_ox": { "power": 852960, "max_percent": 4.02, "infantry_lethality": 2.56, "infantry_health": 3.35, "lancer_lethality": 2.98, "lancer_health": 2.25, "marksman_lethality": 2.92, "marksman_health": 2.72 },
-          "cave_hyena": { "power": 523800, "max_percent": 3.35, "infantry_lethality": 2.49, "infantry_health": 2.38, "lancer_lethality": 2.22, "lancer_health": 2.01, "marksman_lethality": 2.33, "marksman_health": 2.1 }
+          "cave_lion": {
+            "power": 3323640,
+            "max_percent": 22.35,
+            "infantry_lethality": 15.29,
+            "infantry_health": 15.47,
+            "lancer_lethality": 14.85,
+            "lancer_health": 14.08,
+            "marksman_lethality": 14.33,
+            "marksman_health": 14.19
+          },
+          "sabertooth_tiger": {
+            "power": 2976840,
+            "max_percent": 24.58,
+            "infantry_lethality": 14.8,
+            "infantry_health": 15.99,
+            "lancer_lethality": 15.21,
+            "lancer_health": 15.24,
+            "marksman_lethality": 15.64,
+            "marksman_health": 14.89
+          },
+          "snow_ape": {
+            "power": 2928840,
+            "max_percent": 22.35,
+            "infantry_lethality": 16.91,
+            "infantry_health": 15.67,
+            "lancer_lethality": 14.4,
+            "lancer_health": 17.21,
+            "marksman_lethality": 17.36,
+            "marksman_health": 18.52
+          },
+          "frostscale_chameleon": {
+            "power": 2512920,
+            "max_percent": 17.43,
+            "infantry_lethality": 12.08,
+            "infantry_health": 12.51,
+            "lancer_lethality": 11.87,
+            "lancer_health": 12.73,
+            "marksman_lethality": 13.67,
+            "marksman_health": 12.63
+          },
+          "snow_leopard": {
+            "power": 2242560,
+            "max_percent": 14.53,
+            "infantry_lethality": 9.45,
+            "infantry_health": 9.57,
+            "lancer_lethality": 8.73,
+            "lancer_health": 9.6,
+            "marksman_lethality": 9.33,
+            "marksman_health": 9.52
+          },
+          "mammoth": {
+            "power": 2163360,
+            "max_percent": 14.75,
+            "infantry_lethality": 7.37,
+            "infantry_health": 7.65,
+            "lancer_lethality": 7.53,
+            "lancer_health": 8.01,
+            "marksman_lethality": 7.82,
+            "marksman_health": 7.98
+          },
+          "frost_gorilla": {
+            "power": 2159760,
+            "max_percent": 14.75,
+            "infantry_lethality": 7.81,
+            "infantry_health": 7.61,
+            "lancer_lethality": 7.85,
+            "lancer_health": 7.79,
+            "marksman_lethality": 7.45,
+            "marksman_health": 7.55
+          },
+          "iron_rhino": {
+            "power": 2049960,
+            "max_percent": 14.75,
+            "infantry_lethality": 8.05,
+            "infantry_health": 7.37,
+            "lancer_lethality": 8.32,
+            "lancer_health": 7.78,
+            "marksman_lethality": 8.36,
+            "marksman_health": 7.65
+          },
+          "giant_elk": {
+            "power": 2006160,
+            "max_percent": 14.53,
+            "infantry_lethality": 9.93,
+            "infantry_health": 9.5,
+            "lancer_lethality": 8.85,
+            "lancer_health": 9.12,
+            "marksman_lethality": 8.74,
+            "marksman_health": 9.14
+          },
+          "titan_roc": {
+            "power": 1925400,
+            "max_percent": 14.08,
+            "infantry_lethality": 11.9,
+            "infantry_health": 12.57,
+            "lancer_lethality": 11.04,
+            "lancer_health": 11.87,
+            "marksman_lethality": 11.89,
+            "marksman_health": 10.7
+          },
+          "giant_tapir": {
+            "power": 1458720,
+            "max_percent": 10.06,
+            "infantry_lethality": 6.66,
+            "infantry_health": 6.04,
+            "lancer_lethality": 6.93,
+            "lancer_health": 6.08,
+            "marksman_lethality": 6.87,
+            "marksman_health": 6.06
+          },
+          "arctic_wolf": {
+            "power": 1025880,
+            "max_percent": 6.7,
+            "infantry_lethality": 4.36,
+            "infantry_health": 4.1,
+            "lancer_lethality": 4.24,
+            "lancer_health": 4.24,
+            "marksman_lethality": 4.03,
+            "marksman_health": 4.16
+          },
+          "musk_ox": {
+            "power": 852960,
+            "max_percent": 4.02,
+            "infantry_lethality": 2.56,
+            "infantry_health": 3.35,
+            "lancer_lethality": 2.98,
+            "lancer_health": 2.25,
+            "marksman_lethality": 2.92,
+            "marksman_health": 2.72
+          },
+          "cave_hyena": {
+            "power": 523800,
+            "max_percent": 3.35,
+            "infantry_lethality": 2.49,
+            "infantry_health": 2.38,
+            "lancer_lethality": 2.22,
+            "lancer_health": 2.01,
+            "marksman_lethality": 2.33,
+            "marksman_health": 2.1
+          }
         }
       }
     },
@@ -4184,60 +4632,381 @@
         "battle": {
           "label": "Battle",
           "nodes": [
-            { "id": "shield_upgrade_v", "base_name": "Shield Upgrade", "name": "Shield Upgrade V", "tier": 5, "level": 6, "max_level": 6, "status": "MAX" },
-            { "id": "marksman_armor_v", "base_name": "Marksman Armor", "name": "Marksman Armor V", "tier": 5, "level": 6, "max_level": 6, "status": "MAX" },
-            { "id": "lancer_armor_v", "base_name": "Lancer Armor", "name": "Lancer Armor V", "tier": 5, "level": 6, "max_level": 6, "status": "MAX" },
-            { "id": "weapons_prep_vi", "base_name": "Weapons Prep", "name": "Weapons Prep VI", "tier": 6, "level": 4, "max_level": 6 },
-            { "id": "reprisal_tactics_vi", "base_name": "Reprisal Tactics", "name": "Reprisal Tactics VI", "tier": 6, "level": 4, "max_level": 6 },
-            { "id": "precision_targeting_vi", "base_name": "Precision Targeting", "name": "Precision Targeting VI", "tier": 6, "level": 4, "max_level": 6 },
-            { "id": "skirmishing_vi", "base_name": "Skirmishing", "name": "Skirmishing VI", "tier": 6, "level": 4, "max_level": 6 },
-            { "id": "defensive_formations_vi", "base_name": "Defensive Formations", "name": "Defensive Formations VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "picket_lines_vi", "base_name": "Picket Lines", "name": "Picket Lines VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "bulwark_formations_vi", "base_name": "Bulwark Formations", "name": "Bulwark Formations VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "special_defensive_training_vi", "base_name": "Special Defensive Training", "name": "Special Defensive Training VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "survival_techniques_vi", "base_name": "Survival Techniques", "name": "Survival Techniques VI", "tier": 6, "level": 3, "max_level": 6 },
-            { "id": "assault_techniques_vi", "base_name": "Assault Techniques", "name": "Assault Techniques VI", "tier": 6, "level": 3, "max_level": 6, "active": true, "next_level_time_observed": "6d 11:12:10" },
-            { "id": "regimental_expansion_vi", "base_name": "Regimental Expansion", "name": "Regimental Expansion VI", "tier": 6, "level": 5, "max_level": 6 },
-            { "id": "close_combat_vi", "base_name": "Close Combat", "name": "Close Combat VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "targeted_sniping_vi", "base_name": "Targeted Sniping", "name": "Targeted Sniping VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "lance_upgrade_vi", "base_name": "Lance Upgrade", "name": "Lance Upgrade VI", "tier": 6, "level": 2, "max_level": 6 },
-            { "id": "shield_upgrade_vi", "base_name": "Shield Upgrade", "name": "Shield Upgrade VI", "tier": 6, "level": 0, "max_level": 6 },
-            { "id": "marksman_armor_vi", "base_name": "Marksman Armor", "name": "Marksman Armor VI", "tier": 6, "level": 0, "max_level": 6 },
-            { "id": "lancer_armor_vi", "base_name": "Lancer Armor", "name": "Lancer Armor VI", "tier": 6, "level": 0, "max_level": 6 }
+            {
+              "id": "shield_upgrade_v",
+              "base_name": "Shield Upgrade",
+              "name": "Shield Upgrade V",
+              "tier": 5,
+              "level": 6,
+              "max_level": 6,
+              "status": "MAX"
+            },
+            {
+              "id": "marksman_armor_v",
+              "base_name": "Marksman Armor",
+              "name": "Marksman Armor V",
+              "tier": 5,
+              "level": 6,
+              "max_level": 6,
+              "status": "MAX"
+            },
+            {
+              "id": "lancer_armor_v",
+              "base_name": "Lancer Armor",
+              "name": "Lancer Armor V",
+              "tier": 5,
+              "level": 6,
+              "max_level": 6,
+              "status": "MAX"
+            },
+            {
+              "id": "weapons_prep_vi",
+              "base_name": "Weapons Prep",
+              "name": "Weapons Prep VI",
+              "tier": 6,
+              "level": 4,
+              "max_level": 6
+            },
+            {
+              "id": "reprisal_tactics_vi",
+              "base_name": "Reprisal Tactics",
+              "name": "Reprisal Tactics VI",
+              "tier": 6,
+              "level": 4,
+              "max_level": 6
+            },
+            {
+              "id": "precision_targeting_vi",
+              "base_name": "Precision Targeting",
+              "name": "Precision Targeting VI",
+              "tier": 6,
+              "level": 4,
+              "max_level": 6
+            },
+            {
+              "id": "skirmishing_vi",
+              "base_name": "Skirmishing",
+              "name": "Skirmishing VI",
+              "tier": 6,
+              "level": 4,
+              "max_level": 6
+            },
+            {
+              "id": "defensive_formations_vi",
+              "base_name": "Defensive Formations",
+              "name": "Defensive Formations VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "picket_lines_vi",
+              "base_name": "Picket Lines",
+              "name": "Picket Lines VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "bulwark_formations_vi",
+              "base_name": "Bulwark Formations",
+              "name": "Bulwark Formations VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "special_defensive_training_vi",
+              "base_name": "Special Defensive Training",
+              "name": "Special Defensive Training VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "survival_techniques_vi",
+              "base_name": "Survival Techniques",
+              "name": "Survival Techniques VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 6
+            },
+            {
+              "id": "assault_techniques_vi",
+              "base_name": "Assault Techniques",
+              "name": "Assault Techniques VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 6,
+              "active": true,
+              "next_level_time_observed": "6d 11:12:10"
+            },
+            {
+              "id": "regimental_expansion_vi",
+              "base_name": "Regimental Expansion",
+              "name": "Regimental Expansion VI",
+              "tier": 6,
+              "level": 5,
+              "max_level": 6
+            },
+            {
+              "id": "close_combat_vi",
+              "base_name": "Close Combat",
+              "name": "Close Combat VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "targeted_sniping_vi",
+              "base_name": "Targeted Sniping",
+              "name": "Targeted Sniping VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "lance_upgrade_vi",
+              "base_name": "Lance Upgrade",
+              "name": "Lance Upgrade VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 6
+            },
+            {
+              "id": "shield_upgrade_vi",
+              "base_name": "Shield Upgrade",
+              "name": "Shield Upgrade VI",
+              "tier": 6,
+              "level": 0,
+              "max_level": 6
+            },
+            {
+              "id": "marksman_armor_vi",
+              "base_name": "Marksman Armor",
+              "name": "Marksman Armor VI",
+              "tier": 6,
+              "level": 0,
+              "max_level": 6
+            },
+            {
+              "id": "lancer_armor_vi",
+              "base_name": "Lancer Armor",
+              "name": "Lancer Armor VI",
+              "tier": 6,
+              "level": 0,
+              "max_level": 6
+            }
           ]
         },
         "economy": {
           "label": "Economy",
           "nodes": [
-            { "id": "iron_mining_iv", "base_name": "Iron Mining", "name": "Iron Mining IV", "tier": 4, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "meat_output_vi", "base_name": "Meat Output", "name": "Meat Output VI", "tier": 6, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "coal_output_v", "base_name": "Coal Output", "name": "Coal Output V", "tier": 5, "level": 2, "max_level": 3 },
-            { "id": "wood_output_vi", "base_name": "Wood Output", "name": "Wood Output VI", "tier": 6, "level": 2, "max_level": 3 },
-            { "id": "iron_output_v", "base_name": "Iron Output", "name": "Iron Output V", "tier": 5, "level": 2, "max_level": 3 },
-            { "id": "food_gathering_vi", "base_name": "Food Gathering", "name": "Food Gathering VI", "tier": 6, "level": 1, "max_level": 3 },
-            { "id": "coal_mining_v", "base_name": "Coal Mining", "name": "Coal Mining V", "tier": 5, "level": 1, "max_level": 3 },
-            { "id": "wood_gathering_vi", "base_name": "Wood Gathering", "name": "Wood Gathering VI", "tier": 6, "level": 1, "max_level": 3 },
-            { "id": "iron_mining_v", "base_name": "Iron Mining", "name": "Iron Mining V", "tier": 5, "level": 1, "max_level": 3 }
+            {
+              "id": "iron_mining_iv",
+              "base_name": "Iron Mining",
+              "name": "Iron Mining IV",
+              "tier": 4,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "meat_output_vi",
+              "base_name": "Meat Output",
+              "name": "Meat Output VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "coal_output_v",
+              "base_name": "Coal Output",
+              "name": "Coal Output V",
+              "tier": 5,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "wood_output_vi",
+              "base_name": "Wood Output",
+              "name": "Wood Output VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "iron_output_v",
+              "base_name": "Iron Output",
+              "name": "Iron Output V",
+              "tier": 5,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "food_gathering_vi",
+              "base_name": "Food Gathering",
+              "name": "Food Gathering VI",
+              "tier": 6,
+              "level": 1,
+              "max_level": 3
+            },
+            {
+              "id": "coal_mining_v",
+              "base_name": "Coal Mining",
+              "name": "Coal Mining V",
+              "tier": 5,
+              "level": 1,
+              "max_level": 3
+            },
+            {
+              "id": "wood_gathering_vi",
+              "base_name": "Wood Gathering",
+              "name": "Wood Gathering VI",
+              "tier": 6,
+              "level": 1,
+              "max_level": 3
+            },
+            {
+              "id": "iron_mining_v",
+              "base_name": "Iron Mining",
+              "name": "Iron Mining V",
+              "tier": 5,
+              "level": 1,
+              "max_level": 3
+            }
           ]
         },
         "growth": {
           "label": "Growth",
           "nodes": [
-            { "id": "tool_enhancement_v", "base_name": "Tool Enhancement", "name": "Tool Enhancement V", "tier": 5, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "bandaging_v", "base_name": "Bandaging", "name": "Bandaging V", "tier": 5, "level": 2, "max_level": 3 },
-            { "id": "trainer_tools_v", "base_name": "Trainer Tools", "name": "Trainer Tools V", "tier": 5, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "tooling_up_vi", "base_name": "Tooling Up", "name": "Tooling Up VI", "tier": 6, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "ward_expansion_vi", "base_name": "Ward Expansion", "name": "Ward Expansion VI", "tier": 6, "level": 2, "max_level": 3 },
-            { "id": "camp_expansion_vi", "base_name": "Camp Expansion", "name": "Camp Expansion VI", "tier": 6, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "tool_enhancement_vi", "base_name": "Tool Enhancement", "name": "Tool Enhancement VI", "tier": 6, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "bandaging_vi", "base_name": "Bandaging", "name": "Bandaging VI", "tier": 6, "level": 1, "max_level": 3 },
-            { "id": "trainer_tools_vi", "base_name": "Trainer Tools", "name": "Trainer Tools VI", "tier": 6, "level": 3, "max_level": 3, "status": "MAX" },
-            { "id": "tooling_up_vii", "base_name": "Tooling Up", "name": "Tooling Up VII", "tier": 7, "level": 2, "max_level": 3 },
-            { "id": "ward_expansion_vii", "base_name": "Ward Expansion", "name": "Ward Expansion VII", "tier": 7, "level": 1, "max_level": 3 },
-            { "id": "camp_expansion_vii", "base_name": "Camp Expansion", "name": "Camp Expansion VII", "tier": 7, "level": 2, "max_level": 3 },
-            { "id": "tool_enhancement_vii", "base_name": "Tool Enhancement", "name": "Tool Enhancement VII", "tier": 7, "level": 2, "max_level": 3 },
-            { "id": "bandaging_vii", "base_name": "Bandaging", "name": "Bandaging VII", "tier": 7, "level": 0, "max_level": 3 },
-            { "id": "trainer_tools_vii", "base_name": "Trainer Tools", "name": "Trainer Tools VII", "tier": 7, "level": 2, "max_level": 3 }
+            {
+              "id": "tool_enhancement_v",
+              "base_name": "Tool Enhancement",
+              "name": "Tool Enhancement V",
+              "tier": 5,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "bandaging_v",
+              "base_name": "Bandaging",
+              "name": "Bandaging V",
+              "tier": 5,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "trainer_tools_v",
+              "base_name": "Trainer Tools",
+              "name": "Trainer Tools V",
+              "tier": 5,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "tooling_up_vi",
+              "base_name": "Tooling Up",
+              "name": "Tooling Up VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "ward_expansion_vi",
+              "base_name": "Ward Expansion",
+              "name": "Ward Expansion VI",
+              "tier": 6,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "camp_expansion_vi",
+              "base_name": "Camp Expansion",
+              "name": "Camp Expansion VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "tool_enhancement_vi",
+              "base_name": "Tool Enhancement",
+              "name": "Tool Enhancement VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "bandaging_vi",
+              "base_name": "Bandaging",
+              "name": "Bandaging VI",
+              "tier": 6,
+              "level": 1,
+              "max_level": 3
+            },
+            {
+              "id": "trainer_tools_vi",
+              "base_name": "Trainer Tools",
+              "name": "Trainer Tools VI",
+              "tier": 6,
+              "level": 3,
+              "max_level": 3,
+              "status": "MAX"
+            },
+            {
+              "id": "tooling_up_vii",
+              "base_name": "Tooling Up",
+              "name": "Tooling Up VII",
+              "tier": 7,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "ward_expansion_vii",
+              "base_name": "Ward Expansion",
+              "name": "Ward Expansion VII",
+              "tier": 7,
+              "level": 1,
+              "max_level": 3
+            },
+            {
+              "id": "camp_expansion_vii",
+              "base_name": "Camp Expansion",
+              "name": "Camp Expansion VII",
+              "tier": 7,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "tool_enhancement_vii",
+              "base_name": "Tool Enhancement",
+              "name": "Tool Enhancement VII",
+              "tier": 7,
+              "level": 2,
+              "max_level": 3
+            },
+            {
+              "id": "bandaging_vii",
+              "base_name": "Bandaging",
+              "name": "Bandaging VII",
+              "tier": 7,
+              "level": 0,
+              "max_level": 3
+            },
+            {
+              "id": "trainer_tools_vii",
+              "base_name": "Trainer Tools",
+              "name": "Trainer Tools VII",
+              "tier": 7,
+              "level": 2,
+              "max_level": 3
+            }
           ]
         }
       },
@@ -4246,9 +5015,8 @@
         "fire_crystals_owned": 407,
         "fire_crystal_shards": 71,
         "active_research": {
-          "name": null,
-          "status": "Idle",
-          "notes": "Helios Lancer Healing completed to level 8 (confirmed 2026-07-10: queue shows War Academy Research Idle, tech power rose 50,410,000 -> 50,565,000 which equals the +155,000 node power, and the node card now reads 8 -> 9)."
+          "name": "Helios Marksman Training",
+          "remaining": "5d 18h (2026-07-15)"
         },
         "aggregate_bonuses": {
           "infantry_attack": "+56.00%",

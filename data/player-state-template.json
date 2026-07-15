@@ -1,1109 +1,1124 @@
 {
- "schema_version": 1,
- "last_saved": null,
- "profile": {
-  "chief_name": "",
-  "state_number": "",
-  "state_age_days": 0,
-  "furnace_level": "1",
-  "construction_speed_pct": 0,
-  "research_speed_pct": 0,
-  "training_speed_pct": 0,
-  "learning_speed_pct": 0
- },
- "resources": {
-  "meat": 0,
-  "wood": 0,
-  "coal": 0,
-  "iron": 0,
-  "fire_crystals": 0,
-  "refined_fire_crystals": 0,
-  "steel": 0,
-  "fire_crystal_shards": 0,
-  "hardened_alloy": 0,
-  "polishing_solution": 0,
-  "design_plans": 0,
-  "lunar_amber": 0,
-  "charm_guides": 0,
-  "charm_designs": 0,
-  "charm_secrets": 0,
-  "mythic_general_shards": 0,
-  "epic_general_shards": 0,
-  "rare_general_shards": 0,
-  "hero_gear_xp": 0,
-  "mythic_gear": 0,
-  "mithril": 0,
-  "essence_stones": 0,
-  "pet_food": 0,
-  "pet_manuals": 0,
-  "pet_potions": 0,
-  "pet_serum": 0,
-  "common_sigils": 0,
-  "books_of_knowledge": 0,
-  "learning_speedups_minutes": 0,
-  "construction_speedups_minutes": 0,
-  "research_speedups_minutes": 0,
-  "training_speedups_minutes": 0,
-  "general_speedups_minutes": 0,
-  "chief_stamina": 0,
-  "stamina_cans": 0,
-  "pet_custom_chests": 0,
-  "common_wild_marks": 0,
-  "advanced_wild_marks": 0,
-  "healing_speedups_minutes": 0,
-  "widgets_gen1": 0,
-  "widgets_gen2": 0,
-  "widgets_gen3": 0,
-  "widgets_gen4": 0,
-  "widgets_gen5": 0,
-  "widgets_gen6": 0,
-  "widgets_gen7": 0,
-  "widgets_gen8": 0,
-  "widgets_gen9": 0,
-  "widgets_gen10": 0,
-  "widgets_gen11": 0,
-  "widgets_gen12": 0,
-  "widgets_gen13": 0,
-  "widgets_gen14": 0,
-  "widgets_gen15": 0,
-  "widgets_gen16": 0
- },
- "buildings": {
-  "furnace": {
-   "current": "1",
-   "target": "FC10"
+  "schema_version": 1,
+  "last_saved": null,
+  "profile": {
+    "chief_name": "",
+    "state_number": "",
+    "state_age_days": 0,
+    "furnace_level": "1",
+    "construction_speed_pct": 0,
+    "research_speed_pct": 0,
+    "training_speed_pct": 0,
+    "learning_speed_pct": 0
   },
-  "barricade": {
-   "current": "1",
-   "target": "10"
+  "resources": {
+    "meat": 0,
+    "wood": 0,
+    "coal": 0,
+    "iron": 0,
+    "fire_crystals": 0,
+    "refined_fire_crystals": 0,
+    "steel": 0,
+    "fire_crystal_shards": 0,
+    "hardened_alloy": 0,
+    "polishing_solution": 0,
+    "design_plans": 0,
+    "lunar_amber": 0,
+    "charm_guides": 0,
+    "charm_designs": 0,
+    "charm_secrets": 0,
+    "mythic_general_shards": 0,
+    "epic_general_shards": 0,
+    "rare_general_shards": 0,
+    "hero_gear_xp": 0,
+    "mythic_gear": 0,
+    "mithril": 0,
+    "essence_stones": 0,
+    "pet_food": 0,
+    "pet_manuals": 0,
+    "pet_potions": 0,
+    "pet_serum": 0,
+    "common_sigils": 0,
+    "books_of_knowledge": 0,
+    "learning_speedups_minutes": 0,
+    "construction_speedups_minutes": 0,
+    "research_speedups_minutes": 0,
+    "training_speedups_minutes": 0,
+    "general_speedups_minutes": 0,
+    "chief_stamina": 0,
+    "stamina_cans": 0,
+    "pet_custom_chests": 0,
+    "common_wild_marks": 0,
+    "advanced_wild_marks": 0,
+    "healing_speedups_minutes": 0,
+    "widgets_gen1": 0,
+    "widgets_gen2": 0,
+    "widgets_gen3": 0,
+    "widgets_gen4": 0,
+    "widgets_gen5": 0,
+    "widgets_gen6": 0,
+    "widgets_gen7": 0,
+    "widgets_gen8": 0,
+    "widgets_gen9": 0,
+    "widgets_gen10": 0,
+    "widgets_gen11": 0,
+    "widgets_gen12": 0,
+    "widgets_gen13": 0,
+    "widgets_gen14": 0,
+    "widgets_gen15": 0,
+    "widgets_gen16": 0
   },
-  "command_center": {
-   "current": "1",
-   "target": "FC10"
+  "buildings": {
+    "furnace": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "barricade": {
+      "current": "1",
+      "target": "10"
+    },
+    "command_center": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "coal_mine": {
+      "current": "1",
+      "target": "30"
+    },
+    "embassy": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "infirmary": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "hunter_s_hut": {
+      "current": "1",
+      "target": "30"
+    },
+    "infantry_camp": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "iron_mine": {
+      "current": "1",
+      "target": "30"
+    },
+    "lancer_camp": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "marksman_camp": {
+      "current": "1",
+      "target": "FC10"
+    },
+    "research_center": {
+      "current": "1",
+      "target": "30"
+    },
+    "sawmill": {
+      "current": "1",
+      "target": "30"
+    },
+    "shelter": {
+      "current": "1",
+      "target": "10"
+    },
+    "war_academy": {
+      "current": "FC1",
+      "target": "FC10"
+    }
   },
-  "coal_mine": {
-   "current": "1",
-   "target": "30"
+  "chief_gear": {
+    "hat": {
+      "slot": "Hat",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    },
+    "watch": {
+      "slot": "Watch",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    },
+    "coat": {
+      "slot": "Coat",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    },
+    "pants": {
+      "slot": "Pants",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    },
+    "ring": {
+      "slot": "Ring",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    },
+    "cudgel": {
+      "slot": "Cudgel",
+      "current": "Locked",
+      "target": "Legendary T4 (3-Star)"
+    }
   },
-  "embassy": {
-   "current": "1",
-   "target": "FC10"
+  "charms": {
+    "hat_top": {
+      "slot": "Hat Top",
+      "current": 0,
+      "target": 16
+    },
+    "hat_left": {
+      "slot": "Hat Left",
+      "current": 0,
+      "target": 16
+    },
+    "hat_right": {
+      "slot": "Hat Right",
+      "current": 0,
+      "target": 16
+    },
+    "coat_top": {
+      "slot": "Coat Top",
+      "current": 0,
+      "target": 16
+    },
+    "coat_left": {
+      "slot": "Coat Left",
+      "current": 0,
+      "target": 16
+    },
+    "coat_right": {
+      "slot": "Coat Right",
+      "current": 0,
+      "target": 16
+    },
+    "ring_top": {
+      "slot": "Ring Top",
+      "current": 0,
+      "target": 16
+    },
+    "ring_left": {
+      "slot": "Ring Left",
+      "current": 0,
+      "target": 16
+    },
+    "ring_right": {
+      "slot": "Ring Right",
+      "current": 0,
+      "target": 16
+    },
+    "watch_top": {
+      "slot": "Watch Top",
+      "current": 0,
+      "target": 16
+    },
+    "watch_left": {
+      "slot": "Watch Left",
+      "current": 0,
+      "target": 16
+    },
+    "watch_right": {
+      "slot": "Watch Right",
+      "current": 0,
+      "target": 16
+    },
+    "pants_top": {
+      "slot": "Pants Top",
+      "current": 0,
+      "target": 16
+    },
+    "pants_left": {
+      "slot": "Pants Left",
+      "current": 0,
+      "target": 16
+    },
+    "pants_right": {
+      "slot": "Pants Right",
+      "current": 0,
+      "target": 16
+    },
+    "cudgel_top": {
+      "slot": "Cudgel Top",
+      "current": 0,
+      "target": 16
+    },
+    "cudgel_left": {
+      "slot": "Cudgel Left",
+      "current": 0,
+      "target": 16
+    },
+    "cudgel_right": {
+      "slot": "Cudgel Right",
+      "current": 0,
+      "target": 16
+    }
   },
-  "infirmary": {
-   "current": "1",
-   "target": "FC10"
+  "heroes": {
+    "jeronimo": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "natalia": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "molly": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "zinman": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "flint": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "philly": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "alonso": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "logan": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "mia": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "greg": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "ahmose": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "reina": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "lynn": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "hector": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "norah": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gwen": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "wu_ming": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "renee": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "wayne": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "edith": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gordon": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "bradley": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gatot": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "sonya": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "hendrik": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "magnus": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "fred": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "xura": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gregory": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "freya": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "blanchette": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "eleonora": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "lloyd": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "rufus": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "hervor": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "karol": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "ligeia": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gisela": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "flora": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "vulcanus": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "elif": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "dominic": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "cara": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "hank": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "estrella": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "viveca": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "siegel": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "ursar": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "aisling": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "sergey": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "patrick": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "jessie": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "bahiti": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "gina": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "walis_bokan": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "jasser": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "seo_yoon": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "ling_xue": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "smith": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "eugene": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "charlie": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    },
+    "cloris": {
+      "owned": false,
+      "current_stars": 0,
+      "target_stars": 5,
+      "current_widget_level": 0,
+      "target_widget_level": 10
+    }
   },
-  "hunter_s_hut": {
-   "current": "1",
-   "target": "30"
+  "hero_gear": {},
+  "pets": {
+    "cave_hyena": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "arctic_wolf": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "musk_ox": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "giant_tapir": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "titan_roc": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "giant_elk": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "snow_leopard": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "cave_lion": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "snow_ape": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "iron_rhino": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "sabertooth_tiger": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "mammoth": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "frost_gorilla": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "frostscale_chameleon": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    },
+    "abyssal_shelldragon": {
+      "current": "0",
+      "target": "100.1",
+      "quality_current": "None",
+      "quality_target": "None",
+      "refine_attempts_per_tier": 1,
+      "refine_stats": null
+    }
   },
-  "infantry_camp": {
-   "current": "1",
-   "target": "FC10"
+  "troops": {
+    "infantry_t1": {
+      "troop_type": "Infantry",
+      "tier": 1,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t2": {
+      "troop_type": "Infantry",
+      "tier": 2,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t3": {
+      "troop_type": "Infantry",
+      "tier": 3,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t4": {
+      "troop_type": "Infantry",
+      "tier": 4,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t5": {
+      "troop_type": "Infantry",
+      "tier": 5,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t6": {
+      "troop_type": "Infantry",
+      "tier": 6,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t7": {
+      "troop_type": "Infantry",
+      "tier": 7,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t8": {
+      "troop_type": "Infantry",
+      "tier": 8,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t9": {
+      "troop_type": "Infantry",
+      "tier": 9,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t10": {
+      "troop_type": "Infantry",
+      "tier": 10,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t11": {
+      "troop_type": "Infantry",
+      "tier": 11,
+      "current": 0,
+      "target": 0
+    },
+    "infantry_t12": {
+      "troop_type": "Infantry",
+      "tier": 12,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t1": {
+      "troop_type": "Lancer",
+      "tier": 1,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t2": {
+      "troop_type": "Lancer",
+      "tier": 2,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t3": {
+      "troop_type": "Lancer",
+      "tier": 3,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t4": {
+      "troop_type": "Lancer",
+      "tier": 4,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t5": {
+      "troop_type": "Lancer",
+      "tier": 5,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t6": {
+      "troop_type": "Lancer",
+      "tier": 6,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t7": {
+      "troop_type": "Lancer",
+      "tier": 7,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t8": {
+      "troop_type": "Lancer",
+      "tier": 8,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t9": {
+      "troop_type": "Lancer",
+      "tier": 9,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t10": {
+      "troop_type": "Lancer",
+      "tier": 10,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t11": {
+      "troop_type": "Lancer",
+      "tier": 11,
+      "current": 0,
+      "target": 0
+    },
+    "lancer_t12": {
+      "troop_type": "Lancer",
+      "tier": 12,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t1": {
+      "troop_type": "Marksman",
+      "tier": 1,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t2": {
+      "troop_type": "Marksman",
+      "tier": 2,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t3": {
+      "troop_type": "Marksman",
+      "tier": 3,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t4": {
+      "troop_type": "Marksman",
+      "tier": 4,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t5": {
+      "troop_type": "Marksman",
+      "tier": 5,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t6": {
+      "troop_type": "Marksman",
+      "tier": 6,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t7": {
+      "troop_type": "Marksman",
+      "tier": 7,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t8": {
+      "troop_type": "Marksman",
+      "tier": 8,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t9": {
+      "troop_type": "Marksman",
+      "tier": 9,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t10": {
+      "troop_type": "Marksman",
+      "tier": 10,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t11": {
+      "troop_type": "Marksman",
+      "tier": 11,
+      "current": 0,
+      "target": 0
+    },
+    "marksman_t12": {
+      "troop_type": "Marksman",
+      "tier": 12,
+      "current": 0,
+      "target": 0
+    }
   },
-  "iron_mine": {
-   "current": "1",
-   "target": "30"
+  "experts": {
+    "cyrille": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "agnes": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "holger": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "romulus": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "fabian": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "baldur": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "valeria": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "ronne": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    },
+    "kathy": {
+      "relationship_current": "0",
+      "relationship_target": "100",
+      "notes": ""
+    }
   },
-  "lancer_camp": {
-   "current": "1",
-   "target": "FC10"
+  "research": {
+    "flame_tech": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    },
+    "collection_gallery": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    },
+    "icefire_warhymn_league": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    },
+    "normal_research_center": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    },
+    "war_academy_helios": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    },
+    "current_experts": {
+      "current_note": "",
+      "target_note": "",
+      "priority": "Backlog"
+    }
   },
-  "marksman_camp": {
-   "current": "1",
-   "target": "FC10"
-  },
-  "research_center": {
-   "current": "1",
-   "target": "30"
-  },
-  "sawmill": {
-   "current": "1",
-   "target": "30"
-  },
-  "shelter": {
-   "current": "1",
-   "target": "10"
-  },
-  "war_academy": {
-   "current": "FC1",
-   "target": "FC10"
+  "custom_notes": "",
+  "svs_plan": {},
+  "troop_plan": {
+    "mode": "train",
+    "troop_type": "infantry",
+    "quantity": 1581,
+    "from_tier": 10,
+    "to_tier": 11,
+    "use_profile_speed": true,
+    "custom_speed_pct": 0
   }
- },
- "chief_gear": {
-  "hat": {
-   "slot": "Hat",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  },
-  "watch": {
-   "slot": "Watch",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  },
-  "coat": {
-   "slot": "Coat",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  },
-  "pants": {
-   "slot": "Pants",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  },
-  "ring": {
-   "slot": "Ring",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  },
-  "cudgel": {
-   "slot": "Cudgel",
-   "current": "Locked",
-   "target": "Legendary T4 (3-Star)"
-  }
- },
- "charms": {
-  "hat_top": {
-   "slot": "Hat Top",
-   "current": 0,
-   "target": 16
-  },
-  "hat_left": {
-   "slot": "Hat Left",
-   "current": 0,
-   "target": 16
-  },
-  "hat_right": {
-   "slot": "Hat Right",
-   "current": 0,
-   "target": 16
-  },
-  "coat_top": {
-   "slot": "Coat Top",
-   "current": 0,
-   "target": 16
-  },
-  "coat_left": {
-   "slot": "Coat Left",
-   "current": 0,
-   "target": 16
-  },
-  "coat_right": {
-   "slot": "Coat Right",
-   "current": 0,
-   "target": 16
-  },
-  "ring_top": {
-   "slot": "Ring Top",
-   "current": 0,
-   "target": 16
-  },
-  "ring_left": {
-   "slot": "Ring Left",
-   "current": 0,
-   "target": 16
-  },
-  "ring_right": {
-   "slot": "Ring Right",
-   "current": 0,
-   "target": 16
-  },
-  "watch_top": {
-   "slot": "Watch Top",
-   "current": 0,
-   "target": 16
-  },
-  "watch_left": {
-   "slot": "Watch Left",
-   "current": 0,
-   "target": 16
-  },
-  "watch_right": {
-   "slot": "Watch Right",
-   "current": 0,
-   "target": 16
-  },
-  "pants_top": {
-   "slot": "Pants Top",
-   "current": 0,
-   "target": 16
-  },
-  "pants_left": {
-   "slot": "Pants Left",
-   "current": 0,
-   "target": 16
-  },
-  "pants_right": {
-   "slot": "Pants Right",
-   "current": 0,
-   "target": 16
-  },
-  "cudgel_top": {
-   "slot": "Cudgel Top",
-   "current": 0,
-   "target": 16
-  },
-  "cudgel_left": {
-   "slot": "Cudgel Left",
-   "current": 0,
-   "target": 16
-  },
-  "cudgel_right": {
-   "slot": "Cudgel Right",
-   "current": 0,
-   "target": 16
-  }
- },
- "heroes": {
-  "jeronimo": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "natalia": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "molly": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "zinman": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "flint": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "philly": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "alonso": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "logan": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "mia": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "greg": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "ahmose": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "reina": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "lynn": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "hector": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "norah": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gwen": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "wu_ming": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "renee": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "wayne": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "edith": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gordon": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "bradley": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gatot": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "sonya": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "hendrik": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "magnus": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "fred": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "xura": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gregory": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "freya": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "blanchette": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "eleonora": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "lloyd": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "rufus": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "hervor": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "karol": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "ligeia": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gisela": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "flora": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "vulcanus": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "elif": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "dominic": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "cara": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "hank": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "estrella": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "viveca": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "siegel": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "ursar": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "aisling": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "sergey": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "patrick": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "jessie": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "bahiti": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "gina": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "walis_bokan": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "jasser": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "seo_yoon": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "ling_xue": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "smith": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "eugene": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "charlie": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  },
-  "cloris": {
-   "owned": false,
-   "current_stars": 0,
-   "target_stars": 5,
-   "current_widget_level": 0,
-   "target_widget_level": 10
-  }
- },
- "hero_gear": {},
- "pets": {
-  "cave_hyena": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "arctic_wolf": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "musk_ox": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "giant_tapir": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "titan_roc": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "giant_elk": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "snow_leopard": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "cave_lion": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "snow_ape": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "iron_rhino": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "sabertooth_tiger": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "mammoth": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "frost_gorilla": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "frostscale_chameleon": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  },
-  "abyssal_shelldragon": {
-   "current": "0",
-   "target": "100.1",
-   "quality_current": "None",
-   "quality_target": "None",
-   "refine_attempts_per_tier": 1
-  }
- },
- "troops": {
-  "infantry_t1": {
-   "troop_type": "Infantry",
-   "tier": 1,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t2": {
-   "troop_type": "Infantry",
-   "tier": 2,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t3": {
-   "troop_type": "Infantry",
-   "tier": 3,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t4": {
-   "troop_type": "Infantry",
-   "tier": 4,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t5": {
-   "troop_type": "Infantry",
-   "tier": 5,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t6": {
-   "troop_type": "Infantry",
-   "tier": 6,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t7": {
-   "troop_type": "Infantry",
-   "tier": 7,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t8": {
-   "troop_type": "Infantry",
-   "tier": 8,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t9": {
-   "troop_type": "Infantry",
-   "tier": 9,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t10": {
-   "troop_type": "Infantry",
-   "tier": 10,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t11": {
-   "troop_type": "Infantry",
-   "tier": 11,
-   "current": 0,
-   "target": 0
-  },
-  "infantry_t12": {
-   "troop_type": "Infantry",
-   "tier": 12,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t1": {
-   "troop_type": "Lancer",
-   "tier": 1,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t2": {
-   "troop_type": "Lancer",
-   "tier": 2,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t3": {
-   "troop_type": "Lancer",
-   "tier": 3,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t4": {
-   "troop_type": "Lancer",
-   "tier": 4,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t5": {
-   "troop_type": "Lancer",
-   "tier": 5,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t6": {
-   "troop_type": "Lancer",
-   "tier": 6,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t7": {
-   "troop_type": "Lancer",
-   "tier": 7,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t8": {
-   "troop_type": "Lancer",
-   "tier": 8,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t9": {
-   "troop_type": "Lancer",
-   "tier": 9,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t10": {
-   "troop_type": "Lancer",
-   "tier": 10,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t11": {
-   "troop_type": "Lancer",
-   "tier": 11,
-   "current": 0,
-   "target": 0
-  },
-  "lancer_t12": {
-   "troop_type": "Lancer",
-   "tier": 12,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t1": {
-   "troop_type": "Marksman",
-   "tier": 1,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t2": {
-   "troop_type": "Marksman",
-   "tier": 2,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t3": {
-   "troop_type": "Marksman",
-   "tier": 3,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t4": {
-   "troop_type": "Marksman",
-   "tier": 4,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t5": {
-   "troop_type": "Marksman",
-   "tier": 5,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t6": {
-   "troop_type": "Marksman",
-   "tier": 6,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t7": {
-   "troop_type": "Marksman",
-   "tier": 7,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t8": {
-   "troop_type": "Marksman",
-   "tier": 8,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t9": {
-   "troop_type": "Marksman",
-   "tier": 9,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t10": {
-   "troop_type": "Marksman",
-   "tier": 10,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t11": {
-   "troop_type": "Marksman",
-   "tier": 11,
-   "current": 0,
-   "target": 0
-  },
-  "marksman_t12": {
-   "troop_type": "Marksman",
-   "tier": 12,
-   "current": 0,
-   "target": 0
-  }
- },
- "experts": {
-  "cyrille": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "agnes": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "holger": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "romulus": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "fabian": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "baldur": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "valeria": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "ronne": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  },
-  "kathy": {
-   "relationship_current": "0",
-   "relationship_target": "100",
-   "notes": ""
-  }
- },
- "research": {
-  "flame_tech": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  },
-  "collection_gallery": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  },
-  "icefire_warhymn_league": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  },
-  "normal_research_center": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  },
-  "war_academy_helios": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  },
-  "current_experts": {
-   "current_note": "",
-   "target_note": "",
-   "priority": "Backlog"
-  }
- },
- "custom_notes": "",
- "svs_plan": {},
- "troop_plan": {
-  "mode": "train",
-  "troop_type": "infantry",
-  "quantity": 1581,
-  "from_tier": 10,
-  "to_tier": 11,
-  "use_profile_speed": true,
-  "custom_speed_pct": 0
- }
 }
