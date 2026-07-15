@@ -8168,7 +8168,7 @@ const HERO3D_VIEWS = {
     watch: { pos: [0.9, 1.5, 1.5], look: [0.22, 1.22, 0.2] },
     pants: { pos: [0.6, 0.9, 2.1], look: [0, 0.55, 0.05] },
     ring: { pos: [-0.95, 1.15, 1.55], look: [-0.42, 0.98, 0.1] },
-    cudgel: { pos: [1.5, 1.9, -1.75], look: [0.1, 1.45, -0.35] },
+    cudgel: { pos: [1.75, 1.85, -2.05], look: [0.22, 1.5, -0.36] },
   },
   charms: {
     default: { pos: [0, 1.55, 3.9], look: [0, 1.05, 0] },
@@ -8177,7 +8177,7 @@ const HERO3D_VIEWS = {
     watch: { pos: [1.0, 1.55, 1.7], look: [0.24, 1.22, 0.22] },
     pants: { pos: [0.65, 0.95, 2.3], look: [0, 0.55, 0.1] },
     ring: { pos: [-1.05, 1.2, 1.7], look: [-0.44, 0.98, 0.12] },
-    cudgel: { pos: [1.65, 2.0, -1.9], look: [0.12, 1.45, -0.38] },
+    cudgel: { pos: [1.85, 1.9, -2.15], look: [0.2, 1.48, -0.4] },
   },
 };
 
@@ -8269,6 +8269,8 @@ function hero3dBuildScene() {
 
   // head + neck
   hero3dAdd(T, rig, new T.SphereGeometry(0.2, 20, 16), skin, [0, 1.66, 0], null, "hat");
+  const hairCap = hero3dAdd(T, rig, new T.SphereGeometry(0.208, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), hero3dMat(T, 0x3d2f22, { roughness: 0.9 }), [0, 1.655, -0.015], null, "hat");
+  hairCap.rotation.x = Math.PI / 2 + 0.5;
   hero3dAdd(T, rig, new T.SphereGeometry(0.024, 8, 8), hero3dMat(T, 0x1c2733), [-0.07, 1.68, 0.175]);
   hero3dAdd(T, rig, new T.SphereGeometry(0.024, 8, 8), hero3dMat(T, 0x1c2733), [0.07, 1.68, 0.175]);
   hero3dAdd(T, rig, new T.CylinderGeometry(0.07, 0.08, 0.1, 12), skin, [0, 1.5, 0]);
@@ -8398,6 +8400,13 @@ function hero3dSetFocus(mode, part, socket, immediate = false) {
   HERO3D.focusSocket = socket || null;
   HERO3D.camFrom = HERO3D.camera.position.clone();
   HERO3D.camTo = new T.Vector3(...view.pos);
+  const aspect = HERO3D.camera?.aspect || 1;
+  if (views[part] && aspect > 1.9) {
+    // wide banner: pull part close-ups back so they stay framed
+    const lookVec = new T.Vector3(...view.look);
+    const dir = HERO3D.camTo.clone().sub(lookVec).multiplyScalar(1 + Math.min(1.1, (aspect - 1.9) * 0.5));
+    HERO3D.camTo = lookVec.clone().add(dir);
+  }
   HERO3D.lookFrom = HERO3D.lookTo ? HERO3D.lookTo.clone() : new T.Vector3(0, 1.02, 0);
   HERO3D.lookTo = new T.Vector3(...view.look);
   HERO3D.tweenT = immediate ? 1 : 0;
@@ -8541,11 +8550,17 @@ function initHero3d(containerId, config) {
       const modeChanged = HERO3D.mode !== config.mode;
       HERO3D.mode = config.mode;
 
-      // rarity tint per gear part
+      // rarity tint per gear part (shaded per part so pieces stay distinct)
+      const PART_SHADE = { hat: [0.9, 1.14], coat: [0.82, 1.0], pants: [0.85, 0.68], watch: [0.7, 1.2], ring: [0.95, 1.1], cudgel: [1.0, 0.88] };
       Object.entries(config.tiers || {}).forEach(([part, hex]) => {
+        const [satMul, lightMul] = PART_SHADE[part] || [1, 1];
+        const color = new T.Color(hex);
+        const hsl = { h: 0, s: 0, l: 0 };
+        color.getHSL(hsl);
+        color.setHSL(hsl.h, Math.min(1, hsl.s * satMul), Math.max(0.12, Math.min(0.8, hsl.l * lightMul)));
         (HERO3D.accents[part] || []).forEach((material) => {
-          material.color.setHex(hex);
-          material.emissive.setHex(hex);
+          material.color.copy(color);
+          material.emissive.copy(color);
         });
       });
 
