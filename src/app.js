@@ -8447,6 +8447,7 @@ function hero3dSetFocus(mode, part, socket, immediate = false) {
   HERO3D.lookTo = anchor.clone();
 
   const jump = immediate || (typeof document !== "undefined" && document.visibilityState !== "visible");
+  if (!jump) HERO3D.targetYaw = 0; // present the intended angle on a fresh fly-to
   HERO3D.tweenT = jump ? 1 : 0;
   if (jump) {
     HERO3D.camera.position.copy(HERO3D.camTo);
