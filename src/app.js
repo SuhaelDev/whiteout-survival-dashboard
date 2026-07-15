@@ -8394,6 +8394,24 @@ function hero3dBuildScene() {
   HERO3D.clockStart = performance.now();
 }
 
+function hero3dResize(host) {
+  if (!HERO3D.renderer || !HERO3D.camera || !host) return;
+  const width = host.clientWidth;
+  const height = host.clientHeight;
+  HERO3D.lastW = width;
+  HERO3D.lastH = height;
+  if (width < 40 || height < 40) return; // hidden tab: layout not computed yet
+  const prevAspect = HERO3D.camera.aspect || 1;
+  HERO3D.renderer.setSize(width, height, false);
+  HERO3D.camera.aspect = width / height;
+  HERO3D.camera.updateProjectionMatrix();
+  if (Math.abs(HERO3D.camera.aspect - prevAspect) / prevAspect > 0.15) {
+    hero3dSetFocus(HERO3D.mode, HERO3D.focusPart, HERO3D.focusSocket, true);
+  } else {
+    HERO3D.renderer.render(HERO3D.scene, HERO3D.camera);
+  }
+}
+
 function hero3dSetFocus(mode, part, socket, immediate = false) {
   const views = HERO3D_VIEWS[mode] || HERO3D_VIEWS.gear;
   const view = views[part] || views.default;
@@ -8436,6 +8454,11 @@ function hero3dAnimate() {
   HERO3D.raf = requestAnimationFrame(hero3dAnimate);
   const { renderer, camera, scene, rig } = HERO3D;
   if (!renderer || !renderer.domElement.isConnected) return;
+  HERO3D.frame = (HERO3D.frame || 0) + 1;
+  if (HERO3D.frame % 15 === 0) {
+    const host = renderer.domElement.parentElement;
+    if (host && (host.clientWidth !== HERO3D.lastW || host.clientHeight !== HERO3D.lastH)) hero3dResize(host);
+  }
   const t = (performance.now() - HERO3D.clockStart) / 1000;
 
   // camera tween
@@ -8548,17 +8571,12 @@ function initHero3d(containerId, config) {
       const fallback = host.querySelector("svg");
       if (fallback) fallback.style.display = "none";
       if (HERO3D.renderer.domElement.parentElement !== host) host.appendChild(HERO3D.renderer.domElement);
-      const size = () => {
-        const width = Math.max(180, host.clientWidth);
-        const height = Math.max(220, host.clientHeight);
-        HERO3D.renderer.setSize(width, height, false);
-        HERO3D.camera.aspect = width / height;
-        HERO3D.camera.updateProjectionMatrix();
-      };
-      size();
+      HERO3D.hostEl = host;
+      HERO3D.resize = hero3dResize;
+      hero3dResize(host);
       if (!HERO3D.resizeObserver && typeof ResizeObserver !== "undefined") {
         HERO3D.resizeObserver = new ResizeObserver(() => {
-          if (HERO3D.renderer.domElement.isConnected) size();
+          if (HERO3D.renderer.domElement.isConnected) hero3dResize(HERO3D.hostEl);
         });
       }
       HERO3D.resizeObserver?.observe(host);
