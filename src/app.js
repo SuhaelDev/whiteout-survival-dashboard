@@ -8238,6 +8238,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.085) {
   );
   backing.userData.part = part;
   group.add(backing);
+  group.userData.iconKey = iconKey;
   const texture = hero3dBadgeTexture(T, iconKey);
   if (texture) {
     const plate = new T.Mesh(
@@ -8247,6 +8248,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.085) {
     plate.position.z = 0.004;
     plate.userData.part = part;
     group.add(plate);
+    group.userData.hasPlate = true;
   }
   const ring = new T.Mesh(
     new T.TorusGeometry(radius * 1.08, radius * 0.13, 10, 36),
@@ -8384,6 +8386,25 @@ function hero3dBuildScene() {
       hero3dShowFallback();
     },
   );
+}
+
+function hero3dEnsureBadgePlates() {
+  const T = HERO3D.lib;
+  if (!T) return;
+  const ensure = (badge) => {
+    if (!badge || badge.userData.hasPlate || !badge.userData.iconKey) return;
+    const texture = hero3dBadgeTexture(T, badge.userData.iconKey);
+    if (!texture) return;
+    const radius = badge.userData.radius || 0.085;
+    const plate = new T.Mesh(new T.CircleGeometry(radius * 0.92, 28), new T.MeshBasicMaterial({ map: texture, transparent: true }));
+    plate.position.z = 0.004;
+    plate.userData.part = badge.userData.part;
+    if (badge.userData.socket) plate.userData.socket = badge.userData.socket;
+    badge.add(plate);
+    badge.userData.hasPlate = true;
+  };
+  Object.values(HERO3D.badges).forEach(ensure);
+  Object.values(HERO3D.gems).forEach((sockets) => Object.values(sockets).forEach(ensure));
 }
 
 function hero3dResize(host) {
@@ -8573,6 +8594,7 @@ function initHero3d(containerId, config) {
       if (HERO3D.renderer.domElement.parentElement !== host) host.appendChild(HERO3D.renderer.domElement);
       HERO3D.hostEl = host;
       HERO3D.resize = hero3dResize;
+      hero3dEnsureBadgePlates();
       hero3dResize(host);
       if (!HERO3D.resizeObserver && typeof ResizeObserver !== "undefined") {
         HERO3D.resizeObserver = new ResizeObserver(() => {
