@@ -5880,3 +5880,31 @@ select option {
 @media (max-width: 800px) {
   .charm-showcase { min-height: 260px; height: 260px; }
 }
+
+
+/* ---- Wave 10: charm gear-screen cards + chips, editor width cap ---- */
+.chief-gear-editor-view {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.charm-chip-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.charm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #cfe2f4;
+  background: rgba(120, 155, 200, 0.14);
+  border: 1px solid rgba(120, 155, 200, 0.3);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.charm-chip:hover { background: rgba(120, 155, 200, 0.28); }
+.charm-chip.active { border-color: #2cf5f5; color: #eafcff; box-shadow: 0 0 8px rgba(44, 245, 245, 0.35); }
+.charm-troop-infantry { border-color: rgba(60, 227, 167, 0.55); }
+.charm-troop-lancer { border-color: rgba(79, 183, 255, 0.55); }
+.charm-troop-marksman { border-color: rgba(255, 195, 92, 0.55); }

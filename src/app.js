@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716b";
+const ASSET_CACHE_VERSION = "20260716c";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5744,10 +5744,10 @@ function renderChiefGear() {
   });
 }
 
-function charmShowcaseHtml() {
-  return `<div class="charm-showcase" id="charms3d">
+function charmAvatarHtml() {
+  return `<div class="chief-avatar-container" id="charms3d">
     <span class="hero3d-hint">Drag to rotate · click a gem to inspect</span>
-    <svg viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="chief-avatar-silhouette" viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 22 Q160 58 306 22" stroke="#2cf5f5" stroke-width="2" stroke-dasharray="5 6" opacity="0.55" fill="none"/>
       <!-- infantry hex charm -->
       <g transform="translate(80 46)">
@@ -5776,6 +5776,32 @@ function charmShowcaseHtml() {
       <circle cx="120" cy="20" r="1.5" fill="#2cf5f5" opacity="0.7"/>
       <circle cx="205" cy="24" r="1.5" fill="#2cf5f5" opacity="0.7"/>
     </svg>
+  </div>`;
+}
+
+const CHARM_TROOP_BY_GEAR = { coat: "infantry", pants: "infantry", hat: "lancer", watch: "lancer", ring: "marksman", cudgel: "marksman" };
+
+function charmGearSlotCardHtml(gearSlotId, gearSlotById, charmSlotsByGear, selectedSocketId) {
+  const gearSlot = gearSlotById[gearSlotId];
+  const sockets = charmSlotsByGear[gearSlotId] || [];
+  if (!gearSlot || !sockets.length) return "";
+  const troop = CHARM_TROOP_BY_GEAR[gearSlotId] || "infantry";
+  const isActiveCard = sockets.some((slot) => slot.slot_id === selectedSocketId);
+  const maxLevel = Math.max(...sockets.map((slot) => Number(state.charms[slot.slot_id]?.current || 0)));
+  const chips = sockets
+    .map((slot) => {
+      const saved = state.charms[slot.slot_id] || { current: 0, target: 0 };
+      const socketSelected = Number(saved.target) > Number(saved.current);
+      return `<span class="charm-chip ${slot.slot_id === selectedSocketId ? "active" : ""}" data-select-chief-charm-socket-id="${slot.slot_id}">${esc(String(slot.position || "").charAt(0))} ${esc(saved.current)}${socketSelected ? `<b class="gd-gain">➜${esc(saved.target)}</b>` : ""}</span>`;
+    })
+    .join("");
+  return `<div class="chief-gear-slot-card charm-troop-${troop} ${isActiveCard ? "active-card" : ""}" data-select-chief-charm-socket-id="${gearSlotId}_top">
+    <div class="chief-gear-slot-card__icon">${iconHtml(charmArtKey(gearSlotId, maxLevel), "Charm gem", "lg")}</div>
+    <div class="chief-gear-slot-card__info">
+      <strong>${esc(gearSlot.name)}</strong>
+      <span class="tier-label">${esc(titleFromId(troop))} charms</span>
+      <div class="charm-chip-row">${chips}</div>
+    </div>
   </div>`;
 }
 
@@ -5976,8 +6002,22 @@ function renderCharms() {
 
   $("#tab-charms").innerHTML = `
     <div class="toolbar"><div><h2>Chief Charms</h2><p>Grouped by the troop type of the gear piece each charm is attached to.</p></div>${charmBulk}</div>
-    ${charmShowcaseHtml()}
     <div class="chief-gear-layout-container">
+      <div class="chief-gear-screen">
+        <div class="chief-gear-grid-container">
+          <div class="chief-gear-col-left">
+            ${charmGearSlotCardHtml("hat", gearSlotById, charmSlotsByGear, selectedSocketId)}
+            ${charmGearSlotCardHtml("watch", gearSlotById, charmSlotsByGear, selectedSocketId)}
+            ${charmGearSlotCardHtml("coat", gearSlotById, charmSlotsByGear, selectedSocketId)}
+          </div>
+          ${charmAvatarHtml()}
+          <div class="chief-gear-col-right">
+            ${charmGearSlotCardHtml("pants", gearSlotById, charmSlotsByGear, selectedSocketId)}
+            ${charmGearSlotCardHtml("ring", gearSlotById, charmSlotsByGear, selectedSocketId)}
+            ${charmGearSlotCardHtml("cudgel", gearSlotById, charmSlotsByGear, selectedSocketId)}
+          </div>
+        </div>
+      </div>
       <div class="chief-gear-editor-view">
         ${editorHtml}
       </div>
@@ -8167,12 +8207,12 @@ const HERO3D_MODEL_URL = "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examp
 /* Per-slot config: bone (Mixamo rig), rig-space offset from the bone, icon key,
  * camera direction preset, and the world-space frame box [h, w] the close-up must fit. */
 const HERO3D_SLOTS = {
-  hat: { bone: "mixamorig:Head", offset: [0, 0.2, 0.06], icon: "chiefgearhat", dir: [0.35, 0.2, 1], frame: [0.85, 0.8], troop: "lancer" },
-  watch: { bone: "mixamorig:LeftHand", offset: [-0.12, 0.04, 0.1], icon: "chiefgearwatch", dir: [-0.75, 0.12, 0.85], frame: [0.8, 0.75], troop: "lancer" },
-  coat: { bone: "mixamorig:Spine1", offset: [0, 0.06, 0.24], icon: "chiefgearcoat", dir: [0.3, 0.1, 1], frame: [1.05, 1.0], troop: "infantry" },
-  pants: { bone: "mixamorig:Hips", offset: [0, -0.16, 0.2], icon: "chiefgearpants", dir: [0.3, -0.02, 1], frame: [1.05, 0.95], troop: "infantry" },
-  ring: { bone: "mixamorig:RightHand", offset: [0.12, 0.04, 0.1], icon: "chiefgearring", dir: [0.8, 0.12, 0.85], frame: [0.75, 0.7], troop: "marksman" },
-  cudgel: { bone: "mixamorig:Spine2", offset: [0, 0.08, -0.28], icon: "chiefgearcudgel", dir: [0.45, 0.18, -1], frame: [1.05, 1.0], troop: "marksman" },
+  hat: { bone: "mixamorig:Head", offset: [0, 0.36, 0.02], icon: "chiefgearhat", dir: [0.3, 0.22, 1], frame: [0.95, 0.9], troop: "lancer" },
+  watch: { bone: "mixamorig:LeftHand", offset: [-0.2, 0.02, 0.15], icon: "chiefgearwatch", dir: [-0.65, 0.12, 0.95], frame: [0.95, 0.9], troop: "lancer" },
+  coat: { bone: "mixamorig:Spine1", offset: [0, 0.06, 0.34], icon: "chiefgearcoat", dir: [0.25, 0.08, 1], frame: [1.2, 1.1], troop: "infantry" },
+  pants: { bone: "mixamorig:Hips", offset: [0, -0.15, 0.32], icon: "chiefgearpants", dir: [0.25, -0.02, 1], frame: [1.2, 1.05], troop: "infantry" },
+  ring: { bone: "mixamorig:RightHand", offset: [0.2, 0.02, 0.15], icon: "chiefgearring", dir: [0.7, 0.12, 0.95], frame: [0.95, 0.9], troop: "marksman" },
+  cudgel: { bone: "mixamorig:Spine2", offset: [0, 0.1, -0.4], icon: "chiefgearcudgel", dir: [0.4, 0.16, -1], frame: [1.2, 1.1], troop: "marksman" },
 };
 
 const HERO3D_DEFAULT_ANCHORS = {
@@ -8231,12 +8271,13 @@ function hero3dBadgeTexture(T, iconKey) {
   return texture;
 }
 
-function hero3dMakeBadge(T, iconKey, part, radius = 0.085) {
+function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
   const group = new T.Group();
   const backing = new T.Mesh(
     new T.CircleGeometry(radius * 1.06, 28),
-    new T.MeshBasicMaterial({ color: 0x0b141d, transparent: true, opacity: 0.82 }),
+    new T.MeshBasicMaterial({ color: 0x0b141d, transparent: true, opacity: 0.82, depthTest: false }),
   );
+  backing.renderOrder = 30;
   backing.userData.part = part;
   group.add(backing);
   group.userData.iconKey = iconKey;
@@ -8244,17 +8285,19 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.085) {
   if (texture) {
     const plate = new T.Mesh(
       new T.CircleGeometry(radius * 0.92, 28),
-      new T.MeshBasicMaterial({ map: texture, transparent: true }),
+      new T.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false }),
     );
     plate.position.z = 0.004;
+    plate.renderOrder = 31;
     plate.userData.part = part;
     group.add(plate);
     group.userData.hasPlate = true;
   }
   const ring = new T.Mesh(
     new T.TorusGeometry(radius * 1.08, radius * 0.13, 10, 36),
-    new T.MeshStandardMaterial({ color: 0x9aa7b5, emissive: 0x9aa7b5, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.4 }),
+    new T.MeshStandardMaterial({ color: 0x9aa7b5, emissive: 0x9aa7b5, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.4, transparent: true, depthTest: false }),
   );
+  ring.renderOrder = 32;
   ring.userData.part = part;
   group.add(ring);
   group.userData.part = part;
@@ -8308,7 +8351,7 @@ function hero3dBuildScene() {
     // charm gems around the badge (charms mode)
     const troopColor = HERO3D_TROOP_COLOR[spec.troop];
     const gemIcon = `charm${spec.troop}hex`;
-    const offsets = { top: [0, 0.15, 0], left: [-0.15, -0.02, 0], right: [0.15, -0.02, 0] };
+    const offsets = { top: [0, 0.18, 0], left: [-0.18, -0.02, 0], right: [0.18, -0.02, 0] };
     HERO3D.gems[part] = {};
     Object.entries(offsets).forEach(([position, offset]) => {
       const gem = hero3dMakeBadge(T, gemIcon, part, 0.055);
@@ -8322,18 +8365,31 @@ function hero3dBuildScene() {
     });
   });
 
-  // snow
-  const snowCount = 150;
-  const positions = new Float32Array(snowCount * 3);
-  for (let i = 0; i < snowCount; i += 1) {
-    positions[i * 3] = (Math.random() - 0.5) * 3.4;
-    positions[i * 3 + 1] = Math.random() * 2.6;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 3.4;
-  }
-  const snowGeometry = new T.BufferGeometry();
-  snowGeometry.setAttribute("position", new T.BufferAttribute(positions, 3));
-  HERO3D.snow = new T.Points(snowGeometry, new T.PointsMaterial({ color: 0xdff1ff, size: 0.024, transparent: true, opacity: 0.85 }));
-  scene.add(HERO3D.snow);
+  // snow: two depth layers with per-flake speed and sway
+  HERO3D.snowLayers = [];
+  [
+    { count: 170, size: 0.026, speed: [0.1, 0.24], opacity: 0.9 },
+    { count: 120, size: 0.015, speed: [0.05, 0.12], opacity: 0.55 },
+  ].forEach((layerSpec) => {
+    const positions = new Float32Array(layerSpec.count * 3);
+    const speeds = new Float32Array(layerSpec.count);
+    const phases = new Float32Array(layerSpec.count);
+    for (let i = 0; i < layerSpec.count; i += 1) {
+      positions[i * 3] = (Math.random() - 0.5) * 3.6;
+      positions[i * 3 + 1] = Math.random() * 2.7;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 3.6;
+      speeds[i] = layerSpec.speed[0] + Math.random() * (layerSpec.speed[1] - layerSpec.speed[0]);
+      phases[i] = Math.random() * Math.PI * 2;
+    }
+    const geometry = new T.BufferGeometry();
+    geometry.setAttribute("position", new T.BufferAttribute(positions, 3));
+    const points = new T.Points(
+      geometry,
+      new T.PointsMaterial({ color: 0xdff1ff, size: layerSpec.size, transparent: true, opacity: layerSpec.opacity, depthWrite: false }),
+    );
+    scene.add(points);
+    HERO3D.snowLayers.push({ points, speeds, phases });
+  });
 
   HERO3D.scene = scene;
   HERO3D.rig = rig;
@@ -8399,12 +8455,12 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.115, 0.01] },
-  { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.05, 0.01] },
-  { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.03, 0] },
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.125, 0] },
+  { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.035, 0.01] },
+  { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.05, 0] },
   { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
-  { bone: "mixamorig:LeftArm", kind: "shoulderFur", offset: [-0.02, 0.03, 0] },
-  { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0.02, 0.03, 0] },
+  { bone: "mixamorig:LeftArm", kind: "shoulderFur", offset: [-0.01, 0.045, 0] },
+  { bone: "mixamorig:RightArm", kind: "shoulderFur", offset: [0.01, 0.045, 0] },
   { bone: "mixamorig:LeftHand", kind: "mitten", offset: [0, -0.04, 0.01] },
   { bone: "mixamorig:RightHand", kind: "mitten", offset: [0, -0.04, 0.01] },
   { bone: "mixamorig:LeftLeg", kind: "bootCuff", offset: [0, -0.3, 0.01] },
@@ -8417,30 +8473,31 @@ function hero3dOutfitPiece(T, kind, materials) {
   const { fur, leather, cloth, clothDark, gold } = materials;
   const group = new T.Group();
   if (kind === "ushanka") {
-    const band = new T.Mesh(new T.TorusGeometry(0.132, 0.059, 12, 24), fur);
+    const band = new T.Mesh(new T.TorusGeometry(0.124, 0.052, 12, 24), fur);
     band.rotation.x = Math.PI / 2;
-    band.position.y = -0.045;
+    band.position.y = -0.035;
     group.add(band);
-    const dome = new T.Mesh(new T.SphereGeometry(0.155, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), leather);
-    dome.position.y = -0.01;
+    const dome = new T.Mesh(new T.SphereGeometry(0.138, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.55), leather);
+    dome.scale.y = 0.85;
+    dome.position.y = -0.005;
     group.add(dome);
-    const badge = new T.Mesh(new T.CircleGeometry(0.031, 16), gold);
-    badge.position.set(0, 0.03, 0.155);
+    const badge = new T.Mesh(new T.CircleGeometry(0.027, 16), gold);
+    badge.position.set(0, 0.02, 0.131);
     group.add(badge);
     [-1, 1].forEach((side) => {
-      const flap = new T.Mesh(new T.BoxGeometry(0.045, 0.11, 0.07), fur);
-      flap.position.set(side * 0.135, -0.1, -0.01);
-      flap.rotation.z = side * 0.12;
+      const flap = new T.Mesh(new T.BoxGeometry(0.042, 0.1, 0.065), fur);
+      flap.position.set(side * 0.122, -0.095, -0.012);
+      flap.rotation.z = side * 0.1;
       group.add(flap);
     });
   } else if (kind === "collar") {
-    const collar = new T.Mesh(new T.TorusGeometry(0.14, 0.068, 12, 24), fur);
+    const collar = new T.Mesh(new T.TorusGeometry(0.145, 0.062, 12, 24), fur);
     collar.rotation.x = Math.PI / 2;
     group.add(collar);
   } else if (kind === "coat") {
-    const body = new T.Mesh(new T.CylinderGeometry(0.185, 0.215, 0.38, 20, 1, true), cloth);
+    const body = new T.Mesh(new T.CylinderGeometry(0.2, 0.215, 0.42, 20, 1, true), cloth);
     group.add(body);
-    const placket = new T.Mesh(new T.BoxGeometry(0.036, 0.38, 0.014), clothDark);
+    const placket = new T.Mesh(new T.BoxGeometry(0.036, 0.4, 0.014), clothDark);
     placket.position.set(0, 0, 0.208);
     group.add(placket);
     [0.12, 0.02, -0.08].forEach((y) => {
@@ -8463,8 +8520,8 @@ function hero3dOutfitPiece(T, kind, materials) {
     hem.position.y = -0.15;
     group.add(hem);
   } else if (kind === "shoulderFur") {
-    const pad = new T.Mesh(new T.SphereGeometry(0.082, 14, 10), fur);
-    pad.scale.set(1.25, 0.72, 1.25);
+    const pad = new T.Mesh(new T.SphereGeometry(0.08, 14, 10), fur);
+    pad.scale.set(1.18, 0.6, 1.18);
     group.add(pad);
   } else if (kind === "mitten") {
     const mitt = new T.Mesh(new T.SphereGeometry(0.068, 14, 10), leather);
@@ -8524,8 +8581,9 @@ function hero3dEnsureBadgePlates() {
     const texture = hero3dBadgeTexture(T, badge.userData.iconKey);
     if (!texture) return;
     const radius = badge.userData.radius || 0.085;
-    const plate = new T.Mesh(new T.CircleGeometry(radius * 0.92, 28), new T.MeshBasicMaterial({ map: texture, transparent: true }));
+    const plate = new T.Mesh(new T.CircleGeometry(radius * 0.92, 28), new T.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false }));
     plate.position.z = 0.004;
+    plate.renderOrder = 31;
     plate.userData.part = badge.userData.part;
     if (badge.userData.socket) plate.userData.socket = badge.userData.socket;
     badge.add(plate);
@@ -8561,8 +8619,9 @@ function hero3dSetFocus(mode, part, socket, immediate = false) {
   HERO3D.focusSocket = socket || null;
 
   const anchor = isPart ? new T.Vector3(...(HERO3D.anchors[part] || HERO3D_DEFAULT_ANCHORS[part])) : new T.Vector3(0, 0.95, 0);
+  if (isPart) anchor.x *= 0.35; // keep the body in frame when focusing side-mounted parts
   const dir = isPart ? new T.Vector3(...HERO3D_SLOTS[part].dir).normalize() : new T.Vector3(0.12, 0.14, 1).normalize();
-  const frame = isPart ? HERO3D_SLOTS[part].frame : [2.3, 1.35];
+  const frame = isPart ? HERO3D_SLOTS[part].frame : [2.4, 1.5];
   const aspect = Math.max(0.4, HERO3D.camera.aspect || 1);
   const tanHalf = Math.tan(((HERO3D.camera.fov || 38) * Math.PI) / 360);
   const dist = Math.max(frame[0] / (2 * tanHalf), frame[1] / (2 * tanHalf * aspect), 0.8);
@@ -8647,15 +8706,21 @@ function hero3dAnimate() {
   // orbit + snow
   HERO3D.yaw += (HERO3D.targetYaw - HERO3D.yaw) * 0.12;
   rig.rotation.y = HERO3D.yaw + (HERO3D.dragging ? 0 : Math.sin(t * 0.3) * 0.04);
-  if (HERO3D.snow) {
-    const positions = HERO3D.snow.geometry.attributes.position;
+  HERO3D.snowLayers?.forEach((layer) => {
+    const positions = layer.points.geometry.attributes.position;
     for (let i = 0; i < positions.count; i += 1) {
-      let y = positions.getY(i) - delta * 0.16;
-      if (y < 0) y = 2.6;
+      let y = positions.getY(i) - layer.speeds[i] * delta;
+      let x = positions.getX(i) + Math.sin(t * 0.7 + layer.phases[i]) * delta * 0.07;
+      if (y < 0.02) {
+        y = 2.7;
+        x = (Math.random() - 0.5) * 3.6;
+        positions.setZ(i, (Math.random() - 0.5) * 3.6);
+      }
       positions.setY(i, y);
+      positions.setX(i, x);
     }
     positions.needsUpdate = true;
-  }
+  });
 
   renderer.render(scene, camera);
 }
@@ -8769,4 +8834,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave9 build marker: Whiteout-style chief outfit layered on the rigged hero. */
+/* wave10 build marker: charms gear-style screen, centered close-ups, layered snow, refit outfit, floated badges. */
