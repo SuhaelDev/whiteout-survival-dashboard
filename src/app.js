@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260715c";
+const ASSET_CACHE_VERSION = "20260715d";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5609,7 +5609,8 @@ function renderChiefGear() {
   const smartPlan = smartRecommendationPlan("chief_gear");
 
   const avatarSilhouette = `
-    <div class="chief-avatar-container">
+    <div class="chief-avatar-container" id="chiefGear3d">
+      <span class="hero3d-hint">Drag to rotate · click a piece to inspect</span>
       <svg class="chief-avatar-silhouette" viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- cudgel angled behind the coat -->
         <g opacity="0.55">
@@ -5736,10 +5737,16 @@ function renderChiefGear() {
     ${smartRecommendationPanelHtml("chief_gear", "Chief Gear Targets", smartPlan, "Suggests affordable chief gear target changes by stat gain and material pressure.")}
     ${inventoryComparisonHtml(totalCost, GEAR_FIELDS, "Combined gear upgrade materials", "chief_gear")}
   `;
+  initHero3d("chiefGear3d", {
+    mode: "gear",
+    focusPart: selectedSlotId,
+    tiers: Object.fromEntries(gameData.chief_gear_slots.map((slot) => [slot.slot_id, hero3dRarityHex(state.chief_gear[slot.slot_id]?.current)])),
+  });
 }
 
 function charmShowcaseHtml() {
-  return `<div class="charm-showcase" aria-hidden="true">
+  return `<div class="charm-showcase" id="charms3d">
+    <span class="hero3d-hint">Drag to rotate · click a gem to inspect</span>
     <svg viewBox="0 0 320 96" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 22 Q160 58 306 22" stroke="#2cf5f5" stroke-width="2" stroke-dasharray="5 6" opacity="0.55" fill="none"/>
       <!-- infantry hex charm -->
@@ -5997,6 +6004,18 @@ function renderCharms() {
     ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "Suggests affordable charm targets with troop-type and stat bias weighting.")}
     ${inventoryComparisonHtml(totalCost, CHARM_FIELDS, "Combined charm upgrade materials", "chief_charms")}
   `;
+  const charmGems = {};
+  gameData.chief_charm_slots.forEach((slot) => {
+    const gearSlotKey = normalizeKey(slot.gear_slot);
+    (charmGems[gearSlotKey] ||= {})[String(slot.position || "").toLowerCase()] = Number(state.charms[slot.slot_id]?.current || 0);
+  });
+  initHero3d("charms3d", {
+    mode: "charms",
+    focusPart: selectedGearSlotId,
+    focusSocket: selectedSocketId,
+    gems: charmGems,
+    tiers: Object.fromEntries(gameData.chief_gear_slots.map((slot) => [slot.slot_id, hero3dRarityHex(state.chief_gear[slot.slot_id]?.current)])),
+  });
 }
 
 function petLevelNumber(code) {
@@ -8091,4 +8110,466 @@ async function init() {
 }
 
 init();
-/* wave6 build marker: full War Academy cost table, SvS guide-day model, refine info card, gear/charm showcase. */
+
+/* ------------------------------------------------------ 3D chief model */
+
+const HERO3D = {
+  lib: null,
+  libPromise: null,
+  failed: false,
+  renderer: null,
+  scene: null,
+  camera: null,
+  rig: null,
+  parts: {},
+  accents: {},
+  gems: {},
+  snow: null,
+  clockStart: 0,
+  raf: 0,
+  container: null,
+  mode: "gear",
+  focusPart: null,
+  focusSocket: null,
+  camFrom: null,
+  camTo: null,
+  lookFrom: null,
+  lookTo: null,
+  tweenT: 1,
+  yaw: 0,
+  targetYaw: 0,
+  dragging: false,
+  dragMoved: 0,
+  lastX: 0,
+};
+
+const HERO3D_RARITY_HEX = {
+  "border-legendary": 0xff7a45,
+  "border-epic": 0xb07bff,
+  "border-rare": 0x4fb7ff,
+  "border-uncommon": 0x3ce3a7,
+  "border-common": 0x9aa7b5,
+};
+
+const HERO3D_TROOP_GEM = {
+  coat: { color: 0x3ce3a7, shape: "hex" },
+  pants: { color: 0x3ce3a7, shape: "hex" },
+  hat: { color: 0x4fb7ff, shape: "kite" },
+  watch: { color: 0x4fb7ff, shape: "kite" },
+  ring: { color: 0xffc35c, shape: "round" },
+  cudgel: { color: 0xffc35c, shape: "round" },
+};
+
+const HERO3D_VIEWS = {
+  gear: {
+    default: { pos: [0, 1.5, 3.6], look: [0, 1.02, 0] },
+    hat: { pos: [0.7, 2.0, 1.6], look: [0, 1.82, 0] },
+    coat: { pos: [0.55, 1.35, 1.9], look: [0, 1.1, 0.1] },
+    watch: { pos: [0.9, 1.5, 1.5], look: [0.22, 1.22, 0.2] },
+    pants: { pos: [0.6, 0.9, 2.1], look: [0, 0.55, 0.05] },
+    ring: { pos: [-0.95, 1.15, 1.55], look: [-0.42, 0.98, 0.1] },
+    cudgel: { pos: [1.5, 1.9, -1.75], look: [0.1, 1.45, -0.35] },
+  },
+  charms: {
+    default: { pos: [0, 1.55, 3.9], look: [0, 1.05, 0] },
+    hat: { pos: [0.85, 2.1, 1.85], look: [0, 1.88, 0] },
+    coat: { pos: [0.6, 1.4, 2.15], look: [0, 1.12, 0.15] },
+    watch: { pos: [1.0, 1.55, 1.7], look: [0.24, 1.22, 0.22] },
+    pants: { pos: [0.65, 0.95, 2.3], look: [0, 0.55, 0.1] },
+    ring: { pos: [-1.05, 1.2, 1.7], look: [-0.44, 0.98, 0.12] },
+    cudgel: { pos: [1.65, 2.0, -1.9], look: [0.12, 1.45, -0.38] },
+  },
+};
+
+const HERO3D_GEM_ANCHORS = {
+  hat: [0, 1.88, 0.02],
+  coat: [0, 1.12, 0.34],
+  watch: [0.24, 1.2, 0.3],
+  pants: [0, 0.55, 0.2],
+  ring: [-0.44, 0.98, 0.12],
+  cudgel: [0.14, 1.42, -0.42],
+};
+
+function hero3dRarityHex(levelCode) {
+  return HERO3D_RARITY_HEX[chiefGearRarityBorderClass(levelCode)] || 0x9aa7b5;
+}
+
+function hero3dLoadLib() {
+  if (HERO3D.lib) return Promise.resolve(HERO3D.lib);
+  if (HERO3D.failed) return Promise.reject(new Error("hero3d unavailable"));
+  if (!HERO3D.libPromise) {
+    let importPromise;
+    try {
+      importPromise = import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js");
+    } catch (error) {
+      importPromise = Promise.reject(error);
+    }
+    HERO3D.libPromise = importPromise
+      .then((mod) => {
+        HERO3D.lib = mod;
+        return mod;
+      })
+      .catch((error) => {
+        HERO3D.failed = true;
+        HERO3D.libPromise = null;
+        throw error;
+      });
+  }
+  return HERO3D.libPromise;
+}
+
+function hero3dMat(T, color, options = {}) {
+  return new T.MeshStandardMaterial({
+    color,
+    roughness: options.roughness ?? 0.6,
+    metalness: options.metalness ?? 0.12,
+    flatShading: true,
+    ...(options.emissive != null ? { emissive: options.emissive, emissiveIntensity: options.emissiveIntensity ?? 0.25 } : {}),
+    ...(options.transparent ? { transparent: true, opacity: options.opacity ?? 0.9 } : {}),
+  });
+}
+
+function hero3dAccentMat(T, part) {
+  const material = hero3dMat(T, 0x9aa7b5, { emissive: 0x000000, emissiveIntensity: 0.0 });
+  (HERO3D.accents[part] ||= []).push(material);
+  return material;
+}
+
+function hero3dAdd(T, parent, geometry, material, position = [0, 0, 0], rotation = null, partName = null) {
+  const mesh = new T.Mesh(geometry, material);
+  mesh.position.set(...position);
+  if (rotation) mesh.rotation.set(...rotation);
+  if (partName) mesh.userData.part = partName;
+  parent.add(mesh);
+  return mesh;
+}
+
+function hero3dBuildScene() {
+  const T = HERO3D.lib;
+  const scene = new T.Scene();
+  const rig = new T.Group();
+  scene.add(rig);
+
+  scene.add(new T.HemisphereLight(0xbfe6ff, 0x0a1420, 1.0));
+  const sun = new T.DirectionalLight(0xffffff, 1.35);
+  sun.position.set(2.5, 4.2, 3.2);
+  scene.add(sun);
+  const rim = new T.PointLight(0x2cf5f5, 14, 9);
+  rim.position.set(-2.2, 1.6, -2.2);
+  scene.add(rim);
+
+  // platform
+  hero3dAdd(T, rig, new T.CylinderGeometry(0.9, 1.0, 0.08, 28), hero3dMat(T, 0x16344d, { roughness: 0.85 }), [0, 0.04, 0]);
+  hero3dAdd(T, rig, new T.TorusGeometry(0.9, 0.018, 10, 44), hero3dMat(T, 0x2cf5f5, { emissive: 0x2cf5f5, emissiveIntensity: 0.8 }), [0, 0.09, 0], [Math.PI / 2, 0, 0]);
+
+  const skin = hero3dMat(T, 0xe8c9a8, { roughness: 0.7 });
+  const dark = hero3dMat(T, 0x22303f, { roughness: 0.8 });
+  const fur = hero3dMat(T, 0xdfe9f2, { roughness: 0.95 });
+  const gold = hero3dMat(T, 0xffd257, { metalness: 0.5, roughness: 0.35 });
+
+  // head + neck
+  hero3dAdd(T, rig, new T.SphereGeometry(0.2, 20, 16), skin, [0, 1.66, 0], null, "hat");
+  hero3dAdd(T, rig, new T.SphereGeometry(0.024, 8, 8), hero3dMat(T, 0x1c2733), [-0.07, 1.68, 0.175]);
+  hero3dAdd(T, rig, new T.SphereGeometry(0.024, 8, 8), hero3dMat(T, 0x1c2733), [0.07, 1.68, 0.175]);
+  hero3dAdd(T, rig, new T.CylinderGeometry(0.07, 0.08, 0.1, 12), skin, [0, 1.5, 0]);
+
+  // ---- hat (accent)
+  const hatGroup = new T.Group();
+  rig.add(hatGroup);
+  hero3dAdd(T, hatGroup, new T.TorusGeometry(0.185, 0.065, 12, 22), fur, [0, 1.79, 0], [Math.PI / 2, 0, 0], "hat");
+  hero3dAdd(T, hatGroup, new T.SphereGeometry(0.185, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), hero3dAccentMat(T, "hat"), [0, 1.8, 0], null, "hat");
+  hero3dAdd(T, hatGroup, new T.SphereGeometry(0.055, 10, 8), fur, [0, 1.99, 0], null, "hat");
+  HERO3D.parts.hat = hatGroup;
+
+  // ---- coat (accent): torso + skirt + collar + belt
+  const coatGroup = new T.Group();
+  rig.add(coatGroup);
+  hero3dAdd(T, coatGroup, new T.CylinderGeometry(0.27, 0.37, 0.6, 16), hero3dAccentMat(T, "coat"), [0, 1.14, 0], null, "coat");
+  hero3dAdd(T, coatGroup, new T.CylinderGeometry(0.37, 0.47, 0.34, 16), hero3dAccentMat(T, "coat"), [0, 0.78, 0], null, "coat");
+  hero3dAdd(T, coatGroup, new T.TorusGeometry(0.21, 0.06, 12, 20), fur, [0, 1.45, 0], [Math.PI / 2, 0, 0], "coat");
+  hero3dAdd(T, coatGroup, new T.BoxGeometry(0.05, 0.56, 0.03), fur, [0, 1.12, 0.335], [-0.08, 0, 0], "coat");
+  hero3dAdd(T, coatGroup, new T.CylinderGeometry(0.375, 0.385, 0.07, 16), dark, [0, 0.97, 0], null, "coat");
+  hero3dAdd(T, coatGroup, new T.BoxGeometry(0.1, 0.09, 0.05), gold, [0, 0.97, 0.36], null, "coat");
+  HERO3D.parts.coat = coatGroup;
+
+  // arms + mittens (coat colored sleeves)
+  const sleeveL = hero3dAdd(T, rig, new T.CylinderGeometry(0.075, 0.085, 0.55, 12), hero3dAccentMat(T, "coat"), [-0.37, 1.2, 0.03], [0, 0, 0.18], "coat");
+  const sleeveR = hero3dAdd(T, rig, new T.CylinderGeometry(0.075, 0.085, 0.55, 12), hero3dAccentMat(T, "coat"), [0.37, 1.2, 0.03], [0, 0, -0.18], "coat");
+  sleeveL.userData.part = "coat";
+  sleeveR.userData.part = "coat";
+  hero3dAdd(T, rig, new T.SphereGeometry(0.095, 12, 10), dark, [-0.44, 0.95, 0.08], null, "ring");
+  hero3dAdd(T, rig, new T.SphereGeometry(0.095, 12, 10), dark, [0.44, 0.95, 0.08]);
+
+  // ---- pants (accent legs) + boots
+  const pantsGroup = new T.Group();
+  rig.add(pantsGroup);
+  hero3dAdd(T, pantsGroup, new T.CylinderGeometry(0.1, 0.11, 0.42, 12), hero3dAccentMat(T, "pants"), [-0.15, 0.52, 0], null, "pants");
+  hero3dAdd(T, pantsGroup, new T.CylinderGeometry(0.1, 0.11, 0.42, 12), hero3dAccentMat(T, "pants"), [0.15, 0.52, 0], null, "pants");
+  HERO3D.parts.pants = pantsGroup;
+  hero3dAdd(T, rig, new T.BoxGeometry(0.17, 0.15, 0.3), dark, [-0.15, 0.17, 0.045]);
+  hero3dAdd(T, rig, new T.BoxGeometry(0.17, 0.15, 0.3), dark, [0.15, 0.17, 0.045]);
+
+  // ---- watch (accent): chain dots + case on right chest
+  const watchGroup = new T.Group();
+  rig.add(watchGroup);
+  const chainPts = [
+    [0.1, 1.4, 0.27],
+    [0.15, 1.35, 0.295],
+    [0.19, 1.3, 0.305],
+    [0.22, 1.25, 0.305],
+  ];
+  chainPts.forEach((pt) => hero3dAdd(T, watchGroup, new T.SphereGeometry(0.016, 8, 8), gold, pt, null, "watch"));
+  hero3dAdd(T, watchGroup, new T.CylinderGeometry(0.06, 0.06, 0.035, 18), hero3dAccentMat(T, "watch"), [0.24, 1.2, 0.31], [Math.PI / 2, 0, 0], "watch");
+  hero3dAdd(T, watchGroup, new T.CylinderGeometry(0.042, 0.042, 0.037, 18), hero3dMat(T, 0xf4f9ff, { roughness: 0.3 }), [0.24, 1.2, 0.312], [Math.PI / 2, 0, 0], "watch");
+  HERO3D.parts.watch = watchGroup;
+
+  // ---- ring (accent) on left mitten
+  const ringGroup = new T.Group();
+  rig.add(ringGroup);
+  hero3dAdd(T, ringGroup, new T.TorusGeometry(0.055, 0.02, 10, 18), hero3dAccentMat(T, "ring"), [-0.44, 0.95, 0.13], [0.35, 0, 0], "ring");
+  hero3dAdd(T, ringGroup, new T.OctahedronGeometry(0.045), hero3dAccentMat(T, "ring"), [-0.44, 1.0, 0.16], null, "ring");
+  HERO3D.parts.ring = ringGroup;
+
+  // ---- cudgel (accent head) strapped on the back
+  const cudgelGroup = new T.Group();
+  rig.add(cudgelGroup);
+  const handle = hero3dAdd(T, cudgelGroup, new T.CylinderGeometry(0.035, 0.045, 0.9, 10), hero3dMat(T, 0x6b4a2f, { roughness: 0.85 }), [0, 1.2, -0.36], null, "cudgel");
+  handle.rotation.z = -0.55;
+  const head = hero3dAdd(T, cudgelGroup, new T.SphereGeometry(0.125, 12, 10), hero3dAccentMat(T, "cudgel"), [0.27, 1.6, -0.36], null, "cudgel");
+  head.userData.part = "cudgel";
+  [[0.36, 1.7], [0.17, 1.71], [0.38, 1.52]].forEach(([x, y]) =>
+    hero3dAdd(T, cudgelGroup, new T.ConeGeometry(0.03, 0.09, 8), hero3dMat(T, 0xd8e4ee, { metalness: 0.4 }), [x, y, -0.36], [0, 0, (x - 0.27) * -2.4], "cudgel"),
+  );
+  HERO3D.parts.cudgel = cudgelGroup;
+
+  // ---- charm gems (charms mode)
+  Object.entries(HERO3D_GEM_ANCHORS).forEach(([slot, anchor]) => {
+    const spec = HERO3D_TROOP_GEM[slot];
+    const group = new T.Group();
+    rig.add(group);
+    const offsets = { top: [0, 0.2, 0], left: [-0.21, 0.02, 0], right: [0.21, 0.02, 0] };
+    HERO3D.gems[slot] = {};
+    Object.entries(offsets).forEach(([position, offset]) => {
+      const geometry =
+        spec.shape === "hex"
+          ? new T.CylinderGeometry(0.055, 0.055, 0.035, 6)
+          : spec.shape === "kite"
+            ? new T.OctahedronGeometry(0.06)
+            : new T.SphereGeometry(0.052, 12, 10);
+      const material = hero3dMat(T, spec.color, { emissive: spec.color, emissiveIntensity: 0.45, transparent: true, opacity: 0.95 });
+      const gem = new T.Mesh(geometry, material);
+      gem.position.set(anchor[0] + offset[0], anchor[1] + offset[1], anchor[2] + offset[2] + (slot === "cudgel" ? -0.06 : 0.06));
+      if (spec.shape === "hex") gem.rotation.x = Math.PI / 2;
+      gem.userData.part = slot;
+      gem.userData.socket = `${slot}_${position}`;
+      gem.userData.baseY = gem.position.y;
+      group.add(gem);
+      HERO3D.gems[slot][position] = gem;
+    });
+    group.visible = false;
+    HERO3D.gems[slot].__group = group;
+  });
+
+  // snow
+  const snowCount = 130;
+  const positions = new Float32Array(snowCount * 3);
+  for (let i = 0; i < snowCount; i += 1) {
+    positions[i * 3] = (Math.random() - 0.5) * 3.2;
+    positions[i * 3 + 1] = Math.random() * 2.6;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 3.2;
+  }
+  const snowGeometry = new T.BufferGeometry();
+  snowGeometry.setAttribute("position", new T.BufferAttribute(positions, 3));
+  HERO3D.snow = new T.Points(snowGeometry, new T.PointsMaterial({ color: 0xcfeaff, size: 0.028, transparent: true, opacity: 0.85 }));
+  scene.add(HERO3D.snow);
+
+  HERO3D.scene = scene;
+  HERO3D.rig = rig;
+  HERO3D.camera = new T.PerspectiveCamera(38, 1, 0.1, 30);
+  HERO3D.camera.position.set(0, 1.5, 3.6);
+  HERO3D.clockStart = performance.now();
+}
+
+function hero3dSetFocus(mode, part, socket, immediate = false) {
+  const views = HERO3D_VIEWS[mode] || HERO3D_VIEWS.gear;
+  const view = views[part] || views.default;
+  const T = HERO3D.lib;
+  HERO3D.focusPart = views[part] ? part : null;
+  HERO3D.focusSocket = socket || null;
+  HERO3D.camFrom = HERO3D.camera.position.clone();
+  HERO3D.camTo = new T.Vector3(...view.pos);
+  HERO3D.lookFrom = HERO3D.lookTo ? HERO3D.lookTo.clone() : new T.Vector3(0, 1.02, 0);
+  HERO3D.lookTo = new T.Vector3(...view.look);
+  HERO3D.tweenT = immediate ? 1 : 0;
+  if (immediate) {
+    HERO3D.camera.position.copy(HERO3D.camTo);
+    HERO3D.camera.lookAt(HERO3D.lookTo);
+  }
+}
+
+function hero3dAnimate() {
+  HERO3D.raf = requestAnimationFrame(hero3dAnimate);
+  const { renderer, camera, scene, rig } = HERO3D;
+  if (!renderer || !renderer.domElement.isConnected) return;
+  const t = (performance.now() - HERO3D.clockStart) / 1000;
+
+  // camera tween
+  if (HERO3D.tweenT < 1) {
+    HERO3D.tweenT = Math.min(1, HERO3D.tweenT + 0.035);
+    const k = 1 - Math.pow(1 - HERO3D.tweenT, 3);
+    camera.position.lerpVectors(HERO3D.camFrom, HERO3D.camTo, k);
+    const look = HERO3D.lookFrom.clone().lerp(HERO3D.lookTo, k);
+    camera.lookAt(look);
+  } else if (HERO3D.lookTo) {
+    camera.lookAt(HERO3D.lookTo);
+  }
+
+  // orbit + idle sway
+  HERO3D.yaw += (HERO3D.targetYaw - HERO3D.yaw) * 0.12;
+  rig.rotation.y = HERO3D.yaw + (HERO3D.dragging ? 0 : Math.sin(t * 0.35) * 0.05);
+  rig.position.y = Math.sin(t * 1.5) * 0.012;
+
+  // focused part pulse
+  Object.entries(HERO3D.accents).forEach(([part, materials]) => {
+    const pulse = part === HERO3D.focusPart ? 0.3 + Math.sin(t * 5) * 0.18 : 0.12;
+    materials.forEach((material) => {
+      material.emissiveIntensity = pulse;
+    });
+  });
+
+  // gems idle
+  Object.entries(HERO3D.gems).forEach(([slot, sockets]) => {
+    Object.entries(sockets).forEach(([position, gem]) => {
+      if (position === "__group") return;
+      gem.position.y = gem.userData.baseY + Math.sin(t * 2 + gem.position.x * 7) * 0.02;
+      gem.rotation.y = t * 1.1;
+      const focused = HERO3D.focusSocket && gem.userData.socket === HERO3D.focusSocket;
+      const scale = focused ? 1.35 + Math.sin(t * 6) * 0.12 : 1;
+      gem.scale.setScalar(scale * (gem.userData.levelScale || 1));
+      gem.material.emissiveIntensity = focused ? 1.1 : 0.45;
+    });
+  });
+
+  // snow fall
+  if (HERO3D.snow) {
+    const positions = HERO3D.snow.geometry.attributes.position;
+    for (let i = 0; i < positions.count; i += 1) {
+      let y = positions.getY(i) - 0.0045;
+      if (y < 0) y = 2.6;
+      positions.setY(i, y);
+    }
+    positions.needsUpdate = true;
+  }
+
+  renderer.render(scene, camera);
+}
+
+function hero3dPointerEvents(canvas) {
+  canvas.style.touchAction = "none";
+  canvas.addEventListener("pointerdown", (event) => {
+    HERO3D.dragging = true;
+    HERO3D.dragMoved = 0;
+    HERO3D.lastX = event.clientX;
+    canvas.setPointerCapture?.(event.pointerId);
+  });
+  canvas.addEventListener("pointermove", (event) => {
+    if (!HERO3D.dragging) return;
+    const dx = event.clientX - HERO3D.lastX;
+    HERO3D.lastX = event.clientX;
+    HERO3D.dragMoved += Math.abs(dx);
+    HERO3D.targetYaw = Math.max(-2.4, Math.min(2.4, HERO3D.targetYaw + dx * 0.011));
+  });
+  const stop = () => {
+    HERO3D.dragging = false;
+  };
+  canvas.addEventListener("pointerup", stop);
+  canvas.addEventListener("pointercancel", stop);
+  canvas.addEventListener("click", (event) => {
+    if (HERO3D.dragMoved > 6 || !HERO3D.lib) return;
+    const T = HERO3D.lib;
+    const rect = canvas.getBoundingClientRect();
+    const pointer = new T.Vector2(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+    const raycaster = new T.Raycaster();
+    raycaster.setFromCamera(pointer, HERO3D.camera);
+    const hits = raycaster.intersectObjects(HERO3D.rig.children, true);
+    const hit = hits.find((entry) => entry.object.userData.part);
+    if (!hit) return;
+    const part = hit.object.userData.part;
+    if (HERO3D.mode === "gear") {
+      state.selected_chief_gear_slot = part;
+      renderActive();
+    } else {
+      state.selected_chief_charm_socket_id = hit.object.userData.socket || `${part}_top`;
+      renderActive();
+    }
+  });
+}
+
+function initHero3d(containerId, config) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  hero3dLoadLib()
+    .then(() => {
+      const T = HERO3D.lib;
+      if (!HERO3D.scene) hero3dBuildScene();
+      if (!HERO3D.renderer) {
+        HERO3D.renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+        HERO3D.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+        hero3dPointerEvents(HERO3D.renderer.domElement);
+        hero3dAnimate();
+      }
+      const host = document.getElementById(containerId);
+      if (!host) return;
+      const fallback = host.querySelector("svg");
+      if (fallback) fallback.style.display = "none";
+      if (HERO3D.renderer.domElement.parentElement !== host) host.appendChild(HERO3D.renderer.domElement);
+      const size = () => {
+        const width = Math.max(180, host.clientWidth);
+        const height = Math.max(220, host.clientHeight);
+        HERO3D.renderer.setSize(width, height, false);
+        HERO3D.camera.aspect = width / height;
+        HERO3D.camera.updateProjectionMatrix();
+      };
+      size();
+      if (!HERO3D.resizeObserver && typeof ResizeObserver !== "undefined") {
+        HERO3D.resizeObserver = new ResizeObserver(() => {
+          if (HERO3D.renderer.domElement.isConnected) size();
+        });
+      }
+      HERO3D.resizeObserver?.observe(host);
+
+      const modeChanged = HERO3D.mode !== config.mode;
+      HERO3D.mode = config.mode;
+
+      // rarity tint per gear part
+      Object.entries(config.tiers || {}).forEach(([part, hex]) => {
+        (HERO3D.accents[part] || []).forEach((material) => {
+          material.color.setHex(hex);
+          material.emissive.setHex(hex);
+        });
+      });
+
+      // gems: visibility + level scale (charms mode only)
+      const showGems = config.mode === "charms";
+      Object.entries(HERO3D.gems).forEach(([slot, sockets]) => {
+        sockets.__group.visible = showGems;
+        if (!showGems) return;
+        Object.entries(sockets).forEach(([position, gem]) => {
+          if (position === "__group") return;
+          const level = Number(config.gems?.[slot]?.[position] || 0);
+          gem.userData.levelScale = level > 0 ? 0.85 + Math.min(1, level / 16) * 0.45 : 0.55;
+          gem.material.opacity = level > 0 ? 0.95 : 0.28;
+        });
+      });
+
+      const focusChanged = HERO3D.focusPart !== (config.focusPart || null) || HERO3D.focusSocket !== (config.focusSocket || null);
+      if (modeChanged || focusChanged || HERO3D.tweenT >= 1) {
+        hero3dSetFocus(config.mode, config.focusPart, config.focusSocket, modeChanged && !focusChanged);
+      }
+    })
+    .catch(() => {
+      /* WebGL/CDN unavailable — SVG fallback stays visible */
+    });
+}
+
+/* wave7 build marker: interactive 3D chief model for gear + charms with camera fly-to and drag orbit. */
