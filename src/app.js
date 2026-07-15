@@ -8365,7 +8365,7 @@ function hero3dBuildScene() {
       const idle = gltf.animations.find((clip) => /idle/i.test(clip.name)) || gltf.animations[0];
       if (idle) HERO3D.mixer.clipAction(idle).play();
       Object.entries(HERO3D_SLOTS).forEach(([part, spec]) => {
-        HERO3D.bones[part] = model.getObjectByName(spec.bone) || null;
+        HERO3D.bones[part] = model.getObjectByName(spec.bone) || model.getObjectByName(spec.bone.replace(":", "")) || null;
       });
       // re-frame the current focus now that the real body is in place
       hero3dSetFocus(HERO3D.mode, HERO3D.focusPart, HERO3D.focusSocket, true);
