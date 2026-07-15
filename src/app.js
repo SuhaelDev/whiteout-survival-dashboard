@@ -8399,7 +8399,7 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.09, 0.01] },
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.115, 0.01] },
   { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.05, 0.01] },
   { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.03, 0] },
   { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
@@ -8417,18 +8417,19 @@ function hero3dOutfitPiece(T, kind, materials) {
   const { fur, leather, cloth, clothDark, gold } = materials;
   const group = new T.Group();
   if (kind === "ushanka") {
-    const band = new T.Mesh(new T.TorusGeometry(0.112, 0.05, 12, 24), fur);
+    const band = new T.Mesh(new T.TorusGeometry(0.132, 0.059, 12, 24), fur);
     band.rotation.x = Math.PI / 2;
+    band.position.y = -0.045;
     group.add(band);
-    const dome = new T.Mesh(new T.SphereGeometry(0.115, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), leather);
-    dome.position.y = 0.015;
+    const dome = new T.Mesh(new T.SphereGeometry(0.155, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), leather);
+    dome.position.y = -0.01;
     group.add(dome);
-    const badge = new T.Mesh(new T.CircleGeometry(0.022, 16), gold);
-    badge.position.set(0, 0.045, 0.132);
+    const badge = new T.Mesh(new T.CircleGeometry(0.031, 16), gold);
+    badge.position.set(0, 0.03, 0.155);
     group.add(badge);
     [-1, 1].forEach((side) => {
       const flap = new T.Mesh(new T.BoxGeometry(0.045, 0.11, 0.07), fur);
-      flap.position.set(side * 0.115, -0.075, -0.01);
+      flap.position.set(side * 0.135, -0.1, -0.01);
       flap.rotation.z = side * 0.12;
       group.add(flap);
     });
