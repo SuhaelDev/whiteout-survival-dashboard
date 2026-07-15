@@ -8280,9 +8280,12 @@ function hero3dBuildScene() {
   scene.add(fill);
 
   // ice platform
-  rig.add(
-    Object.assign(new T.Mesh(new T.CylinderGeometry(0.85, 0.95, 0.08, 36), new T.MeshStandardMaterial({ color: 0x16344d, roughness: 0.75, metalness: 0.15 })), { position: new T.Vector3(0, 0.04, 0) }),
+  const platform = new T.Mesh(
+    new T.CylinderGeometry(0.85, 0.95, 0.08, 36),
+    new T.MeshStandardMaterial({ color: 0x16344d, roughness: 0.75, metalness: 0.15 }),
   );
+  platform.position.set(0, 0.04, 0);
+  rig.add(platform);
   const glowRing = new T.Mesh(
     new T.TorusGeometry(0.85, 0.016, 10, 60),
     new T.MeshStandardMaterial({ color: 0x2cf5f5, emissive: 0x2cf5f5, emissiveIntensity: 1.0 }),
