@@ -8114,6 +8114,7 @@ init();
 /* ------------------------------------------------------ 3D chief model */
 
 const HERO3D = {
+  debug: true,
   lib: null,
   libPromise: null,
   failed: false,
@@ -8163,7 +8164,7 @@ const HERO3D_TROOP_GEM = {
 const HERO3D_VIEWS = {
   gear: {
     default: { pos: [0, 1.5, 3.6], look: [0, 1.02, 0] },
-    hat: { pos: [0.7, 2.0, 1.6], look: [0, 1.82, 0] },
+    hat: { pos: [0.7, 2.05, 1.6], look: [0, 1.78, 0] },
     coat: { pos: [0.55, 1.35, 1.9], look: [0, 1.1, 0.1] },
     watch: { pos: [0.9, 1.5, 1.5], look: [0.22, 1.22, 0.2] },
     pants: { pos: [0.6, 0.9, 2.1], look: [0, 0.55, 0.05] },
@@ -8172,7 +8173,7 @@ const HERO3D_VIEWS = {
   },
   charms: {
     default: { pos: [0, 1.55, 3.9], look: [0, 1.05, 0] },
-    hat: { pos: [0.85, 2.1, 1.85], look: [0, 1.88, 0] },
+    hat: { pos: [0.85, 2.15, 1.85], look: [0, 1.8, 0] },
     coat: { pos: [0.6, 1.4, 2.15], look: [0, 1.12, 0.15] },
     watch: { pos: [1.0, 1.55, 1.7], look: [0.24, 1.22, 0.22] },
     pants: { pos: [0.65, 0.95, 2.3], look: [0, 0.55, 0.1] },
@@ -8245,6 +8246,7 @@ function hero3dAdd(T, parent, geometry, material, position = [0, 0, 0], rotation
 }
 
 function hero3dBuildScene() {
+  if (typeof window !== "undefined") window.__HERO3D = HERO3D;
   const T = HERO3D.lib;
   const scene = new T.Scene();
   const rig = new T.Group();
@@ -8400,11 +8402,23 @@ function hero3dSetFocus(mode, part, socket, immediate = false) {
   HERO3D.focusSocket = socket || null;
   HERO3D.camFrom = HERO3D.camera.position.clone();
   HERO3D.camTo = new T.Vector3(...view.pos);
-  const aspect = HERO3D.camera?.aspect || 1;
-  if (views[part] && aspect > 1.9) {
-    // wide banner: pull part close-ups back so they stay framed
+  // Solve camera distance so the view's frame box fits at any canvas aspect.
+  const HERO3D_FRAMES = {
+    hat: [1.15, 1.0],
+    coat: [1.6, 1.4],
+    watch: [1.05, 0.9],
+    pants: [1.4, 1.1],
+    ring: [0.95, 0.8],
+    cudgel: [1.6, 1.4],
+    default: [2.75, 1.6],
+  };
+  const [frameH, frameW] = HERO3D_FRAMES[views[part] ? part : "default"] || HERO3D_FRAMES.default;
+  const aspect = Math.max(0.4, HERO3D.camera?.aspect || 1);
+  const tanHalf = Math.tan(((HERO3D.camera?.fov || 38) * Math.PI) / 360);
+  const dist = Math.max(frameH / (2 * tanHalf), frameW / (2 * tanHalf * aspect), 0.9);
+  {
     const lookVec = new T.Vector3(...view.look);
-    const dir = HERO3D.camTo.clone().sub(lookVec).multiplyScalar(1 + Math.min(1.1, (aspect - 1.9) * 0.5));
+    const dir = HERO3D.camTo.clone().sub(lookVec).normalize().multiplyScalar(dist);
     HERO3D.camTo = lookVec.clone().add(dir);
   }
   HERO3D.lookFrom = HERO3D.lookTo ? HERO3D.lookTo.clone() : new T.Vector3(0, 1.02, 0);
