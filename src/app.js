@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716c";
+const ASSET_CACHE_VERSION = "20260716d";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -8208,11 +8208,11 @@ const HERO3D_MODEL_URL = "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examp
  * camera direction preset, and the world-space frame box [h, w] the close-up must fit. */
 const HERO3D_SLOTS = {
   hat: { bone: "mixamorig:Head", offset: [0, 0.36, 0.02], icon: "chiefgearhat", dir: [0.3, 0.22, 1], frame: [0.95, 0.9], troop: "lancer" },
-  watch: { bone: "mixamorig:LeftHand", offset: [-0.2, 0.02, 0.15], icon: "chiefgearwatch", dir: [-0.65, 0.12, 0.95], frame: [0.95, 0.9], troop: "lancer" },
+  watch: { bone: "mixamorig:LeftHand", offset: [-0.28, 0.06, 0.06], icon: "chiefgearwatch", dir: [-0.65, 0.12, 0.95], frame: [0.95, 0.9], troop: "lancer" },
   coat: { bone: "mixamorig:Spine1", offset: [0, 0.06, 0.34], icon: "chiefgearcoat", dir: [0.25, 0.08, 1], frame: [1.2, 1.1], troop: "infantry" },
   pants: { bone: "mixamorig:Hips", offset: [0, -0.15, 0.32], icon: "chiefgearpants", dir: [0.25, -0.02, 1], frame: [1.2, 1.05], troop: "infantry" },
-  ring: { bone: "mixamorig:RightHand", offset: [0.2, 0.02, 0.15], icon: "chiefgearring", dir: [0.7, 0.12, 0.95], frame: [0.95, 0.9], troop: "marksman" },
-  cudgel: { bone: "mixamorig:Spine2", offset: [0, 0.1, -0.4], icon: "chiefgearcudgel", dir: [0.4, 0.16, -1], frame: [1.2, 1.1], troop: "marksman" },
+  ring: { bone: "mixamorig:RightHand", offset: [0.28, 0.06, 0.06], icon: "chiefgearring", dir: [0.7, 0.12, 0.95], frame: [0.95, 0.9], troop: "marksman" },
+  cudgel: { bone: "mixamorig:Spine2", offset: [0.2, 0.28, -0.32], icon: "chiefgearcudgel", dir: [0.4, 0.2, -1], frame: [1.2, 1.1], troop: "marksman" },
 };
 
 const HERO3D_DEFAULT_ANCHORS = {
@@ -8275,7 +8275,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
   const group = new T.Group();
   const backing = new T.Mesh(
     new T.CircleGeometry(radius * 1.06, 28),
-    new T.MeshBasicMaterial({ color: 0x0b141d, transparent: true, opacity: 0.82, depthTest: false }),
+    new T.MeshBasicMaterial({ color: 0x0b141d, transparent: true, opacity: 0.82 }),
   );
   backing.renderOrder = 30;
   backing.userData.part = part;
@@ -8285,7 +8285,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
   if (texture) {
     const plate = new T.Mesh(
       new T.CircleGeometry(radius * 0.92, 28),
-      new T.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false }),
+      new T.MeshBasicMaterial({ map: texture, transparent: true }),
     );
     plate.position.z = 0.004;
     plate.renderOrder = 31;
@@ -8295,7 +8295,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
   }
   const ring = new T.Mesh(
     new T.TorusGeometry(radius * 1.08, radius * 0.13, 10, 36),
-    new T.MeshStandardMaterial({ color: 0x9aa7b5, emissive: 0x9aa7b5, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.4, transparent: true, depthTest: false }),
+    new T.MeshStandardMaterial({ color: 0x9aa7b5, emissive: 0x9aa7b5, emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.4, transparent: true }),
   );
   ring.renderOrder = 32;
   ring.userData.part = part;
@@ -8456,7 +8456,7 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.125, 0] },
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.095, 0] },
   { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.035, 0.01] },
   { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.05, 0] },
   { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
@@ -8474,13 +8474,13 @@ function hero3dOutfitPiece(T, kind, materials) {
   const { fur, leather, cloth, clothDark, gold } = materials;
   const group = new T.Group();
   if (kind === "ushanka") {
-    const band = new T.Mesh(new T.TorusGeometry(0.124, 0.052, 12, 24), fur);
+    const band = new T.Mesh(new T.TorusGeometry(0.126, 0.056, 12, 24), fur);
     band.rotation.x = Math.PI / 2;
-    band.position.y = -0.035;
+    band.position.y = -0.04;
     group.add(band);
-    const dome = new T.Mesh(new T.SphereGeometry(0.138, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.55), leather);
-    dome.scale.y = 0.85;
-    dome.position.y = -0.005;
+    const dome = new T.Mesh(new T.SphereGeometry(0.145, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), leather);
+    dome.scale.y = 0.82;
+    dome.position.y = -0.01;
     group.add(dome);
     const badge = new T.Mesh(new T.CircleGeometry(0.027, 16), gold);
     badge.position.set(0, 0.02, 0.131);
@@ -8582,7 +8582,7 @@ function hero3dEnsureBadgePlates() {
     const texture = hero3dBadgeTexture(T, badge.userData.iconKey);
     if (!texture) return;
     const radius = badge.userData.radius || 0.085;
-    const plate = new T.Mesh(new T.CircleGeometry(radius * 0.92, 28), new T.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false }));
+    const plate = new T.Mesh(new T.CircleGeometry(radius * 0.92, 28), new T.MeshBasicMaterial({ map: texture, transparent: true }));
     plate.position.z = 0.004;
     plate.renderOrder = 31;
     plate.userData.part = badge.userData.part;
@@ -8802,6 +8802,11 @@ function initHero3d(containerId, config) {
       const modeChanged = HERO3D.mode !== config.mode;
       HERO3D.mode = config.mode;
 
+      // gear badges only on the gear page; charms keeps the model clean
+      Object.values(HERO3D.badges).forEach((badge) => {
+        badge.visible = config.mode === "gear";
+      });
+
       // rarity ring tint per gear badge
       Object.entries(config.tiers || {}).forEach(([part, hex]) => {
         const ring = HERO3D.badges[part]?.userData.ring;
@@ -8811,12 +8816,12 @@ function initHero3d(containerId, config) {
         }
       });
 
-      // charm gems: visibility + level scale (charms mode only)
+      // charm gems: only the selected gear piece's sockets, so the model stays readable
       const showGems = config.mode === "charms";
       Object.entries(HERO3D.gems).forEach(([part, sockets]) => {
         Object.entries(sockets).forEach(([position, gem]) => {
-          gem.visible = showGems;
-          if (!showGems) return;
+          gem.visible = showGems && part === (config.focusPart || null);
+          if (!gem.visible) return;
           const level = Number(config.gems?.[part]?.[position] || 0);
           gem.userData.levelScale = level > 0 ? 0.8 + Math.min(1, level / 16) * 0.4 : 0.5;
           gem.children.forEach((child) => {
@@ -8835,4 +8840,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave10 build marker: charms gear-style screen, centered close-ups, layered snow, refit outfit, floated badges. */
+/* wave11 build marker: clean charms gems (selected piece only), occluding badges, seated hat, front-facing bake shipped with fresh cache-bust. */
