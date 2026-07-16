@@ -6010,3 +6010,11 @@ select option {
   border-color: rgba(59, 130, 246, 0.55);
   background: rgba(59, 130, 246, 0.14);
 }
+
+.empowerment-gate-note {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.7;
+}
+.empowerment-gate-note + .empowerment-list > div:not(.is-unlocked):not(.is-targeted) { opacity: 0.55; }

@@ -6810,7 +6810,13 @@ function renderHeroGear() {
         </div>
         
         <div class="hero-gear-slot-node__empower">
-          ${heroGearEmpowermentHtml(piece, hero, pieceTargets.targetEnhancement, slot)}
+          ${(() => {
+            const effTargetLevel = Number(pieceTargets.targetLevel ?? piece.level ?? 0);
+            const gatedTarget = heroGearTargetEmpowerment(piece, pieceTargets.targetEnhancement, effTargetLevel);
+            const gateMet = Math.max(Number(piece.level || 0), effTargetLevel) >= HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
+            const note = gateMet ? "" : `<p class="empowerment-gate-note">Empowerment stats locked until gear Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL} - raise Target Lv to unlock these bonuses</p>`;
+            return note + heroGearEmpowermentHtml(piece, hero, gatedTarget, slot);
+          })()}
           ${heroGearPieceImpactCompactHtml(heroId, slot, piece)}
         </div>
         
