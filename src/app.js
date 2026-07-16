@@ -1058,7 +1058,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716h";
+const ASSET_CACHE_VERSION = "20260716i";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -6689,22 +6689,25 @@ function renderHeroGear() {
       const invested = heroGearSetInvestment(gearSet, heroId);
       addCost(secondaryTotals, invested);
       const pieces = heroGearPieces(gearSet.gear).length;
+      const essence = Number(invested.essence_stones || 0);
       return `<tr>
         <td>${visualLabel("hero", hero.name, `${gearSet.troop_type || hero.troop_type || ""} · ${fmt(pieces)} pieces`)}</td>
         <td class="number">${fmt(invested.hero_gear_xp || 0)}</td>
-        <td class="number">${fmt(invested.essence_stones || 0)}</td>
+        <td class="number">${fmt(essence)}</td>
+        <td class="number">${fmt(Math.floor(essence / 2))}</td>
         <td class="number">${fmt(invested.mithril || 0)}</td>
       </tr>`;
     })
     .join("");
+  const secondaryEssence = Number(secondaryTotals.essence_stones || 0);
   const secondaryPanel = secondaryEntries.length
     ? `<div class="panel secondary-gear-panel">
         <h2>Secondary Sets — Reforge Bank</h2>
-        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Reforging a piece refunds its invested Gear XP for primary-set upgrades; essence stones and mithril are listed for reference.</p>
-        <div class="table-wrap compact-table"><table>
-          <thead><tr><th>Secondary set</th><th>Invested Gear XP</th><th>Essence Stones</th><th>Mithril</th></tr></thead>
+        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Reforge refunds: 100% of invested Gear XP, 50% of essence stones, 100% of mithril.</p>
+        <div class="table-wrap compact-table secondary-gear-table"><table>
+          <thead><tr><th>Secondary set</th><th class="number">Gear XP back (100%)</th><th class="number">Essence invested</th><th class="number">Essence back (50%)</th><th class="number">Mithril back (100%)</th></tr></thead>
           <tbody>${secondaryRows}</tbody>
-          <tfoot><tr><th>Total reclaimable</th><th class="number">${fmt(secondaryTotals.hero_gear_xp || 0)}</th><th class="number">${fmt(secondaryTotals.essence_stones || 0)}</th><th class="number">${fmt(secondaryTotals.mithril || 0)}</th></tr></tfoot>
+          <tfoot><tr><th>Total reclaimable</th><th class="number">${fmt(secondaryTotals.hero_gear_xp || 0)}</th><th class="number">${fmt(secondaryEssence)}</th><th class="number">${fmt(Math.floor(secondaryEssence / 2))}</th><th class="number">${fmt(secondaryTotals.mithril || 0)}</th></tr></tfoot>
         </table></div>
       </div>`
     : "";
@@ -9047,4 +9050,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave15 build marker: true secondary-set classification, aligned expert skill controls, materials before smart recs, hero card contrast, exact troop SvS rates. */
+/* wave15b build marker: reforge bank refund rates (XP 100%, essence 50%, mithril 100%) with aligned columns. */

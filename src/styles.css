@@ -5968,3 +5968,9 @@ select option {
 .hero-widget-line { color: #5f7ba1 !important; }
 .hero-owned-toggle span { color: #35507a; font-weight: 700; }
 .hero-star-arrow { color: #0f7a4e; }
+
+
+/* ---- Wave 15b: reforge bank column alignment ---- */
+.secondary-gear-table table { table-layout: fixed; width: 100%; }
+.secondary-gear-table th:first-child, .secondary-gear-table td:first-child { width: 32%; }
+.secondary-gear-table th.number, .secondary-gear-table td.number { text-align: right; padding-right: 18px; font-variant-numeric: tabular-nums; }
