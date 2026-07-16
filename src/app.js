@@ -122,9 +122,7 @@ const HERO_GEAR_MAX_ENHANCEMENT = 100;
 const HERO_GEAR_MAX_EMPOWERMENT = 100;
 const HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL = 11;
 const HERO_GEAR_EMPOWERMENT_SOURCE_OFFSET = 100;
-const HERO_GEAR_NORMAL_ENHANCEMENT_XP_OVERRIDES = {
-  90: 1910,
-};
+const HERO_GEAR_NORMAL_ENHANCEMENT_XP_OVERRIDES = {};
 const HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS = [
   { enhancement: 20, mode: "Expedition", statKind: "Attack", value_percent: 20 },
   { enhancement: 40, mode: "Exploration", stat: "Hero Health Up", value_percent: 7.5 },
@@ -4436,9 +4434,13 @@ function heroGearUsesEmpowermentCost(piece = {}, targetLevel = piece?.level) {
 }
 
 function heroGearEnhancementCostToTarget(piece, targetEnhancement, slot, hero, targetLevel = piece?.level) {
-  return heroGearUsesEmpowermentCost(piece, targetLevel)
-    ? heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel)
-    : heroGearNormalEnhancementCostToTarget(piece, targetEnhancement);
+  if (!heroGearUsesEmpowermentCost(piece, targetLevel)) {
+    return heroGearNormalEnhancementCostToTarget(piece, targetEnhancement);
+  }
+  const empowerCost = heroGearEmpowermentCostToTarget(piece, targetEnhancement, slot, hero, targetLevel);
+  if (heroGearCanEmpowerAtLevel(Number(piece?.level || 0))) return empowerCost;
+  // Ascending from a non-red piece: finish normal enhancement to +100, then buy empowerment levels.
+  return addCost(heroGearNormalEnhancementCostToTarget(piece, HERO_GEAR_MAX_ENHANCEMENT), empowerCost);
 }
 
 function heroGearMasteryInvestment(piece, slot, hero) {
@@ -4471,10 +4473,19 @@ function heroGearEmpowermentInvestment(piece, slot, hero) {
   });
 }
 
+function heroGearFullNormalEnhancementCost() {
+  return rangeCost(heroGearNormalEnhancementRows(), 0, HERO_GEAR_MAX_ENHANCEMENT, {
+    idKey: "level_id",
+    orderKey: "order",
+    fields: HERO_GEAR_FIELDS,
+  });
+}
+
 function heroGearEnhancementInvestment(piece, slot, hero) {
-  return heroGearUsesEmpowermentCost(piece)
-    ? heroGearEmpowermentInvestment(piece, slot, hero)
-    : heroGearNormalEnhancementInvestment(piece);
+  if (!heroGearUsesEmpowermentCost(piece)) return heroGearNormalEnhancementInvestment(piece);
+  // Ascended (red, Lv 11+): the normal 0 -> +100 track was fully paid before ascension,
+  // then the red empowerment track starts again from +0.
+  return addCost(heroGearFullNormalEnhancementCost(), heroGearEmpowermentInvestment(piece, slot, hero));
 }
 
 function heroGearPieceInvestment(piece, slot, hero) {

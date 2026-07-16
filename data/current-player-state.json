@@ -3101,26 +3101,26 @@
         "gear": {
           "top_left": {
             "level": 10,
-            "enhancement": 90,
-            "visible_enhancement": 90,
+            "enhancement": 100,
+            "visible_enhancement": 100,
             "empowerment": 0
           },
           "top_right": {
             "level": 7,
-            "enhancement": 60,
-            "visible_enhancement": 60,
+            "enhancement": 70,
+            "visible_enhancement": 70,
             "empowerment": 0
           },
           "bottom_left": {
             "level": 7,
-            "enhancement": 60,
-            "visible_enhancement": 60,
+            "enhancement": 70,
+            "visible_enhancement": 70,
             "empowerment": 0
           },
           "bottom_right": {
             "level": 8,
-            "enhancement": 90,
-            "visible_enhancement": 90,
+            "enhancement": 100,
+            "visible_enhancement": 100,
             "empowerment": 0
           }
         },
@@ -3133,26 +3133,26 @@
         "gear": {
           "top_left": {
             "level": 8,
-            "enhancement": 60,
-            "visible_enhancement": 60,
+            "enhancement": 70,
+            "visible_enhancement": 70,
             "empowerment": 0
           },
           "top_right": {
             "level": 8,
-            "enhancement": 80,
-            "visible_enhancement": 80,
+            "enhancement": 100,
+            "visible_enhancement": 100,
             "empowerment": 0
           },
           "bottom_left": {
             "level": 8,
-            "enhancement": 80,
-            "visible_enhancement": 80,
+            "enhancement": 100,
+            "visible_enhancement": 100,
             "empowerment": 0
           },
           "bottom_right": {
             "level": 7,
-            "enhancement": 60,
-            "visible_enhancement": 60,
+            "enhancement": 70,
+            "visible_enhancement": 70,
             "empowerment": 0
           }
         },
