@@ -101,6 +101,21 @@ const PET_REFINE_STATS = [
 ];
 const TROOP_TYPES = ["infantry", "lancer", "marksman"];
 const SVS_SPEEDUP_POINTS_PER_MINUTE = 30;
+
+function svsValeriaMultiplier() {
+  const rates = gameData?.svs_point_rates || {};
+  const level = Math.max(0, Math.min(10, Number(state?.svs_plan?.valeria_level || 0)));
+  return 1 + (Number(rates.valeria_well_prepared_pct_per_level || 2) / 100) * level;
+}
+
+function svsBoost(points) {
+  return Math.round(Number(points || 0) * svsValeriaMultiplier());
+}
+
+function valeriaTag() {
+  const multiplier = svsValeriaMultiplier();
+  return multiplier > 1 ? ` incl. Valeria +${Math.round((multiplier - 1) * 100)}%` : "";
+}
 const HERO_GEAR_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
 const HERO_GEAR_INVESTMENT_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_gear", "mithril"];
 const HERO_GEAR_MAX_ENHANCEMENT = 100;
@@ -1043,7 +1058,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716f";
+const ASSET_CACHE_VERSION = "20260716g";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1400,7 +1415,9 @@ function expertSkillPlanner(expert, skills) {
       const ready = /maxed|ready/i.test(String(skill.learning_xp || ""));
       const skillId = matchExpertSkillId(expert, skill.name, index);
       const rows = expertSkillLevelRows(skillId);
-      const current = Number(skill.level || 0);
+      const capturedLevel = Number(skill.level || 0);
+      const overrideLevel = skillId != null ? state.expert_skill_current?.[skillId] : null;
+      const current = Math.max(0, Number(overrideLevel ?? capturedLevel));
       const maxLevel = rows.length ? Math.max(current, Number(rows.at(-1).skill_level)) : current;
       const savedTarget = state.expert_skill_targets?.[skillId];
       const target = Math.min(Math.max(Number(savedTarget ?? current), current), maxLevel);
@@ -1413,6 +1430,14 @@ function expertSkillPlanner(expert, skills) {
       for (let level = current; level <= maxLevel; level += 1) {
         options.push(`<option value="${level}" ${level === target ? "selected" : ""}>Lv. ${level}</option>`);
       }
+      const currentOptions = [];
+      const currentCeiling = rows.length ? Number(rows.at(-1).skill_level) : Math.max(current, capturedLevel);
+      for (let level = 0; level <= currentCeiling; level += 1) {
+        currentOptions.push(`<option value="${level}" ${level === current ? "selected" : ""}>Lv. ${level}</option>`);
+      }
+      const currentControl = skillId
+        ? `<select class="expert-skill-current" data-path="expert_skill_current.${esc(skillId)}" aria-label="Current level for ${esc(skill.name)}" title="Update after you finish an upgrade in game${overrideLevel != null && Number(overrideLevel) !== capturedLevel ? ` (captured Lv. ${capturedLevel})` : ""}">${currentOptions.join("")}</select>`
+        : `<strong>Lv. ${esc(skill.level ?? "-")}</strong>`;
       const targetControl =
         skillId && maxLevel > current
           ? `<select data-path="expert_skill_targets.${esc(skillId)}" aria-label="Target level for ${esc(skill.name)}">${options.join("")}</select>`
@@ -1421,7 +1446,7 @@ function expertSkillPlanner(expert, skills) {
         stepBooks || stepXp
           ? `<div class="expert-skill-cost">Lv. ${current} → ${target}: <strong>${fmt(stepBooks)}</strong> books · <strong>${fmtCompact(stepXp)}</strong> XP <span class="muted">(≈ ${learningTimeText(stepXp)} of learning / speedups)</span></div>`
           : "";
-      return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="gd-bonus-values"><strong>Lv. ${esc(skill.level ?? "-")}</strong>${ready ? `<strong class="gd-gain">ready</strong>` : ""}${targetControl}</span></div>${costLine}`;
+      return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="gd-bonus-values">${currentControl}${ready ? `<strong class="gd-gain">ready</strong>` : ""}<span class="muted expert-skill-arrow">➜</span>${targetControl}</span></div>${costLine}`;
     })
     .join("");
   if (!body) return { html: "", books: 0, learningXp: 0, learningMinutes: 0 };
@@ -1642,6 +1667,30 @@ function observedStatCards(record, titlePrefix = "Observed") {
   );
 }
 
+function expertCarryValueAt(levels, code, key) {
+  const rows = sortByNumber(levels || [], "relationship_level");
+  let index = rows.findIndex((row) => String(row.level_code) === String(code));
+  if (index < 0) return null;
+  for (; index >= 0; index -= 1) {
+    const value = rows[index][key];
+    if (value == null || value === "") continue;
+    if (key === "power" && Number(value) === 0) continue;
+    return Number(value);
+  }
+  return null;
+}
+
+function expertCarryLabelAt(levels, code, labelKey) {
+  const rows = sortByNumber(levels || [], "relationship_level");
+  let index = rows.findIndex((row) => String(row.level_code) === String(code));
+  if (index < 0) return null;
+  for (; index >= 0; index -= 1) {
+    const value = rows[index][labelKey];
+    if (value) return value;
+  }
+  return null;
+}
+
 function expertAffinityImpact(expertId, currentId, targetId) {
   const levels = groupBy(gameData.expert_affinity_levels, "expert_id")[expertId] || [];
   const current = levelRow(levels, "level_code", currentId);
@@ -1653,27 +1702,30 @@ function expertAffinityImpact(expertId, currentId, targetId) {
       ["primary_stat_label", "primary_stat"],
       ["secondary_stat_label", "secondary_stat"],
     ].forEach(([labelKey, valueKey]) => {
-      const label = expertStatLabel(target[labelKey] || current[labelKey]);
-      const currentValue = Number(current[valueKey]);
-      const targetValue = Number(target[valueKey]);
-      if (!Number.isFinite(currentValue) || !Number.isFinite(targetValue)) return;
+      const label = expertStatLabel(expertCarryLabelAt(levels, targetId, labelKey) || expertCarryLabelAt(levels, currentId, labelKey));
+      const currentValue = expertCarryValueAt(levels, currentId, valueKey);
+      const targetValue = expertCarryValueAt(levels, targetId, valueKey);
+      if (!Number.isFinite(currentValue) || !Number.isFinite(targetValue) || !label) return;
+      const isPercent = Math.abs(targetValue) < 5;
       const change = {
         label,
-        current: workbookPercentFmt(currentValue),
-        target: workbookPercentFmt(targetValue),
-        delta: signedWorkbookPercentFmt(targetValue - currentValue),
+        current: isPercent ? workbookPercentFmt(currentValue) : fmt(currentValue),
+        target: isPercent ? workbookPercentFmt(targetValue) : fmt(targetValue),
+        delta: isPercent ? signedWorkbookPercentFmt(targetValue - currentValue) : signedFmt(targetValue - currentValue),
       };
       changes.push(change);
       cards.push(statImpactCard(label, change.current, change.target, change.delta, "Workbook affinity table"));
     });
+    const currentPower = expertCarryValueAt(levels, currentId, "power") || 0;
+    const targetPower = expertCarryValueAt(levels, targetId, "power") || 0;
     const powerChange = {
       label: "Expert Power",
-      current: fmt(current.power),
-      target: fmt(target.power),
-      delta: signedFmt(Number(target.power || 0) - Number(current.power || 0)),
+      current: fmt(currentPower),
+      target: fmt(targetPower),
+      delta: signedFmt(targetPower - currentPower),
     };
     changes.push(powerChange);
-    cards.push(statImpactCard(powerChange.label, powerChange.current, powerChange.target, powerChange.delta, "Workbook affinity table"));
+    cards.push(statImpactCard(powerChange.label, powerChange.current, powerChange.target, powerChange.delta, "Workbook affinity table (power at last advancement)"));
   }
   return { current, target, cards, changes };
 }
@@ -2509,14 +2561,22 @@ function inventoryComparisonHtml(cost, fields, title = "Inventory check", exchan
     ? `<div class="inventory-check__exchange"><span>Suggested exchange</span><div class="exchange-trade-list">${exchangePlan.trades.map((trade) => `<em>${esc(exchangeTradeText(trade))}</em>`).join("")}</div></div>`
     : "";
   const exchangeRules = exchangePlan ? exchangeRulesHtml(exchangePlan.set) : "";
+  const usedInExchange = {};
+  (exchangePlan?.trades || []).forEach((trade) => {
+    usedInExchange[trade.from] = (usedInExchange[trade.from] || 0) + Number(trade.fromQty || 0);
+  });
   const rows = fieldKeys(fields)
     .map((key) => {
       const required = Number(cost[key] || 0);
       const have = Number(available[key] || 0);
       const short = Number(need[key] || 0);
+      const exchanged = Number(usedInExchange[key] || 0);
       let stateClass = "is-none";
       let chip = coverageChipHtml("none", "&ndash; none needed", "This material is not required by the selected targets");
-      if (required > 0 && short > 0) {
+      if (required <= 0 && exchanged > 0) {
+        stateClass = "is-excess";
+        chip = coverageChipHtml("excess", `&#8646; ${fmt(exchanged)} traded`, "Consumed by the suggested exchange to cover another material");
+      } else if (required > 0 && short > 0) {
         stateClass = "is-lacking";
         chip = coverageChipHtml("lacking", `&#10007; short ${fmt(short)}`, exchangePlan ? "Still missing after the suggested exchange" : "Missing from inventory");
       } else if (required > 0) {
@@ -2529,7 +2589,7 @@ function inventoryComparisonHtml(cost, fields, title = "Inventory check", exchan
       const label = materialDisplayLabel(key, fields);
       return `<div class="coverage-row ${stateClass}">
         <span class="coverage-row__name">${visualResourceLabel(key, label)}</span>
-        <span class="coverage-row__value">${required > 0 ? fmt(required) : "&ndash;"}</span>
+        <span class="coverage-row__value">${required > 0 ? fmt(required) : exchanged > 0 ? `${fmt(exchanged)} &#8646;` : "&ndash;"}</span>
         <span class="coverage-row__value">${fmt(have)}</span>
         ${chip}
       </div>`;
@@ -2669,7 +2729,7 @@ function smartOptimize({ moduleId, fields, exchangeKey = "", targetState, buildC
 function smartCandidateImpactText(candidate) {
   const statText = statBenefitText(candidate.changes || []);
   if (statText) return statText;
-  if (candidate.svsGain) return `SVS ${signedFmt(candidate.svsGain)}`;
+  if (candidate.svsGain) return `SVS ${signedFmt(svsBoost(candidate.svsGain))}${valeriaTag()}`;
   if (candidate.powerDelta) return `Power ${signedFmt(candidate.powerDelta)}`;
   return "Best available material fit";
 }
@@ -2845,6 +2905,10 @@ function upgradeNutshellHtml({
 }) {
   const keys = fieldKeys(fields);
   const exchangePlan = exchangeKey ? materialExchangePlan(cost, fields, exchangeKey) : null;
+  const usedInExchange = {};
+  (exchangePlan?.trades || []).forEach((trade) => {
+    usedInExchange[trade.from] = (usedInExchange[trade.from] || 0) + Number(trade.fromQty || 0);
+  });
   const allEntries = keys.map((key) => {
     const required = Number(cost?.[key] || 0);
     const available = availableInventoryValue(key);
@@ -2852,6 +2916,7 @@ function upgradeNutshellHtml({
       key,
       required,
       available,
+      exchanged: Number(usedInExchange[key] || 0),
       balance: exchangePlan ? Number(exchangePlan.balances[key] || 0) : available - required,
     };
   });
@@ -2881,9 +2946,16 @@ function upgradeNutshellHtml({
         .map((entry) => {
           const isShort = entry.balance < 0;
           const isExact = entry.balance === 0;
-          const deltaText = isShort ? `Need ${fmt(Math.abs(entry.balance))}` : isExact ? "Covered" : `Excess +${fmt(entry.balance)}`;
+          const tradedAway = entry.required <= 0 && entry.exchanged > 0;
+          const deltaText = tradedAway
+            ? `${fmt(entry.exchanged)} traded in exchange`
+            : isShort
+              ? `Need ${fmt(Math.abs(entry.balance))}`
+              : isExact
+                ? "Covered"
+                : `Excess +${fmt(entry.balance)}`;
           return `<div class="nutshell-material ${isShort ? "nutshell-material--need" : "nutshell-material--excess"}">
-            <div class="nutshell-material__head">${visualResourceLabel(entry.key)}<strong>${fmt(entry.required)}</strong></div>
+            <div class="nutshell-material__head">${visualResourceLabel(entry.key)}<strong>${tradedAway ? `${fmt(entry.exchanged)} &#8646;` : fmt(entry.required)}</strong></div>
             <div class="nutshell-material__meta"><span>Have ${fmt(entry.available)}</span><b class="${isShort ? "nutshell-delta--need" : "nutshell-delta--excess"}">${esc(deltaText)}</b></div>
           </div>`;
         })
@@ -5211,7 +5283,7 @@ function smartPetPlan() {
             fields: PET_FIELDS,
             cost,
             svsGain,
-            changes: [numericStatChange("SVS Points", 0, svsGain, "number")],
+            changes: [numericStatChange("SVS Points", 0, svsBoost(svsGain), "number")],
             updates: [{ path: `pets.${pet.pet_id}.target`, value: next.level_code }],
             applyToPlan: () => {
               targetState[pet.pet_id] = next.level_code;
@@ -5232,10 +5304,11 @@ function expertAffinityNumericChanges(expertId, currentId, targetId) {
     ["secondary_stat_label", "secondary_stat"],
   ]
     .map(([labelKey, valueKey]) => {
-      const currentValue = Number(current[valueKey]);
-      const targetValue = Number(target[valueKey]);
-      if (!Number.isFinite(currentValue) || !Number.isFinite(targetValue)) return null;
-      return numericStatChange(expertStatLabel(target[labelKey] || current[labelKey]), currentValue * 100, targetValue * 100, "percent");
+      const currentValue = expertCarryValueAt(levels, currentId, valueKey);
+      const targetValue = expertCarryValueAt(levels, targetId, valueKey);
+      const label = expertCarryLabelAt(levels, targetId, labelKey) || expertCarryLabelAt(levels, currentId, labelKey);
+      if (!Number.isFinite(currentValue) || !Number.isFinite(targetValue) || !label) return null;
+      return numericStatChange(expertStatLabel(label), currentValue * 100, targetValue * 100, "percent");
     })
     .filter(Boolean);
 }
@@ -6221,7 +6294,7 @@ function renderPets() {
             <label class="compact-field"><span>Attempts/tier</span>${numberInput(`pets.${pet.pet_id}.refine_attempts_per_tier`, attempts, 1)}</label>
           </div>
           ${refineNeedCommon || refineNeedAdvanced
-            ? `<div class="gd-time-row"><span>Marks for plan:</span><strong>${refineNeedCommon ? `${fmt(refineNeedCommon)} common` : ""}${refineNeedCommon && refineNeedAdvanced ? " + " : ""}${refineNeedAdvanced ? `${fmt(refineNeedAdvanced)} advanced` : ""}</strong><span class="muted">≈ ${fmt(refineSvs)} SvS pts</span></div>`
+            ? `<div class="gd-time-row"><span>Marks for plan:</span><strong>${refineNeedCommon ? `${fmt(refineNeedCommon)} common` : ""}${refineNeedCommon && refineNeedAdvanced ? " + " : ""}${refineNeedAdvanced ? `${fmt(refineNeedAdvanced)} advanced` : ""}</strong><span class="muted">≈ ${fmt(svsBoost(refineSvs))} SvS pts${valeriaTag()}</span></div>`
             : ""}
         </section>`;
 
@@ -6240,7 +6313,7 @@ function renderPets() {
           <label class="compact-field"><span>Target</span><select data-path="pets.${pet.pet_id}.target">${optionList(levels, "label", "level_code", saved.target)}</select></label>
         </div>
         ${statRows.length ? gameBonusRowsHtml(statRows, "Bonuses & Skill") : ""}
-        ${upgradeSelected ? `<div class="gd-time-row"><span>SVS gain:</span><strong class="gd-gain">${signedFmt(svsGain)}</strong></div>` : ""}
+        ${upgradeSelected ? `<div class="gd-time-row"><span>SVS gain:</span><strong class="gd-gain">${signedFmt(svsBoost(svsGain))}</strong>${svsValeriaMultiplier() > 1 ? `<span class="muted">${valeriaTag().trim()}</span>` : ""}</div>` : ""}
         ${gameCostTilesHtml(cost, PET_FIELDS, { emptyText: "No upgrade selected." })}
         ${refinementHtml}
       </div>`;
@@ -6266,9 +6339,9 @@ function renderPets() {
       selected: upgradeSelectionText(selectedUpgradeCount, "pet target", "pet targets"),
       upgrades: selectedUpgrades,
       impactCards: [
-        statSnapshotCard("Target SVS Gain", signedFmt(totalSvsGain), "Workbook pet table", "Advancement points x 50 SvS each"),
+        statSnapshotCard("Target SVS Gain", signedFmt(svsBoost(totalSvsGain)), "Workbook pet table", `Advancement points x 50 SvS each${valeriaTag()}`),
         ...(refineCommon || refineAdvanced
-          ? [statSnapshotCard("Refinement Marks", `${fmt(refineCommon)} common · ${fmt(refineAdvanced)} adv.`, "Quality targets on pet cards", "1,150 / 15,000 SvS pts per mark when spent")]
+          ? [statSnapshotCard("Refinement Marks", `${fmt(refineCommon)} common · ${fmt(refineAdvanced)} adv.`, "Quality targets on pet cards", `1,150 / 15,000 SvS pts per mark when spent${valeriaTag()}`)]
           : []),
         ...aggregateStats
           .slice(0, 5)
@@ -6276,7 +6349,7 @@ function renderPets() {
             statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current pet stats", "Captured from the account"),
           ),
       ],
-      details: [`Target SVS ${signedFmt(totalSvsGain)}`, `Power read ${fmt(observedPower)}`, ...refineDetails],
+      details: [`Target SVS ${signedFmt(svsBoost(totalSvsGain))}${valeriaTag()}`, `Power read ${fmt(observedPower)}`, ...refineDetails],
       cost: totalCost,
       fields: PET_CHECK_FIELDS,
       exchangeKey: "pet_chests",
@@ -6436,9 +6509,14 @@ function renderHeroes() {
         const rarityKey = normalizeKey(hero.rarity || "");
         if (shardsShort > 0 && rarityKey in shardsByRarity) shardsByRarity[rarityKey] += shardsShort;
       }
-      const needsRows = [];
-      if (shardsNeeded > 0) needsRows.push(`Shards to target: <strong>${fmt(shardsNeeded)}</strong> (${shardsShort > 0 ? `${fmt(shardsShort)} short` : "covered by stock"})`);
-      if (widgetsNeeded > 0) needsRows.push(`Widgets to +${esc(saved.target_widget_level)}: <strong>${fmt(widgetsNeeded)}</strong>`);
+      const needsChips = [];
+      if (shardsNeeded > 0)
+        needsChips.push(
+          `<span class="hero-need-chip ${shardsShort > 0 ? "is-short" : "is-ok"}">${fmt(shardsNeeded)} shards${shardsShort > 0 ? ` · ${fmt(shardsShort)} short` : " · covered"}</span>`,
+        );
+      if (widgetsNeeded > 0) needsChips.push(`<span class="hero-need-chip">${fmt(widgetsNeeded)} widgets to +${esc(saved.target_widget_level)}</span>`);
+      const targetChanged =
+        Number(saved.target_stars) !== Number(saved.current_stars) || Number(saved.target_star_tier || 0) !== Number(saved.current_star_tier || 0);
       return `<div class="hero-roster-card rarity-${normalizeKey(hero.rarity || "rare")} ${saved.owned ? "" : "is-unowned"}">
         <div class="hero-roster-card__portrait">
           ${iconHtml("hero", hero.name, "xl", hero.hero_id)}
@@ -6447,21 +6525,34 @@ function renderHeroes() {
           ${observed.level ? `<span class="hero-level-badge">Lv. ${esc(observed.level)}</span>` : ""}
         </div>
         <div class="hero-roster-card__body">
-          <strong>${esc(hero.name)}</strong>
-          <span class="muted">${esc(hero.rarity || "")}${hero.default_role ? ` · ${esc(hero.default_role)}` : ""}</span>
-          ${starPips(saved.current_stars, saved.current_star_tier)}
-          ${gearName ? `<span class="hero-widget-line muted">${esc(gearName)}${Number(saved.current_widget_level) > 0 ? ` +${esc(saved.current_widget_level)}` : " (locked)"}</span>` : ""}
-          <label class="hero-owned-toggle"><input type="checkbox" ${saved.owned ? "checked" : ""} data-path="heroes.${hero.hero_id}.owned" /><span>Owned</span></label>
-          <div class="hero-roster-inputs">
-            <label><span>Stars</span>${numberInput(`heroes.${hero.hero_id}.current_stars`, saved.current_stars)}</label>
-            <label><span>Tier</span>${numberInput(`heroes.${hero.hero_id}.current_star_tier`, saved.current_star_tier || 0)}</label>
-            <label><span>Target</span>${numberInput(`heroes.${hero.hero_id}.target_stars`, saved.target_stars)}</label>
-            <label><span>T. tier</span>${numberInput(`heroes.${hero.hero_id}.target_star_tier`, saved.target_star_tier || 0)}</label>
-            <label><span>Shards</span>${numberInput(`heroes.${hero.hero_id}.shards`, saved.shards || 0)}</label>
-            <label><span>Widget</span>${numberInput(`heroes.${hero.hero_id}.current_widget_level`, saved.current_widget_level)}</label>
-            <label><span>W. target</span>${numberInput(`heroes.${hero.hero_id}.target_widget_level`, saved.target_widget_level)}</label>
+          <div class="hero-card-titlebar">
+            <div class="hero-card-title">
+              <strong>${esc(hero.name)}</strong>
+              <span class="muted">${esc(hero.rarity || "")}${hero.default_role ? ` · ${esc(hero.default_role)}` : ""}</span>
+            </div>
+            <label class="hero-owned-toggle"><input type="checkbox" ${saved.owned ? "checked" : ""} data-path="heroes.${hero.hero_id}.owned" /><span>Owned</span></label>
           </div>
-          ${needsRows.length ? `<div class="hero-needs">${needsRows.map((row) => `<span>${row}</span>`).join("")}</div>` : ""}
+          <div class="hero-star-line">
+            ${starPips(saved.current_stars, saved.current_star_tier)}
+            ${targetChanged ? `<span class="hero-star-arrow">➜</span>${starPips(saved.target_stars, saved.target_star_tier)}` : ""}
+          </div>
+          ${gearName ? `<span class="hero-widget-line muted">${esc(gearName)}${Number(saved.current_widget_level) > 0 ? ` +${esc(saved.current_widget_level)}` : " (locked)"}</span>` : ""}
+          <div class="hero-field-groups">
+            <fieldset class="hero-field-group">
+              <legend>Current</legend>
+              <label><span>Stars</span>${numberInput(`heroes.${hero.hero_id}.current_stars`, saved.current_stars)}</label>
+              <label><span>Tier</span>${numberInput(`heroes.${hero.hero_id}.current_star_tier`, saved.current_star_tier || 0)}</label>
+              <label><span>Widget</span>${numberInput(`heroes.${hero.hero_id}.current_widget_level`, saved.current_widget_level)}</label>
+              <label><span>Shards</span>${numberInput(`heroes.${hero.hero_id}.shards`, saved.shards || 0)}</label>
+            </fieldset>
+            <fieldset class="hero-field-group hero-field-group--target">
+              <legend>Target</legend>
+              <label><span>Stars</span>${numberInput(`heroes.${hero.hero_id}.target_stars`, saved.target_stars)}</label>
+              <label><span>Tier</span>${numberInput(`heroes.${hero.hero_id}.target_star_tier`, saved.target_star_tier || 0)}</label>
+              <label><span>Widget</span>${numberInput(`heroes.${hero.hero_id}.target_widget_level`, saved.target_widget_level)}</label>
+            </fieldset>
+          </div>
+          ${needsChips.length ? `<div class="hero-needs">${needsChips.join("")}</div>` : ""}
         </div>
       </div>`;
     })
@@ -6537,8 +6628,9 @@ function renderHeroGear() {
       const hero = heroRecordFor(heroId);
       const targets = heroGearTargetsFor(heroId);
       const targetCost = heroGearCostToTarget(gearSet, heroId);
+      const setTag = primaryIds.has(heroId) ? "Primary set" : "Secondary set";
       return `<tr>
-        <td>${visualLabel("hero", hero.name, hero.rarity + (hero.generation ? " | Gen " + hero.generation : ""))}</td>
+        <td>${visualLabel("hero", hero.name, hero.rarity + (hero.generation ? " | Gen " + hero.generation : "") + " | " + setTag)}</td>
         <td>${visualLabel("troop", gearSet.troop_type || hero.troop_type)}</td>
         <td>${heroGearPiecesHtml(gearSet.gear)}</td>
         <td>${heroGearSpecialHtml(gearSet)}</td>
@@ -6586,6 +6678,33 @@ function renderHeroGear() {
     [{ action: "hero-special-enhancement", label: "Apply to tracked heroes" }],
     commonHeroGearTarget("special", 10),
   );
+  const secondaryEntries = gearEntries.filter(([heroId]) => !primaryIds.has(heroId));
+  const secondaryTotals = makeCost(HERO_GEAR_FIELDS);
+  const secondaryRows = secondaryEntries
+    .map(([heroId, gearSet]) => {
+      const hero = heroRecordFor(heroId);
+      const invested = heroGearSetInvestment(gearSet, heroId);
+      addCost(secondaryTotals, invested);
+      const pieces = heroGearPieces(gearSet.gear).length;
+      return `<tr>
+        <td>${visualLabel("hero", hero.name, `${gearSet.troop_type || hero.troop_type || ""} · ${fmt(pieces)} pieces`)}</td>
+        <td class="number">${fmt(invested.hero_gear_xp || 0)}</td>
+        <td class="number">${fmt(invested.essence_stones || 0)}</td>
+        <td class="number">${fmt(invested.mithril || 0)}</td>
+      </tr>`;
+    })
+    .join("");
+  const secondaryPanel = secondaryEntries.length
+    ? `<div class="panel secondary-gear-panel">
+        <h2>Secondary Sets — Reforge Bank</h2>
+        <p class="gd-note">Everything already invested in your non-primary sets. Reforging a piece refunds its invested Gear XP for your primary set upgrades; essence stones and mithril spent on empowerment are listed for reference.</p>
+        <div class="table-wrap compact-table"><table>
+          <thead><tr><th>Secondary set</th><th>Invested Gear XP</th><th>Essence Stones</th><th>Mithril</th></tr></thead>
+          <tbody>${secondaryRows}</tbody>
+          <tfoot><tr><th>Total reclaimable</th><th class="number">${fmt(secondaryTotals.hero_gear_xp || 0)}</th><th class="number">${fmt(secondaryTotals.essence_stones || 0)}</th><th class="number">${fmt(secondaryTotals.mithril || 0)}</th></tr></tfoot>
+        </table></div>
+      </div>`
+    : "";
   const reforgeRows = gameData.hero_gear_reforge
     .slice(0, 101)
     .map((row) => `<tr><td>${fmt(row.level)}</td><td class="number">${fmt(row.xp)}</td><td class="number">${fmt(row.total_xp)}</td></tr>`)
@@ -6598,8 +6717,9 @@ function renderHeroGear() {
     const hero = heroRecordFor(heroId);
     const isActive = heroId === selectedHeroId;
     const isPrimary = primaryIds.has(heroId);
-    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${isPrimary ? 'primary-set' : ''}" data-select-hero-id="${heroId}" title="${esc(hero.name)}">
+    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${isPrimary ? 'primary-set' : 'secondary-set'}" data-select-hero-id="${heroId}" title="${esc(hero.name)} · ${isPrimary ? "Primary set" : "Secondary set"}">
       ${iconHtml("hero", hero.name, "md", heroId)}
+      ${isPrimary ? "" : `<span class="hero-portrait-flag">2nd</span>`}
     </button>`;
   }).join("");
 
@@ -6735,6 +6855,7 @@ function renderHeroGear() {
       empty: "Set hero gear piece targets above current levels or enhancements to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("hero_gear", "Hero Gear Targets", smartPlan, "Optimizes primary interchangeable hero gear sets using mastery stat gains and enhancement breakpoints.")}
+    ${secondaryPanel}
     <div class="summary-grid">
       <div class="metric blue"><span>Tracked sets</span><strong>${fmt(trackedHeroes)}</strong></div>
       <div class="metric blue"><span>Gear power read</span><strong>${fmt(allSummary.totalPower)}</strong></div>
@@ -6784,7 +6905,65 @@ function renderHeroGear() {
   `;
 }
 
+let expertSigilsEnsured = false;
+function ensureExpertSigilResources() {
+  if (expertSigilsEnsured || !gameData?.experts?.length) return;
+  expertSigilsEnsured = true;
+  gameData.experts.forEach((expert) => {
+    RESOURCE_LABELS[`sigils_${expert.expert_id}`] = `${expert.name} Sigils`;
+  });
+  CALCULATOR_INVENTORY_GROUPS.push({
+    title: "Expert Sigils",
+    note: "Each expert's own sigils plus common sigils (usable on any expert)",
+    fields: [["common_sigils", "sigils"], ...gameData.experts.map((expert) => `sigils_${expert.expert_id}`)].map((field) => (Array.isArray(field) ? field[0] : field)),
+  });
+}
+
+function expertSigilAllocationPanelHtml(levelsByExpert) {
+  const commonHave = availableInventoryValue("common_sigils");
+  let commonLeft = commonHave;
+  let totalNeed = 0;
+  let totalShort = 0;
+  const rows = gameData.experts
+    .map((expert) => {
+      const saved = state.experts[expert.expert_id];
+      if (!saved) return "";
+      const cost = rangeCost(levelsByExpert[expert.expert_id] || [], saved.relationship_current, saved.relationship_target, {
+        idKey: "level_code",
+        orderKey: "relationship_level",
+        fields: [["common_sigils", "sigils"]],
+      });
+      const need = Number(cost.common_sigils || 0);
+      if (!need) return "";
+      totalNeed += need;
+      const specific = availableInventoryValue(`sigils_${expert.expert_id}`);
+      const afterSpecific = Math.max(0, need - specific);
+      const commonUsed = Math.min(commonLeft, afterSpecific);
+      commonLeft -= commonUsed;
+      const short = afterSpecific - commonUsed;
+      totalShort += short;
+      return `<div class="coverage-row ${short ? "is-lacking" : "is-excess"}">
+        <span class="coverage-row__name">${visualResourceLabel(`sigils_${expert.expert_id}`, `${expert.name}`)}</span>
+        <span class="coverage-row__value">${fmt(need)}</span>
+        <span class="coverage-row__value">${fmt(specific)}${commonUsed ? ` <small class="muted">+${fmt(commonUsed)} common</small>` : ""}</span>
+        ${short ? coverageChipHtml("lacking", `&#10007; short ${fmt(short)}`, "Missing after expert sigils and common pool") : coverageChipHtml("excess", "&#10003; covered", "Expert sigils plus allocated common sigils")}
+      </div>`;
+    })
+    .filter(Boolean)
+    .join("");
+  if (!rows) return "";
+  return `<div class="inventory-check ${totalShort ? "" : "inventory-check--covered"}">
+    <div class="inventory-check__head"><span>Expert sigil coverage (specific first, then common)</span><strong>${totalShort ? `Short ${fmt(totalShort)}` : "Covered"}</strong></div>
+    <div class="coverage-table">
+      <div class="coverage-row coverage-row--head"><span>Expert</span><span>Need</span><span>Have</span><span>Status</span></div>
+      ${rows}
+    </div>
+    <p class="gd-note">Common sigils on hand: ${fmt(commonHave)} — ${fmt(Math.max(0, commonLeft))} left after allocation. Track counts on the Resources page under "Expert Sigils".</p>
+  </div>`;
+}
+
 function renderExperts() {
+  ensureExpertSigilResources();
   const levelsByExpert = groupBy(gameData.expert_affinity_levels, "expert_id");
   let totalCost = { expert_affinity: 0, common_sigils: 0, books_of_knowledge: 0 };
   let totalLearningXp = 0;
@@ -6844,6 +7023,7 @@ function renderExperts() {
           <span class="pet-card__portrait">${iconHtml("expert", expert.name, "xl", "expert")}${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</span>
           <div class="pet-card__title">
             <strong>${esc(expert.name)}</strong>
+            ${observed.relationship ? `<span class="muted">${esc(observed.relationship)}${observed.level ? ` · Lv ${esc(observed.level)}` : ""}</span>` : ""}
             ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : `<span class="muted">${esc(expert.skills.map((skill) => skill.name).join(", "))}</span>`}
           </div>
           ${gameLevelFlowHtml(currentLabel?.relationship_label || saved.relationship_current, targetLabel?.relationship_label || saved.relationship_target)}
@@ -6855,6 +7035,9 @@ function renderExperts() {
         ${statRows.length ? gameBonusRowsHtml(statRows, "Stat Bonuses") : ""}
         ${skillPlan.html}
         ${gameCostTilesHtml(cost, ["expert_affinity", ["common_sigils", "sigils"], ["books_of_knowledge", "books"], "learning_speedups_minutes"], { emptyText: "No upgrade selected." })}
+        ${Number(cost.common_sigils || 0) > 0
+          ? `<div class="gd-time-row"><span>Sigils:</span><strong>${fmt(cost.common_sigils)} needed</strong><span class="muted">${fmt(availableInventoryValue(`sigils_${expert.expert_id}`))} ${esc(expert.name)} + ${fmt(availableInventoryValue("common_sigils"))} common held</span></div>`
+          : ""}
       </div>`;
     })
     .join("");
@@ -6902,6 +7085,7 @@ function renderExperts() {
       empty: "Set expert relationship or skill targets above current levels to see material gaps.",
     })}
     ${smartRecommendationPanelHtml("experts", "Expert Targets", smartPlan, "Suggests affordable expert affinity targets by workbook stat gain, power gain, and material pressure.")}
+    ${expertSigilAllocationPanelHtml(levelsByExpert)}
     <div class="pet-card-grid">${rows}</div>
     ${statImpactPanel("Current Expert Combat Stats", aggregateCards, "Affinity target changes above are exact from the workbook where the source sheet exposes stat columns.")}
   `;
@@ -7289,7 +7473,7 @@ function renderTroops() {
         (row) => `<tr>
           <td>T${esc(row.tier)}</td>
           <td>${fmt(TROOP_POWER_BY_TIER[row.tier] || 0)}</td>
-          <td>${fmt(row.svs_points)}</td>
+          <td>${fmt(svsBoost(row.svs_points))}</td>
           <td>${Number(row.base_seconds).toFixed(0)}s</td>
           <td>${fmt(row.meat)}</td>
           <td>${fmt(row.wood)}</td>
@@ -7336,7 +7520,7 @@ function renderTroops() {
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Type</th><th>Mode</th><th>From</th><th>To / Tier</th><th>Quantity</th><th>Time</th><th>Batches</th><th>Power</th><th>SvS Pts</th></tr></thead>
         <tbody>${typeRows}</tbody>
-        <tfoot><tr><th colspan="5">Total</th><th>${timeFmt(totals.seconds)}</th><th>${fmt(totals.batches)}</th><th>+${fmt(totals.power)}</th><th>${fmt(totals.points)}</th></tr></tfoot>
+        <tfoot><tr><th colspan="5">Total</th><th>${timeFmt(totals.seconds)}</th><th>${fmt(totals.batches)}</th><th>+${fmt(totals.power)}</th><th>${fmt(svsBoost(totals.points))}${valeriaTag() ? `<small class="muted">${valeriaTag()}</small>` : ""}</th></tr></tfoot>
       </table></div>
       <div class="summary-grid">
         <div class="metric blue"><span>Wall-clock time</span><strong>${timeFmt(totals.seconds)}</strong></div>
@@ -7594,7 +7778,7 @@ function renderSvs() {
     .map(
       (row) => `<tr>
         <td>${esc(row.label)}<br><span class="muted">${esc(row.note)}</span></td>
-        <td>${fmt(row.pts)}</td>
+        <td>${fmt(Math.round(row.pts * valeriaMultiplier))}</td>
         <td>${dayChips(row.days) || "&ndash;"}</td>
       </tr>`,
     )
@@ -7604,7 +7788,7 @@ function renderSvs() {
     day,
     pts: activityRows.reduce((sum, row) => {
       const primaryDay = (row.days || []).find(([, tier]) => tier === "high")?.[0];
-      return sum + (primaryDay === day ? Number(row.pts || 0) : 0);
+      return sum + (primaryDay === day ? Math.round(Number(row.pts || 0) * valeriaMultiplier) : 0);
     }, 0),
   }));
 
@@ -7640,7 +7824,7 @@ function renderSvs() {
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Activity (auto from targets/inventory)</th><th>Points</th><th>Best day</th></tr></thead>
         <tbody>${rows || `<tr><td colspan="3"><span class="muted">No point sources yet — set upgrade targets or add inventory.</span></td></tr>`}</tbody>
-        <tfoot><tr><th>Total (base)</th><th>${fmt(basePoints)}</th><th></th></tr><tr><th>Total with Valeria</th><th>${fmt(boostedPoints)}</th><th></th></tr></tfoot>
+        <tfoot><tr><th>Total (all rows incl. Valeria ×${valeriaMultiplier.toFixed(2)})</th><th>${fmt(boostedPoints)}</th><th></th></tr><tr><th>Base without Valeria</th><th>${fmt(basePoints)}</th><th></th></tr></tfoot>
       </table></div>
       <p class="gd-note">Troop, T12, and War Academy rows follow the plans on their own pages. The burn row deducts the ${fmt(plannedSpeedupMinutes)} speedup minutes already committed to those plans, so nothing is counted twice.</p>
     </div>
@@ -7649,7 +7833,7 @@ function renderSvs() {
       <div class="summary-grid">
         ${dayTotals.map(({ day, pts }, idx) => `<div class="metric ${["blue", "green", "amber", "purple", "blue"][idx]}"><span>${DAY_NAMES[day]} · ${DAY_FOCUS[day]}</span><strong>${fmt(pts)}</strong></div>`).join("")}
       </div>
-      <p class="gd-note">Each activity is assigned to its first high-value day. Activities with several green days can be shifted between them without losing value.</p>
+      <p class="gd-note">Each activity is assigned to its first high-value day. Values include Valeria ×${valeriaMultiplier.toFixed(2)}. Activities with several green days can be shifted between them without losing value.</p>
     </div>
     <div class="panel">
       <h2>Prep day schedule — wostools.net guide</h2>
@@ -7768,8 +7952,8 @@ function renderT12() {
     )
     .join("");
   const researchSpeedupsHave = availableInventoryValue("research_speedups_minutes");
-  const shardsPts = Number(totalCost.fire_crystal_shards || 0) * Number(gameData.svs_point_rates?.fire_crystal_shard_research || 1000);
-  const timePts = Math.round(totalMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE);
+  const shardsPts = svsBoost(Number(totalCost.fire_crystal_shards || 0) * Number(gameData.svs_point_rates?.fire_crystal_shard_research || 1000));
+  const timePts = svsBoost(Math.round(totalMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE));
 
   $("#tab-t12-research").innerHTML = `
     <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>Full verified pipeline (wostools.net cross-check): 5 sequence-gated Exalted unlock tracks per troop type, then Molten I/II/III branches, the gateway skill, and Solar Supremacy. ${T12_UNLOCKED ? "" : "Not unlocked on this account yet — use this page for forward planning."}</p></div></div>
@@ -7780,7 +7964,7 @@ function renderT12() {
       impactCards: [
         statSnapshotCard("Research time", timeFmt(totalMinutes * 60), "Sum of selected levels", researchSpeedupsHave >= totalMinutes ? "Covered by research speedups" : `Research speedups held: ${fmt(researchSpeedupsHave)} min`),
         statSnapshotCard("Power gain", `+${fmt(totalPower)}`, "Sum of selected levels", ""),
-        statSnapshotCard("SvS points", fmt(shardsPts + timePts), "Shards ×1,000 + minutes ×30", ""),
+        statSnapshotCard("SvS points", fmt(shardsPts + timePts), `Shards ×1,000 + minutes ×30${valeriaTag()}`, ""),
       ],
       details: [`${timeFmt(totalMinutes * 60)} research time`, `+${fmt(totalPower)} power`],
       cost: totalCost,
@@ -7794,6 +7978,7 @@ function renderT12() {
 }
 
 function renderResources() {
+  ensureExpertSigilResources();
   const grouped = groupBy(gameData.resource_types, "category");
   const gensWithExclusive = [...new Set(
     gameData.heroes
@@ -8456,8 +8641,7 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.145, 0] },
-  { bone: "mixamorig:Head", kind: "goggles", offset: [0, 0.02, 0] },
+  { bone: "mixamorig:Head", kind: "hoodedHead", offset: [0, 0.02, 0.01] },
   { bone: "mixamorig:Neck", kind: "collar", offset: [0, -0.015, 0.01] },
   { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.05, 0] },
   { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
@@ -8474,40 +8658,41 @@ const HERO3D_OUTFIT_SPECS = [
 function hero3dOutfitPiece(T, kind, materials) {
   const { fur, leather, cloth, clothDark, gold } = materials;
   const group = new T.Group();
-  if (kind === "ushanka") {
-    const band = new T.Mesh(new T.TorusGeometry(0.126, 0.056, 12, 24), fur);
-    band.rotation.x = Math.PI / 2;
-    band.position.y = -0.04;
-    group.add(band);
-    const dome = new T.Mesh(new T.SphereGeometry(0.145, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), leather);
-    dome.scale.set(1.2, 1.05, 1.2);
-    dome.position.y = -0.01;
-    group.add(dome);
-    const badge = new T.Mesh(new T.CircleGeometry(0.027, 16), gold);
-    badge.position.set(0, 0.02, 0.131);
-    group.add(badge);
+  if (kind === "hoodedHead") {
+    // Full replacement head: parka hood with fur rim, warm face, eyes, white beard.
+    const skin = new T.MeshStandardMaterial({ color: 0xe8bf98, roughness: 0.65 });
+    const dark = new T.MeshStandardMaterial({ color: 0x2a1f18, roughness: 0.5 });
+    const shell = new T.Mesh(new T.SphereGeometry(0.175, 22, 16), cloth);
+    shell.scale.set(1, 1.12, 1.02);
+    shell.position.set(0, 0.03, -0.02);
+    group.add(shell);
+    const rim = new T.Mesh(new T.TorusGeometry(0.135, 0.048, 14, 28), fur);
+    rim.position.set(0, 0.02, 0.1);
+    group.add(rim);
+    const face = new T.Mesh(new T.SphereGeometry(0.117, 20, 16), skin);
+    face.scale.set(1, 1.05, 0.85);
+    face.position.set(0, 0.015, 0.035);
+    group.add(face);
     [-1, 1].forEach((side) => {
-      const flap = new T.Mesh(new T.BoxGeometry(0.042, 0.1, 0.065), fur);
-      flap.position.set(side * 0.122, -0.095, -0.012);
-      flap.rotation.z = side * 0.1;
-      group.add(flap);
+      const eye = new T.Mesh(new T.SphereGeometry(0.017, 10, 8), dark);
+      eye.position.set(side * 0.046, 0.045, 0.135);
+      group.add(eye);
+      const brow = new T.Mesh(new T.BoxGeometry(0.042, 0.012, 0.015), fur);
+      brow.position.set(side * 0.048, 0.078, 0.128);
+      brow.rotation.z = side * -0.15;
+      group.add(brow);
     });
-  } else if (kind === "goggles") {
-    const strap = new T.Mesh(new T.TorusGeometry(0.125, 0.017, 10, 24), clothDark);
-    strap.rotation.x = Math.PI / 2;
-    group.add(strap);
-    const lensMaterial = new T.MeshStandardMaterial({ color: 0x9fd8ff, emissive: 0x7fc4ff, emissiveIntensity: 0.9, roughness: 0.2, metalness: 0.3 });
-    [-1, 1].forEach((side) => {
-      const rim = new T.Mesh(new T.TorusGeometry(0.03, 0.009, 8, 16), clothDark);
-      rim.position.set(side * 0.05, 0.005, 0.128);
-      group.add(rim);
-      const lens = new T.Mesh(new T.CircleGeometry(0.027, 16), lensMaterial);
-      lens.position.set(side * 0.05, 0.005, 0.132);
-      group.add(lens);
-    });
-    const bridge = new T.Mesh(new T.BoxGeometry(0.03, 0.012, 0.012), clothDark);
-    bridge.position.set(0, 0.007, 0.128);
-    group.add(bridge);
+    const nose = new T.Mesh(new T.SphereGeometry(0.02, 10, 8), skin);
+    nose.position.set(0, 0.015, 0.15);
+    group.add(nose);
+    const beard = new T.Mesh(new T.SphereGeometry(0.095, 16, 12), fur);
+    beard.scale.set(1.1, 0.95, 0.62);
+    beard.position.set(0, -0.065, 0.085);
+    group.add(beard);
+    const mustache = new T.Mesh(new T.SphereGeometry(0.05, 12, 8), fur);
+    mustache.scale.set(1.25, 0.4, 0.55);
+    mustache.position.set(0, -0.02, 0.135);
+    group.add(mustache);
   } else if (kind === "collar") {
     const collar = new T.Mesh(new T.TorusGeometry(0.145, 0.062, 12, 24), fur);
     collar.rotation.x = Math.PI / 2;
@@ -8857,4 +9042,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave13 build marker: baked face window — raised ushanka, lowered collar, protruding goggles, full dome coverage. */
+/* wave14 build marker: hooded bearded chief head, expert tracking overhaul, per-expert sigils, hero card redesign, secondary-set reforge bank, exchange display, Valeria everywhere. */
