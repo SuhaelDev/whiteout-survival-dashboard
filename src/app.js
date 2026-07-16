@@ -1058,7 +1058,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716g";
+const ASSET_CACHE_VERSION = "20260716h";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1446,7 +1446,7 @@ function expertSkillPlanner(expert, skills) {
         stepBooks || stepXp
           ? `<div class="expert-skill-cost">Lv. ${current} → ${target}: <strong>${fmt(stepBooks)}</strong> books · <strong>${fmtCompact(stepXp)}</strong> XP <span class="muted">(≈ ${learningTimeText(stepXp)} of learning / speedups)</span></div>`
           : "";
-      return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="gd-bonus-values">${currentControl}${ready ? `<strong class="gd-gain">ready</strong>` : ""}<span class="muted expert-skill-arrow">➜</span>${targetControl}</span></div>${costLine}`;
+      return `<div class="gd-bonus-row expert-skill-row" title="${esc(skill.effect || "")}"><span class="gd-bonus-label">${esc(skill.name)}</span><span class="expert-skill-controls">${currentControl}<span class="expert-skill-ready">${ready ? `<strong class="gd-gain">ready</strong>` : ""}</span><span class="muted expert-skill-arrow">➜</span><span class="expert-skill-target">${targetControl}</span></span></div>${costLine}`;
     })
     .join("");
   if (!body) return { html: "", books: 0, learningXp: 0, learningMinutes: 0 };
@@ -5807,8 +5807,8 @@ function renderChiefGear() {
       empty: "Set chief gear targets above current tiers to see material gaps.",
     })}
     
-    ${smartRecommendationPanelHtml("chief_gear", "Chief Gear Targets", smartPlan, "Suggests affordable chief gear target changes by stat gain and material pressure.")}
     ${inventoryComparisonHtml(totalCost, GEAR_FIELDS, "Combined gear upgrade materials", "chief_gear")}
+    ${smartRecommendationPanelHtml("chief_gear", "Chief Gear Targets", smartPlan, "Suggests affordable chief gear target changes by stat gain and material pressure.")}
   `;
   initHero3d("chiefGear3d", {
     mode: "gear",
@@ -6114,8 +6114,8 @@ function renderCharms() {
       empty: "Set charm targets above current levels to see material gaps.",
     })}
     
-    ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "Suggests affordable charm targets with troop-type and stat bias weighting.")}
     ${inventoryComparisonHtml(totalCost, CHARM_FIELDS, "Combined charm upgrade materials", "chief_charms")}
+    ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "Suggests affordable charm targets with troop-type and stat bias weighting.")}
   `;
   const charmGems = {};
   gameData.chief_charm_slots.forEach((slot) => {
@@ -6616,6 +6616,9 @@ function renderHeroGear() {
   const gearEntries = Object.entries(state.extracted_current?.hero_gear || {});
   const primaryEntries = heroGearPrimaryEntries(gearEntries);
   const primaryIds = new Set(primaryEntries.map((entry) => entry.heroId));
+  const primarySetIds = new Set(primaryEntries.filter((entry) => entry.setNumber === 1).map((entry) => entry.heroId));
+  const secondarySetIds = new Set(primaryEntries.filter((entry) => entry.setNumber >= 2).map((entry) => entry.heroId));
+  const setTagFor = (heroId) => (primarySetIds.has(heroId) ? "Primary set" : secondarySetIds.has(heroId) ? "Secondary set" : "Equip only");
   const trackedHeroes = gearEntries.length;
   const primarySummary = heroGearUpgradeSummary(primaryEntries);
   const primarySetInvestments = heroGearSetInvestmentBreakdown(primaryEntries);
@@ -6628,7 +6631,7 @@ function renderHeroGear() {
       const hero = heroRecordFor(heroId);
       const targets = heroGearTargetsFor(heroId);
       const targetCost = heroGearCostToTarget(gearSet, heroId);
-      const setTag = primaryIds.has(heroId) ? "Primary set" : "Secondary set";
+      const setTag = setTagFor(heroId);
       return `<tr>
         <td>${visualLabel("hero", hero.name, hero.rarity + (hero.generation ? " | Gen " + hero.generation : "") + " | " + setTag)}</td>
         <td>${visualLabel("troop", gearSet.troop_type || hero.troop_type)}</td>
@@ -6678,7 +6681,7 @@ function renderHeroGear() {
     [{ action: "hero-special-enhancement", label: "Apply to tracked heroes" }],
     commonHeroGearTarget("special", 10),
   );
-  const secondaryEntries = gearEntries.filter(([heroId]) => !primaryIds.has(heroId));
+  const secondaryEntries = primaryEntries.filter((entry) => entry.setNumber >= 2).map((entry) => [entry.heroId, entry.gearSet]);
   const secondaryTotals = makeCost(HERO_GEAR_FIELDS);
   const secondaryRows = secondaryEntries
     .map(([heroId, gearSet]) => {
@@ -6697,7 +6700,7 @@ function renderHeroGear() {
   const secondaryPanel = secondaryEntries.length
     ? `<div class="panel secondary-gear-panel">
         <h2>Secondary Sets — Reforge Bank</h2>
-        <p class="gd-note">Everything already invested in your non-primary sets. Reforging a piece refunds its invested Gear XP for your primary set upgrades; essence stones and mithril spent on empowerment are listed for reference.</p>
+        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Reforging a piece refunds its invested Gear XP for primary-set upgrades; essence stones and mithril are listed for reference.</p>
         <div class="table-wrap compact-table"><table>
           <thead><tr><th>Secondary set</th><th>Invested Gear XP</th><th>Essence Stones</th><th>Mithril</th></tr></thead>
           <tbody>${secondaryRows}</tbody>
@@ -6717,9 +6720,10 @@ function renderHeroGear() {
     const hero = heroRecordFor(heroId);
     const isActive = heroId === selectedHeroId;
     const isPrimary = primaryIds.has(heroId);
-    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${isPrimary ? 'primary-set' : 'secondary-set'}" data-select-hero-id="${heroId}" title="${esc(hero.name)} · ${isPrimary ? "Primary set" : "Secondary set"}">
+    const setTag = setTagFor(heroId);
+    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${primarySetIds.has(heroId) ? 'primary-set' : ''} ${secondarySetIds.has(heroId) ? 'secondary-set' : ''}" data-select-hero-id="${heroId}" title="${esc(hero.name)} · ${setTag}">
       ${iconHtml("hero", hero.name, "md", heroId)}
-      ${isPrimary ? "" : `<span class="hero-portrait-flag">2nd</span>`}
+      ${secondarySetIds.has(heroId) ? `<span class="hero-portrait-flag">2nd</span>` : ""}
     </button>`;
   }).join("");
 
@@ -6732,7 +6736,7 @@ function renderHeroGear() {
     const targets = heroGearTargetsFor(heroId);
     const targetCost = heroGearCostToTarget(gearSet, heroId);
     const isPrimary = primaryIds.has(heroId);
-    const setLabel = isPrimary ? "Primary Set" : "Secondary Set";
+    const setLabel = setTagFor(heroId);
     
     const byPosition = heroGearPiecesByPosition(gearSet.gear || {});
     
@@ -7463,7 +7467,7 @@ function renderTroops() {
       <td>${result ? timeFmt(result.seconds) : "&ndash;"}</td>
       <td>${result ? fmt(result.batches) : "&ndash;"}</td>
       <td>${result ? `+${fmt(result.power)}` : "&ndash;"}</td>
-      <td>${result ? fmt(result.points) : "&ndash;"}</td>
+      <td>${result ? fmt(svsBoost(result.points)) : "&ndash;"}</td>
     </tr>`;
   }).join("");
 
@@ -7473,7 +7477,7 @@ function renderTroops() {
         (row) => `<tr>
           <td>T${esc(row.tier)}</td>
           <td>${fmt(TROOP_POWER_BY_TIER[row.tier] || 0)}</td>
-          <td>${fmt(svsBoost(row.svs_points))}</td>
+          <td>${(Number(row.svs_points || 0) * svsValeriaMultiplier()).toFixed(1).replace(/\.0$/, "")}</td>
           <td>${Number(row.base_seconds).toFixed(0)}s</td>
           <td>${fmt(row.meat)}</td>
           <td>${fmt(row.wood)}</td>
@@ -9043,4 +9047,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave14 build marker: hooded bearded chief head, expert tracking overhaul, per-expert sigils, hero card redesign, secondary-set reforge bank, exchange display, Valeria everywhere. */
+/* wave15 build marker: true secondary-set classification, aligned expert skill controls, materials before smart recs, hero card contrast, exact troop SvS rates. */

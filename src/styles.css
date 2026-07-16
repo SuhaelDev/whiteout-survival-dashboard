@@ -5945,3 +5945,26 @@ select option {
   pointer-events: none;
 }
 .secondary-gear-panel table td.number, .secondary-gear-panel table th.number { text-align: right; }
+
+
+/* ---- Wave 15: expert skill control alignment ---- */
+.expert-skill-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; }
+.expert-skill-controls { display: grid; grid-template-columns: 74px 46px 14px 74px; align-items: center; gap: 4px; justify-items: center; }
+.expert-skill-controls select { width: 100%; min-width: 0; }
+.expert-skill-ready { min-width: 46px; text-align: center; font-size: 11px; }
+.expert-skill-arrow { text-align: center; }
+
+/* ---- Wave 15: hero roster card contrast (light card surfaces) ---- */
+.hero-roster-card .hero-card-title strong { color: var(--gd-ink-strong); }
+.hero-roster-card .hero-card-title .muted { color: #5f7ba1; }
+.hero-field-group { border-color: rgba(74, 103, 136, 0.35); background: rgba(255, 255, 255, 0.35); }
+.hero-field-group legend { color: #35507a; font-weight: 800; }
+.hero-field-group--target { border-color: rgba(19, 150, 94, 0.45); }
+.hero-field-group--target legend { color: #0f7a4e; }
+.hero-field-group label span { color: #4a6788; font-weight: 700; }
+.hero-need-chip { background: rgba(31, 58, 95, 0.08); border-color: rgba(74, 103, 136, 0.4); color: #35507a; font-weight: 700; }
+.hero-need-chip.is-short { border-color: rgba(196, 64, 64, 0.55); color: #a83232; background: rgba(196, 64, 64, 0.08); }
+.hero-need-chip.is-ok { border-color: rgba(19, 150, 94, 0.5); color: #0f7a4e; background: rgba(19, 150, 94, 0.08); }
+.hero-widget-line { color: #5f7ba1 !important; }
+.hero-owned-toggle span { color: #35507a; font-weight: 700; }
+.hero-star-arrow { color: #0f7a4e; }
