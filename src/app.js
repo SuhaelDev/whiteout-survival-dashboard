@@ -1043,7 +1043,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716d";
+const ASSET_CACHE_VERSION = "20260716e";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -8456,7 +8456,8 @@ function hero3dBuildScene() {
 }
 
 const HERO3D_OUTFIT_SPECS = [
-  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.095, 0] },
+  { bone: "mixamorig:Head", kind: "ushanka", offset: [0, 0.12, 0] },
+  { bone: "mixamorig:Head", kind: "goggles", offset: [0, 0.015, 0] },
   { bone: "mixamorig:Neck", kind: "collar", offset: [0, 0.035, 0.01] },
   { bone: "mixamorig:Spine1", kind: "coat", offset: [0, 0.05, 0] },
   { bone: "mixamorig:Hips", kind: "skirt", offset: [0, -0.09, 0] },
@@ -8491,6 +8492,22 @@ function hero3dOutfitPiece(T, kind, materials) {
       flap.rotation.z = side * 0.1;
       group.add(flap);
     });
+  } else if (kind === "goggles") {
+    const strap = new T.Mesh(new T.TorusGeometry(0.112, 0.016, 10, 24), clothDark);
+    strap.rotation.x = Math.PI / 2;
+    group.add(strap);
+    const lensMaterial = new T.MeshStandardMaterial({ color: 0x9fd8ff, emissive: 0x7fc4ff, emissiveIntensity: 0.9, roughness: 0.2, metalness: 0.3 });
+    [-1, 1].forEach((side) => {
+      const rim = new T.Mesh(new T.TorusGeometry(0.03, 0.009, 8, 16), clothDark);
+      rim.position.set(side * 0.048, 0.008, 0.108);
+      group.add(rim);
+      const lens = new T.Mesh(new T.CircleGeometry(0.027, 16), lensMaterial);
+      lens.position.set(side * 0.048, 0.008, 0.112);
+      group.add(lens);
+    });
+    const bridge = new T.Mesh(new T.BoxGeometry(0.03, 0.012, 0.012), clothDark);
+    bridge.position.set(0, 0.01, 0.108);
+    group.add(bridge);
   } else if (kind === "collar") {
     const collar = new T.Mesh(new T.TorusGeometry(0.145, 0.062, 12, 24), fur);
     collar.rotation.x = Math.PI / 2;
@@ -8840,4 +8857,4 @@ function initHero3d(containerId, config) {
     });
 }
 
-/* wave11 build marker: clean charms gems (selected piece only), occluding badges, seated hat, front-facing bake shipped with fresh cache-bust. */
+/* wave12 build marker: frost goggles + raised hat brim so the face reads from the front. */
