@@ -5974,3 +5974,39 @@ select option {
 .secondary-gear-table table { table-layout: fixed; width: 100%; }
 .secondary-gear-table th:first-child, .secondary-gear-table td:first-child { width: 32%; }
 .secondary-gear-table th.number, .secondary-gear-table td.number { text-align: right; padding-right: 18px; font-variant-numeric: tabular-nums; }
+
+
+/* ---- Wave 16: charm icon fit, charm grid width, slot-node empowerment list ---- */
+.chief-gear-slot-card__icon .game-icon {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 8px !important;
+}
+.chief-troop-grid {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.hero-gear-slot-node__empower { display: grid; gap: 6px; margin-top: 8px; }
+.empowerment-list { display: grid; gap: 4px; }
+.empowerment-list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.1);
+  font-size: 11px;
+}
+.empowerment-list > div span { white-space: nowrap; font-weight: 700; opacity: 0.75; }
+.empowerment-list > div strong { font-weight: 800; text-align: right; }
+.empowerment-list > div.is-unlocked {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+}
+.empowerment-list > div.is-targeted {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.14);
+}

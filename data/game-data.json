@@ -95795,5 +95795,139 @@
    "effect": "+4,500 Rally Capacity",
    "source": "wostools.net war-academy-calculator (T11 Helios)"
   }
- ]
+ ],
+ "hero_gear_empowerment_stats": {
+  "source": "In-game Gear Details screenshots (user-provided, 2026-07-06): Guardian/Saboteur/Sniper primary sets, all four slots",
+  "note": "{Troop} is replaced by the piece's troop type. Identical across infantry/lancer/marksman sets.",
+  "by_slot": {
+   "goggles": [
+    {
+     "enhancement": 20,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 20.0
+    },
+    {
+     "enhancement": 40,
+     "mode": "Exploration",
+     "stat": "Hero Health Up",
+     "value_percent": 7.5
+    },
+    {
+     "enhancement": 60,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 30.0
+    },
+    {
+     "enhancement": 80,
+     "mode": "Exploration",
+     "stat": "Hero Attack Up",
+     "value_percent": 15.0
+    },
+    {
+     "enhancement": 100,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 50.0
+    }
+   ],
+   "belt": [
+    {
+     "enhancement": 20,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 20.0
+    },
+    {
+     "enhancement": 40,
+     "mode": "Exploration",
+     "stat": "Hero Health Up",
+     "value_percent": 7.5
+    },
+    {
+     "enhancement": 60,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 30.0
+    },
+    {
+     "enhancement": 80,
+     "mode": "Exploration",
+     "stat": "Hero Attack Up",
+     "value_percent": 15.0
+    },
+    {
+     "enhancement": 100,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 50.0
+    }
+   ],
+   "gauntlets": [
+    {
+     "enhancement": 20,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 20.0
+    },
+    {
+     "enhancement": 40,
+     "mode": "Exploration",
+     "stat": "Hero Health Up",
+     "value_percent": 7.5
+    },
+    {
+     "enhancement": 60,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 30.0
+    },
+    {
+     "enhancement": 80,
+     "mode": "Exploration",
+     "stat": "Hero Defense Up",
+     "value_percent": 15.0
+    },
+    {
+     "enhancement": 100,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 50.0
+    }
+   ],
+   "boots": [
+    {
+     "enhancement": 20,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 20.0
+    },
+    {
+     "enhancement": 40,
+     "mode": "Exploration",
+     "stat": "Hero Health Up",
+     "value_percent": 7.5
+    },
+    {
+     "enhancement": 60,
+     "mode": "Expedition",
+     "stat": "{Troop} Attack",
+     "value_percent": 30.0
+    },
+    {
+     "enhancement": 80,
+     "mode": "Exploration",
+     "stat": "Hero Defense Up",
+     "value_percent": 15.0
+    },
+    {
+     "enhancement": 100,
+     "mode": "Expedition",
+     "stat": "{Troop} Defense",
+     "value_percent": 50.0
+    }
+   ]
+  }
+ }
 }

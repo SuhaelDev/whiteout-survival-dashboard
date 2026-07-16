@@ -1058,7 +1058,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716i";
+const ASSET_CACHE_VERSION = "20260716j";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -6477,6 +6477,18 @@ function heroWidgetsToTarget(currentLevel, targetLevel) {
   return total;
 }
 
+function heroPortraitSrc(heroId) {
+  const entry = assetEntryFor(heroId, "");
+  const src = typeof entry === "string" ? entry : entry?.src;
+  return assetUrl(src || `assets/game/hero-${heroId}.png`);
+}
+
+function heroExclusiveGearName(hero = {}) {
+  const mapped = HERO_EXCLUSIVE_GEAR_NAMES[hero?.hero_id];
+  if (mapped) return mapped;
+  return normalizeKey(hero?.rarity || "") === "mythic" ? "Exclusive Gear" : "";
+}
+
 function renderHeroes() {
   const grouped = groupBy(gameData.heroes, "generation");
   const starPips = (count, tier) => {
@@ -6494,7 +6506,7 @@ function renderHeroes() {
     .map((hero) => {
       const saved = state.heroes[hero.hero_id];
       const observed = state.extracted_current?.heroes?.[hero.hero_id] || {};
-      const gearName = HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id];
+      const gearName = heroExclusiveGearName(hero);
       const shardsNeeded = saved.owned
         ? heroShardsToTarget(saved.current_stars, saved.current_star_tier, saved.target_stars, saved.target_star_tier)
         : 0;
@@ -6797,6 +6809,11 @@ function renderHeroGear() {
           </label>
         </div>
         
+        <div class="hero-gear-slot-node__empower">
+          ${heroGearEmpowermentHtml(piece, hero, pieceTargets.targetEnhancement, slot)}
+          ${heroGearPieceImpactCompactHtml(heroId, slot, piece)}
+        </div>
+        
         <div class="hero-gear-slot-node__cost">
           ${gameCostTilesHtml(pieceCost, HERO_GEAR_FIELDS, { emptyText: "Piece at target." })}
         </div>
@@ -6806,7 +6823,7 @@ function renderHeroGear() {
     selectedHeroLayoutHtml = `
       <div class="hero-gear-layout">
         <div class="hero-profile-card">
-          <img src="${assetUrl(`assets/game/hero-${heroId}.png`)}" onerror="this.src='assets/game/hero-wu_ming.png'" alt="${esc(hero.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.1);" />
+          <img src="${esc(heroPortraitSrc(heroId))}" alt="${esc(hero.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.1);" />
           <h3>${esc(hero.name)}</h3>
           <p>${esc(gearSet.troop_type || hero.troop_type)}</p>
           <span class="hero-meta-badge">${esc(setLabel)}</span>
@@ -7690,7 +7707,7 @@ function renderSvs() {
   const heroGearCost = allHeroGearCosts();
   const widgetsPlanned = gameData.heroes.reduce((sum, hero) => {
     const saved = state.heroes[hero.hero_id];
-    if (!saved?.owned || !HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id]) return sum;
+    if (!saved?.owned || !heroExclusiveGearName(hero)) return sum;
     return sum + heroWidgetsToTarget(saved.current_widget_level, saved.target_widget_level);
   }, 0);
 
@@ -7989,7 +8006,7 @@ function renderResources() {
   const grouped = groupBy(gameData.resource_types, "category");
   const gensWithExclusive = [...new Set(
     gameData.heroes
-      .filter((hero) => HERO_EXCLUSIVE_GEAR_NAMES[hero.hero_id] && hero.generation)
+      .filter((hero) => heroExclusiveGearName(hero) && hero.generation)
       .map((hero) => Number(hero.generation)),
   )].sort((a, b) => a - b);
   const widgetGroup = {
