@@ -6018,3 +6018,7 @@ select option {
   opacity: 0.7;
 }
 .empowerment-gate-note + .empowerment-list > div:not(.is-unlocked):not(.is-targeted) { opacity: 0.55; }
+
+/* ---- Wave 17: chief gear tier art flow ---- */
+.cg-art-flow { display: inline-flex; align-items: center; gap: 8px; }
+.cg-art-arrow { font-style: normal; font-weight: 800; font-size: 18px; opacity: 0.8; }

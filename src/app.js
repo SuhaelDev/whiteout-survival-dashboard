@@ -361,6 +361,26 @@ function extractedBaselineState() {
   return applyExtractedState(clone(templateState), extractedState);
 }
 
+function applyHeroGearCurrentOverrides(target) {
+  const overrides = target?.hero_gear_current_overrides || {};
+  Object.entries(overrides).forEach(([heroId, slots]) => {
+    Object.entries(slots || {}).forEach(([slot, values]) => {
+      const piece = target?.extracted_current?.hero_gear?.[heroId]?.gear?.[slot];
+      if (!piece || !values) return;
+      if (values.level != null && values.level !== "") piece.level = Number(values.level);
+      if (values.enhancement != null && values.enhancement !== "") {
+        const enhancement = Number(values.enhancement);
+        piece.enhancement = enhancement;
+        piece.visible_enhancement = enhancement;
+        if (piece.empowerment != null) {
+          piece.empowerment = heroGearCanEmpowerAtLevel(Number(piece.level || 0)) ? enhancement : 0;
+        }
+      }
+    });
+  });
+  return target;
+}
+
 function stateFromSaved(savedState) {
   const baseline = extractedBaselineState();
   normalizeTargets(baseline);
@@ -376,6 +396,7 @@ function stateFromSaved(savedState) {
     merged = applyExtractedState(merged, extractedState);
     merged.extract_applied_at = extractedState.extracted_at;
   }
+  applyHeroGearCurrentOverrides(merged);
   normalizeTargets(merged);
   return merged;
 }
@@ -1056,7 +1077,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260716j";
+const ASSET_CACHE_VERSION = "20260717a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5671,7 +5692,7 @@ function renderChiefGear() {
     const upgradeSelected = String(saved.current) !== String(saved.target);
     return `<div class="chief-gear-slot-card ${borderClass} ${isActive ? 'active-card' : ''}" data-select-chief-gear-slot="${slotId}">
       <div class="chief-gear-slot-card__icon">
-        ${iconHtml("chiefgear" + slotId, slot.name, "lg")}
+        ${(() => { const artKey = chiefGearLevelArtKey(slotId, saved.current); return iconHtml(artKey, artKey, "lg"); })()}
         ${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}
       </div>
       <div class="chief-gear-slot-card__info">
@@ -5691,6 +5712,11 @@ function renderChiefGear() {
   );
   
   const smartPlan = smartRecommendationPlan("chief_gear");
+  try {
+    hero3dSetBadgeIcons(Object.fromEntries(
+      ["hat", "watch", "coat", "pants", "ring", "cudgel"].map((id) => [id, chiefGearLevelArtKey(id, state.chief_gear[id]?.current)]),
+    ));
+  } catch { /* 3D scene not ready */ }
 
   const avatarSilhouette = `
     <div class="chief-avatar-container" id="chiefGear3d">
@@ -5741,7 +5767,12 @@ function renderChiefGear() {
     className: "chief-gear-dialog",
     body: `
       <div class="gd-hero-row">
-        ${iconHtml("chiefgear" + selectedSlotId, selectedSlot.name, "xl")}
+        <span class="cg-art-flow">
+          ${(() => { const k = chiefGearLevelArtKey(selectedSlotId, selectedSaved.current); return iconHtml(k, k, "xl"); })()}
+          ${String(selectedSaved.current) !== String(selectedSaved.target)
+            ? `<i class="cg-art-arrow" aria-hidden="true">&#10132;</i>${(() => { const k = chiefGearLevelArtKey(selectedSlotId, selectedSaved.target); return iconHtml(k, k, "xl"); })()}`
+            : ""}
+        </span>
         ${gameLevelFlowHtml(selectedSaved.current, selectedSaved.target)}
       </div>
       <div class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(selectedImpact.currentPower)}</strong><em class="gd-gain">${signedFmt(selectedImpact.deltaPower)}</em></div>
@@ -6488,6 +6519,25 @@ function heroWidgetsToTarget(currentLevel, targetLevel) {
   return total;
 }
 
+function chiefGearLevelArtKey(slotId, levelCode) {
+  const text = String(levelCode || "");
+  const quality = (text.match(/^(Uncommon|Rare|Epic|Legendary|Mythic)/i) || [])[1];
+  const fallback = `chiefgear${slotId}`;
+  if (!quality) return fallback;
+  const tier = (text.match(/T(\d)/i) || [])[1] || "";
+  const star = (text.match(/\((\d)-Star/i) || [])[1] || "0";
+  const assets = visualAssets?.assets || visualAssets || {};
+  const q = quality.toLowerCase();
+  const candidates = [
+    tier ? `cg${slotId}${q}t${tier}s${star}` : "",
+    tier ? `cg${slotId}${q}t${tier}s0` : "",
+    `cg${slotId}${q}s${star}`,
+    `cg${slotId}${q}s0`,
+  ].filter(Boolean);
+  for (const key of candidates) if (assets[key]) return key;
+  return fallback;
+}
+
 function heroPortraitSrc(heroId) {
   const entry = assetEntryFor(heroId, "");
   const src = typeof entry === "string" ? entry : entry?.src;
@@ -6795,8 +6845,8 @@ function renderHeroGear() {
         <div class="hero-gear-slot-node__values">
           <label>
             <span>Current Lv</span>
-            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.current_level" disabled>
-              <option>Lv ${esc(piece.level || 0)}</option>
+            <select data-path="hero_gear_current_overrides.${heroId}.${slot}.level">
+              ${optionList(gameData.hero_gear_mastery_levels.filter(row => row.scope === 'base'), "level", "level", Number(piece.level || 0))}
             </select>
           </label>
           <label>
@@ -6808,8 +6858,8 @@ function renderHeroGear() {
           
           <label>
             <span>Current +</span>
-            <select disabled>
-              <option>+${esc(currentEnhancement)}</option>
+            <select data-path="hero_gear_current_overrides.${heroId}.${slot}.enhancement">
+              ${optionList(Array.from({ length: 101 }, (_, i) => ({ level: i })), "level", "level", currentEnhancement)}
             </select>
           </label>
           <label>
@@ -8192,6 +8242,7 @@ function bindEvents() {
     const target = event.target;
     if (!target.matches("[data-path]")) return;
     setPath(state, target.dataset.path, controlValue(target));
+    if ((target.dataset.path || "").startsWith("hero_gear_current_overrides.")) applyHeroGearCurrentOverrides(state);
     normalizeTargets(state);
     scheduleSave({ render: true });
   });
@@ -8497,6 +8548,25 @@ function hero3dBadgeTexture(T, iconKey) {
   return texture;
 }
 
+function hero3dSetBadgeIcons(iconBySlot) {
+  const H = HERO3D;
+  const T = H.T;
+  if (!T || !H.badges) return;
+  Object.entries(iconBySlot || {}).forEach(([part, iconKey]) => {
+    const badge = H.badges[part];
+    if (!badge || !iconKey || badge.userData.iconKey === iconKey) return;
+    badge.userData.iconKey = iconKey;
+    const texture = hero3dBadgeTexture(T, iconKey);
+    if (!texture) return;
+    if (badge.userData.plate) {
+      badge.userData.plate.material.map = texture;
+      badge.userData.plate.material.needsUpdate = true;
+    } else {
+      badge.userData.hasPlate = false;
+    }
+  });
+}
+
 function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
   const group = new T.Group();
   const backing = new T.Mesh(
@@ -8517,6 +8587,7 @@ function hero3dMakeBadge(T, iconKey, part, radius = 0.08) {
     plate.renderOrder = 31;
     plate.userData.part = part;
     group.add(plate);
+    group.userData.plate = plate;
     group.userData.hasPlate = true;
   }
   const ring = new T.Mesh(
@@ -8567,6 +8638,7 @@ function hero3dBuildScene() {
   rig.add(glowRing);
 
   // badges (gear icons anchored to body parts)
+  HERO3D.T = T;
   Object.entries(HERO3D_SLOTS).forEach(([part, spec]) => {
     const badge = hero3dMakeBadge(T, spec.icon, part, 0.085);
     badge.position.set(...HERO3D_DEFAULT_ANCHORS[part]);
