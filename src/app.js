@@ -1077,7 +1077,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260717a";
+const ASSET_CACHE_VERSION = "20260717b";
 
 function assetUrl(src) {
   if (!src) return src;
