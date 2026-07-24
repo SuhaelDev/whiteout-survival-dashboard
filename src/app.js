@@ -372,9 +372,15 @@ function applyHeroGearCurrentOverrides(target) {
         const enhancement = Number(values.enhancement);
         piece.enhancement = enhancement;
         piece.visible_enhancement = enhancement;
-        if (piece.empowerment != null) {
-          piece.empowerment = heroGearCanEmpowerAtLevel(Number(piece.level || 0)) ? enhancement : 0;
-        }
+      }
+      // Keep the red-track (empowerment) reading in sync with the entered level/+ so the
+      // stat breakpoints light up correctly: at Lv 11+ the piece's "+" IS its empowerment
+      // progress; below Lv 11 empowerment is always 0. Without this, pieces extracted with
+      // an explicit empowerment of 0 stay grey after a Current Lv edit crosses Lv 11.
+      if (piece.empowerment != null || heroGearCanEmpowerAtLevel(Number(piece.level || 0))) {
+        piece.empowerment = heroGearCanEmpowerAtLevel(Number(piece.level || 0))
+          ? Number(piece.enhancement || 0)
+          : 0;
       }
     });
   });
