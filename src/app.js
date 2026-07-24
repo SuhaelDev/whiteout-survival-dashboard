@@ -1,7 +1,9 @@
 const STORAGE_KEY = "wos-personal-dashboard-state-v1";
 const CLOUD_SYNC_KEY_STORAGE_KEY = "wos-personal-dashboard-cloud-sync-key-v1";
 const CLOUD_AUTO_SYNC_STORAGE_KEY = "wos-personal-dashboard-cloud-auto-sync-v1";
-const CLOUD_SYNC_ENABLED = true;
+const CLOUD_SYNC_ENABLED = false; // legacy shared sync retired - cloud sync now follows the signed-in account
+const OWNER_ACCOUNT_EMAIL = "suhaeldev2003@gmail.com";
+const AUTH = { client: null, session: null, user: null, configured: false, booted: false };
 const CLOUD_LOCAL_NEWER_GRACE_MS = 1000;
 const MODULES = [
   ["overview", "Overview"],
@@ -357,7 +359,18 @@ function readSavedState() {
   }
 }
 
+function stateIsOwnerState(savedState) {
+  if (savedState?.owner_profile === true) return true;
+  if (savedState?.extract_applied_at) return true; // legacy states predate multi-user and belong to the owner
+  return String(AUTH.user?.email || "").toLowerCase() === OWNER_ACCOUNT_EMAIL;
+}
+
 function extractedBaselineState() {
+  // New players start from the clean template; the bundled extract is the owner's personal capture.
+  return clone(templateState);
+}
+
+function ownerBaselineState() {
   return applyExtractedState(clone(templateState), extractedState);
 }
 
@@ -392,13 +405,15 @@ function stateFromSaved(savedState) {
   normalizeTargets(baseline);
   if (!savedState) return baseline;
   let merged = mergeDeep(baseline, savedState);
-  if (extractedState) merged.extracted_current = extractedState;
+  const ownerState = stateIsOwnerState(savedState);
+  if (ownerState) merged.owner_profile = true;
+  if (extractedState && ownerState) merged.extracted_current = extractedState;
   // Re-apply the bundled game extract on top of saved/cloud state whenever the
   // extract is newer than the last one this state absorbed. Keeps deployed
   // captures (backpack counts, pet refinement, notes) flowing into live DBs.
   const extractTime = Date.parse(extractedState?.extracted_at || "");
   const appliedTime = Date.parse(savedState?.extract_applied_at || "");
-  if (Number.isFinite(extractTime) && (!Number.isFinite(appliedTime) || extractTime > appliedTime)) {
+  if (ownerState && Number.isFinite(extractTime) && (!Number.isFinite(appliedTime) || extractTime > appliedTime)) {
     merged = applyExtractedState(merged, extractedState);
     merged.extract_applied_at = extractedState.extracted_at;
   }
@@ -611,7 +626,7 @@ function setCloudSyncStatus(message) {
 }
 
 function cloudAutoSyncEnabled() {
-  return CLOUD_SYNC_ENABLED || localStorage.getItem(CLOUD_AUTO_SYNC_STORAGE_KEY) === "true";
+  return Boolean(AUTH.session) && localStorage.getItem(CLOUD_AUTO_SYNC_STORAGE_KEY) !== "false";
 }
 
 function cloudSyncKey() {
@@ -626,11 +641,7 @@ function rememberCloudSyncSettings() {
 }
 
 function initCloudSyncControls() {
-  const keyInput = $("#cloudSyncKey");
-  const autoInput = $("#cloudAutoSync");
-  if (keyInput) keyInput.value = localStorage.getItem(CLOUD_SYNC_KEY_STORAGE_KEY) || "";
-  if (autoInput) autoInput.checked = cloudAutoSyncEnabled();
-  setCloudSyncStatus(CLOUD_SYNC_ENABLED ? "Shared DB connecting" : keyInput?.value ? "Cloud ready" : "Local only");
+  renderAccountPanel();
 }
 
 async function cloudStateRequest(method, payload) {
@@ -638,6 +649,7 @@ async function cloudStateRequest(method, payload) {
   rememberCloudSyncSettings();
   const headers = { "Content-Type": "application/json" };
   if (key) headers["X-Dashboard-Sync-Key"] = key;
+  if (AUTH.session?.access_token) headers.Authorization = `Bearer ${AUTH.session.access_token}`;
   const response = await fetch("/api/state", {
     method,
     headers,
@@ -687,17 +699,20 @@ function stateTimeValue(savedState, fallbackDate) {
 }
 
 async function syncInitialStateWithCloud(localState, hasSavedLocalState) {
-  if (!CLOUD_SYNC_ENABLED) return;
-  setCloudSyncStatus("Loading shared DB");
+  if (!AUTH.session) {
+    setCloudSyncStatus(AUTH.configured ? "Guest mode - saved in this browser" : "Local only");
+    return;
+  }
+  setCloudSyncStatus("Loading your cloud data");
   try {
     const body = await cloudStateRequest("GET");
     if (!body.state) {
       state = localState;
       if (hasSavedLocalState) {
         await saveStateToCloud({ quiet: true });
-        setCloudSyncStatus("Shared DB seeded from this browser");
+        setCloudSyncStatus("Cloud seeded from this browser");
       } else {
-        setCloudSyncStatus("Shared DB empty");
+        setCloudSyncStatus("New account - run the Setup Wizard");
       }
       return;
     }
@@ -709,18 +724,196 @@ async function syncInitialStateWithCloud(localState, hasSavedLocalState) {
     if (hasSavedLocalState && localTime > cloudTime + CLOUD_LOCAL_NEWER_GRACE_MS) {
       state = localState;
       await saveStateToCloud({ quiet: true });
-      setCloudSyncStatus("Shared DB updated from this browser");
+      setCloudSyncStatus("Cloud updated from this browser");
       return;
     }
 
     state = cloudState;
     persistState({ cloud: false });
     const loadedAt = body.updated_at ? new Date(body.updated_at).toLocaleTimeString() : "now";
-    setCloudSyncStatus(`Shared DB loaded ${loadedAt}`);
+    setCloudSyncStatus(`Cloud loaded ${loadedAt}`);
   } catch (error) {
     state = localState;
-    setCloudSyncStatus(`Shared DB offline: ${error.message}`);
+    setCloudSyncStatus(`Cloud offline: ${error.message}`);
   }
+}
+
+/* ------------------------------------------------------ Account (Supabase magic-link auth) */
+
+async function initAuth() {
+  try {
+    const config = await fetchOptionalJson("/api/config");
+    if (!config?.supabaseUrl || !config?.anonKey) {
+      AUTH.configured = false;
+      AUTH.booted = true;
+      renderAccountPanel();
+      return;
+    }
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    AUTH.client = createClient(config.supabaseUrl, config.anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+    AUTH.configured = true;
+    const { data } = await AUTH.client.auth.getSession();
+    AUTH.session = data?.session || null;
+    AUTH.user = AUTH.session?.user || null;
+    AUTH.client.auth.onAuthStateChange(async (event, session) => {
+      const hadSession = Boolean(AUTH.session);
+      AUTH.session = session || null;
+      AUTH.user = session?.user || null;
+      renderAccountPanel();
+      if (!AUTH.booted) return;
+      if (event === "SIGNED_IN" && !hadSession) {
+        await syncInitialStateWithCloud(state, true);
+        normalizeTargets(state);
+        renderActive();
+        maybeOpenOnboarding();
+      }
+      if (event === "SIGNED_OUT") {
+        setCloudSyncStatus("Signed out - guest mode");
+      }
+    });
+  } catch (error) {
+    console.error("Auth init failed", error);
+    AUTH.configured = false;
+  }
+  AUTH.booted = true;
+  renderAccountPanel();
+}
+
+function renderAccountPanel() {
+  const panel = $("#accountPanel");
+  if (!panel) return;
+  const status = `<span id="cloudSyncStatus">${esc($("#cloudSyncStatus")?.textContent || "")}</span>`;
+  if (!AUTH.configured) {
+    panel.innerHTML = `<span class="cloud-sync-title">Account</span>
+      <div class="account-box">
+        <span class="account-note">Sign-in is not configured yet. Your data is saved in this browser and can be exported anytime.</span>
+        ${status}
+      </div>`;
+    return;
+  }
+  if (!AUTH.session) {
+    panel.innerHTML = `<span class="cloud-sync-title">Account</span>
+      <div class="account-box">
+        <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+        <div class="account-actions"><button type="button" id="authSend">Email me a login link</button></div>
+        <span class="account-note">Guest mode: everything stays in this browser. Sign in to sync across devices.</span>
+        ${status}
+      </div>`;
+    return;
+  }
+  panel.innerHTML = `<span class="cloud-sync-title">Account</span>
+    <div class="account-box">
+      <span class="account-email">${esc(AUTH.user?.email || "Signed in")}</span>
+      <div class="account-actions">
+        <button type="button" id="saveCloudState">Sync now</button>
+        <button type="button" id="loadCloudState">Reload cloud</button>
+        <button type="button" id="authSignOut">Sign out</button>
+      </div>
+      ${status}
+    </div>`;
+}
+
+async function sendMagicLink() {
+  const email = ($("#authEmail")?.value || "").trim();
+  if (!email || !email.includes("@")) {
+    setCloudSyncStatus("Enter a valid email first");
+    return;
+  }
+  setCloudSyncStatus("Sending login link");
+  const { error } = await AUTH.client.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: `${location.origin}${location.pathname}` },
+  });
+  setCloudSyncStatus(error ? `Login link failed: ${error.message}` : "Check your email for the login link");
+}
+
+/* ------------------------------------------------------ Onboarding wizard */
+
+let wizardStep = 0;
+
+function stateLooksConfigured() {
+  return Boolean(state?.onboarded_at || state?.owner_profile || state?.profile?.chief_name);
+}
+
+function maybeOpenOnboarding() {
+  if (!stateLooksConfigured()) openOnboarding(0);
+}
+
+function openOnboarding(step = 0) {
+  wizardStep = step;
+  renderOnboarding();
+}
+
+function closeOnboarding({ completed = false } = {}) {
+  state.onboarded_at = new Date().toISOString();
+  persistState();
+  $("#wizardOverlay")?.remove();
+  renderActive();
+  if (completed) setCloudSyncStatus(AUTH.session ? "Setup saved to your account" : "Setup saved in this browser");
+}
+
+function wizardResourceField(id) {
+  const label = RESOURCE_LABELS[id] || titleFromId(id);
+  return `<label><span>${esc(label)}</span><input type="number" min="0" data-path="resources.${id}" value="${esc(state.resources?.[id] ?? 0)}" /></label>`;
+}
+
+function renderOnboarding() {
+  $("#wizardOverlay")?.remove();
+  const gearLevels = (gameData.chief_gear_levels || []).map((row) => row.gear_level_code).filter(Boolean);
+  const uniqueGearLevels = [...new Set(gearLevels)];
+  const steps = [
+    {
+      title: "Your chief profile",
+      help: "The basics that drive every calculator. You can edit all of this later in the header bar.",
+      body: `<div class="wizard-fields">
+        <label class="wide"><span>Chief name</span><input type="text" data-path="profile.chief_name" value="${esc(state.profile?.chief_name || "")}" /></label>
+        <label><span>State #</span><input type="text" data-path="profile.state_number" value="${esc(state.profile?.state_number || "")}" /></label>
+        <label><span>Furnace level</span><input type="text" data-path="profile.furnace_level" value="${esc(state.profile?.furnace_level || "")}" /></label>
+        <label><span>Construction speed %</span><input type="number" min="0" data-path="profile.construction_speed_pct" value="${esc(state.profile?.construction_speed_pct ?? 0)}" /></label>
+        <label><span>Research speed %</span><input type="number" min="0" data-path="profile.research_speed_pct" value="${esc(state.profile?.research_speed_pct ?? 0)}" /></label>
+        <label><span>Training speed %</span><input type="number" min="0" data-path="profile.training_speed_pct" value="${esc(state.profile?.training_speed_pct ?? 0)}" /></label>
+        <label><span>Learning speed %</span><input type="number" min="0" data-path="profile.learning_speed_pct" value="${esc(state.profile?.learning_speed_pct ?? 0)}" /></label>
+      </div>`,
+    },
+    {
+      title: "Chief gear & charms",
+      help: "Set where your gear roughly is today - fine-tune each slot and charm afterwards on their pages.",
+      body: `<div class="wizard-fields">
+        <label class="wide"><span>All chief gear - current level</span>
+          <select data-wizard-bulk="chief_gear"><option value="">Keep as is</option>${uniqueGearLevels.map((code) => `<option value="${esc(code)}">${esc(code)}</option>`).join("")}</select>
+        </label>
+        <label class="wide"><span>All charms - current level</span>
+          <select data-wizard-bulk="charms"><option value="">Keep as is</option>${Array.from({ length: 17 }, (_, i) => `<option value="${i}">Level ${i}</option>`).join("")}</select>
+        </label>
+      </div>`,
+    },
+    {
+      title: "Key resources in your backpack",
+      help: "Rough numbers are fine - the coverage checks update live as you spend and restock.",
+      body: `<div class="wizard-fields">
+        ${["construction_speedups_minutes", "research_speedups_minutes", "training_speedups_minutes", "hero_gear_xp", "essence_stones", "mithril", "hardened_alloy", "polishing_solution"].map(wizardResourceField).join("")}
+      </div>`,
+    },
+  ];
+  const step = steps[wizardStep] || steps[0];
+  const overlay = document.createElement("div");
+  overlay.className = "wizard-overlay";
+  overlay.id = "wizardOverlay";
+  overlay.innerHTML = `<div class="wizard-card">
+    <h2>${esc(step.title)}</h2>
+    <div class="wizard-step-label">Step ${wizardStep + 1} of ${steps.length}</div>
+    <p class="wizard-help">${esc(step.help)}</p>
+    ${step.body}
+    <div class="wizard-footer">
+      ${wizardStep > 0 ? `<button type="button" data-wizard-nav="back">Back</button>` : ""}
+      <span class="spacer"></span>
+      <button type="button" class="ghost" data-wizard-nav="skip">Skip setup</button>
+      <button type="button" class="primary" data-wizard-nav="${wizardStep >= steps.length - 1 ? "finish" : "next"}">${wizardStep >= steps.length - 1 ? "Finish" : "Next"}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
 }
 
 function groupBy(items, key) {
@@ -1083,7 +1276,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260717b";
+const ASSET_CACHE_VERSION = "20260718a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -8320,6 +8513,55 @@ function bindEvents() {
     }
   });
 
+  document.addEventListener("click", async (event) => {
+    if (event.target.closest("#authSend")) {
+      try { await sendMagicLink(); } catch (error) { setCloudSyncStatus(`Login failed: ${error.message}`); }
+      return;
+    }
+    if (event.target.closest("#authSignOut")) {
+      try { await AUTH.client?.auth.signOut(); } catch { /* session already gone */ }
+      return;
+    }
+    if (event.target.closest("#saveCloudState")) {
+      try { await saveStateToCloud(); } catch (error) { setCloudSyncStatus(`Cloud error: ${error.message}`); }
+      return;
+    }
+    if (event.target.closest("#loadCloudState")) {
+      try { await loadStateFromCloud(); } catch (error) { setCloudSyncStatus(`Cloud error: ${error.message}`); }
+      return;
+    }
+    if (event.target.closest("#openWizard")) {
+      openOnboarding(0);
+      return;
+    }
+    const nav = event.target.closest("[data-wizard-nav]");
+    if (nav) {
+      const action = nav.dataset.wizardNav;
+      if (action === "back") { wizardStep = Math.max(0, wizardStep - 1); renderOnboarding(); }
+      else if (action === "next") { wizardStep += 1; renderOnboarding(); }
+      else if (action === "skip") closeOnboarding();
+      else if (action === "finish") closeOnboarding({ completed: true });
+      return;
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const bulk = event.target.closest("[data-wizard-bulk]");
+    if (!bulk || !bulk.value) return;
+    if (bulk.dataset.wizardBulk === "chief_gear") {
+      Object.values(state.chief_gear || {}).forEach((slot) => { slot.current = bulk.value; });
+    }
+    if (bulk.dataset.wizardBulk === "charms") {
+      const level = Number(bulk.value);
+      Object.values(state.charms || {}).forEach((charm) => {
+        charm.current = level;
+        charm.target = Math.max(Number(charm.target || 0), level);
+      });
+    }
+    normalizeTargets(state);
+    scheduleSave();
+  });
+
   $("#moduleNav").addEventListener("click", (event) => {
     const button = event.target.closest("[data-tab]");
     if (!button) return;
@@ -8396,7 +8638,9 @@ function bindEvents() {
 
   $("#resetState").addEventListener("click", () => {
     if (!confirm("Reset all saved dashboard inputs?")) return;
-    state = extractedBaselineState();
+    const wasOwner = stateIsOwnerState(state);
+    state = wasOwner ? ownerBaselineState() : extractedBaselineState();
+    if (wasOwner) state.owner_profile = true;
     normalizeTargets(state);
     persistState();
     renderActive();
@@ -8423,8 +8667,10 @@ async function init() {
     state = localState;
     bindEvents();
     initCloudSyncControls();
+    await initAuth();
     await syncInitialStateWithCloud(localState, Boolean(savedLocalState));
     renderActive();
+    maybeOpenOnboarding();
     $("#saveStatus").textContent = state.last_saved ? `Saved ${new Date(state.last_saved).toLocaleTimeString()}` : extractedState ? "Current extract loaded" : "Ready";
   } catch (error) {
     console.error(error);

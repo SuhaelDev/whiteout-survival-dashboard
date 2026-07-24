@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Whiteout Survival Personal Dashboard</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="src/styles.css?v=20260717-wave17c" />
+    <link rel="stylesheet" href="src/styles.css?v=20260718-wave18" />
   </head>
   <body>
     <div class="app-shell">
@@ -25,14 +25,11 @@
             Import
             <input id="importState" type="file" accept="application/json" />
           </label>
-          <div class="cloud-sync-panel cloud-sync-panel--shared">
-            <span class="cloud-sync-title">Shared database sync</span>
-            <div class="cloud-sync-actions">
-              <button type="button" id="saveCloudState">Sync Now</button>
-              <button type="button" id="loadCloudState">Reload DB</button>
-            </div>
-            <span id="cloudSyncStatus">Cloud not loaded</span>
+          <div class="cloud-sync-panel" id="accountPanel">
+            <span class="cloud-sync-title">Account</span>
+            <span id="cloudSyncStatus">Starting up</span>
           </div>
+          <button type="button" id="openWizard">Setup Wizard</button>
           <button type="button" id="resetTargets">Reset Targets</button>
           <button type="button" id="resetState">Reset</button>
         </div>
@@ -77,6 +74,6 @@
     </template>
 
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="src/app.js?v=20260717-wave17c"></script>
+<script type="module" src="src/app.js?v=20260718-wave18"></script>
   </body>
 </html>

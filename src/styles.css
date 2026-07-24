@@ -6022,3 +6022,68 @@ select option {
 /* ---- Wave 17: chief gear tier art flow ---- */
 .cg-art-flow { display: inline-flex; align-items: center; gap: 8px; }
 .cg-art-arrow { font-style: normal; font-weight: 800; font-size: 18px; opacity: 0.8; }
+
+/* ---- Wave 18: account panel + onboarding wizard ---- */
+.account-box { display: grid; gap: 6px; }
+.account-box input[type="email"] {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: #e2e8f0;
+  font-size: 12px;
+}
+.account-box .account-email { font-weight: 700; font-size: 12px; word-break: break-all; }
+.account-box .account-note { font-size: 11px; opacity: 0.75; line-height: 1.35; }
+.account-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(4, 10, 20, 0.72);
+  backdrop-filter: blur(3px);
+}
+.wizard-card {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #0e1726;
+  color: #e2e8f0;
+  padding: 20px 22px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+.wizard-card h2 { margin: 0 0 2px; font-size: 20px; }
+.wizard-step-label { font-size: 12px; opacity: 0.7; margin-bottom: 12px; }
+.wizard-card p.wizard-help { font-size: 12px; opacity: 0.8; line-height: 1.45; margin: 0 0 12px; }
+.wizard-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-bottom: 16px; }
+.wizard-fields label { display: grid; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; opacity: 0.9; }
+.wizard-fields label.wide { grid-column: 1 / -1; }
+.wizard-fields input, .wizard-fields select {
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+  font-size: 13px;
+}
+.wizard-footer { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
+.wizard-footer .spacer { flex: 1; }
+.wizard-footer button {
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  font-weight: 700;
+  cursor: pointer;
+}
+.wizard-footer button.primary { background: #2563eb; border-color: #2563eb; }
+.wizard-footer button.ghost { background: transparent; opacity: 0.75; }
