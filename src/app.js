@@ -797,7 +797,10 @@ function renderAccountPanel() {
     panel.innerHTML = `<span class="cloud-sync-title">Account</span>
       <div class="account-box">
         <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-        <div class="account-actions"><button type="button" id="authSend">Email me a login link</button></div>
+        <div class="account-actions">
+          <button type="button" id="authSend">Email me a login link</button>
+          <button type="button" id="authGoogle">Sign in with Google</button>
+        </div>
         <span class="account-note">Guest mode: everything stays in this browser. Sign in to sync across devices.</span>
         ${status}
       </div>`;
@@ -1276,7 +1279,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260718a";
+const ASSET_CACHE_VERSION = "20260719a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -8516,6 +8519,12 @@ function bindEvents() {
   document.addEventListener("click", async (event) => {
     if (event.target.closest("#authSend")) {
       try { await sendMagicLink(); } catch (error) { setCloudSyncStatus(`Login failed: ${error.message}`); }
+      return;
+    }
+    if (event.target.closest("#authGoogle")) {
+      try {
+        await AUTH.client?.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${location.origin}${location.pathname}` } });
+      } catch (error) { setCloudSyncStatus(`Google sign-in failed: ${error.message}`); }
       return;
     }
     if (event.target.closest("#authSignOut")) {

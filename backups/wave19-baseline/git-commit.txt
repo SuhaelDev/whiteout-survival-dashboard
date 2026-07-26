@@ -1,0 +1,2 @@
+32b292a Wave 18: multi-user foundation - Supabase magic-link accounts with per-user cloud rows (/api/state verifies the JWT, owner's legacy shared row auto-migrates on first login), guest mode keeps everything in-browser with a sign-in panel, bundled personal extract now applies only to the owner's state, new players get a blank template plus a skippable 3-step Setup Wizard (profile, gear/charm quick levels, key resources), /api/config serves the public auth config
+32b292a77b2044bf4a658002eefe083f23a916fb

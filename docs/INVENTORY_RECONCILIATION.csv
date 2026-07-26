@@ -1,0 +1,9 @@
+item,category,raw,normalized,pass_a,pass_b,diff,resolution,evidence,confidence
+books_of_knowledge,expert,3510,3510,3510,3510,0,double-seen: Gareth upgrade panel + backpack,frames 12+18,verified
+charm_guides,charms,1011,1011,1011,1011,0,triple-seen: backpack + 3 charm panels,frames 17/22/23/24,verified
+charm_designs,charms,723,723,723,723,0,triple-seen,frames 17/22/23/24,verified
+charm_secrets,charms,0,0,0,0,0,0/3 shown red in 11->12 panel,frame 24,verified
+hardened_alloy,chief_gear,57187,57187,57187,,,single-pass; pass B pending,frame 17,high
+widgets,hero_gear,89x100+48x10,9380,9380,,,denominated packs; single pool model,frame 17,high
+construction_speedups,speedups,3 stacks,50953,50953,,,minutes normalized; single-pass,frame 8,high
+gareth_sigils,expert,29,29,29,,,single-pass,frame 16,high

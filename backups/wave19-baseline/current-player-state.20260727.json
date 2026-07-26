@@ -1387,30 +1387,28 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-26T17:31:23.115389+00:00",
+    "extracted_at": "2026-07-15T16:50:00+08:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
     },
     "profile": {
-      "chief_name": "[BMO]Sorrow",
+      "chief_name": "[B2D]Sorrow",
       "chief_id": "383664139",
-      "state_number": 2476,
-      "initial_state": 2456,
+      "state_number": "2476",
+      "initial_state": "2456",
       "state_age_days": 0,
       "furnace_level": "FC9",
       "vip_level": 12,
-      "power": 705749076,
+      "power": 636157883,
       "profile_power_display": "636.2M",
       "kills_display": "254.4M",
-      "alliance": "BMO",
+      "alliance": "B2D",
       "profile_badge": "Silver Medallion 1",
       "temperature_observations": [
         "-38.0",
         "-2.0"
-      ],
-      "player_id": 383664139,
-      "kills": 262100000
+      ]
     },
     "bonus_overview": {
       "source": "Chief Profile > Bonus Overview screenshots provided by user (2026-07-10)",
@@ -1483,25 +1481,25 @@
       "wood": 510900000,
       "coal": 103300000,
       "iron": 42300000,
-      "fire_crystals": 1770,
-      "refined_fire_crystals": 83,
+      "fire_crystals": 1635,
+      "refined_fire_crystals": 227,
       "steel": 1700000,
       "fire_crystal_shards": 407,
       "pet_wild_marks": 167,
       "pet_advanced_wild_marks": 9,
-      "hardened_alloy": 57187,
-      "polishing_solution": 529,
-      "design_plans": 476,
-      "lunar_amber": 17,
-      "charm_guides": 1011,
-      "charm_designs": 723,
+      "hardened_alloy": 560752,
+      "polishing_solution": 6057,
+      "design_plans": 3213,
+      "lunar_amber": 0,
+      "charm_guides": 7253,
+      "charm_designs": 6593,
       "charm_secrets": 0,
       "pet_manuals": 1089,
       "pet_potions": 137,
       "pet_serum": 2,
-      "pet_food": 6860,
+      "pet_food": 189495,
       "expert_affinity": 328280,
-      "books_of_knowledge": 3510,
+      "books_of_knowledge": 19400,
       "essence_stones": 598,
       "mithril": 145,
       "resource_displays": {
@@ -1931,30 +1929,10 @@
       "common_wild_marks": 219,
       "advanced_wild_marks": 37,
       "epic_general_shards": 582,
-      "mythic_general_shards": 195,
+      "mythic_general_shards": 61,
       "stamina_cans": 1576,
       "hero_gear_xp": 7520,
-      "pet_custom_chests": 0,
-      "expert_sigils": 126,
-      "sigils_gareth": 29,
-      "sigils_agnes": 15,
-      "sigils_holger": 9,
-      "sigils_romulus": 17,
-      "sigils_fabian": 6,
-      "sigils_valeria": 2,
-      "sigils_kathy": 2,
-      "sigils_ronne": 10,
-      "construction_speedups_minutes": 50953,
-      "research_speedups_minutes": 12207,
-      "training_speedups_minutes": 10027,
-      "general_speedups_minutes": 12840,
-      "healing_speedups_minutes": 80,
-      "learning_speedups_minutes": 60,
-      "pet_advancement_manuals": 481,
-      "strengthening_serum": 8,
-      "widgets": 9380,
-      "trek_compass": 688,
-      "trek_attempts": 120
+      "pet_custom_chests": 0
     },
     "buildings": {
       "furnace": {
@@ -4635,62 +4613,6 @@
             "upgrade_requirements": "Total Expert Skill Level 36/39 (NOT met); 5,400 books (met)"
           }
         ]
-      },
-      "gareth": {
-        "level": 10,
-        "relationship": "Acquaintance 1",
-        "power": 1806000,
-        "affinity_progress": "1,330/5,100",
-        "skills": [
-          {
-            "name": "Rallying Cry",
-            "level": 2,
-            "effect": "+60,000 Infirmary Capacity, +6% healing speed",
-            "learning_xp": "talent - no XP cost",
-            "upgrade_requirements": "Lv3 unlocks at Affinity: Acquaintance 2 (game-verified)"
-          },
-          {
-            "name": "Gifts of Iron",
-            "level": 4,
-            "effect": "1 Ironwrought Chest per 100 troops trained, up to 12/day",
-            "learning_xp": "277,200/103,200 (session ends ~1d21h)",
-            "upgrade_requirements": "Lv5: Expert Relationship Acquaintance 3 (not met); 1,200 books (met - 3,510 owned)"
-          },
-          {
-            "name": "Porcupine",
-            "level": 0,
-            "effect": "locked",
-            "learning_xp": "locked",
-            "upgrade_requirements": "locked at Acquaintance 1 / affinity 10"
-          },
-          {
-            "name": "Undefeated Will",
-            "level": 0,
-            "effect": "locked",
-            "learning_xp": "locked",
-            "upgrade_requirements": "locked"
-          },
-          {
-            "name": "Fearsome Reputation",
-            "level": 0,
-            "effect": "locked",
-            "learning_xp": "locked",
-            "upgrade_requirements": "locked"
-          }
-        ],
-        "active_learning": {
-          "skill": "Gifts of Iron",
-          "remaining": "1d21h30m",
-          "observed_at": "2026-07-26T17:31:23.115389+00:00"
-        },
-        "unlocked": true,
-        "capture_source": "in-game read-only capture 2026-07-27, player 383664139",
-        "affinity_current": 1330,
-        "affinity_required": 5100,
-        "relationship_level": 10,
-        "name": "Gareth",
-        "troops_lethality_percent": 5.7,
-        "troops_health_percent": 5.7
       }
     },
     "research": {
@@ -6062,17 +5984,7 @@
       "Research Center tree was captured for visible/opened nodes. War Academy Helios branch ends, Lancer core nodes, Marksman core nodes, and shared MAX nodes are saved; exact Infantry base attack/defense node names remain pending because BlueStacks ignored map-pan attempts.",
       "Collection Gallery rank/progress and Marching pages 1-2 were opened/read; Flame Tech and full gallery item-by-item stats still need a deeper pass.",
       "Backpack Resources was item-card read for visible gems, Fire Crystal materials, hero XP/stamina, resource chests, and meat/wood/coal/iron stacks; lower hidden rows and some non-Resources tab items may still need another pass."
-    ],
-    "inventory_snapshot": {
-      "captured_at": "2026-07-26T17:35:39.234869+00:00",
-      "capture_source": "in-game read-only capture 2026-07-27, player 383664139 ([BMO]Sorrow, state 2476)",
-      "method": "pass A visual extraction from 21 overlapping capture frames",
-      "precision_notes": [
-        "values are exact tile counts (no rounded displays encountered in captured tabs)",
-        "mythic_general_shards=195 name-unverified (gold web badge)",
-        "essence stones / mithril / hero gear XP items not present in backpack tabs; candidates flagged in unknown queue"
-      ]
-    }
+    ]
   },
   "hero_gear_targets": {
     "heroes": {

@@ -1,0 +1,358 @@
+{
+  "player": {
+    "name": "[BMO]Sorrow",
+    "player_id": 383664139,
+    "state": 2476,
+    "initial_state": 2456,
+    "alliance": "BMO",
+    "power": 705749076,
+    "kills_display": "262.1M",
+    "vip": 12,
+    "identity_confirmed": "Chief Profile screen, 2026-07-27"
+  },
+  "captured_at": "2026-07-26T17:36:52.282729+00:00",
+  "method": "read-only in-game navigation; 21 overlapping capture frames across Backpack (Resources/Speedup/Bonus/Gear/Other), Chief Profile, Dawn Academy/Gareth, Charm upgrade panels",
+  "pass_a": {
+    "resources_tab": {
+      "fire_crystal": 1770,
+      "refined_fire_crystal": 83,
+      "fc_crate_unknown": 79,
+      "hero_exp_1k": 2,
+      "hero_exp_5k": 1,
+      "pet_food_10": 686,
+      "containers": {
+        "res_choice_blue": 3075,
+        "res_choice_purple": 63,
+        "bound_green": 625,
+        "bound_blue": 282,
+        "bound_purple": 75,
+        "truck_green": 1160,
+        "truck_blue": 3223,
+        "truck_epic": 1144,
+        "truck_green_bound": 7540,
+        "truck_blue_bound": 962,
+        "truck_purple_bound": 310
+      },
+      "meat": {
+        "1k": 3474,
+        "1k_bound": 50,
+        "10k": 14551,
+        "10k_bound": 1880,
+        "100k": 2,
+        "100k_bound": 414,
+        "1m": 4
+      },
+      "wood": {
+        "1k": 3640,
+        "1k_bound": 50,
+        "10k": 14538,
+        "10k_bound": 1250,
+        "100k_bound": 434
+      },
+      "coal": {
+        "100": 67,
+        "1k": 22107,
+        "1k_bound": 273,
+        "10k": 1564,
+        "10k_bound": 2265,
+        "100k": 40,
+        "100k_bound": 28
+      },
+      "iron": {
+        "100": 19,
+        "1k": 6412,
+        "1k_bound": 204,
+        "10k": 23276,
+        "10k_bound": 12536,
+        "100k": 626,
+        "100k_bound": 699,
+        "1m": 1
+      }
+    },
+    "speedup_tab_minutes": {
+      "general": 12840,
+      "construction": 50953,
+      "training": 10027,
+      "research": 12207,
+      "healing": 80,
+      "learning": 60,
+      "raw_stacks": {
+        "general": {
+          "1m": 295,
+          "5m": 733,
+          "1h": 117,
+          "3h": 5,
+          "8h": 2
+        },
+        "construction": {
+          "1m": 18148,
+          "5m": 6033,
+          "1h": 44
+        },
+        "training": {
+          "1m": 1432,
+          "5m": 1179,
+          "1h": 45
+        },
+        "research": {
+          "1m": 1167,
+          "5m": 1116,
+          "1h": 91
+        },
+        "healing": {
+          "5m": 16
+        },
+        "learning": {
+          "1h": 1
+        }
+      }
+    },
+    "bonus_tab": {
+      "war_consumables": 10,
+      "detail": "shields x2, gather/march boosts, temp ATK/DEF/march items - low planner value, name pass pending"
+    },
+    "gear_tab": {
+      "invested_pieces_observed": "Lv16 +100, Lv15 +100/+100/+99/+80/+60, Lv13 +59/+40..., contradicts stored extract (Lv14 +60 primaries) - RECONCILE",
+      "spares_unequipped": {
+        "blue": {
+          "gauntlets": 4,
+          "belts": 3,
+          "boots": 10
+        },
+        "green": {
+          "goggles": 19,
+          "gauntlets": 13,
+          "belts": 16,
+          "boots": 17
+        },
+        "grey": {
+          "goggles": 7,
+          "gauntlets": 13,
+          "belts": 16,
+          "boots": 12
+        }
+      },
+      "note": "equipped filler pieces match dashboard 'Equip only' model"
+    },
+    "other_tab": {
+      "books_of_knowledge": 3510,
+      "common_expert_sigils": 126,
+      "expert_sigils": {
+        "gareth": 29,
+        "agnes": 15,
+        "holger": 9,
+        "romulus": 17,
+        "fabian": 6,
+        "valeria": 2,
+        "kathy": 2,
+        "ronne": 10
+      },
+      "charm_guides": 1011,
+      "charm_designs": 723,
+      "charm_secrets": 0,
+      "hardened_alloy": 57187,
+      "polishing_solution": 529,
+      "design_plans": 476,
+      "lunar_amber": 17,
+      "widgets": {
+        "100_pack": 89,
+        "10_pack": 48,
+        "normalized": 9380,
+        "model_note": "single universal pool - corrects per-generation assumption"
+      },
+      "pet_manuals": 481,
+      "serum": 8,
+      "trek_compass": 688,
+      "hero_shard_chests": {
+        "S8": 6,
+        "S7": 17,
+        "S6": 1,
+        "S5": 8,
+        "S4": 15,
+        "S3": 2
+      },
+      "mythic_hero_shards": {
+        "h1": 44,
+        "h2": 21,
+        "h3": 28,
+        "h4": 42,
+        "h5": 211,
+        "h6": 195,
+        "h7": 180,
+        "h8": 156,
+        "h9": 70
+      },
+      "rare_hero_shards": {
+        "h1": 146,
+        "h2": 150,
+        "h3": 155,
+        "h4": 169
+      },
+      "epic_hero_shards_various": [
+        36,
+        10,
+        3,
+        3,
+        2,
+        3,
+        2,
+        1,
+        2,
+        2,
+        74,
+        2,
+        2,
+        1,
+        15,
+        40,
+        5,
+        3
+      ],
+      "manuals": {
+        "exploration_orange": 554,
+        "purple": 302,
+        "blue": 112
+      },
+      "expedition_books": {
+        "orange": 1133,
+        "purple": 440,
+        "blue": 241
+      },
+      "teleports": {
+        "advanced": 7,
+        "random": 37
+      },
+      "recruitment_tickets": 670,
+      "vip_coin": 1
+    }
+  },
+  "unknown_queue": [
+    {
+      "icon": "gold coin with blue gem",
+      "qty": 158950,
+      "candidates": [
+        "alliance coin",
+        "honor coin"
+      ],
+      "priority": "high"
+    },
+    {
+      "icon": "purple ticket",
+      "qty": 151700,
+      "candidates": [
+        "arena/event ticket"
+      ],
+      "priority": "high"
+    },
+    {
+      "icon": "dark red-glow cube",
+      "qty": 21,
+      "candidates": [
+        "Mithril"
+      ],
+      "priority": "high"
+    },
+    {
+      "icon": "gold web badge ?",
+      "qty": 195,
+      "candidates": [
+        "Mythic General Hero Shard"
+      ],
+      "priority": "high"
+    },
+    {
+      "icon": "grey stone red mark",
+      "qty": 404,
+      "candidates": [
+        "Essence Stones (pack-icon match)"
+      ],
+      "priority": "high"
+    },
+    {
+      "icon": "puzzle generic orange/purple/blue",
+      "qty": [
+        265,
+        72,
+        2
+      ],
+      "candidates": [
+        "general shards by rarity"
+      ],
+      "priority": "medium"
+    },
+    {
+      "icon": "red crystal crate",
+      "qty": 79,
+      "candidates": [
+        "Fire Crystal Shard crate"
+      ],
+      "priority": "medium"
+    },
+    {
+      "icon": "silver beast coin",
+      "qty": 8400,
+      "candidates": [
+        "Intel/Beast token"
+      ],
+      "priority": "low"
+    },
+    {
+      "icon": "scales ticket",
+      "qty": 2674,
+      "candidates": [
+        "arena ticket"
+      ],
+      "priority": "low"
+    },
+    {
+      "icon": "gold bell",
+      "qty": 1480,
+      "candidates": [
+        "alliance horn"
+      ],
+      "priority": "low"
+    }
+  ],
+  "not_found_in_backpack": [
+    "essence stones (candidate: 404 stone)",
+    "mithril (candidate: 21 cube)",
+    "hero gear XP tubes (likely 0 held)",
+    "mythic gear pieces"
+  ],
+  "gareth_capture": {
+    "affinity": 10,
+    "progress": "1,330/5,100",
+    "relationship": "Acquaintance 1",
+    "talent_rallying_cry": 2,
+    "gifts_of_iron": 4,
+    "learning_active": "Gifts of Iron, 1d21h30m remaining",
+    "books": 3510,
+    "gareth_sigils": 29,
+    "expert_power": 1806000
+  },
+  "charm_verified_costs": {
+    "9_to_10": {
+      "guides": 105,
+      "designs": 105
+    },
+    "10_to_11": {
+      "guides": 140,
+      "designs": 105
+    },
+    "11_to_12": {
+      "guides": 116,
+      "designs": 90,
+      "secrets": 3
+    }
+  },
+  "queues_observed": {
+    "building": "2 queues idle",
+    "training": "3 camps ~7h29m",
+    "research": [
+      "Weapons Prep VI 6d15h50m",
+      "Helios Marksman Healing 6d09h13m"
+    ],
+    "expert_learning": "Gifts of Iron 1d21h30m",
+    "recruit": "Advanced 6h38m"
+  }
+}
