@@ -1,0 +1,2 @@
+# Migration Plan / History - 2026-07-26T18:56:09Z
+Applied (all additive, originals preserved): wave18 per-user auth rows + owner-gated extract; wave19 Gareth tables + charm verified costs (workbook_* retained) + inventory fields; wave20 widgets_gen* -> widgets single pool (runtime migration, legacy fields displayed only while nonzero), reservations branch, planner weights branch. Rollback: git revert per wave; data files backed up in backups/wave19-baseline/; cloud rows never destructively rewritten (merge-duplicates upsert).

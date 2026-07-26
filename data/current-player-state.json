@@ -1502,8 +1502,8 @@
       "pet_food": 6860,
       "expert_affinity": 328280,
       "books_of_knowledge": 3510,
-      "essence_stones": 598,
-      "mithril": 145,
+      "essence_stones": 404,
+      "mithril": 0,
       "resource_displays": {
         "meat": "1.0B",
         "wood": "510.9M",
@@ -1930,8 +1930,7 @@
       },
       "common_wild_marks": 219,
       "advanced_wild_marks": 37,
-      "epic_general_shards": 582,
-      "mythic_general_shards": 195,
+      "epic_general_shards": 72,
       "stamina_cans": 1576,
       "hero_gear_xp": 7520,
       "pet_custom_chests": 0,
@@ -1954,7 +1953,14 @@
       "strengthening_serum": 8,
       "widgets": 9380,
       "trek_compass": 688,
-      "trek_attempts": 120
+      "trek_attempts": 120,
+      "mythic_general_shards": 265,
+      "rare_general_shards": 2,
+      "mystery_badges": 195,
+      "warhymn_testaments": 670,
+      "wonderstar_coins": 158950,
+      "match_stakes": 151700,
+      "fire_crystal_embers": 21
     },
     "buildings": {
       "furnace": {
@@ -6071,7 +6077,24 @@
         "values are exact tile counts (no rounded displays encountered in captured tabs)",
         "mythic_general_shards=195 name-unverified (gold web badge)",
         "essence stones / mithril / hero gear XP items not present in backpack tabs; candidates flagged in unknown queue"
-      ]
+      ],
+      "name_pass": {
+        "resolved": {
+          "670": "Warhymn Testament (event)",
+          "195": "Mystery Badge (shop)",
+          "158950": "Wonderstar Coin (event)",
+          "151700": "Match Stake (event)",
+          "21": "Fire Crystal Ember (event)",
+          "404": "Essence Stones",
+          "265": "Mythic General Hero Shard",
+          "72": "epic general shard (color-inferred)",
+          "2": "rare general shard (color-inferred)"
+        },
+        "notes": [
+          "mithril not present in backpack - recorded 0 (forge-UI verification pending)",
+          "fc shard crate x79 name pending (Resources tab)"
+        ]
+      }
     }
   },
   "hero_gear_targets": {

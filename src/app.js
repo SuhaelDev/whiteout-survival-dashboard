@@ -66,7 +66,8 @@ const RESOURCE_LABELS = {
   training_speedups_minutes: "Training Speedups",
   general_speedups_minutes: "General Speedups",
 };
-for (let gen = 1; gen <= 16; gen += 1) RESOURCE_LABELS[`widgets_gen${gen}`] = `Widgets Gen ${gen}`;
+for (let gen = 1; gen <= 16; gen += 1) RESOURCE_LABELS[`widgets_gen${gen}`] = `Widgets Gen ${gen} (legacy)`;
+RESOURCE_LABELS.widgets = "Exclusive Gear Widgets";
 
 const BUILDING_FIELDS = ["meat", "wood", "coal", "iron", "fire_crystals", "refined_fire_crystals"];
 const GEAR_FIELDS = [
@@ -418,6 +419,12 @@ function stateFromSaved(savedState) {
     merged.extract_applied_at = extractedState.extracted_at;
   }
   applyHeroGearCurrentOverrides(merged);
+  // Widget pools are one universal resource in-game (verified 2026-07-27):
+  // migrate any legacy per-generation balances into the single pool once.
+  if (merged.resources && merged.resources.widgets == null) {
+    const legacy = WIDGET_GEN_FIELDS.reduce((sum, key) => sum + Number(merged.resources[key] || 0), 0);
+    if (legacy > 0) merged.resources.widgets = legacy;
+  }
   normalizeTargets(merged);
   return merged;
 }
@@ -1130,6 +1137,7 @@ const RESOURCE_ICON_KIND = {
   advanced_wild_marks: "shard",
 };
 for (let gen = 1; gen <= 16; gen += 1) RESOURCE_ICON_KIND[`widgets_gen${gen}`] = "widget";
+RESOURCE_ICON_KIND.widgets = "widget";
 
 function iconKind(scope, label = "") {
   if (RESOURCE_ICON_KIND[scope]) return RESOURCE_ICON_KIND[scope];
@@ -1279,7 +1287,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260719a";
+const ASSET_CACHE_VERSION = "20260720a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1544,8 +1552,17 @@ function costHtml(cost, fields) {
     .join("")}</div>`;
 }
 
-function availableInventoryValue(key) {
+function rawInventoryValue(key) {
   return Number(state.resources[key] || 0);
+}
+
+function reservedInventoryValue(key) {
+  return Math.max(0, Number(state.resource_reservations?.[key] || 0));
+}
+
+function availableInventoryValue(key) {
+  // Reserved amounts are excluded from every feasibility/coverage calculation.
+  return Math.max(0, rawInventoryValue(key) - reservedInventoryValue(key));
 }
 
 /* ---------------------------------------------------------------------------
@@ -3235,7 +3252,23 @@ function weightedCost(cost) {
     mythic_gear: 1200000,
     mithril: 2500000,
   };
-  return Object.entries(cost).reduce((total, [key, value]) => total + Number(value || 0) * (weights[key] || 1), 0);
+  const extra = {
+    books_of_knowledge: 120000,
+    expert_sigils: 3000000,
+    widgets: 700000,
+    construction_speedups_minutes: 1500,
+    research_speedups_minutes: 1500,
+    training_speedups_minutes: 1500,
+    general_speedups_minutes: 1800,
+    mythic_general_shards: 4000000,
+    epic_general_shards: 400000,
+  };
+  const overrides = state.planner_weights || {};
+  return Object.entries(cost).reduce((total, [key, value]) => {
+    const sigilWeight = key.startsWith("sigils_") ? 3000000 : null;
+    const weight = Number(overrides[key] ?? weights[key] ?? extra[key] ?? sigilWeight ?? 1000);
+    return total + Number(value || 0) * weight;
+  }, 0);
 }
 
 function nextLevel(rows, currentId, idKey, orderKey) {
@@ -3276,11 +3309,17 @@ function confirmedPetIds() {
 function candidateRow(candidate) {
   const gap = exchangeAdjustedNeed(candidate.cost, candidate.fields, candidate.exchangeKey);
   const affordable = Object.keys(gap).length === 0;
-  const score = candidate.benefitValue / Math.max(1, weightedCost(candidate.cost));
+  const scarcityCost = Math.max(1, weightedCost(candidate.cost));
+  const utility = Number(candidate.benefitValue || 0);
+  const shortfallPenalty = affordable ? 1 : 1 + Object.keys(gap).length * 0.35;
+  const score = utility / (scarcityCost * shortfallPenalty);
   return {
     ...candidate,
     gap,
     affordable,
+    utility,
+    scarcityCost,
+    shortfallPenalty,
     score,
   };
 }
@@ -3357,10 +3396,13 @@ function plannerCandidates() {
       fields: CHARM_FIELDS,
     });
     const powerDelta = Number(step.next.power || 0) - Number(step.current?.power || 0);
+    const dataUnverified = step.next.verification_status && step.next.verification_status !== "game_verified";
     const statText = statBenefitText(chiefCharmAttributeChanges(normalizeKey(slot.gear_slot), saved.current, step.next.charm_level));
     candidates.push(
       candidateRow({
         module: "Charm",
+        dataUnverified,
+        svsPoints: Number(step.next.svs_points || 0),
         item: slot.name,
         from: saved.current,
         to: step.next.charm_level,
@@ -3431,6 +3473,36 @@ function plannerCandidates() {
       }),
     );
   });
+
+  // Hero gear: next +10 enhancement block for the invested primary pieces.
+  try {
+    const primaryIds = new Set(heroGearPrimaryEntries(Object.entries(state.extracted_current?.hero_gear || {})).filter((entry) => entry.setNumber === 1).map((entry) => entry.heroId));
+    Object.entries(state.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
+      if (!primaryIds.has(heroId)) return;
+      const hero = heroRecordFor(heroId);
+      heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
+        const current = heroGearCurrentEnhancement(piece);
+        const target = Math.min(HERO_GEAR_MAX_ENHANCEMENT, current + 10);
+        if (target <= current) return;
+        const cost = heroGearEnhancementCostToTarget(piece, target, slot, hero, piece.level);
+        if (costIsEmpty(cost)) return;
+        const changes = heroGearEmpowermentStats(piece, hero, slot)
+          .filter((row) => Number(row.enhancement) > current && Number(row.enhancement) <= target)
+          .map((row) => `${row.stat} +${fmt(Number(row.value_percent || 0))}%`);
+        candidates.push(candidateRow({
+          module: "Hero Gear",
+          item: `${hero.name || heroId} ${titleFromId(slot)}`,
+          from: `+${current}`,
+          to: `+${target}`,
+          cost,
+          fields: HERO_GEAR_FIELDS,
+          benefit: changes.length ? changes.join(", ") : "Enhancement progress toward next stat breakpoint",
+          benefitValue: changes.length ? changes.length * 250000 : 40000,
+          confidence: "XP table game-audited (22,710 to +70 / 73,320 to +100); empowerment gate applied",
+        }));
+      });
+    });
+  } catch { /* hero gear extract absent */ }
 
   return candidates.sort((a, b) => Number(b.affordable) - Number(a.affordable) || b.score - a.score);
 }
@@ -3544,9 +3616,14 @@ function renderOverview() {
   `;
 }
 
-function plannerTableRows(candidates) {
+function plannerScoreCell(candidate) {
+  const detail = `utility ${fmt(Math.round(candidate.utility))} / scarcity-cost ${fmt(Math.round(candidate.scarcityCost))}${candidate.shortfallPenalty > 1 ? ` x${candidate.shortfallPenalty.toFixed(2)} shortfall penalty` : ""}`;
+  return `<td class="number" title="${esc(detail)}"><strong>${(candidate.score * 1000000).toFixed(1)}</strong><br><small class="muted">${esc(detail)}</small></td>`;
+}
+
+function plannerTableRows(candidates, limit = 16) {
   return candidates
-    .slice(0, 16)
+    .slice(0, limit)
     .map(
       (candidate) => `<tr>
         <td title="${esc(candidate.confidence || "")}">${visualLabel(candidate.module, candidate.module)}</td>
@@ -3554,6 +3631,7 @@ function plannerTableRows(candidates) {
         <td>${costHtml(candidate.cost, candidate.fields)}</td>
         <td>${candidate.affordable ? '<span class="status-pill">Affordable</span>' : `<span class="status-pill warn">Gap</span><div class="mini-cost">${costHtml(candidate.gap, Object.keys(candidate.gap))}</div>`}</td>
         <td>${esc(candidate.benefit)}</td>
+        ${plannerScoreCell(candidate)}
       </tr>`,
     )
     .join("");
@@ -3651,7 +3729,12 @@ function plannerPayload(candidates, coverage) {
 function renderPlanner() {
   const candidates = plannerCandidates();
   const coverage = plannerCoverage();
-  const affordable = candidates.filter((candidate) => candidate.affordable);
+  const verified = candidates.filter((candidate) => !candidate.dataUnverified);
+  const unverified = candidates.filter((candidate) => candidate.dataUnverified);
+  const svsRanked = verified
+    .filter((candidate) => Number(candidate.svsPoints || 0) > 0)
+    .sort((a, b) => (b.svsPoints / b.scarcityCost) - (a.svsPoints / a.scarcityCost));
+  const affordable = verified.filter((candidate) => candidate.affordable);
   lastPlannerPayload = plannerPayload(candidates, coverage);
   const directResources = ["meat", "wood", "coal", "iron", "fire_crystals", "refined_fire_crystals", "steel", "fire_crystal_shards"].map((key) => [
     RESOURCE_LABELS[key] || key,
@@ -3666,15 +3749,15 @@ function renderPlanner() {
   $("#tab-planner").innerHTML = `
     <div class="toolbar">
       <div>
-        <h2>AI Upgrade Planner</h2>
-        <p>Ranks exact next-step upgrades from workbook costs and your editable inventory. It is conservative by design.</p>
+        <h2>Upgrade Planner</h2>
+        <p>Deterministic engine: exact next-step costs, strict inventory feasibility (reservations excluded), scarcity-weighted transparent scoring. Steps whose data is not game-verified are quarantined below, never ranked. The LLM advisor only explains these numbers - it cannot change them.</p>
       </div>
     </div>
     <div class="summary-grid">
       <div class="metric blue"><span>Next-step candidates</span><strong>${fmt(candidates.length)}</strong></div>
       <div class="metric green"><span>Affordable now</span><strong>${fmt(affordable.length)}</strong></div>
       <div class="metric amber"><span>Buildings confirmed</span><strong>${coverage.confirmedBuildings.length}/${gameData.buildings.length}</strong></div>
-      <div class="metric purple"><span>Planner mode</span><strong>Conservative</strong></div>
+      <div class="metric purple"><span>Planner mode</span><strong>Deterministic v1</strong></div>
     </div>
     <div class="panel coverage-banner">
       <h2>Data Quality</h2>
@@ -3692,13 +3775,48 @@ function renderPlanner() {
       </details>
     </div>
     <div class="panel">
-      <h2>Recommended Next Steps</h2>
+      <h2>Best upgrades available now <small class="muted">(strictly within available inventory, reservations excluded)</small></h2>
       <div class="table-wrap planner-recommendations">
         <table>
-          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th></tr></thead>
-          <tbody>${plannerTableRows(candidates)}</tbody>
+          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
+          <tbody>${plannerTableRows(verified.filter((c) => c.affordable), 12) || '<tr><td colspan="6" class="muted">No upgrade is fully covered by available inventory.</td></tr>'}</tbody>
         </table>
       </div>
+    </div>
+    <div class="panel">
+      <h2>Highest value per scarcity-adjusted cost <small class="muted">(includes steps with material gaps)</small></h2>
+      <div class="table-wrap planner-recommendations">
+        <table>
+          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
+          <tbody>${plannerTableRows([...verified].sort((a, b) => b.score - a.score), 12)}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Best SvS preparation value</h2>
+      <div class="table-wrap planner-recommendations">
+        <table>
+          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
+          <tbody>${plannerTableRows(svsRanked, 8) || '<tr><td colspan="6" class="muted">No candidates carry verified SvS point data.</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+    ${unverified.length ? `<div class="panel">
+      <h2>Insufficient verified data <small class="muted">(excluded from rankings - costs not game-verified)</small></h2>
+      <div class="table-wrap planner-recommendations">
+        <table>
+          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost (unverified)</th><th>Status</th><th>Note</th><th></th></tr></thead>
+          <tbody>${plannerTableRows(unverified, 8)}</tbody>
+        </table>
+      </div>
+    </div>` : ""}
+    <div class="panel">
+      <details class="table-disclosure">
+        <summary>Material reservations (excluded from all feasibility math)</summary>
+        <div class="wizard-fields" style="margin-top:10px;">
+          ${["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber", "charm_guides", "charm_designs", "essence_stones", "books_of_knowledge", "expert_sigils", "widgets", "fire_crystals", "refined_fire_crystals"].map((key) => `<label><span>${esc(RESOURCE_LABELS[key] || titleFromId(key))}</span><input type="number" min="0" data-path="resource_reservations.${key}" value="${esc(state.resource_reservations?.[key] ?? 0)}" /></label>`).join("")}
+        </div>
+      </details>
     </div>
     <div class="panel">
       <div class="planner-action-row">
@@ -4930,6 +5048,19 @@ function heroGearPieceImpactCompactHtml(heroId, slot, piece = {}) {
     .join("")}</div>`;
 }
 
+function heroGearEmpowermentRowState(enhancement, currentEmpowerment, targetEmpowerment) {
+  const enh = Number(enhancement);
+  const cur = Number(currentEmpowerment || 0);
+  const tgt = Number(targetEmpowerment ?? cur);
+  if (!Number.isFinite(enh) || enh <= 0 || !Number.isFinite(cur) || !Number.isFinite(tgt)) return "invalid";
+  if (tgt < cur) return "invalid";
+  if (enh <= cur) return "unlocked";
+  if (enh <= tgt) return "targeted";
+  return "locked";
+}
+
+const HERO_GEAR_ROW_STATE_CLASS = { unlocked: "is-unlocked", targeted: "is-targeted", locked: "", invalid: "is-invalid" };
+
 function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null, slot = "") {
   const rows = heroGearEmpowermentStats(piece, hero, slot);
   if (!rows.length) return "";
@@ -4937,9 +5068,8 @@ function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null
   const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
   return `<div class="empowerment-list">${rows
     .map((row) => {
-      const enhancement = Number(row.enhancement || 0);
-      const targeted = enhancement > currentEnhancement && enhancement <= target;
-      return `<div class="${row.unlocked ? "is-unlocked" : ""} ${targeted ? "is-targeted" : ""}">
+      const rowState = heroGearEmpowermentRowState(row.enhancement, currentEnhancement, target);
+      return `<div class="${HERO_GEAR_ROW_STATE_CLASS[rowState] || ""}" data-row-state="${rowState}">
         <span>+${esc(row.enhancement)} ${esc(row.mode || "")}</span>
         <strong>${esc(row.stat || "Stat")} ${percentFmt(row.value_percent)}</strong>
       </div>`;
@@ -8278,10 +8408,11 @@ function renderResources() {
       .filter((hero) => heroExclusiveGearName(hero) && hero.generation)
       .map((hero) => Number(hero.generation)),
   )].sort((a, b) => a - b);
+  const legacyWidgetFields = gensWithExclusive.map((gen) => `widgets_gen${gen}`).filter((key) => Number(state.resources?.[key] || 0) > 0);
   const widgetGroup = {
-    title: "Widgets by Generation",
-    note: "Exclusive-gear widgets in your backpack, one pool per hero generation",
-    fields: gensWithExclusive.map((gen) => `widgets_gen${gen}`),
+    title: "Exclusive Gear Widgets",
+    note: "One universal widget pool (game-verified 2026-07-27; 10/100 denominated packs). Legacy per-generation balances migrate automatically.",
+    fields: ["widgets", ...legacyWidgetFields],
   };
   $("#tab-resources").innerHTML = `
     <div class="toolbar"><div><h2>Resources</h2><p>Edit the single current value used by every upgrade calculator. Changes save to the shared database automatically.</p></div></div>

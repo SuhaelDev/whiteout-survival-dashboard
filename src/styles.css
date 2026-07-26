@@ -6087,3 +6087,10 @@ select option {
 }
 .wizard-footer button.primary { background: #2563eb; border-color: #2563eb; }
 .wizard-footer button.ghost { background: transparent; opacity: 0.75; }
+
+/* ---- Wave 20: planner v1 + invalid row state ---- */
+.empowerment-list > div.is-invalid {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.14);
+}
+.planner-recommendations td.number small { display: block; opacity: 0.65; font-size: 10px; max-width: 180px; }
