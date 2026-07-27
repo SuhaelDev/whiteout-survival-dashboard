@@ -424,7 +424,13 @@ function stateFromSaved(savedState) {
   // captures (backpack counts, pet refinement, notes) flowing into live DBs.
   const extractTime = Date.parse(extractedState?.extracted_at || "");
   const appliedTime = Date.parse(savedState?.extract_applied_at || "");
-  if (ownerState && Number.isFinite(extractTime) && (!Number.isFinite(appliedTime) || extractTime > appliedTime)) {
+  const savedTime = Date.parse(savedState?.last_saved || "");
+  // A capture newer than the saved state also wins, so a cloud row written before the
+  // latest game read does not keep showing old counts.
+  const extractIsNewer =
+    Number.isFinite(extractTime) &&
+    (!Number.isFinite(appliedTime) || extractTime > appliedTime || (Number.isFinite(savedTime) && extractTime > savedTime));
+  if (ownerState && extractIsNewer) {
     merged = applyExtractedState(merged, extractedState);
     merged.extract_applied_at = extractedState.extracted_at;
   }
@@ -1297,7 +1303,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260722b";
+const ASSET_CACHE_VERSION = "20260723a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1684,7 +1690,7 @@ function expertSkillPlanner(expert, skills) {
         currentOptions.push(`<option value="${level}" ${level === current ? "selected" : ""}>Lv. ${level}</option>`);
       }
       const currentControl = skillId
-        ? `<select class="expert-skill-current" data-path="expert_skill_current.${esc(skillId)}" aria-label="Current level for ${esc(skill.name)}" title="Update after you finish an upgrade in game${overrideLevel != null && Number(overrideLevel) !== capturedLevel ? ` (captured Lv. ${capturedLevel})` : ""}">${currentOptions.join("")}</select>`
+        ? `<select class="expert-skill-current" data-path="expert_skill_current.${esc(skillId)}" aria-label="Current level for ${esc(skill.name)}" title="Change this once you finish the upgrade in game${overrideLevel != null && Number(overrideLevel) !== capturedLevel ? ` (captured Lv. ${capturedLevel})` : ""}">${currentOptions.join("")}</select>`
         : `<strong>Lv. ${esc(skill.level ?? "-")}</strong>`;
       const targetControl =
         skillId && maxLevel > current
@@ -3611,13 +3617,13 @@ function renderOverview() {
       <div class="panel">
         <h2>Coverage</h2>
         <div class="coverage-summary">
-          <span class="status-pill">Workbook ${fmt(workbookCoverage.length)}</span>
+          <span class="status-pill">Needs a look ${fmt(workbookCoverage.length)}</span>
           <span class="status-pill warn">Needs table ${fmt(tableCoverage.length)}</span>
         </div>
         <details class="table-disclosure coverage-disclosure">
           <summary>Coverage details</summary>
           <ul class="gap-list">
-            ${workbookCoverage.map((item) => `<li><span class="status-pill">Workbook</span> ${esc(item)}</li>`).join("")}
+            ${workbookCoverage.map((item) => `<li><span class="status-pill">Check</span> ${esc(item)}</li>`).join("")}
             ${tableCoverage.map((item) => `<li><span class="status-pill warn">Needs table</span> ${esc(item)}</li>`).join("")}
           </ul>
         </details>
@@ -3759,42 +3765,42 @@ function renderPlanner() {
   $("#tab-planner").innerHTML = `
     <div class="toolbar">
       <div>
-        <h2>Upgrade Planner</h2>
-        <p>Deterministic engine: exact next-step costs, strict inventory feasibility (reservations excluded), scarcity-weighted transparent scoring. Steps whose data is not game-verified are quarantined below, never ranked. The LLM advisor only explains these numbers - it cannot change them.</p>
+        <h2>What to upgrade next</h2>
+        <p>Every suggestion uses your real material counts and the exact in-game costs. Anything you've set aside is left out of the maths, and steps we haven't confirmed in-game are kept in a separate list at the bottom instead of being ranked.</p>
       </div>
     </div>
     <div class="summary-grid">
-      <div class="metric blue"><span>Next-step candidates</span><strong>${fmt(candidates.length)}</strong></div>
-      <div class="metric green"><span>Affordable now</span><strong>${fmt(affordable.length)}</strong></div>
-      <div class="metric amber"><span>Buildings confirmed</span><strong>${coverage.confirmedBuildings.length}/${gameData.buildings.length}</strong></div>
-      <div class="metric purple"><span>Planner mode</span><strong>Deterministic v1</strong></div>
+      <div class="metric blue"><span>Upgrades in range</span><strong>${fmt(candidates.length)}</strong></div>
+      <div class="metric green"><span>Ready to buy</span><strong>${fmt(affordable.length)}</strong></div>
+      <div class="metric amber"><span>Buildings filled in</span><strong>${coverage.confirmedBuildings.length}/${gameData.buildings.length}</strong></div>
+      <div class="metric purple"><span>Materials set aside</span><strong>${fmt(Object.values(state.resource_reservations || {}).filter((v) => Number(v) > 0).length)}</strong></div>
     </div>
     <div class="panel coverage-banner">
-      <h2>Data Quality</h2>
+      <h2>How complete your data is</h2>
       <div class="coverage-summary">
         <span class="status-pill">Buildings ${coverage.confirmedBuildings.length}/${gameData.buildings.length}</span>
-        <span class="status-pill warn">Open gaps ${fmt(coverage.hardGaps.length)}</span>
+        <span class="status-pill warn">Still to fill in ${fmt(coverage.hardGaps.length)}</span>
       </div>
-      <p>${coverage.missingBuildings.length ? `Planner excludes ${fmt(coverage.missingBuildings.length)} unconfirmed building rows: ${esc(missingBuildingSummary)}.` : "All workbook building current levels are confirmed or manually overridden."}</p>
+      <p>${coverage.missingBuildings.length ? `${fmt(coverage.missingBuildings.length)} buildings are left out until you tell us their current level: ${esc(missingBuildingSummary)}.` : "Every building has a current level, so nothing is being skipped."}</p>
       <details class="table-disclosure coverage-disclosure">
-        <summary>Data gap details</summary>
+        <summary>See what is missing</summary>
         <ul class="gap-list">
           ${coverage.missingBuildings.length ? `<li><span class="status-pill warn">Buildings</span> ${esc(missingBuildingNames)}</li>` : ""}
-          ${coverage.hardGaps.map((gap) => `<li><span class="status-pill warn">Gap</span> ${esc(gap)}</li>`).join("")}
+          ${coverage.hardGaps.map((gap) => `<li><span class="status-pill warn">Missing</span> ${esc(gap)}</li>`).join("")}
         </ul>
       </details>
     </div>
     <div class="panel">
-      <h2>Best upgrades available now <small class="muted">(strictly within available inventory, reservations excluded)</small></h2>
+      <h2>You can do these right now <small class="muted">covered by what you already hold</small></h2>
       <div class="table-wrap planner-recommendations">
         <table>
           <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
-          <tbody>${plannerTableRows(verified.filter((c) => c.affordable), 12) || '<tr><td colspan="6" class="muted">No upgrade is fully covered by available inventory.</td></tr>'}</tbody>
+          <tbody>${plannerTableRows(verified.filter((c) => c.affordable), 12) || '<tr><td colspan="6" class="muted">Nothing is fully covered yet — the list below shows what you are closest to.</td></tr>'}</tbody>
         </table>
       </div>
     </div>
     <div class="panel">
-      <h2>Highest value per scarcity-adjusted cost <small class="muted">(includes steps with material gaps)</small></h2>
+      <h2>Best value for the materials <small class="muted">including things you are short on</small></h2>
       <div class="table-wrap planner-recommendations">
         <table>
           <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
@@ -3803,26 +3809,26 @@ function renderPlanner() {
       </div>
     </div>
     <div class="panel">
-      <h2>Best SvS preparation value</h2>
+      <h2>Best picks for SvS week</h2>
       <div class="table-wrap planner-recommendations">
         <table>
           <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
-          <tbody>${plannerTableRows(svsRanked, 8) || '<tr><td colspan="6" class="muted">No candidates carry verified SvS point data.</td></tr>'}</tbody>
+          <tbody>${plannerTableRows(svsRanked, 8) || '<tr><td colspan="6" class="muted">No upgrades here have confirmed SvS points yet.</td></tr>'}</tbody>
         </table>
       </div>
     </div>
     ${unverified.length ? `<div class="panel">
-      <h2>Insufficient verified data <small class="muted">(excluded from rankings - costs not game-verified)</small></h2>
+      <h2>Not ranked yet <small class="muted">we have not confirmed these costs in-game</small></h2>
       <div class="table-wrap planner-recommendations">
         <table>
-          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost (unverified)</th><th>Status</th><th>Note</th><th></th></tr></thead>
+          <thead><tr><th>Area</th><th>Upgrade</th><th>Cost (unconfirmed)</th><th>Status</th><th>What you get</th><th></th></tr></thead>
           <tbody>${plannerTableRows(unverified, 8)}</tbody>
         </table>
       </div>
     </div>` : ""}
     <div class="panel">
       <details class="table-disclosure">
-        <summary>Material reservations (excluded from all feasibility math)</summary>
+        <summary>Set materials aside (they will not be spent in any plan)</summary>
         <div class="wizard-fields" style="margin-top:10px;">
           ${["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber", "charm_guides", "charm_designs", "essence_stones", "books_of_knowledge", "expert_sigils", "widgets", "fire_crystals", "refined_fire_crystals"].map((key) => `<label><span>${esc(RESOURCE_LABELS[key] || titleFromId(key))}</span><input type="number" min="0" data-path="resource_reservations.${key}" value="${esc(state.resource_reservations?.[key] ?? 0)}" /></label>`).join("")}
         </div>
@@ -3830,18 +3836,18 @@ function renderPlanner() {
     </div>
     <div class="panel">
       <div class="planner-action-row">
-        <h2>LLM Advisor</h2>
+        <h2>Ask for a written plan</h2>
         <div class="advisor-actions">
-          <button type="button" id="copyAdvisorPayload">Copy Payload</button>
-          <button type="button" class="primary" id="runAdvisor">Run Advisor</button>
-          <span id="advisorStatus">Local payload ready</span>
+          <button type="button" id="copyAdvisorPayload">Copy my numbers</button>
+          <button type="button" class="primary" id="runAdvisor">Write me a plan</button>
+          <span id="advisorStatus">Ready</span>
         </div>
       </div>
-      <pre class="llm-brief advisor-output" id="advisorOutput">Run Advisor for a written recommendation, or copy the structured payload for your preferred LLM.</pre>
+      <pre class="llm-brief advisor-output" id="advisorOutput">Ask for a plan and you will get the same numbers above, written out in order. Or copy them and paste into any chat assistant you like.</pre>
     </div>
     <div class="grid-2">
       <div class="panel">
-        <h2>Inventory Used</h2>
+        <h2>What we counted</h2>
         ${miniTable(["Resource", "Available"], resourceRows)}
       </div>
       <div class="panel">
@@ -6717,7 +6723,7 @@ function renderPets() {
   if (refineCommon) refineDetails.push(`${fmt(refineCommon)} common wild marks planned`);
   if (refineAdvanced) refineDetails.push(`${fmt(refineAdvanced)} advanced wild marks planned`);
   $("#tab-pets").innerHTML = `
-    <div class="toolbar"><div><h2>Pets</h2><p>Costs, max levels, and SVS points come from the workbook pet table. Passive stats and skill steps per 0.1 advancement are cross-referenced with wostools.net.</p></div>${petBulk}</div>
+    <div class="toolbar"><div><h2>Pets</h2><p>Level and advancement costs, the stats each step gives you, and what each one is worth in SvS.</p></div>${petBulk}</div>
     ${upgradeNutshellHtml({
       module: "Pets",
       selected: upgradeSelectionText(selectedUpgradeCount, "pet target", "pet targets"),
@@ -6746,7 +6752,7 @@ function renderPets() {
     ${petRefinementInfoPanelHtml()}
     ${statImpactPanel("Observed Pet Combat Stats", aggregateStats.map((entry) =>
       statSnapshotCard(entry.label, entry.type === "percent" ? percentFmt(entry.value) : fmt(entry.value), "Current read", "Summed from captured pet detail pages"),
-    ), "Base Troop ATK/DEF per pet level now uses the wostools.net anchor table; refinement quality multiplies the base passive.")}
+    ), "Troop attack and defence per pet level come from the in-game tables; refinement quality multiplies the base bonus.")}
   `;
 }
 
@@ -7263,7 +7269,7 @@ function renderHeroGear() {
   }
 
   $("#tab-hero-gear").innerHTML = `
-    <div class="toolbar"><div><h2>Hero Gear</h2><p>Current sets are loaded from the game extract. Mastery Forging and enhancement materials use workbook tables.</p></div></div>
+    <div class="toolbar"><div><h2>Hero Gear</h2><p>Your equipped sets as they stand in-game, with what each piece needs to reach the level you want.</p></div></div>
     
     <div class="panel">
       <h2>Visual Hero Equipment Planner</h2>
@@ -7704,7 +7710,7 @@ function renderResearch() {
   const visibleWarCount = Object.values(academy.visible_nodes || {}).filter((node) => !/max|complete|completed/i.test(String(node.status || ""))).length;
   const smartPlan = smartRecommendationPlan("research");
   $("#tab-research").innerHTML = `
-    <div class="toolbar"><div><h2>Research And War Academy</h2><p>Only active or available nodes are shown. Targets can plan every remaining level — costs come from the full wostools.net War Academy table. T12 Exalted research has its own page in the sidebar.</p></div></div>
+    <div class="toolbar"><div><h2>Research &amp; War Academy</h2><p>Only what you can work on now. Pick a target and it plans every level up to it. T12 Exalted research has its own page in the sidebar.</p></div></div>
     ${upgradeNutshellHtml({
       module: "Research",
       selected: upgradeSelectionText(selectedCount, "research target", "research targets"),
@@ -7720,7 +7726,7 @@ function renderResearch() {
                 : `Holding ${fmt(researchSpeedupsHave)} min of research speedups`,
             )]
           : []),
-        ...aggregateStatCards(totalResearchChanges, "War Academy cost table (wostools.net) + captured cards"),
+        ...aggregateStatCards(totalResearchChanges, "From the War Academy cost tables and your own research cards"),
       ],
       details: [
         `${fmt(visibleWarCount)} T11 nodes visible`,
@@ -7876,7 +7882,7 @@ function troopPlanComputation(plan = troopPlanState()) {
 
 function renderTroops() {
   if (!gameData.troop_tiers?.length) {
-    $("#tab-troops").innerHTML = `<div class="empty-state"><h2>Troop data missing</h2><p>Rebuild game data from the workbook.</p></div>`;
+    $("#tab-troops").innerHTML = `<div class="empty-state"><h2>No troop data yet</h2><p>Troop tables have not loaded. Refresh the page to try again.</p></div>`;
     return;
   }
   const plan = troopPlanState();
@@ -7934,7 +7940,7 @@ function renderTroops() {
   }).join("");
 
   $("#tab-troops").innerHTML = `
-    <div class="toolbar"><div><h2>Troop Training & Promotion</h2><p>Workbook troop table with the full government/president buff stack. Promotion costs are the per-tier differences.</p></div></div>
+    <div class="toolbar"><div><h2>Troop Training &amp; Promotion</h2><p>Work out training batches and promotion costs with your speed buffs applied.</p></div></div>
     <div class="summary-grid">
       ${currentCounts
         .map(
@@ -8237,7 +8243,7 @@ function renderSvs() {
   }));
 
   $("#tab-svs").innerHTML = `
-    <div class="toolbar"><div><h2>SvS Prep Planner</h2><p>Projects prep-week points from your selected targets and inventory. Point rates and day mapping follow the wostools.net SvS Prep Phase guide.</p></div></div>
+    <div class="toolbar"><div><h2>SvS Prep Planner</h2><p>Shows the points your chosen upgrades would score during prep week, and which day to spend them on.</p></div></div>
     <div class="summary-grid">
       <div class="metric blue"><span>Projected base points</span><strong>${fmt(basePoints)}</strong></div>
       <div class="metric green"><span>With Valeria ×${valeriaMultiplier.toFixed(2)}</span><strong>${fmt(boostedPoints)}</strong></div>
@@ -8280,7 +8286,7 @@ function renderSvs() {
       <p class="gd-note">Each activity is assigned to its first high-value day. Values include Valeria ×${valeriaMultiplier.toFixed(2)}. Activities with several green days can be shifted between them without losing value.</p>
     </div>
     <div class="panel">
-      <h2>Prep day schedule — wostools.net guide</h2>
+      <h2>What each prep day scores</h2>
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Day</th><th>Focus</th><th>Spend on this day</th></tr></thead>
         <tbody>
@@ -8400,7 +8406,7 @@ function renderT12() {
   const timePts = svsBoost(Math.round(totalMinutes * SVS_SPEEDUP_POINTS_PER_MINUTE));
 
   $("#tab-t12-research").innerHTML = `
-    <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>Full verified pipeline (wostools.net cross-check): 5 sequence-gated Exalted unlock tracks per troop type, then Molten I/II/III branches, the gateway skill, and Solar Supremacy. ${T12_UNLOCKED ? "" : "Not unlocked on this account yet — use this page for forward planning."}</p></div></div>
+    <div class="toolbar"><div><h2>T12 Exalted Research</h2><p>The full Exalted path in order: five unlock steps per troop type, then the Molten I/II/III branches, the gateway skill, and Solar Supremacy. ${T12_UNLOCKED ? "" : "Not unlocked on this account yet — use this page for forward planning."}</p></div></div>
     ${upgradeNutshellHtml({
       module: "T12 Research",
       selected: upgradeSelectionText(selectedCount, "T12 node", "T12 nodes"),
@@ -8475,7 +8481,7 @@ function renderSkins() {
   const skins = state.extracted_current?.skins;
   if (!skins) {
     $("#tab-skins").innerHTML = `
-      <div class="toolbar"><div><h2>Skins &amp; Permanent Bonuses</h2><p>The game's permanent collection bonuses (city / marching / avatar frame / nameplate skins).</p></div></div>
+      <div class="toolbar"><div><h2>Skins &amp; Bonuses</h2><p>The game's permanent collection bonuses (city / marching / avatar frame / nameplate skins).</p></div></div>
       <div class="panel"><h2>No capture yet</h2><p class="gd-note">Open <strong>Chief Profile &rarr; Skins &rarr; Bonus Details &rarr; Total Bonus</strong> in-game and enter the totals here. Nothing is assumed for this module - it stays empty until it is captured, so no invented numbers reach the planner.</p></div>`;
     return;
   }
@@ -8496,12 +8502,12 @@ function renderSkins() {
     .map((skin) => `<tr><td>${esc(skin.name)}</td><td>${esc(skin.duration)}</td><td>${esc(skin.bonus)}</td></tr>`)
     .join("");
   $("#tab-skins").innerHTML = `
-    <div class="toolbar"><div><h2>Skins &amp; Permanent Bonuses</h2><p>${esc(skins.stacking_note || "")}</p></div></div>
+    <div class="toolbar"><div><h2>Skins &amp; Bonuses</h2><p>${esc(skins.stacking_note || "")}</p></div></div>
     <div class="summary-grid">
       ${Object.entries(skins.totals || {}).slice(0, 4).map(([key, val]) => `<div class="metric blue"><span>${esc(SKIN_STAT_LABELS[key] || titleFromId(key))}</span><strong>+${Number(val?.current || 0).toFixed(1)}%</strong></div>`).join("")}
     </div>
     <div class="panel">
-      <h2>Stat totals vs caps</h2>
+      <h2>How close you are to the caps</h2>
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Bonus</th><th class="number">Current</th><th class="number">Maximum</th><th>Progress</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -8509,7 +8515,7 @@ function renderSkins() {
       <p class="gd-note">Captured ${esc(String(skins.captured_at || "").slice(0, 10))} from ${esc(skins.source || "in-game")}. Categories in this version: ${esc((skins.categories || []).join(", "))}.</p>
     </div>
     ${owned ? `<div class="panel">
-      <h2>Owned city skins (sampled)</h2>
+      <h2>City skins you own</h2>
       <div class="table-wrap compact-table"><table>
         <thead><tr><th>Skin</th><th>Duration</th><th>Bonus</th></tr></thead>
         <tbody>${owned}</tbody>
@@ -8535,7 +8541,7 @@ function renderSources() {
         </ul>
       </div>
       <div class="panel">
-        <h2>Workbook Gaps</h2>
+        <h2>Still to confirm</h2>
         <ul class="gap-list">
           ${gameData.gaps
             .map(
@@ -8859,10 +8865,13 @@ function bindEvents() {
 async function init() {
   try {
     const [gameResponse, templateResponse, currentState, assetsManifest] = await Promise.all([
-      fetch("data/game-data.json"),
-      fetch("data/player-state-template.json"),
-      fetchOptionalJson("data/current-player-state.json"),
-      fetchOptionalJson("assets/game/manifest.json"),
+      // Cache-bust every data file with the build version. Without this the browser
+      // happily serves a stale copy of the extract after a deploy, so freshly captured
+      // resource counts never show up on the Resources page.
+      fetch(`data/game-data.json?v=${ASSET_CACHE_VERSION}`),
+      fetch(`data/player-state-template.json?v=${ASSET_CACHE_VERSION}`),
+      fetchOptionalJson(`data/current-player-state.json?v=${ASSET_CACHE_VERSION}`),
+      fetchOptionalJson(`assets/game/manifest.json?v=${ASSET_CACHE_VERSION}`),
     ]);
     gameData = await gameResponse.json();
     templateState = await templateResponse.json();
