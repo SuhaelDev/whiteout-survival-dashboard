@@ -9,5 +9,5 @@
 8. SvS points columns for charms/gear inherit workbook scaling risk - flagged, not corrected (no game evidence yet).
 
 ## Update 2026-07-27T02:06:15Z
-- Hero gear re-extract still pending: game client showed "account logged in on another device" (your session moved to another device); no Reconnect clicked to avoid disrupting it. Needs one capture window.
+- Hero gear re-extract DONE (wave21, 16 corrections). Remaining: per-rarity Wild Mark split (Pets>Refinement), mithril confirmation in the reforge UI, Gatot epic-piece levels.
 - Google sign-in blocked only on the user-data-policy checkbox (see DEPLOYMENT_REPORT.md); magic-link sign-in is fully live and tested.

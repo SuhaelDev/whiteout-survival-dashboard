@@ -1387,7 +1387,7 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-26T17:31:23.115389+00:00",
+    "extracted_at": "2026-07-27T03:45:07.175344+00:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
@@ -1489,12 +1489,12 @@
       "fire_crystal_shards": 407,
       "pet_wild_marks": 167,
       "pet_advanced_wild_marks": 9,
-      "hardened_alloy": 57187,
-      "polishing_solution": 529,
-      "design_plans": 476,
-      "lunar_amber": 17,
-      "charm_guides": 1011,
-      "charm_designs": 723,
+      "hardened_alloy": 112327,
+      "polishing_solution": 1081,
+      "design_plans": 614,
+      "lunar_amber": 18,
+      "charm_guides": 1095,
+      "charm_designs": 857,
       "charm_secrets": 0,
       "pet_manuals": 1089,
       "pet_potions": 137,
@@ -1502,7 +1502,7 @@
       "pet_food": 6860,
       "expert_affinity": 328280,
       "books_of_knowledge": 3510,
-      "essence_stones": 404,
+      "essence_stones": 427,
       "mithril": 0,
       "resource_displays": {
         "meat": "1.0B",
@@ -1951,16 +1951,17 @@
       "learning_speedups_minutes": 60,
       "pet_advancement_manuals": 481,
       "strengthening_serum": 8,
-      "widgets": 9380,
+      "widgets": 11880,
       "trek_compass": 688,
       "trek_attempts": 120,
-      "mythic_general_shards": 265,
+      "mythic_general_shards": 310,
       "rare_general_shards": 2,
       "mystery_badges": 195,
       "warhymn_testaments": 670,
       "wonderstar_coins": 158950,
       "match_stakes": 151700,
-      "fire_crystal_embers": 21
+      "fire_crystal_embers": 21,
+      "wild_marks_common_verified": 77
     },
     "buildings": {
       "furnace": {
@@ -2996,84 +2997,36 @@
       "edith": {
         "troop_type": "Infantry",
         "gear": {
-          "goggles": {
-            "name": "Guardian Goggles",
-            "rarity": "Legendary",
-            "level": 14,
-            "enhancement": 60,
-            "power": 2378820,
-            "stats": {
-              "hero_attack": 1324,
-              "hero_health": 12960,
-              "escort_attack": 441,
-              "escort_health": 4320,
-              "infantry_lethality_percent": 192
-            },
-            "troop_mastery": {
-              "level": 14,
-              "gear_stats_percent": 140
-            },
-            "empowerment_stats": [
-              {
-                "enhancement": 20,
-                "mode": "Expedition",
-                "stat": "Infantry Attack",
-                "value_percent": 20,
-                "unlocked": true
-              },
-              {
-                "enhancement": 40,
-                "mode": "Exploration",
-                "stat": "Hero Health Up",
-                "value_percent": 7.5,
-                "unlocked": true
-              },
-              {
-                "enhancement": 60,
-                "mode": "Expedition",
-                "stat": "Infantry Defense",
-                "value_percent": 30,
-                "unlocked": true
-              },
-              {
-                "enhancement": 80,
-                "mode": "Exploration",
-                "stat": "Hero Attack Up",
-                "value_percent": 15,
-                "unlocked": false
-              },
-              {
-                "enhancement": 100,
-                "mode": "Expedition",
-                "stat": "Infantry Attack",
-                "value_percent": 50,
-                "unlocked": false
-              }
-            ]
+          "top_left": {
+            "level": 15,
+            "enhancement": 100,
+            "visible_enhancement": 100,
+            "empowerment": 100
           },
-          "gauntlets": {
-            "name": "Guardian Gauntlets",
-            "rarity": "Legendary",
+          "top_right": {
             "level": 15,
             "enhancement": 99,
-            "power": 3415875
+            "visible_enhancement": 99,
+            "empowerment": 99
           },
-          "belt": {
-            "name": "Guardian Belt",
-            "rarity": "Legendary",
+          "bottom_left": {
             "level": 16,
             "enhancement": 100,
-            "power": 3740855
+            "visible_enhancement": 100,
+            "empowerment": 100
           },
-          "boots": {
-            "name": "Guardian Boots",
-            "rarity": "Legendary",
-            "level": 13,
+          "bottom_right": {
+            "level": 15,
             "enhancement": 60,
-            "power": 2304702
+            "visible_enhancement": 60,
+            "empowerment": 60
           }
         },
         "charm_toolkit": {
+          "enhancement": 3
+        },
+        "special_item": {
+          "name": "Charm Toolkit",
           "enhancement": 3
         }
       },
@@ -3081,19 +3034,27 @@
         "gear": {
           "top_left": {
             "level": 15,
-            "enhancement": 80
+            "enhancement": 100,
+            "visible_enhancement": 100,
+            "empowerment": 100
           },
           "top_right": {
             "level": 13,
-            "enhancement": 44
+            "enhancement": 40,
+            "visible_enhancement": 40,
+            "empowerment": 40
           },
           "bottom_left": {
             "level": 13,
-            "enhancement": 40
+            "enhancement": 40,
+            "visible_enhancement": 40,
+            "empowerment": 40
           },
           "bottom_right": {
             "level": 15,
-            "enhancement": 80
+            "enhancement": 80,
+            "visible_enhancement": 80,
+            "empowerment": 80
           }
         },
         "special_item": {
@@ -3105,19 +3066,27 @@
         "gear": {
           "top_left": {
             "level": 12,
-            "enhancement": 59
+            "enhancement": 59,
+            "visible_enhancement": 59,
+            "empowerment": 59
           },
           "top_right": {
             "level": 12,
-            "enhancement": 44
+            "enhancement": 40,
+            "visible_enhancement": 40,
+            "empowerment": 40
           },
           "bottom_left": {
             "level": 12,
-            "enhancement": 40
+            "enhancement": 40,
+            "visible_enhancement": 40,
+            "empowerment": 40
           },
           "bottom_right": {
-            "level": 12,
-            "enhancement": 59
+            "level": 13,
+            "enhancement": 59,
+            "visible_enhancement": 59,
+            "empowerment": 59
           }
         },
         "special_item": {
@@ -3129,26 +3098,26 @@
         "gear": {
           "top_left": {
             "level": 10,
-            "enhancement": 100,
-            "visible_enhancement": 100,
+            "enhancement": 50,
+            "visible_enhancement": 50,
             "empowerment": 0
           },
           "top_right": {
             "level": 7,
-            "enhancement": 70,
-            "visible_enhancement": 70,
+            "enhancement": 40,
+            "visible_enhancement": 40,
             "empowerment": 0
           },
           "bottom_left": {
             "level": 7,
-            "enhancement": 70,
-            "visible_enhancement": 70,
+            "enhancement": 40,
+            "visible_enhancement": 40,
             "empowerment": 0
           },
           "bottom_right": {
             "level": 8,
-            "enhancement": 100,
-            "visible_enhancement": 100,
+            "enhancement": 50,
+            "visible_enhancement": 50,
             "empowerment": 0
           }
         },
@@ -3161,26 +3130,26 @@
         "gear": {
           "top_left": {
             "level": 8,
-            "enhancement": 70,
-            "visible_enhancement": 70,
+            "enhancement": 40,
+            "visible_enhancement": 40,
             "empowerment": 0
           },
           "top_right": {
             "level": 8,
-            "enhancement": 100,
-            "visible_enhancement": 100,
+            "enhancement": 50,
+            "visible_enhancement": 50,
             "empowerment": 0
           },
           "bottom_left": {
             "level": 8,
-            "enhancement": 100,
-            "visible_enhancement": 100,
+            "enhancement": 50,
+            "visible_enhancement": 50,
             "empowerment": 0
           },
           "bottom_right": {
             "level": 7,
-            "enhancement": 70,
-            "visible_enhancement": 70,
+            "enhancement": 40,
+            "visible_enhancement": 40,
             "empowerment": 0
           }
         },
@@ -6094,8 +6063,23 @@
           "mithril not present in backpack - recorded 0 (forge-UI verification pending)",
           "fc shard crate x79 name pending (Resources tab)"
         ]
+      },
+      "pass_b_at": "2026-07-27T03:48:04.692496+00:00",
+      "pass_b_method": "read-only re-sweep of Backpack > Other with item-info popups to confirm names",
+      "reconciliation": "integer counts agree within live-gain drift; every difference is a documented increase between passes, not a counting error. Names confirmed this pass: Charm Design (red-hex scroll), Common Wild Mark (grey stone, pet refinement - NOT mithril).",
+      "mithril_status": "absent from the backpack in both passes -> recorded 0; hero-gear reforge UI would be the only place to confirm a hidden balance",
+      "open_questions": [
+        "common_wild_marks kept at its prior 219 (source/aggregation unknown); the Common Wild Mark tile read 77 this pass and is stored separately as wild_marks_common_verified. Needs the Pets>Refinement screen to see the per-rarity split before merging."
+      ]
+    },
+    "capture_log": [
+      {
+        "at": "2026-07-27T03:45:07.175344+00:00",
+        "scope": "hero_gear",
+        "method": "read-only Heroes > hero > Gear tiles, 6 heroes cycled",
+        "note": "Supersedes the wave16c assumption of Gwen/Hector at +100/+100/+70/+70 - the live game shows Gwen 50/40/40/50 and Hector 40/50/50/40. Gatot holds 4 un-levelled epic pieces (no Lv badge) - left untouched."
       }
-    }
+    ]
   },
   "hero_gear_targets": {
     "heroes": {
