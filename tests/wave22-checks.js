@@ -17,10 +17,14 @@ check("mastery Lv16 = 160 essence + 6 mythic gear", m16.essence_stones === 160 &
 check("mastery Lv16 game_verified", m16.verification_status === "game_verified");
 
 check("identity is B2D (not the misread BMO)", ec.profile.alliance === "B2D" && ec.profile.chief_name === "[B2D]Sorrow");
-check("wild marks split per rarity", ec.resources.wild_marks_common === 77 && ec.resources.wild_marks_advanced === 6);
-check("no stale aggregate wild mark field", ec.resources.common_wild_marks === undefined);
+// Wave 24 renamed these to the field names the UI actually reads. Same counts,
+// one name each - the two spellings used to fight and the wrong one won.
+check("wild marks split per rarity", ec.resources.common_wild_marks === 77 && ec.resources.advanced_wild_marks === 6);
+check("no duplicate wild mark spellings", ec.resources.wild_marks_common === undefined && ec.resources.wild_marks_advanced === undefined);
 check("mythic gear = 0 (forge panel)", ec.resources.mythic_gear === 0);
-check("mithril = 0", ec.resources.mithril === 0);
+// Was recorded as 0 because Mithril appears in no hero-gear panel. The item is in the
+// backpack after all - tooltip read on 27 July.
+check("mithril 18 (backpack tooltip)", ec.resources.mithril === 18);
 check("skins totals captured with caps", ec.skins.totals.troops_defense.current === 61.0 && ec.skins.totals.troops_defense.cap === 300.0);
 check("pet refinement sample captured", ec.pets_refinement_verified.cave_lion.cap_percent === 22.35);
 

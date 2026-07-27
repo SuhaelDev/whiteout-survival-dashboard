@@ -87448,21 +87448,9 @@
   "gaps": [
     {
       "Priority": "Medium",
-      "Gap / validation item": "Sigil counts per expert",
-      "Why it matters": "The per-expert sigil tiles drive the Experts plan, and they were last counted on an earlier pass.",
-      "Research / extraction approach": "Open each expert's recruit panel and read the owned sigils."
-    },
-    {
-      "Priority": "Medium",
-      "Gap / validation item": "Exact Meat / Wood / Coal / Iron balances",
-      "Why it matters": "The game's resource Overview only shows one decimal (1.0B, 178.1M), so these four are stored to that precision and can be a few hundred thousand out.",
+      "Gap / validation item": "Exact Meat / Wood / Coal / Iron / Steel balances",
+      "Why it matters": "The game only ever shows these to one decimal (1.0B, 178.2M, 2.8M), so all five are stored to that precision and can be a few hundred thousand out.",
       "Research / extraction approach": "Open any building upgrade panel, which prints the exact owned amount next to each cost."
-    },
-    {
-      "Priority": "High",
-      "Gap / validation item": "Counts not re-read on 27 July",
-      "Why it matters": "Steel, Pet Food, Books of Knowledge, Affinity, Hero Gear XP, Mithril, hero shards, exclusive-gear Widgets, Match Stakes and Pet Custom Chests still carry their older numbers. Everything else on the Resources page was read straight off the game that day.",
-      "Research / extraction approach": "Open War Academy, the Experts screen, Recruit Hero and the pet level-up panel and read the owned counts."
     },
     {
       "Priority": "High",

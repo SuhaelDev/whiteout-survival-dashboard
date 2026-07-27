@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "last_saved": "2026-07-27T09:05:00+00:00",
+  "last_saved": "2026-07-27T08:20:00+00:00",
   "profile": {
     "chief_name": "[B2D]Sorrow",
     "state_number": "2476",
@@ -17,11 +17,11 @@
   "resources": {
     "meat": 1000000000,
     "wood": 1000000000,
-    "coal": 178200000,
+    "coal": 178100000,
     "iron": 17400000,
     "fire_crystals": 479,
     "refined_fire_crystals": 156,
-    "steel": 2800000,
+    "steel": 1700000,
     "fire_crystal_shards": 92,
     "hardened_alloy": 112555,
     "polishing_solution": 1081,
@@ -30,26 +30,26 @@
     "charm_guides": 1095,
     "charm_designs": 857,
     "charm_secrets": 0,
-    "mythic_general_shards": 310,
-    "epic_general_shards": 72,
-    "rare_general_shards": 2,
-    "hero_gear_xp": 11880,
+    "mythic_general_shards": 61,
+    "epic_general_shards": 582,
+    "rare_general_shards": 0,
+    "hero_gear_xp": 7520,
     "mythic_gear": 0,
-    "mithril": 18,
+    "mithril": 145,
     "essence_stones": 427,
-    "pet_food": 173190,
+    "pet_food": 189495,
     "pet_manuals": 481,
     "pet_potions": 67,
     "pet_serum": 8,
-    "common_sigils": 126,
-    "books_of_knowledge": 3510,
+    "common_sigils": 0,
+    "books_of_knowledge": 19400,
     "learning_speedups_minutes": 60,
     "construction_speedups_minutes": 51089,
     "research_speedups_minutes": 12380,
     "training_speedups_minutes": 10885,
     "general_speedups_minutes": 14595,
     "diamonds": 205166,
-    "expert_affinity": 118580,
+    "expert_affinity": 328280,
     "common_wild_marks": 77,
     "advanced_wild_marks": 6,
     "stamina_cans": 706,
@@ -95,54 +95,18 @@
     "resource_displays": {
       "meat": "1.0B",
       "wood": "1.0B",
-      "coal": "178.2M",
+      "coal": "178.1M",
       "iron": "17.4M",
-      "secured_meat": "265.3M",
-      "secured_wood": "220.6M",
-      "secured_coal": "44.0M",
+      "secured_meat": "264.5M",
+      "secured_wood": "220.0M",
+      "secured_coal": "43.8M",
       "secured_iron": "8.8M",
-      "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal.",
-      "steel": "2.8M"
+      "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal."
     },
-    "widgets": 0,
-    "match_stakes": 144200,
-    "expert_sigils": 126,
-    "sigils_cyrille": 0,
-    "sigils_agnes": 15,
-    "sigils_holger": 9,
-    "sigils_romulus": 17,
-    "sigils_fabian": 6,
-    "sigils_baldur": 0,
-    "sigils_valeria": 2,
-    "sigils_ronne": 10,
-    "sigils_kathy": 2,
-    "sigils_gareth": 29,
-    "expert_affinity_gifts_observed": {
-      "compass": {
-        "owned": 688,
-        "affinity_each": 10
-      },
-      "fiery_heart": {
-        "owned": 147,
-        "affinity_each": 100
-      },
-      "sail_of_conquest": {
-        "owned": 97,
-        "affinity_each": 1000
-      },
-      "total_affinity_value": 118580,
-      "note": "Counted on Gareth's Gift panel; the same pool is shared by every expert."
-    },
-    "hero_gear_xp_items_observed": {
-      "xp_100_components": 112,
-      "xp_10_components": 68,
-      "total_gear_xp": 11880,
-      "note": "Named from the item tooltips in Backpack > Other."
-    },
-    "hero_gear_mastery_widgets_observed": {
+    "hero_gear_enhancement_widgets_observed": {
       "rare": 68,
       "epic": 112,
-      "note": "These are the Enhancement XP Components listed as gear-upgrade fodder, not exclusive-gear Widgets."
+      "note": "Counted in the Gear Enhancement material list. Separate from the exclusive-gear Widget pool."
     }
   },
   "buildings": {
@@ -1476,7 +1440,7 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-27T09:05:00+00:00",
+    "extracted_at": "2026-07-27T08:20:00+00:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
@@ -1573,11 +1537,11 @@
       "diamonds": 205166,
       "meat": 1000000000,
       "wood": 1000000000,
-      "coal": 178200000,
+      "coal": 178100000,
       "iron": 17400000,
       "fire_crystals": 479,
       "refined_fire_crystals": 156,
-      "steel": 2800000,
+      "steel": 1700000,
       "fire_crystal_shards": 92,
       "pet_advanced_wild_marks": 9,
       "hardened_alloy": 112555,
@@ -1590,22 +1554,21 @@
       "pet_manuals": 481,
       "pet_potions": 67,
       "pet_serum": 8,
-      "pet_food": 173190,
-      "expert_affinity": 118580,
+      "pet_food": 6860,
+      "expert_affinity": 328280,
       "books_of_knowledge": 3510,
       "essence_stones": 427,
-      "mithril": 18,
+      "mithril": 0,
       "resource_displays": {
         "meat": "1.0B",
         "wood": "1.0B",
-        "coal": "178.2M",
+        "coal": "178.1M",
         "iron": "17.4M",
-        "secured_meat": "265.3M",
-        "secured_wood": "220.6M",
-        "secured_coal": "44.0M",
+        "secured_meat": "264.5M",
+        "secured_wood": "220.0M",
+        "secured_coal": "43.8M",
         "secured_iron": "8.8M",
-        "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal.",
-        "steel": "2.8M"
+        "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal."
       },
       "top_bar_resource_observed": {
         "display": "103.3M",
@@ -2018,7 +1981,7 @@
       "advanced_wild_marks": 6,
       "epic_general_shards": 72,
       "stamina_cans": 706,
-      "hero_gear_xp": 11880,
+      "hero_gear_xp": 7520,
       "pet_custom_chests": 0,
       "expert_sigils": 126,
       "sigils_gareth": 29,
@@ -2036,7 +1999,7 @@
       "healing_speedups_minutes": 220,
       "learning_speedups_minutes": 60,
       "pet_advancement_manuals": 481,
-      "widgets": 0,
+      "widgets": 11880,
       "trek_compass": 0,
       "trek_attempts": 120,
       "mythic_general_shards": 310,
@@ -2044,39 +2007,14 @@
       "mystery_badges": 195,
       "warhymn_testaments": 670,
       "wonderstar_coins": 158950,
-      "match_stakes": 144200,
+      "match_stakes": 151700,
       "fire_crystal_embers": 21,
       "mythic_gear": 0,
       "common_wild_marks": 77,
-      "common_sigils": 126,
-      "sigils_cyrille": 0,
-      "sigils_baldur": 0,
-      "expert_affinity_gifts_observed": {
-        "compass": {
-          "owned": 688,
-          "affinity_each": 10
-        },
-        "fiery_heart": {
-          "owned": 147,
-          "affinity_each": 100
-        },
-        "sail_of_conquest": {
-          "owned": 97,
-          "affinity_each": 1000
-        },
-        "total_affinity_value": 118580,
-        "note": "Counted on Gareth's Gift panel; the same pool is shared by every expert."
-      },
-      "hero_gear_xp_items_observed": {
-        "xp_100_components": 112,
-        "xp_10_components": 68,
-        "total_gear_xp": 11880,
-        "note": "Named from the item tooltips in Backpack > Other."
-      },
-      "hero_gear_mastery_widgets_observed": {
+      "hero_gear_enhancement_widgets_observed": {
         "rare": 68,
         "epic": 112,
-        "note": "These are the Enhancement XP Components listed as gear-upgrade fodder, not exclusive-gear Widgets."
+        "note": "Counted in the Gear Enhancement material list. Separate from the exclusive-gear Widget pool."
       }
     },
     "buildings": {
@@ -6178,10 +6116,10 @@
       }
     ],
     "open_items": [
-      "27 July, second pass: Steel, Pet Food, Books of Knowledge, Affinity gifts, Hero Gear XP, Mithril, hero shards, exclusive-gear Widgets, Match Stakes, Pet Custom Chests and every expert sigil count were read directly from the game.",
-      "The old 11,880 'Widgets' figure was really Hero Gear XP - 112 hundred-XP components plus 68 ten-XP components. The exclusive-gear Widget pool is genuinely empty (Bradley needs 50, Edith 20, both showing 0).",
-      "Meat, Wood, Coal, Iron and Steel come from panels the game rounds to one decimal, so they are accurate to about 0.1M.",
-      "Building levels beyond Furnace FC9 and Cookhouse Lv.10 are still unread; the planner leaves unconfirmed buildings out rather than guessing."
+      "27 July read: resources, chief gear tiers and stars, all 18 charm levels, every hero gear piece, pet materials and wild marks, and the full speedup shelf were re-read directly from the game.",
+      "Still on older numbers: Steel, Pet Food, Books of Knowledge, Affinity, Hero Gear XP, Mithril, hero shards, exclusive-gear Widgets, Match Stakes, Pet Custom Chests and per-expert sigils.",
+      "Meat, Wood, Coal and Iron come from the resource Overview panel, which the game rounds to one decimal, so they are accurate to about 0.1M.",
+      "Building levels beyond Furnace FC9 and Cookhouse Lv.10 are still unread; the planner leaves unconfirmed buildings out rather than guessing a level."
     ],
     "inventory_snapshot": {
       "captured_at": "2026-07-26T17:35:39.234869+00:00",
@@ -6279,26 +6217,6 @@
           "backpack_items chest counts",
           "backpack_direct_resource_value"
         ]
-      },
-      {
-        "captured_at": "2026-07-27T09:05:00+00:00",
-        "capture_id": "live-read-2026-07-27c",
-        "method": "Read-only navigation of the live game (screenshots and zoom only; nothing spent, claimed, opened or upgraded).",
-        "screens_read": [
-          "War Academy > Fire Crystal Tech > Helios Marksman Training cost panel (Steel, FC Shards, Meat/Wood/Coal/Iron owned)",
-          "Expert Hall > Gareth > Gifts of Iron skill panel (Books of Knowledge) and Gift panel (Compass / Fiery Heart / Sail of Conquest)",
-          "Expert Hall > Fabian (affinity level, exclusive skill)",
-          "Backpack > Other, swept end to end with item tooltips (sigils, Mithril, Enhancement XP Components, hero shards, Match Stake)",
-          "Heroes > Bradley > Thunder Cannon > Exclusive Gear Enhancement (Widget requirement)",
-          "Heroes > Edith > Charm Toolkit > Exclusive Gear Enhancement (Widget requirement)",
-          "Beast Cage > Saber-tooth Tiger upgrade button (Pet Food)",
-          "City resource Overview panel"
-        ],
-        "not_re_read": [
-          "Exact Meat / Wood / Coal / Iron / Steel balances (the game rounds these to one decimal in its own panels)",
-          "Building levels beyond Furnace FC9 and Cookhouse Lv.10",
-          "Chest counts inside backpack_items (last counted 15 July)"
-        ]
       }
     ],
     "pets_refinement_verified": {
@@ -6317,11 +6235,23 @@
         "source": "in-game read-only capture 2026-07-27 (player 383664139)"
       }
     },
-    "capture_id": "live-read-2026-07-27c",
+    "capture_id": "live-read-2026-07-27b",
     "unverified_fields": [
-      "Exact Meat / Wood / Coal / Iron / Steel balances (the game rounds these to one decimal in its own panels)",
-      "Building levels beyond Furnace FC9 and Cookhouse Lv.10",
-      "Chest counts inside backpack_items (last counted 15 July)"
+      "steel",
+      "expert_affinity",
+      "books_of_knowledge",
+      "pet_food",
+      "hero_gear_xp",
+      "mithril",
+      "mythic_general_shards",
+      "epic_general_shards",
+      "rare_general_shards",
+      "widgets",
+      "match_stakes",
+      "pet_custom_chests",
+      "expert sigil counts per expert",
+      "backpack_items chest counts",
+      "backpack_direct_resource_value"
     ]
   },
   "hero_gear_targets": {

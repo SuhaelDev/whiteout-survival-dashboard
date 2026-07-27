@@ -94,5 +94,37 @@ Object.entries(HERO_GEAR).forEach(([hero, slots]) => {
 check("capture has an id", typeof extract.capture_id, "string");
 check("state carries no pre-applied capture marker", state.extract_applied_capture, undefined);
 
+// ---- Wave 25: the eleven fields read on the second pass of 27 July ----
+check("steel 2.8M", r.steel, 2800000);
+check("fire crystal shards 92", r.fire_crystal_shards, 92);
+check("pet food 173,190", r.pet_food, 173190);
+check("books of knowledge 3,510", r.books_of_knowledge, 3510);
+check("affinity gift value 118,580", r.expert_affinity, 118580);
+check("hero gear xp 11,880", r.hero_gear_xp, 11880);
+check("mithril 18", r.mithril, 18);
+check("mythic general shards 310", r.mythic_general_shards, 310);
+check("epic general shards 72", r.epic_general_shards, 72);
+check("rare general shards 2", r.rare_general_shards, 2);
+check("exclusive-gear widgets 0", r.widgets, 0);
+check("match stakes 144,200", r.match_stakes, 144200);
+check("pet custom chests 0", r.pet_custom_chests, 0);
+check("common sigils 126", r.common_sigils, 126);
+
+// Affinity total must equal the counted gift stacks
+const gifts = r.expert_affinity_gifts_observed;
+const giftValue = gifts.compass.owned * gifts.compass.affinity_each
+  + gifts.fiery_heart.owned * gifts.fiery_heart.affinity_each
+  + gifts.sail_of_conquest.owned * gifts.sail_of_conquest.affinity_each;
+check("affinity total matches counted gifts", r.expert_affinity, giftValue);
+
+// Hero Gear XP must equal the counted components - this is the number that was
+// previously mislabelled as "Widgets"
+const xp = r.hero_gear_xp_items_observed;
+check("gear xp matches counted components", r.hero_gear_xp, xp.xp_100_components * 100 + xp.xp_10_components * 10);
+
+// Per-expert sigils
+Object.entries({ cyrille: 0, agnes: 15, holger: 9, romulus: 17, fabian: 6, baldur: 0, valeria: 2, ronne: 10, kathy: 2, gareth: 29 })
+  .forEach(([id, count]) => check(`${id} sigils ${count}`, r[`sigils_${id}`], count));
+
 console.log(failures ? `\n${failures} FAILED` : "\nAll wave24 checks passed");
 process.exit(failures ? 1 : 0);
