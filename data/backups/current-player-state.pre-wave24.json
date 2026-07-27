@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "last_saved": "2026-07-27T08:20:00+00:00",
+  "last_saved": "2026-07-10T08:57:50.025Z",
   "profile": {
     "chief_name": "[B2D]Sorrow",
     "state_number": "2476",
@@ -10,25 +10,25 @@
     "research_speed_pct": 75.3,
     "training_speed_pct": 184.2,
     "learning_speed_pct": 0,
-    "power": 706443219,
+    "power": 636157883,
     "vip_level": 12,
     "alliance": "B2D"
   },
   "resources": {
     "meat": 1000000000,
-    "wood": 1000000000,
-    "coal": 178100000,
-    "iron": 17400000,
-    "fire_crystals": 479,
-    "refined_fire_crystals": 156,
+    "wood": 510900000,
+    "coal": 103300000,
+    "iron": 42300000,
+    "fire_crystals": 1715,
+    "refined_fire_crystals": 134,
     "steel": 1700000,
-    "fire_crystal_shards": 92,
-    "hardened_alloy": 112555,
-    "polishing_solution": 1081,
-    "design_plans": 614,
+    "fire_crystal_shards": 407,
+    "hardened_alloy": 560752,
+    "polishing_solution": 6057,
+    "design_plans": 3213,
     "lunar_amber": 0,
-    "charm_guides": 1095,
-    "charm_designs": 857,
+    "charm_guides": 7253,
+    "charm_designs": 6593,
     "charm_secrets": 0,
     "mythic_general_shards": 61,
     "epic_general_shards": 582,
@@ -36,78 +36,25 @@
     "hero_gear_xp": 7520,
     "mythic_gear": 0,
     "mithril": 145,
-    "essence_stones": 427,
+    "essence_stones": 598,
     "pet_food": 189495,
-    "pet_manuals": 481,
-    "pet_potions": 67,
-    "pet_serum": 8,
+    "pet_manuals": 1089,
+    "pet_potions": 137,
+    "pet_serum": 2,
     "common_sigils": 0,
     "books_of_knowledge": 19400,
-    "learning_speedups_minutes": 60,
-    "construction_speedups_minutes": 51089,
-    "research_speedups_minutes": 12380,
-    "training_speedups_minutes": 10885,
-    "general_speedups_minutes": 14595,
-    "diamonds": 205166,
+    "learning_speedups_minutes": 5280,
+    "construction_speedups_minutes": 79899,
+    "research_speedups_minutes": 16932,
+    "training_speedups_minutes": 8443,
+    "general_speedups_minutes": 138679,
+    "diamonds": 411897,
     "expert_affinity": 328280,
-    "common_wild_marks": 77,
-    "advanced_wild_marks": 6,
-    "stamina_cans": 706,
-    "healing_speedups_minutes": 220,
-    "pet_custom_chests": 0,
-    "warhymn_testaments": 670,
-    "mystery_badges": 195,
-    "wonderstar_coins": 158950,
-    "fire_crystal_embers": 21,
-    "trek_compass": 0,
-    "trek_attempts": 120,
-    "speedups": {
-      "general": {
-        "1m": 295,
-        "5m": 796,
-        "1h": 117,
-        "3h": 13,
-        "8h": 2
-      },
-      "construction": {
-        "1m": 18149,
-        "5m": 6048,
-        "1h": 45
-      },
-      "training": {
-        "1m": 1460,
-        "5m": 1249,
-        "1h": 53
-      },
-      "research": {
-        "1m": 1195,
-        "5m": 1133,
-        "1h": 92
-      },
-      "healing": {
-        "5m": 44
-      },
-      "learning": {
-        "1h": 1
-      },
-      "recount_note": "Every Speedup stack counted off the live Backpack > Speedup tab on 2026-07-27."
-    },
-    "resource_displays": {
-      "meat": "1.0B",
-      "wood": "1.0B",
-      "coal": "178.1M",
-      "iron": "17.4M",
-      "secured_meat": "264.5M",
-      "secured_wood": "220.0M",
-      "secured_coal": "43.8M",
-      "secured_iron": "8.8M",
-      "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal."
-    },
-    "hero_gear_enhancement_widgets_observed": {
-      "rare": 68,
-      "epic": 112,
-      "note": "Counted in the Gear Enhancement material list. Separate from the exclusive-gear Widget pool."
-    }
+    "common_wild_marks": 219,
+    "advanced_wild_marks": 37,
+    "stamina_cans": 1576,
+    "healing_speedups_minutes": 4637,
+    "pet_custom_chests": 0
   },
   "buildings": {
     "furnace": {
@@ -174,42 +121,42 @@
   "chief_gear": {
     "hat": {
       "slot": "Hat",
-      "current": "Legendary T2 (1-Star)",
+      "current": "Legendary T2",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Frost Coronet",
       "power": 5802000
     },
     "watch": {
       "slot": "Watch",
-      "current": "Legendary T2 (1-Star)",
+      "current": "Legendary T2",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Finite Infinitus",
       "power": 5833000
     },
     "coat": {
       "slot": "Coat",
-      "current": "Legendary T3 (3-Star)",
+      "current": "Legendary T3 (2-Star)",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Dynastic Ward",
       "power": 6910000
     },
     "pants": {
       "slot": "Pants",
-      "current": "Legendary T3 (3-Star)",
+      "current": "Legendary T3 (1-Star)",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Conqueror's Cadence",
       "power": 6858000
     },
     "ring": {
       "slot": "Ring",
-      "current": "Legendary T3",
+      "current": "Legendary T2 (3-Star)",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Solaris Incandescence",
       "power": 6728000
     },
     "cudgel": {
       "slot": "Cudgel",
-      "current": "Legendary T3",
+      "current": "Legendary T2 (3-Star)",
       "target": "Legendary T4 (3-Star)",
       "item_name": "Golden Zeal",
       "power": 6728000
@@ -218,22 +165,22 @@
   "charms": {
     "hat_top": {
       "slot": "Hat Top",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "hat_left": {
       "slot": "Hat Left",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "hat_right": {
       "slot": "Hat Right",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "coat_top": {
       "slot": "Coat Top",
-      "current": 10,
+      "current": 9,
       "target": 10
     },
     "coat_left": {
@@ -243,12 +190,12 @@
     },
     "coat_right": {
       "slot": "Coat Right",
-      "current": 10,
+      "current": 9,
       "target": 10
     },
     "ring_top": {
       "slot": "Ring Top",
-      "current": 11,
+      "current": 9,
       "target": 16
     },
     "ring_left": {
@@ -258,27 +205,27 @@
     },
     "ring_right": {
       "slot": "Ring Right",
-      "current": 11,
+      "current": 9,
       "target": 16
     },
     "watch_top": {
       "slot": "Watch Top",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "watch_left": {
       "slot": "Watch Left",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "watch_right": {
       "slot": "Watch Right",
-      "current": 9,
+      "current": 8,
       "target": 16
     },
     "pants_top": {
       "slot": "Pants Top",
-      "current": 10,
+      "current": 9,
       "target": 10
     },
     "pants_left": {
@@ -288,12 +235,12 @@
     },
     "pants_right": {
       "slot": "Pants Right",
-      "current": 10,
+      "current": 9,
       "target": 10
     },
     "cudgel_top": {
       "slot": "Cudgel Top",
-      "current": 11,
+      "current": 9,
       "target": 16
     },
     "cudgel_left": {
@@ -303,7 +250,7 @@
     },
     "cudgel_right": {
       "slot": "Cudgel Right",
-      "current": 11,
+      "current": 9,
       "target": 16
     }
   },
@@ -1440,7 +1387,7 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-27T08:20:00+00:00",
+    "extracted_at": "2026-07-27T04:49:15.003721+00:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
@@ -1453,7 +1400,7 @@
       "state_age_days": 0,
       "furnace_level": "FC9",
       "vip_level": 12,
-      "power": 706443219,
+      "power": 706400000,
       "profile_power_display": "636.2M",
       "kills_display": "262.1M",
       "alliance": "B2D",
@@ -1534,26 +1481,27 @@
       }
     },
     "resources": {
-      "diamonds": 205166,
+      "diamonds": 205369,
       "meat": 1000000000,
-      "wood": 1000000000,
-      "coal": 178100000,
-      "iron": 17400000,
-      "fire_crystals": 479,
-      "refined_fire_crystals": 156,
+      "wood": 510900000,
+      "coal": 103300000,
+      "iron": 42300000,
+      "fire_crystals": 1770,
+      "refined_fire_crystals": 83,
       "steel": 1700000,
-      "fire_crystal_shards": 92,
+      "fire_crystal_shards": 407,
+      "pet_wild_marks": 167,
       "pet_advanced_wild_marks": 9,
-      "hardened_alloy": 112555,
+      "hardened_alloy": 112327,
       "polishing_solution": 1081,
       "design_plans": 614,
-      "lunar_amber": 0,
+      "lunar_amber": 18,
       "charm_guides": 1095,
       "charm_designs": 857,
       "charm_secrets": 0,
-      "pet_manuals": 481,
-      "pet_potions": 67,
-      "pet_serum": 8,
+      "pet_manuals": 1089,
+      "pet_potions": 137,
+      "pet_serum": 2,
       "pet_food": 6860,
       "expert_affinity": 328280,
       "books_of_knowledge": 3510,
@@ -1561,49 +1509,54 @@
       "mithril": 0,
       "resource_displays": {
         "meat": "1.0B",
-        "wood": "1.0B",
-        "coal": "178.1M",
-        "iron": "17.4M",
-        "secured_meat": "264.5M",
-        "secured_wood": "220.0M",
-        "secured_coal": "43.8M",
-        "secured_iron": "8.8M",
-        "note": "Read off the City resource Overview panel on 2026-07-27; the game rounds these to one decimal."
+        "wood": "510.9M",
+        "coal": "103.3M",
+        "iron": "42.3M",
+        "steel": "1.7M",
+        "fire_crystal_shards": "71"
       },
       "top_bar_resource_observed": {
         "display": "103.3M",
         "notes": "Top bar resource matches the coal total later confirmed from the Heal Injured screen."
       },
+      "backpack_clear_counts": {
+        "fire_crystals": 1715,
+        "warhymn_testament": 7600,
+        "transfer_pass": 19,
+        "pocket_watch": 7
+      },
       "speedups": {
         "general": {
-          "1m": 295,
-          "5m": 796,
-          "1h": 117,
-          "3h": 13,
-          "8h": 2
+          "1m": 504,
+          "5m": 1595,
+          "1h": 2095,
+          "3h": 25
         },
         "construction": {
-          "1m": 18149,
-          "5m": 6048,
-          "1h": 45
+          "1m": 17109,
+          "5m": 9726,
+          "1h": 236
         },
         "training": {
-          "1m": 1460,
-          "5m": 1249,
-          "1h": 53
+          "1m": 418,
+          "5m": 669,
+          "1h": 78
         },
         "research": {
-          "1m": 1195,
-          "5m": 1133,
-          "1h": 92
+          "1m": 3232,
+          "5m": 1348,
+          "1h": 116
         },
         "healing": {
-          "5m": 44
+          "1m": 197,
+          "5m": 888
         },
         "learning": {
-          "1h": 1
+          "5m": 120,
+          "1h": 18,
+          "3h": 20
         },
-        "recount_note": "Every Speedup stack counted off the live Backpack > Speedup tab on 2026-07-27."
+        "recount_note": "Full backpack Speedup tab recount 2026-07-15 (fresh capture)."
       },
       "backpack_direct_resource_value": {
         "meat": 928946000,
@@ -1978,9 +1931,9 @@
           }
         ]
       },
-      "advanced_wild_marks": 6,
+      "advanced_wild_marks": 37,
       "epic_general_shards": 72,
-      "stamina_cans": 706,
+      "stamina_cans": 1576,
       "hero_gear_xp": 7520,
       "pet_custom_chests": 0,
       "expert_sigils": 126,
@@ -1992,15 +1945,16 @@
       "sigils_valeria": 2,
       "sigils_kathy": 2,
       "sigils_ronne": 10,
-      "construction_speedups_minutes": 51089,
-      "research_speedups_minutes": 12380,
-      "training_speedups_minutes": 10885,
-      "general_speedups_minutes": 14595,
-      "healing_speedups_minutes": 220,
+      "construction_speedups_minutes": 50953,
+      "research_speedups_minutes": 12207,
+      "training_speedups_minutes": 10027,
+      "general_speedups_minutes": 12840,
+      "healing_speedups_minutes": 80,
       "learning_speedups_minutes": 60,
       "pet_advancement_manuals": 481,
+      "strengthening_serum": 8,
       "widgets": 11880,
-      "trek_compass": 0,
+      "trek_compass": 688,
       "trek_attempts": 120,
       "mythic_general_shards": 310,
       "rare_general_shards": 2,
@@ -2009,13 +1963,9 @@
       "wonderstar_coins": 158950,
       "match_stakes": 151700,
       "fire_crystal_embers": 21,
-      "mythic_gear": 0,
-      "common_wild_marks": 77,
-      "hero_gear_enhancement_widgets_observed": {
-        "rare": 68,
-        "epic": 112,
-        "note": "Counted in the Gear Enhancement material list. Separate from the exclusive-gear Widget pool."
-      }
+      "wild_marks_common": 77,
+      "wild_marks_advanced": 6,
+      "mythic_gear": 0
     },
     "buildings": {
       "furnace": {
@@ -2539,95 +2489,95 @@
     "chief_gear": {
       "hat": {
         "item_name": "Frost Coronet",
-        "current": "Legendary T2 (1-Star)",
+        "current": "Legendary T2",
         "power": 5802000,
-        "observed_label": "LegendaryT2 (1-Star)"
+        "observed_label": "LegendaryT2"
       },
       "watch": {
         "item_name": "Finite Infinitus",
-        "current": "Legendary T2 (1-Star)",
+        "current": "Legendary T2",
         "power": 5833000,
-        "observed_label": "LegendaryT2 (1-Star)"
+        "observed_label": "LegendaryT2"
       },
       "coat": {
         "item_name": "Dynastic Ward",
-        "current": "Legendary T3 (3-Star)",
+        "current": "Legendary T3 (2-Star)",
         "power": 6910000,
-        "observed_label": "LegendaryT3 (3-Star)"
+        "observed_label": "LegendaryT3 (2-Star)"
       },
       "pants": {
         "item_name": "Conqueror's Cadence",
-        "current": "Legendary T3 (3-Star)",
+        "current": "Legendary T3 (1-Star)",
         "power": 6858000,
-        "observed_label": "LegendaryT3 (3-Star)"
+        "observed_label": "LegendaryT3 (1-Star)"
       },
       "ring": {
         "item_name": "Solaris Incandescence",
-        "current": "Legendary T3",
+        "current": "Legendary T2 (3-Star)",
         "power": 6728000,
-        "observed_label": "LegendaryT3"
+        "observed_label": "LegendaryT2 (3-Star)"
       },
       "cudgel": {
         "item_name": "Golden Zeal",
-        "current": "Legendary T3",
+        "current": "Legendary T2 (3-Star)",
         "power": 6728000,
-        "observed_label": "LegendaryT3"
+        "observed_label": "LegendaryT2 (3-Star)"
       }
     },
     "charms": {
       "hat_top": {
-        "current": 9
+        "current": 8
       },
       "hat_left": {
-        "current": 9
+        "current": 8
       },
       "hat_right": {
-        "current": 9
+        "current": 8
       },
       "watch_top": {
-        "current": 9
+        "current": 8
       },
       "watch_left": {
-        "current": 9
+        "current": 8
       },
       "watch_right": {
-        "current": 9
+        "current": 8
       },
       "coat_top": {
-        "current": 10
+        "current": 9
       },
       "coat_left": {
         "current": 10
       },
       "coat_right": {
-        "current": 10
+        "current": 9
       },
       "pants_top": {
-        "current": 10
+        "current": 9
       },
       "pants_left": {
         "current": 10
       },
       "pants_right": {
-        "current": 10
+        "current": 9
       },
       "ring_top": {
-        "current": 11
+        "current": 9
       },
       "ring_left": {
         "current": 11
       },
       "ring_right": {
-        "current": 11
+        "current": 9
       },
       "cudgel_top": {
-        "current": 11
+        "current": 9
       },
       "cudgel_left": {
         "current": 11
       },
       "cudgel_right": {
-        "current": 11
+        "current": 9
       }
     },
     "heroes": {
@@ -6116,10 +6066,14 @@
       }
     ],
     "open_items": [
-      "27 July read: resources, chief gear tiers and stars, all 18 charm levels, every hero gear piece, pet materials and wild marks, and the full speedup shelf were re-read directly from the game.",
-      "Still on older numbers: Steel, Pet Food, Books of Knowledge, Affinity, Hero Gear XP, Mithril, hero shards, exclusive-gear Widgets, Match Stakes, Pet Custom Chests and per-expert sigils.",
-      "Meat, Wood, Coal and Iron come from the resource Overview panel, which the game rounds to one decimal, so they are accurate to about 0.1M.",
-      "Building levels beyond Furnace FC9 and Cookhouse Lv.10 are still unread; the planner leaves unconfirmed buildings out rather than guessing a level."
+      "Resumed BlueStacks sweep after reconnect permission/login prompt. Current top-bar power and diamonds were refreshed, but missing building levels were not updated because the city map still would not pan reliably and visible hitboxes only opened already-saved Research Center/Enlistment Office panels.",
+      "Profile, troop preview, current city skin, and total skin bonuses have been read from BlueStacks and saved in this file.",
+      "AI Planner now uses only confirmed current rows for recommendations; unconfirmed buildings are deliberately excluded from upgrade recommendations instead of assuming a default level.",
+      "Furnace FC9 and Cookhouse Lv. 10 have now been directly read and saved; remaining exact building reads should continue through each building's Details panel.",
+      "Command Center, Embassy, Barricade, Shelter, troop camps, and remaining resource buildings still need exact detail-panel reads if the dashboard should calculate every building from current to FC10.",
+      "Research Center tree was captured for visible/opened nodes. War Academy Helios branch ends, Lancer core nodes, Marksman core nodes, and shared MAX nodes are saved; exact Infantry base attack/defense node names remain pending because BlueStacks ignored map-pan attempts.",
+      "Collection Gallery rank/progress and Marching pages 1-2 were opened/read; Flame Tech and full gallery item-by-item stats still need a deeper pass.",
+      "Backpack Resources was item-card read for visible gems, Fire Crystal materials, hero XP/stamina, resource chests, and meat/wood/coal/iron stacks; lower hidden rows and some non-Resources tab items may still need another pass."
     ],
     "inventory_snapshot": {
       "captured_at": "2026-07-26T17:35:39.234869+00:00",
@@ -6184,39 +6138,6 @@
           "Skins system captured with Bonus Details totals: Troops Atk +18%/300%, Def +61%/300%, Lth +14.5%/300%, HP +3%/300%, Hunting March +90%/500%, Gathering +5%.",
           "Chief Profile gear overview: hat T2, watch T2, coat T3, pants T3, ring T3, cudgel T3, each showing 3 charm gems."
         ]
-      },
-      {
-        "captured_at": "2026-07-27T08:20:00+00:00",
-        "capture_id": "live-read-2026-07-27b",
-        "method": "Read-only navigation of the live game (screenshots + zoom only; nothing spent, claimed or upgraded).",
-        "screens_read": [
-          "Chief Profile (name, ID, power, alliance, state, VIP)",
-          "Chief Gear (6 slots, tier + stars) and Gear Enhancement material row",
-          "Charm Upgrades for all 6 slots (18 charm levels) and charm material row",
-          "Heroes list plus per-hero Gear panels for Edith, Bradley, Gordon, Gwen, Hector, Gatot, Hendrik",
-          "Hero Gear > Mastery Forging (essence stones, mythic gear) and Gear Enhancement widget list",
-          "Backpack > Resources, Speedup, Gear and Other tabs",
-          "City resource Overview panel",
-          "Beast Cage > Pet List, pet Advance and pet Refine panels",
-          "Trek screen header"
-        ],
-        "not_re_read": [
-          "steel",
-          "expert_affinity",
-          "books_of_knowledge",
-          "pet_food",
-          "hero_gear_xp",
-          "mithril",
-          "mythic_general_shards",
-          "epic_general_shards",
-          "rare_general_shards",
-          "widgets",
-          "match_stakes",
-          "pet_custom_chests",
-          "expert sigil counts per expert",
-          "backpack_items chest counts",
-          "backpack_direct_resource_value"
-        ]
       }
     ],
     "pets_refinement_verified": {
@@ -6234,25 +6155,7 @@
         },
         "source": "in-game read-only capture 2026-07-27 (player 383664139)"
       }
-    },
-    "capture_id": "live-read-2026-07-27b",
-    "unverified_fields": [
-      "steel",
-      "expert_affinity",
-      "books_of_knowledge",
-      "pet_food",
-      "hero_gear_xp",
-      "mithril",
-      "mythic_general_shards",
-      "epic_general_shards",
-      "rare_general_shards",
-      "widgets",
-      "match_stakes",
-      "pet_custom_chests",
-      "expert sigil counts per expert",
-      "backpack_items chest counts",
-      "backpack_direct_resource_value"
-    ]
+    }
   },
   "hero_gear_targets": {
     "heroes": {

@@ -422,17 +422,21 @@ function stateFromSaved(savedState) {
   // Re-apply the bundled game extract on top of saved/cloud state whenever the
   // extract is newer than the last one this state absorbed. Keeps deployed
   // captures (backpack counts, pet refinement, notes) flowing into live DBs.
+  // Each game read carries its own id, and a saved state remembers the last id it took
+  // on board. So a fresh read lands exactly once, and a cloud row saved *after* the read
+  // can no longer keep showing yesterday's counts - which is what made the Resources page
+  // look frozen. Falls back to timestamps for older states that predate capture ids.
+  const captureId = extractedState?.capture_id || "";
+  const appliedCapture = savedState?.extract_applied_capture || "";
   const extractTime = Date.parse(extractedState?.extracted_at || "");
   const appliedTime = Date.parse(savedState?.extract_applied_at || "");
-  const savedTime = Date.parse(savedState?.last_saved || "");
-  // A capture newer than the saved state also wins, so a cloud row written before the
-  // latest game read does not keep showing old counts.
-  const extractIsNewer =
-    Number.isFinite(extractTime) &&
-    (!Number.isFinite(appliedTime) || extractTime > appliedTime || (Number.isFinite(savedTime) && extractTime > savedTime));
-  if (ownerState && extractIsNewer) {
+  const captureIsNew = captureId
+    ? appliedCapture !== captureId
+    : Number.isFinite(extractTime) && (!Number.isFinite(appliedTime) || extractTime > appliedTime);
+  if (ownerState && captureIsNew) {
     merged = applyExtractedState(merged, extractedState);
     merged.extract_applied_at = extractedState.extracted_at;
+    merged.extract_applied_capture = captureId;
   }
   applyHeroGearCurrentOverrides(merged);
   // Widget pools are one universal resource in-game (verified 2026-07-27):
@@ -1303,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260723a";
+const ASSET_CACHE_VERSION = "20260727a";
 
 function assetUrl(src) {
   if (!src) return src;
