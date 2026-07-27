@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260727b";
+const ASSET_CACHE_VERSION = "20260727c";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -2992,11 +2992,47 @@ function smartCandidateImpactText(candidate) {
   return "Best available material fit";
 }
 
+// The optimiser works one level at a time, so a plan can step the same charm (or gear
+// slot) twice. Two cards reading "Hat Top 9 -> 10" and "Hat Top 10 -> 11" look like a
+// duplicate or a mislabel, so collapse them into a single "Hat Top 9 -> 11" card with the
+// costs added up. Display only - plan.totalCost is untouched.
+function mergeSmartSteps(steps = []) {
+  const order = [];
+  const byLabel = new Map();
+  steps.forEach((step) => {
+    const key = `${step.kind || ""}|${step.label}`;
+    if (!byLabel.has(key)) {
+      byLabel.set(key, { ...step, cost: { ...(step.cost || {}) }, changes: (step.changes || []).map((c) => ({ ...c })), stepCount: 1 });
+      order.push(key);
+      return;
+    }
+    const merged = byLabel.get(key);
+    merged.to = step.to;
+    merged.stepCount += 1;
+    merged.powerDelta = Number(merged.powerDelta || 0) + Number(step.powerDelta || 0);
+    Object.entries(step.cost || {}).forEach(([field, value]) => {
+      merged.cost[field] = Number(merged.cost[field] || 0) + Number(value || 0);
+    });
+    (step.changes || []).forEach((change) => {
+      const existing = merged.changes.find((c) => c.label === change.label);
+      if (!existing) {
+        merged.changes.push({ ...change });
+        return;
+      }
+      existing.rawDelta = Number(existing.rawDelta || 0) + Number(change.rawDelta || 0);
+      existing.rawTarget = change.rawTarget;
+      existing.target = change.target;
+      existing.delta = statDeltaDisplay(existing.rawDelta, existing.type);
+    });
+  });
+  return order.map((key) => byLabel.get(key));
+}
+
 function smartRecommendationCardHtml(candidate, index) {
   return `<div class="smart-card">
     <div class="smart-card__head">
       ${iconHtml(candidate.kind || "generic", candidate.label, "sm", candidate.scope || "")}
-      <div><strong>${fmt(index + 1)}. ${esc(candidate.label)}</strong>${candidate.meta ? `<span>${esc(candidate.meta)}</span>` : ""}</div>
+      <div><strong>${fmt(index + 1)}. ${esc(candidate.label)}</strong>${candidate.meta || candidate.stepCount > 1 ? `<span>${esc([candidate.meta, candidate.stepCount > 1 ? `${fmt(candidate.stepCount)} levels` : ""].filter(Boolean).join(" · "))}</span>` : ""}</div>
     </div>
     <div class="smart-card__route">
       <span><small>Start</small><b>${esc(candidate.from)}</b></span>
@@ -3009,8 +3045,9 @@ function smartRecommendationCardHtml(candidate, index) {
 }
 
 function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
-  const shown = plan.selected.slice(0, 8);
-  const hidden = Math.max(0, plan.selected.length - shown.length);
+  const mergedSteps = mergeSmartSteps(plan.selected);
+  const shown = mergedSteps.slice(0, 8);
+  const hidden = Math.max(0, mergedSteps.length - shown.length);
   const blocked = !plan.selected.length && plan.blockedCandidates.length;
   const cards = shown.length
     ? shown.map(smartRecommendationCardHtml).join("")
@@ -3028,15 +3065,17 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
     : blockedShown.length
       ? blockedShown.reduce((acc, candidate) => addCost(acc, candidate.cost || {}), makeCost(plan.fields))
       : plan.totalCost;
+  // Name this table for what it is. It prices the suggestion below, not the targets you
+  // set yourself - those are totalled in the "In a nutshell" box further up the page.
   const comparisonTitle = plan.selected.length
     ? plan.exchangeKey
-      ? "Material coverage (with exchange)"
-      : "Material coverage"
+      ? "What this suggestion would cost (with exchange)"
+      : "What this suggestion would cost"
     : blockedShown.length
-      ? "Material coverage — next best steps shown above (not yet affordable)"
+      ? "What the next best steps would cost — not affordable yet"
       : plan.exchangeKey
-        ? "Material coverage (with exchange)"
-        : "Material coverage";
+        ? "What this suggestion would cost (with exchange)"
+        : "What this suggestion would cost";
   return `<section class="panel smart-panel">
     <div class="smart-panel__head">
       <div>
@@ -3053,6 +3092,7 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
       <span>${esc(selectedText)}</span>
       <strong>${esc(SMART_RECOMMENDATION_BIASES.find(([value]) => value === plan.bias)?.[1] || "Balanced stats")}</strong>
       ${hidden ? `<em>${fmt(hidden)} more in plan</em>` : ""}
+      <em class="smart-panel__scope">Priced from your current levels, not the targets you set above</em>
     </div>
     <div class="smart-card-grid">${cards}</div>
     ${inventoryComparisonHtml(coverageCost, plan.fields, comparisonTitle, plan.exchangeKey)}
@@ -6283,6 +6323,21 @@ function charmArtKey(gearSlotId, level) {
   return `charm${troopClass}${shape}`;
 }
 
+// Each troop card prices its own charms against the whole inventory, so two cards can both
+// look affordable while together they are not. Say the combined figure out loud.
+function charmGroupPoolNoteHtml(totalCost) {
+  const parts = CHARM_FIELDS.map((field) => {
+    const key = Array.isArray(field) ? field[0] : field;
+    const required = Number(totalCost?.[key] || 0);
+    if (!required) return null;
+    const have = availableInventoryValue(key);
+    const short = required - have;
+    return `${RESOURCE_LABELS[key] || titleFromId(key)} ${fmt(required)}${short > 0 ? ` (${fmt(short)} short)` : ""}`;
+  }).filter(Boolean);
+  if (!parts.length) return "";
+  return `<p class="charm-pool-note">Each card above is priced on its own, but they all draw on the same materials. All your charm targets together need ${esc(parts.join(" · "))}.</p>`;
+}
+
 function renderCharms() {
   let totalCost = makeCost(CHARM_FIELDS);
   let totalCurrentPower = 0;
@@ -6491,6 +6546,7 @@ function renderCharms() {
       <div class="chief-troop-grid">
         ${groupCards}
       </div>
+      ${charmGroupPoolNoteHtml(totalCost)}
     </div>
     
     ${upgradeNutshellHtml({
@@ -6509,7 +6565,7 @@ function renderCharms() {
     })}
     
     ${inventoryComparisonHtml(totalCost, CHARM_FIELDS, "Combined charm upgrade materials", "chief_charms")}
-    ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "Suggests affordable charm targets with troop-type and stat bias weighting.")}
+    ${smartRecommendationPanelHtml("charms", "Chief Charm Targets", smartPlan, "A separate suggestion: the most stat per material you could buy right now, starting from your current charm levels. It ignores the targets you set above.")}
   `;
   const charmGems = {};
   gameData.chief_charm_slots.forEach((slot) => {

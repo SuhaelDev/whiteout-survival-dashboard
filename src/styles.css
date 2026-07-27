@@ -6098,3 +6098,25 @@ select option {
 /* ---- Wave 22: skins module ---- */
 .skin-bar { position: relative; height: 8px; border-radius: 999px; background: rgba(148,163,184,.25); overflow: hidden; min-width: 120px; }
 .skin-bar > span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg,#38bdf8,#22c55e); border-radius: 999px; }
+
+/* Charms: the combined figure across all three troop cards, which each price
+   themselves against the same shared pool. */
+.charm-pool-note {
+  margin: 10px 2px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-2, rgba(255, 255, 255, 0.03));
+  color: var(--text-dim, #9fb0c6);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Smart panels: make it obvious the suggestion is priced from current levels. */
+.smart-panel__scope {
+  flex-basis: 100%;
+  font-style: normal;
+  font-size: 12px;
+  opacity: 0.75;
+}
