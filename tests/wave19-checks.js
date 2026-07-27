@@ -7,10 +7,22 @@ const check = (name, cond) => { console.log(cond ? "PASS" : "FAIL", "-", name); 
 
 // Charm level 11 (game-verified 2026-07-27, player 383664139)
 const c = (lv) => g.chief_charm_levels.find((r) => Number(r.charm_level) === lv);
-check("charm 10 step cost 105/105/0", c(10).guides === 105 && c(10).designs === 105 && c(10).secrets === 0);
-check("charm 11 step cost 140/105/0", c(11).guides === 140 && c(11).designs === 105 && c(11).secrets === 0);
-check("charm 12 step cost 116/90/3", c(12).guides === 116 && c(12).designs === 90 && c(12).secrets === 3);
-check("charm 11 flagged game_verified", c(11).verification_status === "game_verified");
+// These three used to assert the SINGLE-STEP cost in the full-level fields, which is what
+// made every charm plan a quarter of its real cost. A charm level is four steps: the level
+// fields now hold the whole level, and the observed step sits alongside it.
+check("charm 10 level cost 420/420/0", c(10).guides === 420 && c(10).designs === 420 && c(10).secrets === 0);
+check("charm 11 level cost 560/420/0", c(11).guides === 560 && c(11).designs === 420 && c(11).secrets === 0);
+check("charm 12 level cost 580/450/15", c(12).guides === 580 && c(12).designs === 450 && c(12).secrets === 15);
+check("charm 10 step cost 105/105/0", c(10).observed_step_guides === 105 && c(10).observed_step_designs === 105 && c(10).observed_step_secrets === 0);
+check("charm 11 step cost 140/105/0", c(11).observed_step_guides === 140 && c(11).observed_step_designs === 105 && c(11).observed_step_secrets === 0);
+check("charm 12 step cost 116/90/3", c(12).observed_step_guides === 116 && c(12).observed_step_designs === 90 && c(12).observed_step_secrets === 3);
+check("four steps per charm level", c(10).steps_per_level === 4 && c(11).steps_per_level === 4);
+check("level 10 is exactly four observed steps", c(10).observed_step_guides * 4 === c(10).guides && c(10).observed_step_designs * 4 === c(10).designs);
+check("level 11 is exactly four observed steps", c(11).observed_step_guides * 4 === c(11).guides && c(11).observed_step_designs * 4 === c(11).designs);
+// "game_verified" was the flag when the level fields held a single step. The level cost is
+// now the whole level, confirmed by the observed step times four.
+check("charm 11 flagged game_verified_step_x4", c(11).verification_status === "game_verified_step_x4");
+check("charm 12 flagged as not reconciling", c(12).verification_status === "workbook_aggregate_step_mismatch");
 check("charm 13 flagged unverified", c(13).verification_status === "unverified_workbook_aggregate");
 check("workbook values preserved", c(11).workbook_guides === 560 && c(11).workbook_designs === 420);
 

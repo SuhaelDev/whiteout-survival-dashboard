@@ -22286,8 +22286,8 @@
     },
     {
       "charm_level": 10,
-      "guides": 420,
-      "designs": 420,
+      "guides": 105,
+      "designs": 105,
       "secrets": 0,
       "power": 1196000,
       "svs_points": 15000,
@@ -22296,17 +22296,13 @@
       "workbook_guides": 420,
       "workbook_designs": 420,
       "workbook_secrets": 0,
-      "verification_status": "game_verified_step_x4",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (105 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
-      "observed_step_guides": 105,
-      "observed_step_designs": 105,
-      "observed_step_secrets": 0,
-      "steps_per_level": 4
+      "verification_status": "game_verified",
+      "source_note": "in-game read-only capture 2026-07-27, player 383664139 ([BMO]Sorrow, state 2476): per-charm step cost read from upgrade panel"
     },
     {
       "charm_level": 11,
-      "guides": 560,
-      "designs": 420,
+      "guides": 140,
+      "designs": 105,
       "secrets": 0,
       "power": 1320000,
       "svs_points": 16000,
@@ -22315,18 +22311,14 @@
       "workbook_guides": 560,
       "workbook_designs": 420,
       "workbook_secrets": 0,
-      "verification_status": "game_verified_step_x4",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (140 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
-      "observed_step_guides": 140,
-      "observed_step_designs": 105,
-      "observed_step_secrets": 0,
-      "steps_per_level": 4
+      "verification_status": "game_verified",
+      "source_note": "in-game read-only capture 2026-07-27, player 383664139 ([BMO]Sorrow, state 2476): per-charm step cost read from upgrade panel"
     },
     {
       "charm_level": 12,
-      "guides": 580,
-      "designs": 450,
-      "secrets": 15,
+      "guides": 116,
+      "designs": 90,
+      "secrets": 3,
       "power": 1536000,
       "svs_points": 17000,
       "source_sheet": "Charms Data",
@@ -22334,12 +22326,8 @@
       "workbook_guides": 580,
       "workbook_designs": 450,
       "workbook_secrets": 15,
-      "verification_status": "workbook_aggregate_step_mismatch",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (116 guides / 90 designs / 3 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level. Four of the observed steps do not add up to the workbook total for this level, so one of the two is wrong - see Still to confirm.",
-      "observed_step_guides": 116,
-      "observed_step_designs": 90,
-      "observed_step_secrets": 3,
-      "steps_per_level": 4
+      "verification_status": "game_verified",
+      "source_note": "in-game read-only capture 2026-07-27, player 383664139 ([BMO]Sorrow, state 2476): per-charm step cost read from upgrade panel"
     },
     {
       "charm_level": 13,
@@ -87458,12 +87446,6 @@
     }
   ],
   "gaps": [
-    {
-      "Priority": "Medium",
-      "Gap / validation item": "Charm level 12 cost",
-      "Why it matters": "A charm level is four upgrade steps. For levels 10 and 11 four steps match the workbook total exactly, but for level 12 the observed step (116 guides / 90 designs / 3 secrets) times four is 464 / 360 / 12 while the workbook says 580 / 450 / 15, so one of the two is wrong.",
-      "Research / extraction approach": "Watch a level 11 charm through all four steps and record each step's cost."
-    },
     {
       "Priority": "Medium",
       "Gap / validation item": "Exact Meat / Wood / Coal / Iron / Steel balances",

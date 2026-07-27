@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260727c";
+const ASSET_CACHE_VERSION = "20260727d";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -6523,7 +6523,7 @@ function renderCharms() {
   });
 
   $("#tab-charms").innerHTML = `
-    <div class="toolbar"><div><h2>Chief Charms</h2><p>Grouped by the troop type of the gear piece each charm is attached to.</p></div>${charmBulk}</div>
+    <div class="toolbar"><div><h2>Chief Charms</h2><p>Grouped by the troop type of the gear piece each charm is attached to. One level takes four upgrade taps in game, so these costs are four times what a single tap quotes you.</p></div>${charmBulk}</div>
     <div class="chief-gear-layout-container">
       <div class="chief-gear-screen">
         <div class="chief-gear-grid-container">
