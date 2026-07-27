@@ -6094,3 +6094,7 @@ select option {
   background: rgba(239, 68, 68, 0.14);
 }
 .planner-recommendations td.number small { display: block; opacity: 0.65; font-size: 10px; max-width: 180px; }
+
+/* ---- Wave 22: skins module ---- */
+.skin-bar { position: relative; height: 8px; border-radius: 999px; background: rgba(148,163,184,.25); overflow: hidden; min-width: 120px; }
+.skin-bar > span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg,#38bdf8,#22c55e); border-radius: 999px; }

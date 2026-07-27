@@ -1244,6 +1244,13 @@
     "cgcudgellegendaryt4s0": "assets/game/chief-gear-tiers/cudgel-legendary-t4-s0.webp",
     "cgcudgellegendaryt4s1": "assets/game/chief-gear-tiers/cudgel-legendary-t4-s1.webp",
     "cgcudgellegendaryt4s2": "assets/game/chief-gear-tiers/cudgel-legendary-t4-s2.webp",
-    "cgcudgellegendaryt4s3": "assets/game/chief-gear-tiers/cudgel-legendary-t4-s3.webp"
+    "cgcudgellegendaryt4s3": "assets/game/chief-gear-tiers/cudgel-legendary-t4-s3.webp",
+    "gareth": "assets/game/expert-gareth.webp",
+    "expertgareth": "assets/game/expert-gareth.webp",
+    "garethrallyingcry": "assets/game/experts/gareth-rallying-cry.svg",
+    "garethgiftsofiron": "assets/game/experts/gareth-gifts-of-iron.svg",
+    "garethporcupine": "assets/game/experts/gareth-porcupine.svg",
+    "garethundefeatedwill": "assets/game/experts/gareth-undefeated-will.svg",
+    "garethfearsomereputation": "assets/game/experts/gareth-fearsome-rep.svg"
   }
 }

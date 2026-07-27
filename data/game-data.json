@@ -26964,7 +26964,9 @@
       "essence_stones": 160,
       "mythic_gear": 6,
       "source_sheet": "Hero Gear Data",
-      "source_row": 227
+      "source_row": 227,
+      "verification_status": "game_verified",
+      "source_note": "in-game read-only capture 2026-07-27 (player 383664139): Mastery Forging Lv15->Lv16"
     },
     {
       "scope": "set_piece",
@@ -99048,5 +99050,26 @@
       "ring_T3_charms_111111": "Marksman 55.00% -> 56.80% on one 11->12"
     },
     "notes": "Level 11 fully supported and game-verified. Workbook cost columns retained as workbook_* fields."
+  },
+  "hero_gear_reforge_rules": {
+    "source_type": "in_game_ui",
+    "evidence": "in-game read-only capture 2026-07-27 (player 383664139)",
+    "retrieved_at": "2026-07-27T04:39:50.105399+00:00",
+    "verification_status": "game_verified",
+    "enhancement_reforge": {
+      "resets": "enhancement level to 0",
+      "returns": {
+        "hero_gear_xp": 1.0
+      }
+    },
+    "mastery_reforge": {
+      "resets": "mastery level to 0",
+      "returns": {
+        "essence_stones": 0.5,
+        "mythic_gear": 1.0
+      }
+    },
+    "restriction": "Ascended Legendary gear cannot be reforged (game text). Only pieces with mastery level below the ascension threshold (11) are eligible.",
+    "mithril": "not referenced by any hero-gear panel in this version"
   }
 }

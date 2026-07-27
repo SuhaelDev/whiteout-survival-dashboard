@@ -5,6 +5,15 @@ const CLOUD_SYNC_ENABLED = false; // legacy shared sync retired - cloud sync now
 const OWNER_ACCOUNT_EMAIL = "suhaeldev2003@gmail.com";
 const AUTH = { client: null, session: null, user: null, configured: false, booted: false };
 const CLOUD_LOCAL_NEWER_GRACE_MS = 1000;
+const SKIN_STAT_LABELS = {
+  troops_attack: "Troops' Attack",
+  troops_defense: "Troops' Defense",
+  troops_lethality: "Troops' Lethality",
+  troops_health: "Troops' Health",
+  hunting_march_speed: "Hunting March Speed",
+  resource_gathering_speed: "Resource Gathering Speed",
+};
+
 const MODULES = [
   ["overview", "Overview"],
   ["planner", "AI Planner"],
@@ -21,6 +30,7 @@ const MODULES = [
   ["troops", "Troop Training"],
   ["svs", "SvS Planner"],
   ["resources", "Resources"],
+  ["skins", "Skins & Bonuses"],
   ["sources", "Sources"],
 ];
 
@@ -1287,7 +1297,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260721a";
+const ASSET_CACHE_VERSION = "20260722b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -3250,7 +3260,7 @@ function weightedCost(cost) {
     hero_gear_xp: 30000,
     essence_stones: 90000,
     mythic_gear: 1200000,
-    mithril: 2500000,
+    mithril: 0, // unused by hero gear in the current version (game-verified 2026-07-27)
   };
   const extra = {
     books_of_knowledge: 120000,
@@ -7086,21 +7096,32 @@ function renderHeroGear() {
     [{ action: "hero-special-enhancement", label: "Apply to tracked heroes" }],
     commonHeroGearTarget("special", 10),
   );
-  const secondaryEntries = primaryEntries.filter((entry) => entry.setNumber >= 2).map((entry) => [entry.heroId, entry.gearSet]);
+  // Game rule (verified 2026-07-27): "Cannot reforge ascended Legendary gear!" -
+  // only pieces below the ascension threshold appear in either Reforge tab.
+  const reforgeEligiblePieces = (gearSet) =>
+    heroGearPieces(gearSet?.gear).filter(([, piece]) => !heroGearCanEmpowerAtLevel(Number(piece?.level || 0)));
+  const secondaryEntries = primaryEntries
+    .filter((entry) => entry.setNumber >= 2)
+    .map((entry) => [entry.heroId, entry.gearSet]);
   const secondaryTotals = makeCost(HERO_GEAR_FIELDS);
   const secondaryRows = secondaryEntries
     .map(([heroId, gearSet]) => {
       const hero = heroRecordFor(heroId);
-      const invested = heroGearSetInvestment(gearSet, heroId);
+      const eligible = reforgeEligiblePieces(gearSet);
+      const total = heroGearPieces(gearSet.gear).length;
+      const invested = eligible.reduce(
+        (acc, [slot, piece]) => addCost(acc, heroGearPieceInvestment(piece, slot, hero)),
+        makeCost(HERO_GEAR_FIELDS),
+      );
       addCost(secondaryTotals, invested);
-      const pieces = heroGearPieces(gearSet.gear).length;
       const essence = Number(invested.essence_stones || 0);
+      const blocked = total - eligible.length;
       return `<tr>
-        <td>${visualLabel("hero", hero.name, `${gearSet.troop_type || hero.troop_type || ""} · ${fmt(pieces)} pieces`)}</td>
+        <td>${visualLabel("hero", hero.name, `${gearSet.troop_type || hero.troop_type || ""} · ${fmt(eligible.length)}/${fmt(total)} reforgeable${blocked ? ` · ${fmt(blocked)} ascended` : ""}`)}</td>
         <td class="number">${fmt(invested.hero_gear_xp || 0)}</td>
         <td class="number">${fmt(essence)}</td>
         <td class="number">${fmt(Math.floor(essence / 2))}</td>
-        <td class="number">${fmt(invested.mithril || 0)}</td>
+        <td class="number">${fmt(invested.mythic_gear || 0)}</td>
       </tr>`;
     })
     .join("");
@@ -7108,11 +7129,11 @@ function renderHeroGear() {
   const secondaryPanel = secondaryEntries.length
     ? `<div class="panel secondary-gear-panel">
         <h2>Secondary Sets — Reforge Bank</h2>
-        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Reforge refunds: 100% of invested Gear XP, 50% of essence stones, 100% of mithril.</p>
+        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Game-verified refunds (2026-07-27): Enhancement Reforge returns <strong>100% of invested Gear XP</strong>; Mastery Reforge returns <strong>50% of Essence Stones and 100% of Mythic Gear</strong>. <strong>Ascended Legendary pieces (mastery Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL}+) cannot be reforged at all</strong> and are excluded below. Mithril is not used by any hero-gear panel in this version.</p>
         <div class="table-wrap compact-table secondary-gear-table"><table>
-          <thead><tr><th>Secondary set</th><th class="number">Gear XP back (100%)</th><th class="number">Essence invested</th><th class="number">Essence back (50%)</th><th class="number">Mithril back (100%)</th></tr></thead>
+          <thead><tr><th>Secondary set</th><th class="number">Gear XP back (100%)</th><th class="number">Essence invested</th><th class="number">Essence back (50%)</th><th class="number">Mythic Gear back (100%)</th></tr></thead>
           <tbody>${secondaryRows}</tbody>
-          <tfoot><tr><th>Total reclaimable</th><th class="number">${fmt(secondaryTotals.hero_gear_xp || 0)}</th><th class="number">${fmt(secondaryEssence)}</th><th class="number">${fmt(Math.floor(secondaryEssence / 2))}</th><th class="number">${fmt(secondaryTotals.mithril || 0)}</th></tr></tfoot>
+          <tfoot><tr><th>Total reclaimable</th><th class="number">${fmt(secondaryTotals.hero_gear_xp || 0)}</th><th class="number">${fmt(secondaryEssence)}</th><th class="number">${fmt(Math.floor(secondaryEssence / 2))}</th><th class="number">${fmt(secondaryTotals.mythic_gear || 0)}</th></tr></tfoot>
         </table></div>
       </div>`
     : "";
@@ -8450,6 +8471,53 @@ function renderResources() {
   `;
 }
 
+function renderSkins() {
+  const skins = state.extracted_current?.skins;
+  if (!skins) {
+    $("#tab-skins").innerHTML = `
+      <div class="toolbar"><div><h2>Skins &amp; Permanent Bonuses</h2><p>The game's permanent collection bonuses (city / marching / avatar frame / nameplate skins).</p></div></div>
+      <div class="panel"><h2>No capture yet</h2><p class="gd-note">Open <strong>Chief Profile &rarr; Skins &rarr; Bonus Details &rarr; Total Bonus</strong> in-game and enter the totals here. Nothing is assumed for this module - it stays empty until it is captured, so no invented numbers reach the planner.</p></div>`;
+    return;
+  }
+  const rows = Object.entries(skins.totals || {})
+    .map(([key, val]) => {
+      const cur = Number(val?.current || 0);
+      const cap = val?.cap == null ? null : Number(val.cap);
+      const pct = cap ? Math.min(100, (cur / cap) * 100) : null;
+      return `<tr>
+        <td>${esc(SKIN_STAT_LABELS[key] || titleFromId(key))}</td>
+        <td class="number"><strong>${cur.toFixed(1)}%</strong></td>
+        <td class="number">${cap == null ? "<span class=\"muted\">no cap shown</span>" : `${cap.toFixed(1)}%`}</td>
+        <td>${pct == null ? "" : `<div class="skin-bar"><span style="width:${pct.toFixed(1)}%"></span></div><small class="muted">${pct.toFixed(1)}% of cap</small>`}</td>
+      </tr>`;
+    })
+    .join("");
+  const owned = (skins.owned_city_skins_sample || [])
+    .map((skin) => `<tr><td>${esc(skin.name)}</td><td>${esc(skin.duration)}</td><td>${esc(skin.bonus)}</td></tr>`)
+    .join("");
+  $("#tab-skins").innerHTML = `
+    <div class="toolbar"><div><h2>Skins &amp; Permanent Bonuses</h2><p>${esc(skins.stacking_note || "")}</p></div></div>
+    <div class="summary-grid">
+      ${Object.entries(skins.totals || {}).slice(0, 4).map(([key, val]) => `<div class="metric blue"><span>${esc(SKIN_STAT_LABELS[key] || titleFromId(key))}</span><strong>+${Number(val?.current || 0).toFixed(1)}%</strong></div>`).join("")}
+    </div>
+    <div class="panel">
+      <h2>Stat totals vs caps</h2>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Bonus</th><th class="number">Current</th><th class="number">Maximum</th><th>Progress</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <p class="gd-note">Captured ${esc(String(skins.captured_at || "").slice(0, 10))} from ${esc(skins.source || "in-game")}. Categories in this version: ${esc((skins.categories || []).join(", "))}.</p>
+    </div>
+    ${owned ? `<div class="panel">
+      <h2>Owned city skins (sampled)</h2>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Skin</th><th>Duration</th><th>Bonus</th></tr></thead>
+        <tbody>${owned}</tbody>
+      </table></div>
+      <p class="gd-note">${esc(skins.note || "")}</p>
+    </div>` : ""}`;
+}
+
 function renderSources() {
   $("#tab-sources").innerHTML = `
     <div class="grid-2">
@@ -8514,6 +8582,7 @@ function renderActive(options = {}) {
     troops: renderTroops,
     svs: renderSvs,
     resources: renderResources,
+    skins: renderSkins,
     sources: renderSources,
   };
   renderers[activeTab]();

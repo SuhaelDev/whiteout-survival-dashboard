@@ -1387,30 +1387,33 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-27T03:45:07.175344+00:00",
+    "extracted_at": "2026-07-27T04:49:15.003721+00:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
     },
     "profile": {
-      "chief_name": "[BMO]Sorrow",
+      "chief_name": "[B2D]Sorrow",
       "chief_id": "383664139",
       "state_number": 2476,
       "initial_state": 2456,
       "state_age_days": 0,
       "furnace_level": "FC9",
       "vip_level": 12,
-      "power": 705749076,
+      "power": 706400000,
       "profile_power_display": "636.2M",
-      "kills_display": "254.4M",
-      "alliance": "BMO",
+      "kills_display": "262.1M",
+      "alliance": "B2D",
       "profile_badge": "Silver Medallion 1",
       "temperature_observations": [
         "-38.0",
         "-2.0"
       ],
       "player_id": 383664139,
-      "kills": 262100000
+      "kills": 262100000,
+      "medallion": "Silver Medallion I",
+      "role": "Leader",
+      "profile_verified_at": "2026-07-27T04:49:15.003721+00:00"
     },
     "bonus_overview": {
       "source": "Chief Profile > Bonus Overview screenshots provided by user (2026-07-10)",
@@ -1928,7 +1931,6 @@
           }
         ]
       },
-      "common_wild_marks": 219,
       "advanced_wild_marks": 37,
       "epic_general_shards": 72,
       "stamina_cans": 1576,
@@ -1961,7 +1963,9 @@
       "wonderstar_coins": 158950,
       "match_stakes": 151700,
       "fire_crystal_embers": 21,
-      "wild_marks_common_verified": 77
+      "wild_marks_common": 77,
+      "wild_marks_advanced": 6,
+      "mythic_gear": 0
     },
     "buildings": {
       "furnace": {
@@ -2408,20 +2412,46 @@
       }
     },
     "skins": {
-      "current_city_skin": {
-        "name": "Lost City",
-        "duration": "Permanent",
-        "acquisition_bonus": "Troops' Attack +2.0%"
+      "source": "in-game read-only capture 2026-07-27 (player 383664139)",
+      "captured_at": "2026-07-27T04:49:15.003721+00:00",
+      "stacking_note": "Skin bonuses stack up to a per-stat maximum shown in Bonus Details.",
+      "totals": {
+        "troops_attack": {
+          "current": 18.0,
+          "cap": 300.0
+        },
+        "troops_defense": {
+          "current": 61.0,
+          "cap": 300.0
+        },
+        "troops_lethality": {
+          "current": 14.5,
+          "cap": 300.0
+        },
+        "troops_health": {
+          "current": 3.0,
+          "cap": 300.0
+        },
+        "hunting_march_speed": {
+          "current": 90.0,
+          "cap": 500.0
+        },
+        "resource_gathering_speed": {
+          "current": 5.0,
+          "cap": null
+        }
       },
-      "aggregate_bonus": {
-        "troops_attack_percent": 14,
-        "troops_defense_percent": 53,
-        "troops_lethality_percent": 11.5,
-        "troops_health_percent": 3,
-        "hunting_march_speed_percent": 85,
-        "resource_gathering_speed_percent": 5
-      },
-      "visible_city_bonus_items": [
+      "owned_city_skins_sample": [
+        {
+          "name": "Football King",
+          "duration": "Permanent",
+          "bonus": "Troops' Attack +2.0%"
+        },
+        {
+          "name": "Dragon Invasion",
+          "duration": "timed (03:01:04 left)",
+          "bonus": "Troops' Attack +2.0%"
+        },
         {
           "name": "Icebear Saga",
           "duration": "Permanent",
@@ -2440,14 +2470,21 @@
         {
           "name": "Winter of Plenty",
           "duration": "Permanent",
-          "bonus": "Resource Gathering Speed +5.0%"
+          "bonus": "(scrolled)"
         },
         {
           "name": "Lost City",
-          "duration": "Permanent",
+          "duration": "equipped",
           "bonus": "Troops' Attack +2.0%"
         }
-      ]
+      ],
+      "categories": [
+        "City",
+        "Marching",
+        "Avatar Frame",
+        "Nameplate"
+      ],
+      "note": "This is the game's Collection-style permanent-bonus system in this version; each skin grants a small permanent troop stat and they stack toward the caps above."
     },
     "chief_gear": {
       "hat": {
@@ -6078,8 +6115,47 @@
         "scope": "hero_gear",
         "method": "read-only Heroes > hero > Gear tiles, 6 heroes cycled",
         "note": "Supersedes the wave16c assumption of Gwen/Hector at +100/+100/+70/+70 - the live game shows Gwen 50/40/40/50 and Hector 40/50/50/40. Gatot holds 4 un-levelled epic pieces (no Lv badge) - left untouched."
+      },
+      {
+        "at": "2026-07-27T04:39:50.105399+00:00",
+        "scope": "reforge/mastery/pets",
+        "findings": [
+          "Enhancement Reforge: enhancement level -> 0, ALL enhancement XP returned (100%).",
+          "Mastery Reforge: mastery level -> 0, 50% of Essence Stones and ALL Mythic Gear returned.",
+          "BOTH tabs state 'Cannot reforge ascended Legendary gear!' - only non-ascended (mastery Lv < 11) pieces are listed.",
+          "Mithril appears in NO hero-gear panel (forge, enhance, reforge) and is absent from the backpack -> treated as unused in the current version.",
+          "Mastery Forging Lv15->Lv16 on a Legendary piece: 160 Essence Stones + 6 Mythic Gear; gear strength/stats 150% -> 160%.",
+          "Gear Details confirms the empowerment model exactly: +20 (Expedition) Infantry Attack +20.0%, +40 (Exploration) Hero Health Up +7.5%.",
+          "Wild Marks are per-rarity: Common 77, Advanced 6 (prior aggregate 219 was stale)."
+        ]
+      },
+      {
+        "at": "2026-07-27T04:49:15.003721+00:00",
+        "scope": "profile+skins",
+        "findings": [
+          "PROFILE CORRECTION: Chief Profile reads [B2D]Sorrow, Alliance B2D - the earlier 'BMO' reading was a low-resolution misread and has been reverted.",
+          "Power 706.4M, Kills 262.1M, Silver Medallion I, Leader, State 2476 (initial 2456).",
+          "Skins system captured with Bonus Details totals: Troops Atk +18%/300%, Def +61%/300%, Lth +14.5%/300%, HP +3%/300%, Hunting March +90%/500%, Gathering +5%.",
+          "Chief Profile gear overview: hat T2, watch T2, coat T3, pants T3, ring T3, cudgel T3, each showing 3 charm gems."
+        ]
       }
-    ]
+    ],
+    "pets_refinement_verified": {
+      "cave_lion": {
+        "level": 100,
+        "power": 3323640,
+        "cap_percent": 22.35,
+        "stats": {
+          "infantry_lethality": 15.29,
+          "infantry_health": 15.47,
+          "lancer_lethality": 14.85,
+          "lancer_health": 14.08,
+          "marksman_lethality": 14.33,
+          "marksman_health": 14.19
+        },
+        "source": "in-game read-only capture 2026-07-27 (player 383664139)"
+      }
+    }
   },
   "hero_gear_targets": {
     "heroes": {

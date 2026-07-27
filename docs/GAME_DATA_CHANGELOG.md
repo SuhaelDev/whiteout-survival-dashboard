@@ -13,3 +13,14 @@
 - INVENTORY PASS B completed with item-name popups. All differences vs pass A are live gains, not counting errors (charm guides 1,011->1,095; designs 723->857; design plans 476->614; polish 529->1,081; alloy 57,187->112,327; amber 17->18; essence 404->427; widgets 9,380->11,880; mythic general shards 265->310). Names confirmed: red-hex scroll = Charm Design; grey stone = Common Wild Mark (pet refinement, NOT mithril).
 - Mithril: absent from the backpack in both passes -> stays 0, flagged for a reforge-UI check.
 - common_wild_marks left at its prior 219 (aggregation unclear); verified Common tile stored separately as wild_marks_common_verified=77 with an open question.
+
+## 2026-07-27T04:52:06Z - wave22 gap closure (all read-only)
+- IDENTITY CORRECTION: Chief Profile at full resolution reads **[B2D]Sorrow, Alliance B2D**. The "BMO" recorded in wave19 was a low-resolution misread and has been reverted. Power 706.4M, Kills 262.1M, Silver Medallion I, Leader, State 2476 (initial 2456).
+- REFORGE RULES REPLACED WITH GAME TEXT: Enhancement Reforge returns 100% of Enhancement XP; Mastery Reforge returns 50% of Essence Stones and 100% of Mythic Gear; both tabs state "Cannot reforge ascended Legendary gear!". The previous "100% mithril returned" model was wrong - **mithril appears in no hero-gear panel in this version** and is now weighted 0 in the planner and documented as unused.
+- Reforge Bank rebuilt: Mythic Gear column replaces Mithril, only non-ascended pieces are counted, each row shows an N/M reforgeable tag with an ascended count.
+- Mastery Forging Lv15->Lv16 game-verified: 160 Essence Stones + 6 Mythic Gear (gear strength/stats 150% -> 160%). Mythic Gear balance is 0 - this is now the real blocker on Edith's next mastery step.
+- Gear Details independently confirmed the empowerment model: +20 (Expedition) Infantry Attack +20.0%, +40 (Exploration) Hero Health Up +7.5%.
+- Wild Marks resolved per rarity: Common 77, Advanced 6 (the prior 219 aggregate is gone). Cave Lion refinement captured (Lv100, 3,323,640 power, six stats vs the 22.35% cap).
+- NEW MODULE "Skins & Bonuses" (17th tab): game's permanent collection-bonus system, with Total Bonus captured - Troops Atk +18%/300%, Def +61%/300%, Lth +14.5%/300%, HP +3%/300%, Hunting March +90%/500%, Gathering +5%; owned city skins sampled; categories City/Marching/Avatar Frame/Nameplate. Renders an explicit "no capture yet" state for other players rather than inventing numbers.
+- ASSETS: Gareth's official portrait added (assets/game/expert-gareth.webp) plus five clearly-labelled placeholder skill icons (assets/game/experts/*.svg) - placeholders are visibly marked "placeholder", never passed off as official art.
+- Tests: tests/wave22-checks.js (16 assertions) added; wave19 (17) and hero-gear box states (27) still pass; all 17 tabs render.
