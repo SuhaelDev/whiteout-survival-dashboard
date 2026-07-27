@@ -22,8 +22,18 @@ check("level 11 is exactly four observed steps", c(11).observed_step_guides * 4 
 // "game_verified" was the flag when the level fields held a single step. The level cost is
 // now the whole level, confirmed by the observed step times four.
 check("charm 11 flagged game_verified_step_x4", c(11).verification_status === "game_verified_step_x4");
-check("charm 12 flagged as not reconciling", c(12).verification_status === "workbook_aggregate_step_mismatch");
-check("charm 13 flagged unverified", c(13).verification_status === "unverified_workbook_aggregate");
+// Levels 12 and up take five taps, not four - which is why four never reconciled here.
+check("charm 12 flagged game_verified_step_x5", c(12).verification_status === "game_verified_step_x5");
+check("five taps from level 12", c(12).steps_per_level === 5 && c(13).steps_per_level === 5 && c(16).steps_per_level === 5);
+check("four taps up to level 11", c(10).steps_per_level === 4 && c(11).steps_per_level === 4);
+check("level 12 is exactly five observed taps",
+  c(12).observed_step_guides * 5 === c(12).guides &&
+  c(12).observed_step_designs * 5 === c(12).designs &&
+  c(12).observed_step_secrets * 5 === c(12).secrets);
+// Levels past 12 are still workbook figures, but they now carry a tap count and each one
+// divides evenly by it, which is a weak confirmation the five-tap rule holds up there.
+check("charm 13 still a workbook figure", c(13).verification_status === "workbook_aggregate_divides_by_5");
+check("charm 13 divides by five taps", c(13).guides % 5 === 0 && c(13).designs % 5 === 0 && c(13).secrets % 5 === 0);
 check("workbook values preserved", c(11).workbook_guides === 560 && c(11).workbook_designs === 420);
 
 // Gareth

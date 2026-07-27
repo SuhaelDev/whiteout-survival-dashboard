@@ -22161,8 +22161,9 @@
       "workbook_guides": 5,
       "workbook_designs": 5,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_step_count_unconfirmed",
+      "source_note": "Workbook full-level figure. Does not divide evenly into 4 taps, so the tap structure at this level is unconfirmed.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 2,
@@ -22176,8 +22177,9 @@
       "workbook_guides": 40,
       "workbook_designs": 15,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_step_count_unconfirmed",
+      "source_note": "Workbook full-level figure. Does not divide evenly into 4 taps, so the tap structure at this level is unconfirmed.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 3,
@@ -22191,8 +22193,9 @@
       "workbook_guides": 60,
       "workbook_designs": 40,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 4,
@@ -22206,8 +22209,9 @@
       "workbook_guides": 80,
       "workbook_designs": 100,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 5,
@@ -22221,8 +22225,9 @@
       "workbook_guides": 100,
       "workbook_designs": 200,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 6,
@@ -22236,8 +22241,9 @@
       "workbook_guides": 120,
       "workbook_designs": 300,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 7,
@@ -22251,8 +22257,9 @@
       "workbook_guides": 140,
       "workbook_designs": 400,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 8,
@@ -22266,8 +22273,9 @@
       "workbook_guides": 200,
       "workbook_designs": 400,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 9,
@@ -22281,8 +22289,9 @@
       "workbook_guides": 300,
       "workbook_designs": 400,
       "workbook_secrets": 0,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_4",
+      "source_note": "Workbook full-level figure. Divides evenly into 4 taps, consistent with the levels read in game.",
+      "steps_per_level": 4
     },
     {
       "charm_level": 10,
@@ -22297,7 +22306,7 @@
       "workbook_designs": 420,
       "workbook_secrets": 0,
       "verification_status": "game_verified_step_x4",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (105 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
+      "source_note": "A charm level takes 4 upgrade taps at this level and the in-game panel quotes only the next tap (105 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
       "observed_step_guides": 105,
       "observed_step_designs": 105,
       "observed_step_secrets": 0,
@@ -22316,7 +22325,7 @@
       "workbook_designs": 420,
       "workbook_secrets": 0,
       "verification_status": "game_verified_step_x4",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (140 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
+      "source_note": "A charm level takes 4 upgrade taps at this level and the in-game panel quotes only the next tap (140 guides / 105 designs / 0 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
       "observed_step_guides": 140,
       "observed_step_designs": 105,
       "observed_step_secrets": 0,
@@ -22334,12 +22343,12 @@
       "workbook_guides": 580,
       "workbook_designs": 450,
       "workbook_secrets": 15,
-      "verification_status": "workbook_aggregate_step_mismatch",
-      "source_note": "A charm level takes 4 upgrade steps and the in-game panel quotes only the next step (116 guides / 90 designs / 3 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level. Four of the observed steps do not add up to the workbook total for this level, so one of the two is wrong - see Still to confirm.",
+      "verification_status": "game_verified_step_x5",
+      "source_note": "A charm level takes 5 upgrade taps at this level and the in-game panel quotes only the next tap (116 guides / 90 designs / 3 secrets, read 2026-07-27 from player 383664139 [B2D]Sorrow, state 2476). The figures above are the whole level.",
       "observed_step_guides": 116,
       "observed_step_designs": 90,
       "observed_step_secrets": 3,
-      "steps_per_level": 4
+      "steps_per_level": 5
     },
     {
       "charm_level": 13,
@@ -22353,8 +22362,9 @@
       "workbook_guides": 580,
       "workbook_designs": 450,
       "workbook_secrets": 30,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_5",
+      "source_note": "Workbook full-level figure. Divides evenly into 5 taps, consistent with the levels read in game.",
+      "steps_per_level": 5
     },
     {
       "charm_level": 14,
@@ -22368,8 +22378,9 @@
       "workbook_guides": 600,
       "workbook_designs": 500,
       "workbook_secrets": 45,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_5",
+      "source_note": "Workbook full-level figure. Divides evenly into 5 taps, consistent with the levels read in game.",
+      "steps_per_level": 5
     },
     {
       "charm_level": 15,
@@ -22383,8 +22394,9 @@
       "workbook_guides": 600,
       "workbook_designs": 500,
       "workbook_secrets": 70,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_5",
+      "source_note": "Workbook full-level figure. Divides evenly into 5 taps, consistent with the levels read in game.",
+      "steps_per_level": 5
     },
     {
       "charm_level": 16,
@@ -22398,8 +22410,9 @@
       "workbook_guides": 650,
       "workbook_designs": 550,
       "workbook_secrets": 100,
-      "verification_status": "unverified_workbook_aggregate",
-      "source_note": "workbook value inconsistent with game (observed 4x at L10-11, 5x at L12); do not trust until game-verified"
+      "verification_status": "workbook_aggregate_divides_by_5",
+      "source_note": "Workbook full-level figure. Divides evenly into 5 taps, consistent with the levels read in game.",
+      "steps_per_level": 5
     }
   ],
   "chief_charm_stat_levels": [
@@ -87460,12 +87473,6 @@
   "gaps": [
     {
       "Priority": "Medium",
-      "Gap / validation item": "Charm level 12 cost",
-      "Why it matters": "A charm level is four upgrade steps. For levels 10 and 11 four steps match the workbook total exactly, but for level 12 the observed step (116 guides / 90 designs / 3 secrets) times four is 464 / 360 / 12 while the workbook says 580 / 450 / 15, so one of the two is wrong.",
-      "Research / extraction approach": "Watch a level 11 charm through all four steps and record each step's cost."
-    },
-    {
-      "Priority": "Medium",
       "Gap / validation item": "Exact Meat / Wood / Coal / Iron / Steel balances",
       "Why it matters": "The game only ever shows these to one decimal (1.0B, 178.2M, 2.8M), so all five are stored to that precision and can be a few hundred thousand out.",
       "Research / extraction approach": "Open any building upgrade panel, which prints the exact owned amount next to each cost."
@@ -87523,6 +87530,12 @@
       "Gap / validation item": "Community data licensing/source provenance",
       "Why it matters": "Workbook appears based on Zerethusta community calculator; need provenance before publishing copied tables.",
       "Research / extraction approach": "Track source_url, source_author, retrieved_at, confidence, and permission/attribution per imported table."
+    },
+    {
+      "Priority": "Low",
+      "Gap / validation item": "Charm tap count at levels 1, 2",
+      "Why it matters": "Levels 1-11 take four upgrade taps and 12 and up take five, confirmed against levels 10, 11 and 12. Levels 1, 2 do not divide evenly by four, so the very first levels may work differently. Only affects a brand-new charm.",
+      "Research / extraction approach": "Watch a level 1 charm through to level 3 and count the taps."
     }
   ],
   "state_schema": [

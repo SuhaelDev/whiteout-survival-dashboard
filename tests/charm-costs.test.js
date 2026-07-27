@@ -32,7 +32,18 @@ function charmCost(current, target) {
 // A charm level is FOUR upgrade steps. The in-game panel quotes only the next step, and
 // mistaking that for the level cost is what made every charm plan a quarter of its real
 // size. Levels 10 and 11 confirm the x4 rule exactly against the workbook aggregate.
-check("four steps per level", byLevel.get(10).steps_per_level, 4);
+check("four taps per level up to 11", byLevel.get(10).steps_per_level, 4);
+check("five taps per level from 12", byLevel.get(12).steps_per_level, 5);
+check("level 12 costs 580 guides", byLevel.get(12).guides, 580);
+check("level 12 costs 450 designs", byLevel.get(12).designs, 450);
+check("level 12 costs 15 secrets", byLevel.get(12).secrets, 15);
+check("level 12 is five taps", byLevel.get(12).observed_step_guides * 5, byLevel.get(12).guides);
+// Every full-level figure must divide evenly by its own tap count, or the pair disagree
+[...byLevel.values()].filter((r) => r.charm_level >= 3).forEach((r) => {
+  const n = r.steps_per_level;
+  const clean = r.guides % n === 0 && r.designs % n === 0 && r.secrets % n === 0;
+  check(`level ${r.charm_level} divides by ${n} taps`, clean, true);
+});
 check("level 10 step is 105 guides", byLevel.get(10).observed_step_guides, 105);
 check("level 11 step is 140 guides", byLevel.get(11).observed_step_guides, 140);
 check("level 10 costs 420 guides", byLevel.get(10).guides, 420);
