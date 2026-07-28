@@ -418,7 +418,12 @@ function stateFromSaved(savedState) {
   let merged = mergeDeep(baseline, savedState);
   const ownerState = stateIsOwnerState(savedState);
   if (ownerState) merged.owner_profile = true;
-  if (extractedState && ownerState) merged.extracted_current = extractedState;
+  // Clone, do not alias. applyHeroGearCurrentOverrides writes the entered level and "+"
+  // into extracted_current, so handing over the module-level extract let those edits bake
+  // into the pristine game read - and once baked in, correcting or clearing an override no
+  // longer had any effect, because the value it was supposed to override had itself been
+  // overwritten. A fresh copy each load keeps overrides reversible.
+  if (extractedState && ownerState) merged.extracted_current = clone(extractedState);
   // Re-apply the bundled game extract on top of saved/cloud state whenever the
   // extract is newer than the last one this state absorbed. Keeps deployed
   // captures (backpack counts, pet refinement, notes) flowing into live DBs.
@@ -1307,7 +1312,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728g";
+const ASSET_CACHE_VERSION = "20260728h";
 
 function assetUrl(src) {
   if (!src) return src;
