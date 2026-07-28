@@ -6149,21 +6149,11 @@ select option {
   display: block;
 }
 
-/* Mastery 11 and up. The game turns the frame crimson, so paint over the tile's
-   own warm frame and leave the gear underneath alone. */
-.hg-tile--ascended::before {
-  content: "";
-  position: absolute;
-  inset: 4.5%;
-  border-radius: 15%;
-  border: calc(var(--hg-size) * 0.055) solid #c8382f;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 0 calc(var(--hg-size) * 0.14) rgba(200, 56, 47, 0.5);
-  pointer-events: none;
-  z-index: 2;
-}
+/* Mastery 11 and up used to get a crimson ring painted over the tile's own frame, to
+   echo what the game does on ascension. Sitting inside the warm frame it read as a
+   harsh double border, so it is gone. The mastery number already says it: 11 or above
+   means the piece is ascended. The .hg-tile--ascended class stays on the element as a
+   hook if a subtler treatment is ever wanted. */
 
 /* Enhancement, top right, in the game's colour bands. */
 .hg-tile__step {
