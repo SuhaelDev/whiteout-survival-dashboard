@@ -6168,16 +6168,16 @@ select option {
 /* Enhancement, top right, in the game's colour bands. */
 .hg-tile__step {
   position: absolute;
-  top: 2%;
-  right: 2%;
+  top: 3.5%;
+  right: 3.5%;
   z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: 0.15em;
-  padding: 0.1em 0.42em;
+  padding: 0.08em 0.34em;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.5);
-  font-size: calc(var(--hg-size) * 0.215);
+  font-size: calc(var(--hg-size) * 0.145);
   font-weight: 800;
   line-height: 1.35;
   color: #fff;
@@ -6195,19 +6195,19 @@ select option {
 .hg-tile__up {
   width: 0;
   height: 0;
-  border-left: calc(var(--hg-size) * 0.055) solid transparent;
-  border-right: calc(var(--hg-size) * 0.055) solid transparent;
-  border-bottom: calc(var(--hg-size) * 0.095) solid #4ade80;
+  border-left: calc(var(--hg-size) * 0.04) solid transparent;
+  border-right: calc(var(--hg-size) * 0.04) solid transparent;
+  border-bottom: calc(var(--hg-size) * 0.07) solid #4ade80;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
 }
 
 /* Mastery level, bottom right, over the spot the stack count used to sit. */
 .hg-tile__mastery {
   position: absolute;
-  right: 6%;
-  bottom: 3%;
+  right: 5%;
+  bottom: 3.5%;
   z-index: 3;
-  font-size: calc(var(--hg-size) * 0.2);
+  font-size: calc(var(--hg-size) * 0.14);
   font-weight: 800;
   color: #d7ee55;
   letter-spacing: 0.01em;
@@ -6229,14 +6229,14 @@ select option {
 
 /* Containers that used to hold a 34-48px square icon need to make room for a tile. */
 .hero-gear-slot-node__icon {
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   padding: 0;
   background: none;
   border: 0;
 }
 
-.hero-gear-slot-node__icon .hg-tile { --hg-size: 96px; }
+.hero-gear-slot-node__icon .hg-tile { --hg-size: 112px; }
 
 .hero-primary-piece__head { grid-template-columns: 64px minmax(0, 1fr); }
 

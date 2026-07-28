@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728b";
+const ASSET_CACHE_VERSION = "20260728c";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -7307,7 +7307,7 @@ function renderHeroGear() {
       return `<div class="hero-gear-slot-node border-${chiefGearRarityBorderClass(piece.rarity || 'epic')}">
         <div class="hero-gear-slot-node__head">
           <div class="hero-gear-slot-node__icon">
-            ${heroGearTileHtml(heroId, position, slot, piece, { size: 96, targets: pieceTargets, gearSet })}
+            ${heroGearTileHtml(heroId, position, slot, piece, { size: 112, targets: pieceTargets, gearSet })}
           </div>
           <div class="hero-gear-slot-node__title">
             <strong>${esc(label)}</strong>
