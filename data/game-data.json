@@ -99123,7 +99123,16 @@
           "value_percent": 50.0
         }
       ]
-    }
+    },
+    "mastery_requirements": {
+      "20": 11,
+      "40": 12,
+      "60": 13,
+      "80": 14,
+      "100": 15
+    },
+    "mastery_rule": "Each empowerment milestone needs its own Mastery Forging level. Between milestones a piece can be enhanced freely, so the ceiling at a given mastery is one below the next milestone it cannot cross: Lv 11 reaches +39, Lv 12 +59, Lv 13 +79, Lv 14 +99, Lv 15 and above +100.",
+    "mastery_rule_source": "User-supplied, cross-checked against all 20 equipped pieces on player 383664139: none exceeds its cap and Gordon's goggles sit at exactly Lv 12 / +59, the Lv 12 ceiling."
   },
   "gareth_special_research": {
     "unlock": "Affinity 100 (Intimate)",

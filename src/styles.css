@@ -6302,3 +6302,20 @@ select option {
   color: #5f7ba1;
   letter-spacing: 0.01em;
 }
+
+/* An empowerment milestone the piece has not got the mastery level for. Distinct from
+   simply un-targeted: it cannot be reached at all until the gear is forged higher. */
+.empowerment-list .is-mastery-locked {
+  opacity: 0.62;
+  border-left: 2px solid rgba(214, 143, 60, 0.75);
+  padding-left: 6px;
+}
+
+.empower-needs {
+  margin-left: 6px;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #c07a28;
+  white-space: nowrap;
+}

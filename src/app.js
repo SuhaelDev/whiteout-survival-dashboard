@@ -134,6 +134,13 @@ const HERO_GEAR_INVESTMENT_FIELDS = ["essence_stones", "hero_gear_xp", "mythic_g
 const HERO_GEAR_MAX_ENHANCEMENT = 100;
 const HERO_GEAR_MAX_EMPOWERMENT = 100;
 const HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL = 11;
+// Each empowerment milestone needs its own Mastery Forging level, not just Lv 11 for all
+// of them: +20 needs ML 11, +40 ML 12, +60 ML 13, +80 ML 14, +100 ML 15. So the practical
+// ceiling between milestones is one below the next one you cannot yet cross - ML 12 caps a
+// piece at +59. Gordon's goggles sit at exactly ML 12 / +59, which is where this was
+// confirmed against the account.
+const HERO_GEAR_EMPOWERMENT_MASTERY_REQUIREMENTS = { 20: 11, 40: 12, 60: 13, 80: 14, 100: 15 };
+const HERO_GEAR_EMPOWERMENT_FULL_MASTERY_LEVEL = 15;
 const HERO_GEAR_EMPOWERMENT_SOURCE_OFFSET = 100;
 const HERO_GEAR_NORMAL_ENHANCEMENT_XP_OVERRIDES = {};
 const HERO_GEAR_DEFAULT_EMPOWERMENT_BREAKPOINTS = [
@@ -1341,7 +1348,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728k";
+const ASSET_CACHE_VERSION = "20260729a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -4737,6 +4744,26 @@ function heroGearCanEmpowerAtLevel(level) {
   return Number(level || 0) >= HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
 }
 
+// Mastery level needed to cross a given empowerment milestone.
+function heroGearEmpowermentMasteryRequirement(step) {
+  const milestone = Number(step || 0);
+  const exact = HERO_GEAR_EMPOWERMENT_MASTERY_REQUIREMENTS[milestone];
+  if (exact) return exact;
+  if (milestone <= 0) return 0;
+  // Between milestones you only need the level for the last one you passed.
+  const passed = Math.floor((milestone - 1) / 20) * 20;
+  return HERO_GEAR_EMPOWERMENT_MASTERY_REQUIREMENTS[passed] || HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
+}
+
+// Highest "+" a piece can reach at a given mastery level.
+function heroGearEmpowermentCapForMastery(level) {
+  const mastery = Number(level || 0);
+  if (mastery < HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL) return 0;
+  if (mastery >= HERO_GEAR_EMPOWERMENT_FULL_MASTERY_LEVEL) return HERO_GEAR_MAX_EMPOWERMENT;
+  // One short of the next milestone this mastery level cannot cross.
+  return (mastery - HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL) * 20 + 39;
+}
+
 function clampHeroGearEnhancement(value) {
   const number = Number(value || 0);
   if (!Number.isFinite(number)) return 0;
@@ -4771,7 +4798,9 @@ function heroGearLockedObservedEnhancement(piece = {}) {
 function heroGearTargetEmpowerment(piece = {}, rawTarget, targetLevel) {
   const value = Number(rawTarget ?? heroGearCurrentEnhancement(piece));
   const clamped = Number.isFinite(value) ? Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, value)) : 0;
-  return heroGearCanEmpowerAtLevel(targetLevel) ? clamped : 0;
+  if (!heroGearCanEmpowerAtLevel(targetLevel)) return 0;
+  // You cannot plan past the milestone your target mastery cannot cross.
+  return Math.min(clamped, heroGearEmpowermentCapForMastery(targetLevel));
 }
 
 function heroGearTargetsFor(heroId) {
@@ -5183,29 +5212,34 @@ function heroGearPieceImpactCompactHtml(heroId, slot, piece = {}) {
     .join("")}</div>`;
 }
 
-function heroGearEmpowermentRowState(enhancement, currentEmpowerment, targetEmpowerment) {
+function heroGearEmpowermentRowState(enhancement, currentEmpowerment, targetEmpowerment, targetMastery = null) {
   const enh = Number(enhancement);
   const cur = Number(currentEmpowerment || 0);
   const tgt = Number(targetEmpowerment ?? cur);
   if (!Number.isFinite(enh) || enh <= 0 || !Number.isFinite(cur) || !Number.isFinite(tgt)) return "invalid";
   if (tgt < cur) return "invalid";
   if (enh <= cur) return "unlocked";
+  // A milestone you have not got the mastery for is not merely un-targeted, it is
+  // unreachable until the piece is forged higher - worth saying so distinctly.
+  if (targetMastery != null && Number.isFinite(Number(targetMastery))
+      && Number(targetMastery) < heroGearEmpowermentMasteryRequirement(enh)) return "mastery-locked";
   if (enh <= tgt) return "targeted";
   return "locked";
 }
 
-const HERO_GEAR_ROW_STATE_CLASS = { unlocked: "is-unlocked", targeted: "is-targeted", locked: "", invalid: "is-invalid" };
+const HERO_GEAR_ROW_STATE_CLASS = { unlocked: "is-unlocked", targeted: "is-targeted", locked: "", "mastery-locked": "is-mastery-locked", invalid: "is-invalid" };
 
-function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null, slot = "") {
+function heroGearEmpowermentHtml(piece = {}, hero = {}, targetEnhancement = null, slot = "", targetMastery = null) {
   const rows = heroGearEmpowermentStats(piece, hero, slot);
   if (!rows.length) return "";
   const currentEnhancement = heroGearCurrentEmpowerment(piece);
   const target = Math.min(HERO_GEAR_MAX_EMPOWERMENT, Math.max(0, Number(targetEnhancement ?? currentEnhancement)));
   return `<div class="empowerment-list">${rows
     .map((row) => {
-      const rowState = heroGearEmpowermentRowState(row.enhancement, currentEnhancement, target);
+      const rowState = heroGearEmpowermentRowState(row.enhancement, currentEnhancement, target, targetMastery);
+      const needs = heroGearEmpowermentMasteryRequirement(row.enhancement);
       return `<div class="${HERO_GEAR_ROW_STATE_CLASS[rowState] || ""}" data-row-state="${rowState}">
-        <span>+${esc(row.enhancement)} ${esc(row.mode || "")}</span>
+        <span>+${esc(row.enhancement)} ${esc(row.mode || "")}${rowState === "mastery-locked" ? `<em class="empower-needs">needs Lv ${esc(needs)}</em>` : ""}</span>
         <strong>${esc(row.stat || "Stat")} ${percentFmt(row.value_percent)}</strong>
       </div>`;
     })
@@ -7436,9 +7470,15 @@ function renderHeroGear() {
           ${(() => {
             const effTargetLevel = Number(pieceTargets.targetLevel ?? piece.level ?? 0);
             const gatedTarget = heroGearTargetEmpowerment(piece, pieceTargets.targetEnhancement, effTargetLevel);
-            const gateMet = Math.max(Number(piece.level || 0), effTargetLevel) >= HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
-            const note = gateMet ? "" : `<p class="empowerment-gate-note">Empowerment stats locked until gear Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL} - raise Target Lv to unlock these bonuses</p>`;
-            return note + heroGearEmpowermentHtml(piece, hero, gatedTarget, slot);
+            const effMastery = Math.max(Number(piece.level || 0), effTargetLevel);
+            const gateMet = effMastery >= HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL;
+            const cap = heroGearEmpowermentCapForMastery(effMastery);
+            const note = !gateMet
+              ? `<p class="empowerment-gate-note">Empowerment starts at gear Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL} - raise Target Lv to unlock these bonuses</p>`
+              : cap < HERO_GEAR_MAX_EMPOWERMENT
+                ? `<p class="empowerment-gate-note">Lv ${esc(effMastery)} reaches +${esc(cap)}. Crossing +${esc(cap + 1)} needs gear Lv ${esc(heroGearEmpowermentMasteryRequirement(cap + 1))}.</p>`
+                : "";
+            return note + heroGearEmpowermentHtml(piece, hero, gatedTarget, slot, effMastery);
           })()}
           ${heroGearPieceImpactCompactHtml(heroId, slot, piece)}
         </div>
