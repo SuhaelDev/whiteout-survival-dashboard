@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260727e";
+const ASSET_CACHE_VERSION = "20260728a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5181,6 +5181,60 @@ function heroGearProjectedStatCards(gearEntries) {
   return aggregateStatCards(projected, "Projected from captured mastery and empowerment breakpoints");
 }
 
+// ---------------------------------------------------------------------------
+// Hero gear tiles
+//
+// One tile, three live values, drawn to match what the game shows you:
+//   top-left     troop type, baked into the artwork (each troop has its own gear art)
+//   top-right    enhancement, coloured in the game's bands
+//   bottom-right mastery level
+// The artwork is the real in-game tile, so the frame and gear are authentic. For an
+// ascended piece (mastery 11+) a crimson ring is painted over the tile's own warm frame,
+// which is the change the game makes, without touching the gear itself.
+// ---------------------------------------------------------------------------
+const HERO_GEAR_ART_SLOT_BY_POSITION = {
+  "top-left": "goggles",
+  "top-right": "gauntlet",
+  "bottom-left": "belt",
+  "bottom-right": "boots",
+};
+
+// Read off the in-game grid: red at +100, orange from +80, purple from +60, blue below.
+function heroGearEnhancementBand(value) {
+  const step = Number(value || 0);
+  if (step >= 100) return "max";
+  if (step >= 80) return "high";
+  if (step >= 60) return "mid";
+  return "low";
+}
+
+function heroGearArtSlot(slot, position) {
+  const pos = position || HERO_GEAR_SLOT_POSITIONS[slot] || "";
+  return HERO_GEAR_ART_SLOT_BY_POSITION[pos] || HERO_GEAR_ART_SLOT_BY_POSITION[HERO_GEAR_SLOT_POSITIONS[slot]] || "goggles";
+}
+
+function heroGearTileHtml(heroId, position, slot, piece = {}, options = {}) {
+  const troopKey = normalizedTroopKey(options.troopKey || heroGearTroopKey(heroId, options.gearSet || {}));
+  const troop = HERO_GEAR_TROOP_ORDER.includes(troopKey) ? troopKey : "infantry";
+  const artSlot = heroGearArtSlot(slot, position);
+  const level = Number(piece.level || 0);
+  const enhancement = heroGearCurrentEnhancement(piece);
+  const ascended = heroGearCanEmpowerAtLevel(level);
+  const size = Number(options.size || 76);
+  const targets = options.targets;
+  const pendingLevel = targets ? Number(targets.targetLevel || 0) > level : false;
+  const pendingStep = targets ? Number(targets.targetEnhancement || 0) > enhancement : false;
+  const pending = pendingLevel || pendingStep;
+  const troopLabel = titleFromId(troop);
+  const slotLabel = HERO_GEAR_SLOT_LABELS[artSlot] || titleFromId(artSlot);
+  const alt = `${troopLabel} ${slotLabel}${level ? `, mastery ${level}` : ""}${enhancement ? `, +${enhancement}` : ""}`;
+  return `<figure class="hg-tile${ascended ? " hg-tile--ascended" : ""}${pending ? " hg-tile--pending" : ""}" style="--hg-size:${size}px" title="${esc(alt)}">
+    <img class="hg-tile__art" src="${esc(assetUrl(`assets/game/hero-gear/${troop}-${artSlot}.png`))}" alt="${esc(alt)}" loading="lazy" />
+    ${enhancement > 0 ? `<span class="hg-tile__step hg-tile__step--${heroGearEnhancementBand(enhancement)}">+${fmt(enhancement)}${pending ? `<i class="hg-tile__up" aria-hidden="true"></i>` : ""}</span>` : ""}
+    ${level > 0 ? `<span class="hg-tile__mastery">Lv.${esc(level)}</span>` : ""}
+  </figure>`;
+}
+
 function heroGearTroopKey(heroId, gearSet = {}) {
   const hero = heroRecordFor(heroId);
   return normalizedTroopKey(gearSet.troop_type || hero.troop_type);
@@ -5357,7 +5411,7 @@ function heroGearSlotCardHtml(heroId, position, entry) {
   const targetEmpowerment = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targets.targetLevel);
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
   return `<div class="equipped-slot equipped-slot--${position}">
-    <div class="equipped-slot__icon">${iconHtml("gear", label, "md", sourceScope)}</div>
+    <div class="equipped-slot__icon">${heroGearTileHtml(heroId, position, slot, piece, { size: 84, targets })}</div>
     <div class="equipped-slot__copy">
       <span>${esc(HERO_GEAR_POSITION_LABELS[position] || titleFromId(position))}</span>
       <strong>${esc(label)}</strong>
@@ -5397,7 +5451,7 @@ function heroGearMiniSlotHtml(heroId, position, entry) {
   const enhancement = piece.enhancement != null || piece.visible_enhancement != null ? `+${heroGearCurrentEnhancement(piece)}` : "";
   const lockedObserved = heroGearLockedObservedEnhancement(piece);
   return `<div class="hero-gear-mini-slot">
-    ${iconHtml("gear", label, "md", sourceScope)}
+    ${heroGearTileHtml(heroId, position, slot, piece, { size: 56 })}
     <span>${esc(positionLabel)}</span>
     <strong>${esc(level)}${enhancement ? ` <em>${esc(enhancement)}</em>` : ""}${lockedObserved ? ` <em>stats locked</em>` : ""}</strong>
   </div>`;
@@ -5425,7 +5479,7 @@ function heroGearPrimaryPieceHtml(heroId, position, entry) {
   const primaryChange = heroGearPieceProjectedChanges(heroId, slot, piece).find((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
   return `<div class="hero-primary-piece">
     <div class="hero-primary-piece__head">
-      ${iconHtml("gear", label, "md", `equipped ${heroId} ${position}`)}
+      ${heroGearTileHtml(heroId, position, slot, piece, { size: 64, targets })}
       <div><span>${esc(positionLabel)}</span><strong>${esc(label)}</strong></div>
     </div>
     <div class="hero-primary-route">
@@ -7253,7 +7307,7 @@ function renderHeroGear() {
       return `<div class="hero-gear-slot-node border-${chiefGearRarityBorderClass(piece.rarity || 'epic')}">
         <div class="hero-gear-slot-node__head">
           <div class="hero-gear-slot-node__icon">
-            ${iconHtml("gear", label, "lg", `equipped ${heroId} ${position}`)}
+            ${heroGearTileHtml(heroId, position, slot, piece, { size: 96, targets: pieceTargets, gearSet })}
           </div>
           <div class="hero-gear-slot-node__title">
             <strong>${esc(label)}</strong>

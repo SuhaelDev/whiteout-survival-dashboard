@@ -6120,3 +6120,126 @@ select option {
   font-size: 12px;
   opacity: 0.75;
 }
+
+/* ---------------------------------------------------------------------------
+   Hero gear tiles
+
+   The artwork is the real in-game tile (frame, gear and troop badge all baked
+   in, one set per troop type), and the two numbers that move are drawn over it.
+   Everything scales off --hg-size so the same tile works at 56px in a list and
+   96px in the editor.
+   --------------------------------------------------------------------------- */
+.hg-tile {
+  --hg-size: 76px;
+  position: relative;
+  width: var(--hg-size);
+  height: var(--hg-size);
+  margin: 0;
+  flex: 0 0 auto;
+  line-height: 0;
+  border-radius: 18%;
+  isolation: isolate;
+}
+
+.hg-tile__art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+  display: block;
+}
+
+/* Mastery 11 and up. The game turns the frame crimson, so paint over the tile's
+   own warm frame and leave the gear underneath alone. */
+.hg-tile--ascended::before {
+  content: "";
+  position: absolute;
+  inset: 4.5%;
+  border-radius: 15%;
+  border: calc(var(--hg-size) * 0.055) solid #c8382f;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 0 calc(var(--hg-size) * 0.14) rgba(200, 56, 47, 0.5);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Enhancement, top right, in the game's colour bands. */
+.hg-tile__step {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  padding: 0.1em 0.42em;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  font-size: calc(var(--hg-size) * 0.215);
+  font-weight: 800;
+  line-height: 1.35;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.hg-tile__step--max { background: linear-gradient(180deg, #e8544c, #b8271f); }
+.hg-tile__step--high { background: linear-gradient(180deg, #f0a03a, #cf7412); }
+.hg-tile__step--mid { background: linear-gradient(180deg, #a274f5, #7038d4); }
+.hg-tile__step--low { background: linear-gradient(180deg, #56a6f5, #1f6fd0); }
+
+/* Green pip when the piece is below its target, same cue the game uses. */
+.hg-tile__up {
+  width: 0;
+  height: 0;
+  border-left: calc(var(--hg-size) * 0.055) solid transparent;
+  border-right: calc(var(--hg-size) * 0.055) solid transparent;
+  border-bottom: calc(var(--hg-size) * 0.095) solid #4ade80;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+/* Mastery level, bottom right, over the spot the stack count used to sit. */
+.hg-tile__mastery {
+  position: absolute;
+  right: 6%;
+  bottom: 3%;
+  z-index: 3;
+  font-size: calc(var(--hg-size) * 0.2);
+  font-weight: 800;
+  color: #d7ee55;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.9),
+    1px 1px 0 rgba(0, 0, 0, 0.85),
+    -1px 1px 0 rgba(0, 0, 0, 0.85);
+}
+
+.hg-tile--pending .hg-tile__art { filter: saturate(1.06); }
+
+.hero-gear-mini-slot .hg-tile,
+.hero-primary-piece__head .hg-tile,
+.equipped-slot__icon .hg-tile,
+.hero-gear-slot-node__icon .hg-tile {
+  margin: 0 auto;
+}
+
+/* Containers that used to hold a 34-48px square icon need to make room for a tile. */
+.hero-gear-slot-node__icon {
+  width: 96px;
+  height: 96px;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.hero-gear-slot-node__icon .hg-tile { --hg-size: 96px; }
+
+.hero-primary-piece__head { grid-template-columns: 64px minmax(0, 1fr); }
+
+.equipped-slot__icon .hg-tile { --hg-size: 84px; }
+
+.hero-gear-mini-slot .hg-tile { --hg-size: 56px; }
