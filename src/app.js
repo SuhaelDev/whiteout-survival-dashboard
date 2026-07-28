@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728f";
+const ASSET_CACHE_VERSION = "20260728g";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5199,13 +5199,21 @@ const HERO_GEAR_ART_SLOT_BY_POSITION = {
   "bottom-right": "boots",
 };
 
-// Read off the in-game grid: red at +100, orange from +80, purple from +60, blue below.
+// Empowerment bands. Sampled straight out of the in-game grid: +100 is red (239,56,57),
+// +80-99 orange (231,114,41), +60-79 purple (140,69,214), +40-59 blue (77,130,206). The two
+// lowest bands follow the same rarity ramp - grey to +19, green from +20 - which is where
+// the first empowerment breakpoint sits.
+//
+// These belong to the empowerment track only. A piece below mastery 11 is still on the
+// regular enhancement track, and shows its level plainly with no coloured box at all.
 function heroGearEnhancementBand(value) {
   const step = Number(value || 0);
   if (step >= 100) return "max";
   if (step >= 80) return "high";
   if (step >= 60) return "mid";
-  return "low";
+  if (step >= 40) return "low";
+  if (step >= 20) return "early";
+  return "base";
 }
 
 function heroGearArtSlot(slot, position) {
@@ -5230,7 +5238,13 @@ function heroGearTileHtml(heroId, position, slot, piece = {}, options = {}) {
   const alt = `${troopLabel} ${slotLabel}${level ? `, mastery ${level}` : ""}${enhancement ? `, +${enhancement}` : ""}`;
   return `<figure class="hg-tile${ascended ? " hg-tile--ascended" : ""}${pending ? " hg-tile--pending" : ""}" style="--hg-size:${size}px" title="${esc(alt)}">
     <img class="hg-tile__art" src="${esc(assetUrl(`assets/game/hero-gear/${troop}-${artSlot}.png`))}" alt="${esc(alt)}" />
-    ${enhancement > 0 ? `<span class="hg-tile__step hg-tile__step--${heroGearEnhancementBand(enhancement)}">+${fmt(enhancement)}${pending ? `<i class="hg-tile__up" aria-hidden="true"></i>` : ""}</span>` : ""}
+    ${enhancement > 0
+      ? ascended
+        // Ascended: the empowerment track, in a pill coloured by band.
+        ? `<span class="hg-tile__step hg-tile__step--${heroGearEnhancementBand(enhancement)}">+${fmt(enhancement)}${pending ? `<i class="hg-tile__up" aria-hidden="true"></i>` : ""}</span>`
+        // Below mastery 11: the regular enhancement track. Plain level, no plus, no box.
+        : `<span class="hg-tile__step hg-tile__step--plain">${fmt(enhancement)}${pending ? `<i class="hg-tile__up" aria-hidden="true"></i>` : ""}</span>`
+      : ""}
     ${level > 0 ? `<span class="hg-tile__mastery">Lv.${esc(level)}</span>` : ""}
   </figure>`;
 }

@@ -6180,10 +6180,31 @@ select option {
   white-space: nowrap;
 }
 
-.hg-tile__step--max { background: linear-gradient(180deg, #e8544c, #b8271f); }
-.hg-tile__step--high { background: linear-gradient(180deg, #f0a03a, #cf7412); }
+/* Band colours sampled from the in-game grid. Six bands on the rarity ramp, one per
+   empowerment breakpoint: grey below +20, then green, blue, purple, orange, red at +100. */
+.hg-tile__step--base { background: linear-gradient(180deg, #9aa7b4, #6b7683); }
+.hg-tile__step--early { background: linear-gradient(180deg, #66c157, #3d8c33); }
+.hg-tile__step--low { background: linear-gradient(180deg, #6e9fe0, #3f6cb8); }
 .hg-tile__step--mid { background: linear-gradient(180deg, #a274f5, #7038d4); }
-.hg-tile__step--low { background: linear-gradient(180deg, #56a6f5, #1f6fd0); }
+.hg-tile__step--high { background: linear-gradient(180deg, #eb8b3f, #c65f16); }
+.hg-tile__step--max { background: linear-gradient(180deg, #f0575a, #c22a2c); }
+
+/* Below mastery 11 the piece is on the regular enhancement track, not empowerment, so it
+   carries no band colour: the level reads plainly over the tile with no box behind it. */
+.hg-tile__step--plain {
+  background: none;
+  border: 0;
+  padding: 0.02em 0.1em;
+  font-size: calc(var(--hg-size) * 0.185);
+  color: #fff;
+  text-shadow:
+    0 0 3px rgba(0, 0, 0, 0.95),
+    1px 1px 0 rgba(0, 0, 0, 0.9),
+    -1px 1px 0 rgba(0, 0, 0, 0.9),
+    1px -1px 0 rgba(0, 0, 0, 0.9),
+    -1px -1px 0 rgba(0, 0, 0, 0.9);
+  box-shadow: none;
+}
 
 /* Green pip when the piece is below its target, same cue the game uses. */
 .hg-tile__up {
