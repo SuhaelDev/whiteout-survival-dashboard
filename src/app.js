@@ -1307,7 +1307,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728a";
+const ASSET_CACHE_VERSION = "20260728b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -5229,7 +5229,7 @@ function heroGearTileHtml(heroId, position, slot, piece = {}, options = {}) {
   const slotLabel = HERO_GEAR_SLOT_LABELS[artSlot] || titleFromId(artSlot);
   const alt = `${troopLabel} ${slotLabel}${level ? `, mastery ${level}` : ""}${enhancement ? `, +${enhancement}` : ""}`;
   return `<figure class="hg-tile${ascended ? " hg-tile--ascended" : ""}${pending ? " hg-tile--pending" : ""}" style="--hg-size:${size}px" title="${esc(alt)}">
-    <img class="hg-tile__art" src="${esc(assetUrl(`assets/game/hero-gear/${troop}-${artSlot}.png`))}" alt="${esc(alt)}" loading="lazy" />
+    <img class="hg-tile__art" src="${esc(assetUrl(`assets/game/hero-gear/${troop}-${artSlot}.png`))}" alt="${esc(alt)}" />
     ${enhancement > 0 ? `<span class="hg-tile__step hg-tile__step--${heroGearEnhancementBand(enhancement)}">+${fmt(enhancement)}${pending ? `<i class="hg-tile__up" aria-hidden="true"></i>` : ""}</span>` : ""}
     ${level > 0 ? `<span class="hg-tile__mastery">Lv.${esc(level)}</span>` : ""}
   </figure>`;
