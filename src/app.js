@@ -611,8 +611,29 @@ function applyExtractedState(baseState, extracted) {
   });
 
   Object.entries(extracted.experts || {}).forEach(([expertId, expert]) => {
-    if (!next.experts[expertId] || expert.level == null) return;
-    next.experts[expertId].relationship_current = expert.level === 100 && /intimate|max/i.test(`${expert.relationship || ""} ${expert.affinity_status || ""}`) ? "100.1" : String(expert.level);
+    if (expert == null || typeof expert !== "object" || expert.level == null) return;
+    // Seed experts the saved state has never heard of. Gareth arrived after this block was
+    // written and was skipped entirely, so his card fell back to level 1 defaults.
+    if (!next.experts[expertId]) {
+      if (!gameData.experts.some((row) => row.expert_id === expertId)) return;
+      next.experts[expertId] = { relationship_current: "1", relationship_target: "1" };
+    }
+    // A bare level cannot say whether the advancement AT that level is done, but the band
+    // the game reports can: if it matches the label on the "N.1" row, the advancement has
+    // happened. Without this Gareth read as Stranger at Lv 10 when the game says
+    // Acquaintance 1, and his talent skill sat a level low.
+    const expertLevels = (gameData.expert_affinity_levels || []).filter((row) => row.expert_id === expertId);
+    const advancedRow = expertLevels.find(
+      (row) =>
+        String(row.level_code) === `${expert.level}.1` &&
+        row.relationship_label &&
+        normalizeKey(row.relationship_label) === normalizeKey(expert.relationship || ""),
+    );
+    next.experts[expertId].relationship_current = advancedRow
+      ? advancedRow.level_code
+      : expert.level === 100 && /intimate|max/i.test(`${expert.relationship || ""} ${expert.affinity_status || ""}`)
+        ? "100.1"
+        : String(expert.level);
     next.experts[expertId].power = expert.power;
     next.experts[expertId].relationship = expert.relationship;
   });
@@ -658,7 +679,10 @@ function setCloudSyncStatus(message) {
 }
 
 function cloudAutoSyncEnabled() {
-  return Boolean(AUTH.session) && localStorage.getItem(CLOUD_AUTO_SYNC_STORAGE_KEY) !== "false";
+  // Nothing in the UI exposes this any more - the toggle went with the account panel
+  // rewrite - so being signed in is the only condition that should matter. It used to also
+  // consult a stored preference, and a stale "false" in there disabled syncing forever.
+  return Boolean(AUTH.session);
 }
 
 function cloudSyncKey() {
@@ -668,8 +692,13 @@ function cloudSyncKey() {
 function rememberCloudSyncSettings() {
   const key = ($("#cloudSyncKey")?.value || "").trim();
   if (key) localStorage.setItem(CLOUD_SYNC_KEY_STORAGE_KEY, key);
-  const auto = Boolean($("#cloudAutoSync")?.checked);
-  localStorage.setItem(CLOUD_AUTO_SYNC_STORAGE_KEY, CLOUD_SYNC_ENABLED || auto ? "true" : "false");
+  // Only record the preference when the toggle is actually on screen. #cloudAutoSync no
+  // longer exists, and reading a missing checkbox as "unchecked" wrote "false" here on
+  // every single cloud request - including the one during page load. That is what turned
+  // auto-sync off behind the scenes and left every change waiting on a manual Sync now.
+  const toggle = $("#cloudAutoSync");
+  if (toggle) localStorage.setItem(CLOUD_AUTO_SYNC_STORAGE_KEY, toggle.checked ? "true" : "false");
+  else localStorage.removeItem(CLOUD_AUTO_SYNC_STORAGE_KEY);
 }
 
 function initCloudSyncControls() {
@@ -1312,7 +1341,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260728j";
+const ASSET_CACHE_VERSION = "20260728k";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1669,7 +1698,29 @@ function learningTimeText(xp) {
   return timeFmt(minutes * 60);
 }
 
-function expertSkillPlanner(expert, skills) {
+// A talent skill has no books and no learning XP at any level: it rides along with the
+// relationship instead, stepping up at each advancement. Gareth's Rallying Cry is the one
+// modelled so far. Advancements sit at 10.1, 20.1 ... 100.1, so level 90 still counts eight
+// of them and only becomes nine at 90.1.
+function expertSkillIsTalent(rows) {
+  return rows.length > 0 && rows.every((row) => !Number(row.books || 0) && !Number(row.learning_xp || 0));
+}
+
+function expertAdvancementsPassed(levelCode) {
+  const text = String(levelCode ?? "");
+  const base = Math.floor(Number(text.split(".")[0]) || 0);
+  const advanced = text.includes(".");
+  let passed = Math.floor(base / 10);
+  if (base % 10 === 0 && !advanced) passed -= 1;
+  return Math.max(0, passed);
+}
+
+function expertTalentLevel(rows, levelCode) {
+  const maxLevel = rows.length ? Number(rows.at(-1).skill_level) : 1;
+  return Math.min(maxLevel, 1 + expertAdvancementsPassed(levelCode));
+}
+
+function expertSkillPlanner(expert, skills, relationshipCode) {
   let books = 0;
   let learningXp = 0;
   const body = (skills || [])
@@ -1678,6 +1729,19 @@ function expertSkillPlanner(expert, skills) {
       const ready = /maxed|ready/i.test(String(skill.learning_xp || ""));
       const skillId = matchExpertSkillId(expert, skill.name, index);
       const rows = expertSkillLevelRows(skillId);
+      if (expertSkillIsTalent(rows)) {
+        // Not learnable: it follows the relationship level, so show where it stands and
+        // where the entered target will take it, with no dropdowns and no cost.
+        const now = expertTalentLevel(rows, relationshipCode);
+        const maxLevel = rows.length ? Number(rows.at(-1).skill_level) : now;
+        return `<div class="gd-bonus-row expert-skill-row expert-skill-row--talent" title="${esc(skill.effect || "")}">
+          <span class="gd-bonus-label">${esc(skill.name)}<small class="expert-skill-talent-tag">talent · follows relationship</small></span>
+          <span class="expert-skill-controls expert-skill-controls--talent">
+            <strong>Lv. ${esc(now)}</strong>
+            <span class="muted">${now >= maxLevel ? "max" : `next at Lv ${(expertAdvancementsPassed(relationshipCode) + 1) * 10}.1`}</span>
+          </span>
+        </div>`;
+      }
       const capturedLevel = Number(skill.level || 0);
       const overrideLevel = skillId != null ? state.expert_skill_current?.[skillId] : null;
       const current = Math.max(0, Number(overrideLevel ?? capturedLevel));
@@ -1979,16 +2043,22 @@ function expertAffinityImpact(expertId, currentId, targetId) {
       changes.push(change);
       cards.push(statImpactCard(label, change.current, change.target, change.delta, "Workbook affinity table"));
     });
+    // Four experts have no power column in the workbook at all. Showing 0 for them reads as
+    // "this upgrade is worth nothing", which is worse than saying nothing, so the row is
+    // dropped and the gap is listed under Still to confirm instead.
     const currentPower = expertCarryValueAt(levels, currentId, "power") || 0;
     const targetPower = expertCarryValueAt(levels, targetId, "power") || 0;
-    const powerChange = {
-      label: "Expert Power",
-      current: fmt(currentPower),
-      target: fmt(targetPower),
-      delta: signedFmt(targetPower - currentPower),
-    };
-    changes.push(powerChange);
-    cards.push(statImpactCard(powerChange.label, powerChange.current, powerChange.target, powerChange.delta, "Workbook affinity table (power at last advancement)"));
+    const hasPowerCurve = levels.some((level) => Number(level.power || 0) > 0);
+    if (hasPowerCurve) {
+      const powerChange = {
+        label: "Expert Power",
+        current: fmt(currentPower),
+        target: fmt(targetPower),
+        delta: signedFmt(targetPower - currentPower),
+      };
+      changes.push(powerChange);
+      cards.push(statImpactCard(powerChange.label, powerChange.current, powerChange.target, powerChange.delta, "Workbook affinity table (power at last advancement)"));
+    }
   }
   return { current, target, cards, changes };
 }
@@ -7545,6 +7615,20 @@ function expertSigilAllocationPanelHtml(levelsByExpert) {
   </div>`;
 }
 
+// The relationship band is the last advancement you passed: level 90 is still "Close 2"
+// until you advance to 90.1. Derive it from the level you actually have rather than
+// echoing whatever was captured, which left the subtitle frozen at the read-in value.
+function expertRelationshipStanding(levels, levelCode) {
+  const row = levels.find((level) => String(level.level_code) === String(levelCode));
+  const order = row ? Number(row.relationship_level) : Number(String(levelCode).split(".")[0]) || 0;
+  let label = "";
+  levels.forEach((level) => {
+    if (level.relationship_label && Number(level.relationship_level) <= order) label = level.relationship_label;
+  });
+  const displayLevel = Math.floor(Number(String(levelCode).split(".")[0]) || 0);
+  return { label, level: displayLevel, advanced: String(levelCode).includes(".") };
+}
+
 function renderExperts() {
   ensureExpertSigilResources();
   const levelsByExpert = groupBy(gameData.expert_affinity_levels, "expert_id");
@@ -7579,7 +7663,7 @@ function renderExperts() {
         orderKey: "relationship_level",
         fields: [["expert_affinity", "affinity"], ["common_sigils", "sigils"]],
       });
-      const skillPlan = expertSkillPlanner(expert, observed.skills);
+      const skillPlan = expertSkillPlanner(expert, observed.skills, saved.relationship_current);
       if (skillPlan.books > 0) cost.books_of_knowledge = skillPlan.books;
       if (skillPlan.learningMinutes > 0) cost.learning_speedups_minutes = skillPlan.learningMinutes;
       totalLearningXp += skillPlan.learningXp;
@@ -7599,6 +7683,19 @@ function renderExperts() {
       const options = levels.map((level) => ({ ...level, label: level.relationship_label ? `${level.level_code} · ${level.relationship_label}` : level.level_code }));
       const upgradeSelected = !costIsEmpty(cost);
       const statRows = impact.changes.map((change) => ({ label: change.label, current: change.current, target: change.target }));
+      const standing = expertRelationshipStanding(levels, saved.relationship_current);
+      // The game names the band off the advancement you have completed, and the capture
+      // records that name directly. A level number alone cannot tell us whether the
+      // advancement at that level has been done, so trust the captured name while the level
+      // is untouched and only derive once it moves.
+      const levelUnchanged = observed.level != null && String(observed.level) === String(standing.level);
+      const bandLabel = levelUnchanged && observed.relationship ? observed.relationship : standing.label;
+      // Power carries forward from the last advancement - it is only stated at 10.1, 20.1
+      // and so on - so read it the same way the stat rows do rather than looking for an
+      // exact row. Falls back to the figure read off the game where no curve exists.
+      const curvePower = Number(expertCarryValueAt(levels, saved.relationship_current, "power") || 0);
+      const cardPower = curvePower || Number(observed.power || 0);
+      const powerIsRead = !curvePower && Number(observed.power || 0) > 0;
       const currentLabel = levels.find((level) => String(level.level_code) === String(saved.relationship_current));
       const targetLabel = levels.find((level) => String(level.level_code) === String(saved.relationship_target));
       return `<div class="pet-card expert-card">
@@ -7606,8 +7703,8 @@ function renderExperts() {
           <span class="pet-card__portrait">${iconHtml("expert", expert.name, "xl", "expert")}${upgradeSelected ? `<span class="gear-up-arrow" aria-hidden="true"></span>` : ""}</span>
           <div class="pet-card__title">
             <strong>${esc(expert.name)}</strong>
-            ${observed.relationship ? `<span class="muted">${esc(observed.relationship)}${observed.level ? ` · Lv ${esc(observed.level)}` : ""}</span>` : ""}
-            ${observed.power ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(observed.power)}</strong></span>` : `<span class="muted">${esc(expert.skills.map((skill) => skill.name).join(", "))}</span>`}
+            ${bandLabel || standing.level ? `<span class="muted">${esc([bandLabel, standing.level ? `Lv ${standing.level}` : ""].filter(Boolean).join(" · "))}</span>` : ""}
+            ${cardPower ? `<span class="gd-power-row">${iconHtml("power", "Power", "sm")}<strong>${fmt(cardPower)}</strong>${powerIsRead ? `<small class="muted"> read in game</small>` : ""}</span>` : `<span class="muted">${esc(expert.skills.map((skill) => skill.name).join(", "))}</span>`}
           </div>
           ${gameLevelFlowHtml(currentLabel?.relationship_label || saved.relationship_current, targetLabel?.relationship_label || saved.relationship_target)}
         </div>
@@ -8201,7 +8298,7 @@ function svsExpertPlanTotals() {
     const saved = state.experts[expert.expert_id];
     if (!saved) return;
     const observed = state.extracted_current?.experts?.[expert.expert_id] || {};
-    const skillPlan = expertSkillPlanner(expert, observed.skills);
+    const skillPlan = expertSkillPlanner(expert, observed.skills, saved.relationship_current);
     books += skillPlan.books;
     learningXp += skillPlan.learningXp;
     const levels = levelsByExpert[expert.expert_id] || [];

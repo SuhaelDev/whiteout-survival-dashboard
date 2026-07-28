@@ -54051,9 +54051,7 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 1,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 1
     },
     {
       "expert_id": "gareth",
@@ -54068,16 +54066,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 2,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 2
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 3,
       "books": 600,
-      "learning_xp": 51600,
+      "learning_xp": 77400,
       "effect_1_label": "Chests",
       "effect_1": 1,
       "effect_2_label": "Daily Cap",
@@ -54085,16 +54081,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 3,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 3
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 4,
       "books": 900,
-      "learning_xp": 77400,
+      "learning_xp": 154800,
       "effect_1_label": "Chests",
       "effect_1": 1,
       "effect_2_label": "Daily Cap",
@@ -54102,16 +54096,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 4,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 4
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 5,
       "books": 1200,
-      "learning_xp": 103200,
+      "learning_xp": 258000,
       "effect_1_label": "Chests",
       "effect_1": 2,
       "effect_2_label": "Daily Cap",
@@ -54119,16 +54111,14 @@
       "power": 0,
       "requirement": "Acquaintance 3 (game-verified)",
       "source_sheet": "wosheroes.com",
-      "source_row": 5,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 5
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 6,
       "books": 1500,
-      "learning_xp": 129600,
+      "learning_xp": 387600,
       "effect_1_label": "Chests",
       "effect_1": 2,
       "effect_2_label": "Daily Cap",
@@ -54136,16 +54126,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 6,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 6
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 7,
       "books": 1800,
-      "learning_xp": 155400,
+      "learning_xp": 543000,
       "effect_1_label": "Chests",
       "effect_1": 2,
       "effect_2_label": "Daily Cap",
@@ -54153,16 +54141,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 7,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 7
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 8,
       "books": 2100,
-      "learning_xp": 181200,
+      "learning_xp": 724200,
       "effect_1_label": "Chests",
       "effect_1": 2,
       "effect_2_label": "Daily Cap",
@@ -54170,16 +54156,14 @@
       "power": 0,
       "requirement": "unverified (source: Affinity 6)",
       "source_sheet": "wosheroes.com",
-      "source_row": 8,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 8
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 9,
       "books": 2400,
-      "learning_xp": 207000,
+      "learning_xp": 931200,
       "effect_1_label": "Chests",
       "effect_1": 2,
       "effect_2_label": "Daily Cap",
@@ -54187,16 +54171,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 9,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 9
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_gifts_of_iron",
       "skill_level": 10,
       "books": 2700,
-      "learning_xp": 232800,
+      "learning_xp": 1164000,
       "effect_1_label": "Chests",
       "effect_1": 3,
       "effect_2_label": "Daily Cap",
@@ -54204,9 +54186,7 @@
       "power": 0,
       "requirement": "unverified (source: Affinity 8)",
       "source_sheet": "wosheroes.com",
-      "source_row": 10,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 10
     },
     {
       "expert_id": "gareth",
@@ -54221,9 +54201,7 @@
       "power": 0,
       "requirement": "locked at Acq 1 (game) - gate unverified",
       "source_sheet": "wosheroes.com",
-      "source_row": 1,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 1
     },
     {
       "expert_id": "gareth",
@@ -54238,16 +54216,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 2,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 2
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 3,
       "books": 2500,
-      "learning_xp": 345600,
+      "learning_xp": 518400,
       "effect_1_label": "%",
       "effect_1": 0.03,
       "effect_2_label": null,
@@ -54255,16 +54231,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 3,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 3
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 4,
       "books": 3750,
-      "learning_xp": 518400,
+      "learning_xp": 1036800,
       "effect_1_label": "%",
       "effect_1": 0.04,
       "effect_2_label": null,
@@ -54272,16 +54246,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 4,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 4
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 5,
       "books": 5000,
-      "learning_xp": 691200,
+      "learning_xp": 1728000,
       "effect_1_label": "%",
       "effect_1": 0.05,
       "effect_2_label": null,
@@ -54289,16 +54261,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 5,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 5
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 6,
       "books": 6250,
-      "learning_xp": 864000,
+      "learning_xp": 2592000,
       "effect_1_label": "%",
       "effect_1": 0.07,
       "effect_2_label": null,
@@ -54306,16 +54276,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 6,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 6
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 7,
       "books": 7500,
-      "learning_xp": 1036800,
+      "learning_xp": 3628800,
       "effect_1_label": "%",
       "effect_1": 0.09,
       "effect_2_label": null,
@@ -54323,16 +54291,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 7,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 7
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 8,
       "books": 8750,
-      "learning_xp": 1209600,
+      "learning_xp": 4838400,
       "effect_1_label": "%",
       "effect_1": 0.11,
       "effect_2_label": null,
@@ -54340,16 +54306,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 8,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 8
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 9,
       "books": 10000,
-      "learning_xp": 1382400,
+      "learning_xp": 6220800,
       "effect_1_label": "%",
       "effect_1": 0.13,
       "effect_2_label": null,
@@ -54357,16 +54321,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 9,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 9
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 10,
       "books": 11250,
-      "learning_xp": 1555200,
+      "learning_xp": 7776000,
       "effect_1_label": "%",
       "effect_1": 0.15,
       "effect_2_label": null,
@@ -54374,16 +54336,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 10,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 10
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 11,
       "books": 12500,
-      "learning_xp": 1728000,
+      "learning_xp": 9504000,
       "effect_1_label": "%",
       "effect_1": 0.18,
       "effect_2_label": null,
@@ -54391,16 +54351,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 11,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 11
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 12,
       "books": 13750,
-      "learning_xp": 1900800,
+      "learning_xp": 11404800,
       "effect_1_label": "%",
       "effect_1": 0.21,
       "effect_2_label": null,
@@ -54408,16 +54366,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 12,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 12
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 13,
       "books": 15000,
-      "learning_xp": 2073600,
+      "learning_xp": 13478400,
       "effect_1_label": "%",
       "effect_1": 0.24,
       "effect_2_label": null,
@@ -54425,16 +54381,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 13,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 13
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 14,
       "books": 17500,
-      "learning_xp": 2419200,
+      "learning_xp": 15897600,
       "effect_1_label": "%",
       "effect_1": 0.27,
       "effect_2_label": null,
@@ -54442,16 +54396,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 14,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 14
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 15,
       "books": 20000,
-      "learning_xp": 2764800,
+      "learning_xp": 18662400,
       "effect_1_label": "%",
       "effect_1": 0.3,
       "effect_2_label": null,
@@ -54459,16 +54411,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 15,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 15
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 16,
       "books": 20000,
-      "learning_xp": 2764800,
+      "learning_xp": 21427200,
       "effect_1_label": "%",
       "effect_1": 0.34,
       "effect_2_label": null,
@@ -54476,16 +54426,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 16,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 16
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 17,
       "books": 22500,
-      "learning_xp": 3110400,
+      "learning_xp": 24537600,
       "effect_1_label": "%",
       "effect_1": 0.38,
       "effect_2_label": null,
@@ -54493,16 +54441,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 17,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 17
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 18,
       "books": 22500,
-      "learning_xp": 3110400,
+      "learning_xp": 27648000,
       "effect_1_label": "%",
       "effect_1": 0.42,
       "effect_2_label": null,
@@ -54510,16 +54456,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 18,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 18
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 19,
       "books": 25000,
-      "learning_xp": 3456000,
+      "learning_xp": 31104000,
       "effect_1_label": "%",
       "effect_1": 0.46,
       "effect_2_label": null,
@@ -54527,16 +54471,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 19,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 19
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_porcupine",
       "skill_level": 20,
       "books": 25000,
-      "learning_xp": 3456000,
+      "learning_xp": 34560000,
       "effect_1_label": "%",
       "effect_1": 0.5,
       "effect_2_label": null,
@@ -54544,9 +54486,7 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 20,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 20
     },
     {
       "expert_id": "gareth",
@@ -54561,9 +54501,7 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 1,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 1
     },
     {
       "expert_id": "gareth",
@@ -54578,16 +54516,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 2,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 2
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 3,
       "books": 2500,
-      "learning_xp": 388800,
+      "learning_xp": 583200,
       "effect_1_label": "%",
       "effect_1": 0.03,
       "effect_2_label": null,
@@ -54595,16 +54531,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 3,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 3
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 4,
       "books": 3750,
-      "learning_xp": 583200,
+      "learning_xp": 1166400,
       "effect_1_label": "%",
       "effect_1": 0.04,
       "effect_2_label": null,
@@ -54612,16 +54546,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 4,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 4
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 5,
       "books": 5000,
-      "learning_xp": 777600,
+      "learning_xp": 1944000,
       "effect_1_label": "%",
       "effect_1": 0.05,
       "effect_2_label": null,
@@ -54629,16 +54561,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 5,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 5
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 6,
       "books": 6250,
-      "learning_xp": 972000,
+      "learning_xp": 2916000,
       "effect_1_label": "%",
       "effect_1": 0.07,
       "effect_2_label": null,
@@ -54646,16 +54576,14 @@
       "power": 0,
       "requirement": "Skill power 20",
       "source_sheet": "wosheroes.com",
-      "source_row": 6,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 6
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 7,
       "books": 7500,
-      "learning_xp": 1166400,
+      "learning_xp": 4082400,
       "effect_1_label": "%",
       "effect_1": 0.09,
       "effect_2_label": null,
@@ -54663,16 +54591,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 7,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 7
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 8,
       "books": 8750,
-      "learning_xp": 1360800,
+      "learning_xp": 5443200,
       "effect_1_label": "%",
       "effect_1": 0.11,
       "effect_2_label": null,
@@ -54680,16 +54606,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 8,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 8
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 9,
       "books": 10000,
-      "learning_xp": 1555200,
+      "learning_xp": 6998400,
       "effect_1_label": "%",
       "effect_1": 0.13,
       "effect_2_label": null,
@@ -54697,16 +54621,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 9,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 9
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 10,
       "books": 11250,
-      "learning_xp": 1749600,
+      "learning_xp": 8748000,
       "effect_1_label": "%",
       "effect_1": 0.15,
       "effect_2_label": null,
@@ -54714,16 +54636,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 10,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 10
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 11,
       "books": 12500,
-      "learning_xp": 1944000,
+      "learning_xp": 10692000,
       "effect_1_label": "%",
       "effect_1": 0.18,
       "effect_2_label": null,
@@ -54731,16 +54651,14 @@
       "power": 0,
       "requirement": "Skill power 30",
       "source_sheet": "wosheroes.com",
-      "source_row": 11,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 11
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 12,
       "books": 13750,
-      "learning_xp": 2138400,
+      "learning_xp": 12830400,
       "effect_1_label": "%",
       "effect_1": 0.21,
       "effect_2_label": null,
@@ -54748,16 +54666,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 12,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 12
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 13,
       "books": 15000,
-      "learning_xp": 2332800,
+      "learning_xp": 15163200,
       "effect_1_label": "%",
       "effect_1": 0.24,
       "effect_2_label": null,
@@ -54765,16 +54681,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 13,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 13
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 14,
       "books": 17500,
-      "learning_xp": 2721600,
+      "learning_xp": 17884800,
       "effect_1_label": "%",
       "effect_1": 0.27,
       "effect_2_label": null,
@@ -54782,16 +54696,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 14,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 14
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 15,
       "books": 20000,
-      "learning_xp": 3110400,
+      "learning_xp": 20995200,
       "effect_1_label": "%",
       "effect_1": 0.3,
       "effect_2_label": null,
@@ -54799,16 +54711,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 15,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 15
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 16,
       "books": 20000,
-      "learning_xp": 3110400,
+      "learning_xp": 24105600,
       "effect_1_label": "%",
       "effect_1": 0.34,
       "effect_2_label": null,
@@ -54816,16 +54726,14 @@
       "power": 0,
       "requirement": "Skill power 40",
       "source_sheet": "wosheroes.com",
-      "source_row": 16,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 16
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 17,
       "books": 22500,
-      "learning_xp": 3499200,
+      "learning_xp": 27604800,
       "effect_1_label": "%",
       "effect_1": 0.38,
       "effect_2_label": null,
@@ -54833,16 +54741,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 17,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 17
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 18,
       "books": 22500,
-      "learning_xp": 3499200,
+      "learning_xp": 31104000,
       "effect_1_label": "%",
       "effect_1": 0.42,
       "effect_2_label": null,
@@ -54850,16 +54756,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 18,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 18
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 19,
       "books": 25000,
-      "learning_xp": 3888000,
+      "learning_xp": 34992000,
       "effect_1_label": "%",
       "effect_1": 0.46,
       "effect_2_label": null,
@@ -54867,16 +54771,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 19,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 19
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_undefeated_will",
       "skill_level": 20,
       "books": 25000,
-      "learning_xp": 3888000,
+      "learning_xp": 38880000,
       "effect_1_label": "%",
       "effect_1": 0.5,
       "effect_2_label": null,
@@ -54884,9 +54786,7 @@
       "power": 0,
       "requirement": "Skill power 50",
       "source_sheet": "wosheroes.com",
-      "source_row": 20,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 20
     },
     {
       "expert_id": "gareth",
@@ -54901,9 +54801,7 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 1,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 1
     },
     {
       "expert_id": "gareth",
@@ -54918,16 +54816,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 2,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 2
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 3,
       "books": 8000,
-      "learning_xp": 1520400,
+      "learning_xp": 2280600,
       "effect_1_label": "%",
       "effect_1": 0.0075,
       "effect_2_label": null,
@@ -54935,16 +54831,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 3,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 3
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 4,
       "books": 12000,
-      "learning_xp": 2280600,
+      "learning_xp": 4561200,
       "effect_1_label": "%",
       "effect_1": 0.01,
       "effect_2_label": null,
@@ -54952,16 +54846,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 4,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 4
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 5,
       "books": 16000,
-      "learning_xp": 3040800,
+      "learning_xp": 7602000,
       "effect_1_label": "%",
       "effect_1": 0.0125,
       "effect_2_label": null,
@@ -54969,16 +54861,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 5,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 5
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 6,
       "books": 20000,
-      "learning_xp": 3801600,
+      "learning_xp": 11403600,
       "effect_1_label": "%",
       "effect_1": 0.015,
       "effect_2_label": null,
@@ -54986,16 +54876,14 @@
       "power": 0,
       "requirement": "Skill power 30",
       "source_sheet": "wosheroes.com",
-      "source_row": 6,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 6
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 7,
       "books": 24000,
-      "learning_xp": 4561800,
+      "learning_xp": 15965400,
       "effect_1_label": "%",
       "effect_1": 0.0175,
       "effect_2_label": null,
@@ -55003,16 +54891,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 7,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 7
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 8,
       "books": 28000,
-      "learning_xp": 5322000,
+      "learning_xp": 21287400,
       "effect_1_label": "%",
       "effect_1": 0.02,
       "effect_2_label": null,
@@ -55020,16 +54906,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 8,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 8
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 9,
       "books": 32000,
-      "learning_xp": 6082200,
+      "learning_xp": 27369600,
       "effect_1_label": "%",
       "effect_1": 0.0225,
       "effect_2_label": null,
@@ -55037,16 +54921,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 9,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 9
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 10,
       "books": 36000,
-      "learning_xp": 6842400,
+      "learning_xp": 34212000,
       "effect_1_label": "%",
       "effect_1": 0.025,
       "effect_2_label": null,
@@ -55054,16 +54936,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 10,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 10
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 11,
       "books": 40000,
-      "learning_xp": 7603200,
+      "learning_xp": 41815200,
       "effect_1_label": "%",
       "effect_1": 0.0275,
       "effect_2_label": null,
@@ -55071,16 +54951,14 @@
       "power": 0,
       "requirement": "Skill power 45",
       "source_sheet": "wosheroes.com",
-      "source_row": 11,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 11
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 12,
       "books": 44000,
-      "learning_xp": 8363400,
+      "learning_xp": 50178600,
       "effect_1_label": "%",
       "effect_1": 0.03,
       "effect_2_label": null,
@@ -55088,16 +54966,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 12,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 12
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 13,
       "books": 48000,
-      "learning_xp": 9123600,
+      "learning_xp": 59302200,
       "effect_1_label": "%",
       "effect_1": 0.0325,
       "effect_2_label": null,
@@ -55105,16 +54981,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 13,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 13
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 14,
       "books": 56000,
-      "learning_xp": 10644000,
+      "learning_xp": 69946200,
       "effect_1_label": "%",
       "effect_1": 0.035,
       "effect_2_label": null,
@@ -55122,16 +54996,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 14,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 14
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 15,
       "books": 64000,
-      "learning_xp": 12165000,
+      "learning_xp": 82111200,
       "effect_1_label": "%",
       "effect_1": 0.0375,
       "effect_2_label": null,
@@ -55139,16 +55011,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 15,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 15
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 16,
       "books": 64000,
-      "learning_xp": 12165000,
+      "learning_xp": 94276200,
       "effect_1_label": "%",
       "effect_1": 0.04,
       "effect_2_label": null,
@@ -55156,16 +55026,14 @@
       "power": 0,
       "requirement": "Skill power 55",
       "source_sheet": "wosheroes.com",
-      "source_row": 16,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 16
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 17,
       "books": 72000,
-      "learning_xp": 13685400,
+      "learning_xp": 107961600,
       "effect_1_label": "%",
       "effect_1": 0.0425,
       "effect_2_label": null,
@@ -55173,16 +55041,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 17,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 17
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 18,
       "books": 72000,
-      "learning_xp": 13685400,
+      "learning_xp": 121647000,
       "effect_1_label": "%",
       "effect_1": 0.045,
       "effect_2_label": null,
@@ -55190,16 +55056,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 18,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 18
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 19,
       "books": 80000,
-      "learning_xp": 15206400,
+      "learning_xp": 136853400,
       "effect_1_label": "%",
       "effect_1": 0.0475,
       "effect_2_label": null,
@@ -55207,16 +55071,14 @@
       "power": 0,
       "requirement": null,
       "source_sheet": "wosheroes.com",
-      "source_row": 19,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 19
     },
     {
       "expert_id": "gareth",
       "skill_id": "gareth_fearsome_reputation",
       "skill_level": 20,
       "books": 80000,
-      "learning_xp": 15206400,
+      "learning_xp": 152059800,
       "effect_1_label": "%",
       "effect_1": 0.05,
       "effect_2_label": null,
@@ -55224,9 +55086,7 @@
       "power": 0,
       "requirement": "Skill power 69",
       "source_sheet": "wosheroes.com",
-      "source_row": 20,
-      "cost_basis": "per_level",
-      "source_note": "Per-level cost from the Gareth requirement tables. The previous column held running totals, so summing a range double-counted every level below it."
+      "source_row": 20
     }
   ],
   "fire_crystal_refinement": [
@@ -87611,12 +87471,6 @@
     }
   ],
   "gaps": [
-    {
-      "Priority": "High",
-      "Gap / validation item": "Expert power curve for Valeria, Ronne, Kathy and Gareth",
-      "Why it matters": "The workbook carries a power figure at each advancement for the other experts, but these four have none, so their cards cannot show what an advancement is worth. Power is not derivable from the stat columns - the ratio runs from 2.3M per stat point for Cyrille to 18.5M for Baldur.",
-      "Research / extraction approach": "Read the Power figure on each expert's Stats screen at two different advancements. The known curves are linear in bands (power = base x bands passed), so two points fix the base."
-    },
     {
       "Priority": "Medium",
       "Gap / validation item": "Exact Meat / Wood / Coal / Iron / Steel balances",

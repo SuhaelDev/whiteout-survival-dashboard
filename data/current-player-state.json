@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "last_saved": "2026-07-27T09:05:00+00:00",
+  "last_saved": "2026-07-28T12:40:00+00:00",
   "profile": {
     "chief_name": "[B2D]Sorrow",
     "state_number": "2476",
@@ -1436,6 +1436,13 @@
       "notes": "",
       "power": 1900000,
       "relationship": "Acquaintance 3"
+    },
+    "gareth": {
+      "relationship_current": "10.1",
+      "relationship_target": "100",
+      "notes": "",
+      "power": 1806000,
+      "relationship": "Acquaintance 1"
     }
   },
   "research": {
@@ -1476,7 +1483,7 @@
   },
   "extracted_current": {
     "schema_version": 1,
-    "extracted_at": "2026-07-27T09:05:00+00:00",
+    "extracted_at": "2026-07-28T12:40:00+00:00",
     "extraction_status": "Backpack, pet refinement, and War Academy capture refresh (2026-07-15).",
     "construction": {
       "cost_reduction_pct": 15
@@ -6299,6 +6306,15 @@
           "Building levels beyond Furnace FC9 and Cookhouse Lv.10",
           "Chest counts inside backpack_items (last counted 15 July)"
         ]
+      },
+      {
+        "captured_at": "2026-07-28T12:40:00+00:00",
+        "capture_id": "live-read-2026-07-28a",
+        "method": "No new game reading. Re-stamped so corrected expert data reaches saved accounts.",
+        "changes": [
+          "Gareth seeded into the saved experts block at 10.1 (the game reports Acquaintance 1 at Lv 10, so the level-10 advancement is done).",
+          "Gareth's four learnable skills switched from cumulative learning XP to per-level, from the requirement tables."
+        ]
       }
     ],
     "pets_refinement_verified": {
@@ -6317,7 +6333,7 @@
         "source": "in-game read-only capture 2026-07-27 (player 383664139)"
       }
     },
-    "capture_id": "live-read-2026-07-27c",
+    "capture_id": "live-read-2026-07-28a",
     "unverified_fields": [
       "Exact Meat / Wood / Coal / Iron / Steel balances (the game rounds these to one decimal in its own panels)",
       "Building levels beyond Furnace FC9 and Cookhouse Lv.10",

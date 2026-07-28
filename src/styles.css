@@ -5948,10 +5948,37 @@ select option {
 
 
 /* ---- Wave 15: expert skill control alignment ---- */
-.expert-skill-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; }
-.expert-skill-controls { display: grid; grid-template-columns: 74px 46px 14px 74px; align-items: center; gap: 4px; justify-items: center; }
+/* Skill rows: the name and the two dropdowns share a line when there is room, and the
+   controls drop to their own line when there is not. A fixed two-column grid meant long
+   names like "Project Management" ran underneath the dropdowns and became unreadable;
+   wrapping means that can never happen whatever the name or the card width. */
+.expert-skill-row {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+}
+
+.expert-skill-row .gd-bonus-label {
+  flex: 1 1 118px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+
+.expert-skill-controls {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 70px 42px 12px 70px;
+  align-items: center;
+  gap: 4px;
+  justify-items: center;
+  margin-left: auto;
+}
+
 .expert-skill-controls select { width: 100%; min-width: 0; }
-.expert-skill-ready { min-width: 46px; text-align: center; font-size: 11px; }
+.expert-skill-ready { min-width: 42px; text-align: center; font-size: 11px; }
 .expert-skill-arrow { text-align: center; }
 
 /* ---- Wave 15: hero roster card contrast (light card surfaces) ---- */
@@ -6258,3 +6285,20 @@ select option {
 .equipped-slot__icon .hg-tile { --hg-size: 84px; }
 
 .hero-gear-mini-slot .hg-tile { --hg-size: 56px; }
+
+/* Talent skills are not learnable - they step up with the relationship - so they show a
+   standing rather than the current/target dropdowns. */
+.expert-skill-row--talent .expert-skill-controls--talent {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.expert-skill-talent-tag {
+  display: block;
+  font-weight: 600;
+  font-size: 10.5px;
+  color: #5f7ba1;
+  letter-spacing: 0.01em;
+}
