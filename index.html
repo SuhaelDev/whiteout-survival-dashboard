@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Whiteout Survival Personal Dashboard</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="src/styles.css?v=20260731-wave42b" />
+    <link rel="stylesheet" href="src/styles.css?v=20260731-wave43" />
   </head>
   <body>
     <div class="app-shell">
@@ -20,18 +20,23 @@
         <nav class="module-nav" id="moduleNav"></nav>
         <div class="save-panel">
           <span id="saveStatus">Loading data</span>
-          <button type="button" id="exportState">Export</button>
-          <label class="file-button">
-            Import
-            <input id="importState" type="file" accept="application/json" />
-          </label>
           <div class="cloud-sync-panel" id="accountPanel">
             <span class="cloud-sync-title">Account</span>
             <span id="cloudSyncStatus">Starting up</span>
           </div>
-          <button type="button" id="openWizard">Set up my account</button>
-          <button type="button" id="resetTargets">Clear my targets</button>
-          <button type="button" id="resetState">Reset</button>
+          <details class="sidebar-tools">
+            <summary>Data &amp; reset</summary>
+            <div class="sidebar-tools__body">
+              <button type="button" id="exportState">Export a backup</button>
+              <label class="file-button">
+                Import a backup
+                <input id="importState" type="file" accept="application/json" />
+              </label>
+              <button type="button" id="openWizard">Re-run setup</button>
+              <button type="button" id="resetTargets">Clear my targets</button>
+              <button type="button" id="resetState" class="danger">Reset everything</button>
+            </div>
+          </details>
         </div>
       </aside>
 
@@ -47,7 +52,7 @@
         <section class="content-area">
           <div class="tab-panel active" id="tab-overview"></div>
           <div class="tab-panel" id="tab-planner"></div>
-          <div class="tab-panel" id="tab-current-extract"></div>
+          <div class="tab-panel" id="tab-inventory"></div>
           <div class="tab-panel" id="tab-buildings"></div>
           <div class="tab-panel" id="tab-chief-gear"></div>
           <div class="tab-panel" id="tab-charms"></div>
@@ -59,7 +64,7 @@
           <div class="tab-panel" id="tab-t12-research"></div>
           <div class="tab-panel" id="tab-troops"></div>
           <div class="tab-panel" id="tab-svs"></div>
-          <div class="tab-panel" id="tab-resources"></div>
+          
           <div class="tab-panel" id="tab-skins"></div>
           <div class="tab-panel" id="tab-sources"></div>
         </section>
@@ -74,6 +79,6 @@
     </template>
 
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="src/app.js?v=20260731-wave42b"></script>
+<script type="module" src="src/app.js?v=20260731-wave43"></script>
   </body>
 </html>

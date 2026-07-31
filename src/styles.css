@@ -6769,3 +6769,153 @@ select option {
   font-weight: 700;
   cursor: help;
 }
+
+/* ==== Sidebar: grouped nav + tucked-away tools ============================ */
+.nav-group {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.nav-group__label {
+  padding: 0 10px 3px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.sidebar-tools {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.sidebar-tools > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 5px 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sidebar-tools > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-tools > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-tools[open] > summary::before {
+  content: "▾ ";
+}
+
+.sidebar-tools > summary:hover {
+  color: var(--text);
+}
+
+.sidebar-tools__body {
+  display: grid;
+  gap: 5px;
+  padding-top: 5px;
+}
+
+.sidebar-tools__body .danger {
+  border-color: color-mix(in srgb, var(--red, #d9534f) 50%, var(--line));
+  color: var(--red, #d9534f);
+}
+
+/* ==== Inventory: editable rows =========================================== */
+.inv-cell {
+  white-space: nowrap;
+}
+
+.inv-cell input[type="number"],
+.inv-cell input[type="text"],
+.inv-cell select {
+  width: 100%;
+  min-width: 88px;
+  max-width: 180px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-cell input:focus,
+.inv-cell select:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.inv-fineprint {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.inv-captured {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.inv-reset {
+  margin-left: 7px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inv-reset:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.extract-section__note {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.inv-diff {
+  padding: 0;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--amber, #d99a2b);
+  overflow: hidden;
+}
+
+.inv-diff__bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.inv-diff__bar::-webkit-details-marker {
+  display: none;
+}
+
+.inv-diff__bar .extract-section__title {
+  flex: 1 1 auto;
+}
+
+.inv-diff[open] .extract-section__caret {
+  transform: rotate(45deg);
+}

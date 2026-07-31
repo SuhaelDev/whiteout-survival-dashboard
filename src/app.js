@@ -14,25 +14,39 @@ const SKIN_STAT_LABELS = {
   resource_gathering_speed: "Resource Gathering Speed",
 };
 
-const MODULES = [
-  ["overview", "Overview"],
-  ["planner", "AI Planner"],
-  ["current-extract", "Current Extract"],
-  ["buildings", "Buildings"],
-  ["chief-gear", "Chief Gear"],
-  ["charms", "Charms"],
-  ["heroes", "Heroes"],
-  ["hero-gear", "Hero Gear"],
-  ["pets", "Pets"],
-  ["experts", "Experts"],
-  ["research", "Research"],
-  ["t12-research", "T12 Research"],
-  ["troops", "Troop Training"],
-  ["svs", "SvS Planner"],
-  ["resources", "Resources"],
-  ["skins", "Skins & Bonuses"],
-  ["sources", "Sources"],
+// Grouped so the sidebar reads as "where am I / what do I own / what do I upgrade",
+// instead of one flat list of seventeen. "Current Extract" and "Resources" were two
+// views of the same data with only one of them editable; they are now "Inventory".
+const MODULE_GROUPS = [
+  ["Start here", [
+    ["overview", "Overview"],
+    ["planner", "AI Planner"],
+    ["inventory", "Inventory"],
+  ]],
+  ["Chief", [
+    ["buildings", "Buildings"],
+    ["chief-gear", "Chief Gear"],
+    ["charms", "Charms"],
+  ]],
+  ["Heroes & Pets", [
+    ["heroes", "Heroes"],
+    ["hero-gear", "Hero Gear"],
+    ["pets", "Pets"],
+    ["experts", "Experts"],
+  ]],
+  ["Research & Troops", [
+    ["research", "Research"],
+    ["t12-research", "T12 Research"],
+    ["troops", "Troop Training"],
+  ]],
+  ["Events & Extras", [
+    ["svs", "SvS Planner"],
+    ["skins", "Skins & Bonuses"],
+    ["sources", "Sources"],
+  ]],
 ];
+
+const MODULES = MODULE_GROUPS.flatMap(([, entries]) => entries);
 
 const RESOURCE_LABELS = {
   meat: "Meat",
@@ -259,41 +273,6 @@ const EXPERT_STAT_LABELS = {
   Rally: "Rally Capacity",
   "Bear +": "Bear Hunt Bonus",
 };
-const CALCULATOR_INVENTORY_GROUPS = [
-  { title: "Buildings", note: "FC upgrades and regular construction", fields: BUILDING_FIELDS },
-  { title: "Chief Gear", note: "Gear level and star upgrades", fields: GEAR_FIELDS },
-  { title: "Chief Charms", note: "Charm levels by troop group", fields: CHARM_FIELDS },
-  { title: "Hero Gear", note: "Level, enhancement, mastery, and special gear materials", fields: ["hero_gear_xp", "mythic_gear", "mithril", "essence_stones"] },
-  {
-    title: "Pets",
-    note: "Level materials, wild marks, and custom chests",
-    fields: [...PET_FIELDS, "pet_custom_chests", "common_wild_marks", "advanced_wild_marks"],
-  },
-  { title: "Experts", note: "Affinity, sigils, and learning books", fields: ["expert_affinity", "common_sigils", "books_of_knowledge"] },
-  { title: "War Academy", note: "Academy research resources", fields: ["steel", "fire_crystal_shards"] },
-  {
-    title: "Hero Shards & Widgets",
-    note: "General shards plus exclusive-gear widgets by hero generation",
-    fields: ["mythic_general_shards", "epic_general_shards", "rare_general_shards"],
-  },
-  {
-    title: "Chief Items",
-    note: "Stamina cans for pet adventures, beast hunts, and rallies (each can = 10 stamina)",
-    fields: ["stamina_cans"],
-  },
-  {
-    title: "Speedups",
-    note: "Enter speedups as total minutes",
-    fields: [
-      "construction_speedups_minutes",
-      "general_speedups_minutes",
-      "research_speedups_minutes",
-      "training_speedups_minutes",
-      "learning_speedups_minutes",
-      "healing_speedups_minutes",
-    ],
-  },
-];
 const WIDGET_GEN_FIELDS = Array.from({ length: 16 }, (_, i) => `widgets_gen${i + 1}`);
 const CONSTRUCTION_BUFF_DEFS = [
   ["minister", "Minister construction buff"],
@@ -527,11 +506,35 @@ function observedStars(hero) {
   return 0;
 }
 
+// A fresh capture overwrites whatever is in state, including values edited by hand.
+// Rather than let that happen silently, record every field it moved so the Inventory
+// page can show what changed and what it changed from.
+const CAPTURE_DIFF_WATCH = [
+  { prefix: "resources", label: (key) => RESOURCE_LABELS[key] || titleFromId(key), section: "Materials" },
+];
+
+function captureDiffEntries(before, after) {
+  const changes = [];
+  CAPTURE_DIFF_WATCH.forEach(({ prefix, label, section }) => {
+    const oldBag = before?.[prefix] || {};
+    const newBag = after?.[prefix] || {};
+    Object.keys(newBag).forEach((key) => {
+      const from = oldBag[key];
+      const to = newBag[key];
+      if (typeof to !== "number") return;
+      if (from === undefined || Number(from) === Number(to)) return;
+      changes.push({ path: `${prefix}.${key}`, key, label: label(key), section, from: Number(from), to: Number(to) });
+    });
+  });
+  return changes.sort((a, b) => Math.abs(b.to - b.from) - Math.abs(a.to - a.from));
+}
+
 function applyExtractedState(baseState, extracted) {
   if (!extracted) return baseState;
   if (extracted.extracted_current) {
     extracted = extracted.extracted_current;
   }
+  const beforeCapture = clone(baseState);
   const next = mergeDeep(clone(baseState), { extracted_current: extracted });
 
   if (extracted.profile) {
@@ -667,6 +670,15 @@ function applyExtractedState(baseState, extracted) {
     next.research.current_experts.current_note =
       extracted.experts?.active_learning?.expert || extracted.research?.current_experts?.current_note || next.research.current_experts.current_note || "";
   }
+
+  const changes = captureDiffEntries(beforeCapture, next);
+  next.capture_diff = {
+    capture_id: extracted.capture_id || "",
+    captured_at: extracted.extracted_at || "",
+    applied_at: new Date().toISOString(),
+    changes,
+    dismissed: false,
+  };
 
   return next;
 }
@@ -1355,7 +1367,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260731b";
+const ASSET_CACHE_VERSION = "20260731c";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -1408,47 +1420,9 @@ function resourceCategoryLabel(value) {
   return titleFromId(String(value || "resources").replaceAll("_", " "));
 }
 
-function resourceEditorCard(resourceId) {
-  const resource = resourceRecord(resourceId);
-  const used = availableInventoryValue(resourceId);
-  return `<div class="inventory-editor-card">
-    <div class="inventory-editor-card__head">
-      ${visualResourceLabel(resourceId, resource.name)}
-      <span>${esc(resource.unit === "minutes" ? "minutes" : "count")}</span>
-    </div>
-    <label>
-      <span>Current value</span>
-      ${numberInput(`resources.${resourceId}`, used)}
-      ${resourceFineprintHtml(resourceId, used)}
-    </label>
-  </div>`;
-}
 
-function inventoryEditorGroup(group) {
-  const fields = [...new Set(group.fields.map(fieldKey))];
-  return `<section class="inventory-editor-group">
-    <div class="inventory-editor-group__head">
-      <h3>${esc(group.title)}</h3>
-      <span>${esc(group.note)}</span>
-    </div>
-    <div class="inventory-editor-fields">${fields.map(resourceEditorCard).join("")}</div>
-  </section>`;
-}
 
-function currentEditorControl(label, html) {
-  return `<label><span>${esc(label)}</span>${html}</label>`;
-}
 
-function currentEditorCard(title, meta, controls, source = "") {
-  return `<div class="current-editor-card">
-    <div class="current-editor-card__head">
-      <strong>${esc(title)}</strong>
-      ${meta ? `<span>${esc(meta)}</span>` : ""}
-    </div>
-    <div class="current-editor-card__fields">${controls.join("")}</div>
-    ${source ? `<small>${esc(source)}</small>` : ""}
-  </div>`;
-}
 
 function currentEditorSection(title, note, cards, options = {}) {
   if (!cards.length) return "";
@@ -1465,150 +1439,6 @@ function currentEditorSection(title, note, cards, options = {}) {
   </details>`;
 }
 
-function currentProgressEditorHtml() {
-  const gearLevels = sortByNumber(gameData.chief_gear_levels, "sequence");
-  const charmLevels = [{ charm_level: 0, label: "0", power: 0 }, ...gameData.chief_charm_levels.map((row) => ({ ...row, label: String(row.charm_level) }))];
-  const buildingLevelsById = groupBy(gameData.building_levels, "building_id");
-  const petLevelsById = groupBy(gameData.pet_levels, "pet_id");
-  const expertLevelsById = groupBy(gameData.expert_affinity_levels, "expert_id");
-  const heroById = Object.fromEntries(gameData.heroes.map((hero) => [hero.hero_id, hero]));
-
-  const chiefGearCards = gameData.chief_gear_slots
-    .map((slot) => {
-      const saved = state.chief_gear?.[slot.slot_id];
-      if (!saved) return null;
-      return currentEditorCard(
-        slot.name,
-        saved.item_name || saved.slot || "",
-        [
-          currentEditorControl("Current tier", `<select data-path="chief_gear.${slot.slot_id}.current">${optionList(gearLevels, "gear_level_code", "gear_level_code", saved.current)}</select>`),
-          currentEditorControl("Power", numberInput(`chief_gear.${slot.slot_id}.power`, saved.power || 0)),
-        ],
-        "Chief gear target is reset from this current tier.",
-      );
-    })
-    .filter(Boolean);
-
-  const charmSlotById = Object.fromEntries(gameData.chief_charm_slots.map((slot) => [slot.slot_id, slot]));
-  const charmCards = Object.entries(state.charms || {}).map(([slotId, saved]) => {
-    const slot = charmSlotById[slotId] || { position: titleFromId(slotId), gear_slot: "" };
-    return currentEditorCard(
-      `${slot.gear_slot || titleFromId(slotId.split("_")[0])} ${slot.position || ""}`.trim(),
-      "Chief charm",
-      [
-        currentEditorControl("Current level", `<select data-path="charms.${slotId}.current">${optionList(charmLevels, "label", "charm_level", saved.current)}</select>`),
-      ],
-      "Charm target is reset from this current level.",
-    );
-  });
-
-  const heroGearCards = Object.entries(state.extracted_current?.hero_gear || {}).flatMap(([heroId, gearSet]) => {
-    const hero = heroRecordFor(heroId);
-    return heroGearPieces(gearSet.gear).map(([slot, piece]) => {
-      const position = HERO_GEAR_POSITION_LABELS[HERO_GEAR_SLOT_POSITIONS[slot]] || titleFromId(slot);
-      return currentEditorCard(
-        heroGearPieceName(slot, piece),
-        `${hero.name} | ${position}`,
-        [
-          currentEditorControl("Current level", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.level`, Number(piece.level || 0))),
-          currentEditorControl("Current +", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)),
-          heroGearLockedObservedEnhancement(piece)
-            ? currentEditorControl("Stat empower gate", `<span class="muted">Locked until Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL}</span>`)
-            : "",
-          currentEditorControl("Power", numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.power`, Number(piece.power || 0), 0)),
-        ],
-        "Hero gear target is reset from these current values.",
-      );
-    });
-  });
-
-  const buildingCards = gameData.buildings
-    .map((building) => {
-      const saved = state.buildings?.[building.building_id];
-      const levels = sortByNumber(buildingLevelsById[building.building_id] || [], "numerical_level");
-      if (!saved || !levels.length) return null;
-      return currentEditorCard(
-        building.name,
-        building.category || "Building",
-        [currentEditorControl("Current level", `<select data-path="buildings.${building.building_id}.current">${optionList(levels, "level_code", "level_code", saved.current)}</select>`)],
-      );
-    })
-    .filter(Boolean);
-
-  const petCards = gameData.pets
-    .map((pet) => {
-      const saved = state.pets?.[pet.pet_id];
-      const levels = (petLevelsById[pet.pet_id] || []).map((row) => ({ ...row, label: row.level_code }));
-      if (!saved || !levels.length) return null;
-      return currentEditorCard(
-        pet.name,
-        saved.power ? `Power ${fmt(saved.power)}` : "Pet",
-        [currentEditorControl("Current level", `<select data-path="pets.${pet.pet_id}.current">${optionList(levels, "label", "level_code", saved.current)}</select>`)],
-      );
-    })
-    .filter(Boolean);
-
-  const expertCards = gameData.experts
-    .map((expert) => {
-      const saved = state.experts?.[expert.expert_id];
-      const levels = (expertLevelsById[expert.expert_id] || []).map((row) => ({ ...row, label: row.relationship_label || row.level_code }));
-      if (!saved || !levels.length) return null;
-      return currentEditorCard(
-        expert.name,
-        saved.relationship || "Expert",
-        [
-          currentEditorControl(
-            "Current affinity",
-            `<select data-path="experts.${expert.expert_id}.relationship_current">${optionList(levels, "label", "level_code", saved.relationship_current)}</select>`,
-          ),
-        ],
-      );
-    })
-    .filter(Boolean);
-
-  const heroCards = Object.entries(state.heroes || {})
-    .map(([heroId, saved]) => {
-      const hero = heroById[heroId] || { name: titleFromId(heroId) };
-      return currentEditorCard(
-        hero.name,
-        [hero.rarity, hero.generation ? `Gen ${hero.generation}` : "", saved.power ? `Power ${fmt(saved.power)}` : ""].filter(Boolean).join(" | "),
-        [
-          currentEditorControl("Owned", checkboxInput(`heroes.${heroId}.owned`, Boolean(saved.owned))),
-          currentEditorControl("Stars", numberInput(`heroes.${heroId}.current_stars`, Number(saved.current_stars || 0), 0, 0.1)),
-          currentEditorControl("Widget", numberInput(`heroes.${heroId}.current_widget_level`, Number(saved.current_widget_level || 0), 0)),
-          currentEditorControl("Level", numberInput(`heroes.${heroId}.current_level`, Number(saved.current_level || 0), 0)),
-        ],
-      );
-    })
-    .filter(Boolean);
-
-  const troopCards = Object.entries(state.troops || {})
-    .filter(([, saved]) => Number(saved.tier || 0) < 12)
-    .map(([troopId, saved]) =>
-      currentEditorCard(
-        `${saved.troop_type || titleFromId(troopId)} T${saved.tier || ""}`.trim(),
-        "Troop count",
-        [currentEditorControl("Current count", numberInput(`troops.${troopId}.current`, Number(saved.current || 0), 0))],
-      ),
-    );
-
-  return `<section class="current-progress-editor">
-    <div class="section-title-row">
-      <div>
-        <h2>Current Progress Editor</h2>
-        <p>Manually correct recorded current values. Target reset buttons use these values as the new baseline.</p>
-      </div>
-    </div>
-    ${currentEditorSection("Chief Gear Current Values", "6 equipped chief gear pieces", chiefGearCards, { open: true })}
-    ${currentEditorSection("Hero Gear Current Values", `${fmt(heroGearCards.length)} equipped gear pieces`, heroGearCards, { open: true })}
-    ${currentEditorSection("Chief Charm Current Values", `${fmt(charmCards.length)} charms`, charmCards)}
-    ${currentEditorSection("Building Current Values", `${fmt(buildingCards.length)} buildings`, buildingCards)}
-    ${currentEditorSection("Pet Current Values", `${fmt(petCards.length)} pets`, petCards)}
-    ${currentEditorSection("Expert Current Values", `${fmt(expertCards.length)} experts`, expertCards)}
-    ${currentEditorSection("Hero Current Values", `${fmt(heroCards.length)} heroes`, heroCards)}
-    ${currentEditorSection("Troop Current Values", `${fmt(troopCards.length)} troop rows`, troopCards)}
-  </section>`;
-}
 
 function costHtml(cost, fields) {
   const visible = fields
@@ -3765,9 +3595,16 @@ function plannerCoverage() {
 }
 
 function renderNav() {
-  $("#moduleNav").innerHTML = MODULES.map(
-    ([id, label]) =>
-      `<button type="button" class="nav-button ${id === activeTab ? "active" : ""}" data-tab="${id}" aria-current="${id === activeTab ? "page" : "false"}">${esc(label)}</button>`,
+  $("#moduleNav").innerHTML = MODULE_GROUPS.map(
+    ([groupLabel, entries]) => `<div class="nav-group">
+      <span class="nav-group__label">${esc(groupLabel)}</span>
+      ${entries
+        .map(
+          ([id, label]) =>
+            `<button type="button" class="nav-button ${id === activeTab ? "active" : ""}" data-tab="${id}" aria-current="${id === activeTab ? "page" : "false"}">${esc(label)}</button>`,
+        )
+        .join("")}
+    </div>`,
   ).join("");
 }
 
@@ -4151,400 +3988,420 @@ function objectValue(value) {
   return esc(value);
 }
 
-function renderCurrentExtract() {
-  const data = state.extracted_current;
-  if (!data) {
-    $("#tab-current-extract").innerHTML = `
-      <div class="empty-state">
-        <h2>No Current Extract Loaded</h2>
-        <p>Save BlueStacks extraction data to data/current-player-state.json and reload the local dashboard server.</p>
-      </div>
-    `;
-    return;
-  }
+// ===========================================================================
+// Inventory - the single editable record of what you own and where you are.
+// Replaces the old read-only "Current Extract" page and the separate "Resources"
+// editor, which were showing the same data twice with only one of them editable.
+// ===========================================================================
 
-  const heroes = Object.values(data.heroes || {}).filter((hero) => hero && typeof hero === "object" && hero.name);
-  const pets = Object.values(data.pets || {}).filter((pet) => pet && typeof pet === "object" && (pet.level != null || pet.current_level != null));
-  const experts = Object.values(data.experts || {}).filter((expert) => expert && typeof expert === "object" && expert.level != null);
-  const buildings = Object.values(data.buildings || {}).filter((building) => building && typeof building === "object" && building.name);
-  const warAcademy = data.research?.war_academy || {};
-  const resourceDisplays = data.resources?.resource_displays || {};
-  const troops = data.troops || {};
-  const skins = data.skins || {};
+const INVENTORY_CATEGORIES = [
+  ["all", "Everything"],
+  ["profile", "Profile"],
+  ["materials", "Materials"],
+  ["progress", "Progress"],
+  ["roster", "Roster"],
+  ["reference", "Reference"],
+];
 
-  const profileRows = [
-    ["Chief", data.profile?.chief_name],
-    ["Chief ID", data.profile?.chief_id],
-    ["State", data.profile?.state_number],
-    ["VIP", data.profile?.vip_level],
-    ["Power", data.profile?.power],
-    ["Alliance", data.profile?.alliance],
-    ["Diamonds", data.resources?.diamonds],
-  ].map(([label, value]) => `<tr><td><strong>${esc(label)}</strong></td><td>${objectValue(value)}</td></tr>`);
+// Every scalar the dashboard reads, grouped so a value can be found by area rather
+// than by remembering its internal key.
+const INVENTORY_MATERIAL_GROUPS = [
+  ["main", "Main Resources", ["meat", "wood", "coal", "iron", "steel", "fire_crystals", "refined_fire_crystals", "fire_crystal_shards", "fire_crystal_embers"]],
+  ["gear", "Chief Gear & Charm Materials", ["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber", "charm_guides", "charm_designs", "charm_secrets"]],
+  ["hero", "Hero & Hero Gear Materials", ["hero_gear_xp", "mythic_gear", "mithril", "essence_stones", "widgets", "mystery_badges"]],
+  ["pet", "Pet Materials", ["pet_manuals", "pet_potions", "pet_serum", "pet_food", "pet_custom_chests", "common_wild_marks", "advanced_wild_marks"]],
+  ["shards", "Hero Shards, Sigils & Affinity", ["mythic_general_shards", "epic_general_shards", "rare_general_shards", "expert_sigils", "expert_affinity", "books_of_knowledge"]],
+  ["speedups", "Speedups", ["construction_speedups_minutes", "general_speedups_minutes", "research_speedups_minutes", "training_speedups_minutes", "learning_speedups_minutes", "healing_speedups_minutes"]],
+  ["chief", "Chief Items & Event Currency", ["diamonds", "stamina_cans", "chief_stamina", "match_stakes", "trek_attempts", "trek_compass", "wonderstar_coins", "warhymn_testaments"]],
+];
 
-  const backpackDirectResources = data.resources?.backpack_direct_resource_value || {};
-  const resourceRows = [
-    ...Object.entries(resourceDisplays).map(
-      ([key, value]) => `<tr><td>${visualLabel(key, RESOURCE_LABELS[key] || key.replaceAll("_", " "))}</td><td>${esc(value)}</td></tr>`,
-    ),
-    ...Object.entries(backpackDirectResources)
-      .filter(([key]) => key !== "notes")
-      .map(
-        ([key, value]) =>
-          `<tr><td>${visualLabel(key, `Backpack direct ${RESOURCE_LABELS[key] || key.replaceAll("_", " ")}`)}</td><td>${objectValue(value)}</td></tr>`,
-      ),
-  ];
+// CSS.escape is not available in every embedded webview this runs in.
+function cssEscape(value) {
+  return String(value).replace(/["\\]/g, "\\$&");
+}
 
-  // The page used to render only resource_displays and quietly drop every other counter -
-  // Lunar Amber, Mithril, charm mats and per-expert sigils were recorded but invisible.
-  // Sweep every plain number/string on data.resources and file it under a heading.
-  const RESOURCE_GROUP_RULES = [
-    ["gear-mats", "Chief Gear & Charm Materials", ["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber", "charm_guides", "charm_designs", "charm_secrets"]],
-    ["hero-mats", "Hero & Hero Gear Materials", ["mithril", "hero_gear_xp", "essence_stones", "mythic_gear", "widgets", "mystery_badges"]],
-    ["pet-mats", "Pet Materials", ["pet_manuals", "pet_potions", "pet_serum", "pet_food", "pet_custom_chests", "advanced_wild_marks", "common_wild_marks"]],
-    ["shards", "Hero Shards, Sigils & Affinity", ["rare_general_shards", "epic_general_shards", "mythic_general_shards", "expert_sigils", "expert_affinity", "books_of_knowledge"]],
-    ["speedup-mins", "Speedup Totals (minutes)", ["general_speedups_minutes", "construction_speedups_minutes", "research_speedups_minutes", "training_speedups_minutes", "healing_speedups_minutes", "learning_speedups_minutes"]],
-    ["event-mats", "Event & Miscellaneous", ["stamina_cans", "match_stakes", "trek_attempts", "trek_compass", "wonderstar_coins", "warhymn_testaments", "fire_crystal_embers"]],
-  ];
-  const RESOURCE_SKIP_KEYS = new Set([
-    "resource_displays",
-    "backpack_items",
-    "backpack_direct_resource_value",
-    "speedups",
-    "top_bar_resource_observed",
-    ...Object.keys(resourceDisplays),
-  ]);
-  const resourceRow = (key, value) =>
-    `<tr><td>${visualLabel(key, RESOURCE_LABELS[key] || titleFromId(key.replaceAll("_", " ")))}</td><td class="number">${objectValue(value)}</td></tr>`;
+// The "reset" affordance only makes sense while the live value and the capture differ.
+function refreshInventoryCapturedCell(key) {
+  const row = $(`tr[data-inv-key="${cssEscape(key)}"]`);
+  if (!row) return;
+  const cell = row.querySelector(".inv-captured");
+  if (!cell) return;
+  const captured = state.extracted_current?.resources?.[key];
+  const drifted = typeof captured === "number" && Number(captured) !== rawInventoryValue(key);
+  cell.innerHTML = `${typeof captured === "number" ? fmt(captured) : '<span class="muted">not read</span>'}${
+    drifted ? `<button type="button" class="inv-reset" data-inv-reset="${esc(key)}" title="Set back to what the game read said">reset</button>` : ""
+  }`;
+}
 
-  const grouped = new Set();
-  const groupedResourceSections = RESOURCE_GROUP_RULES.map(([id, title, keys]) => {
-    const rows = keys
-      .filter((key) => {
-        const value = data.resources?.[key];
-        return value !== undefined && value !== null && (typeof value === "number" || typeof value === "string");
-      })
-      .map((key) => {
-        grouped.add(key);
-        const value = data.resources[key];
-        // Raw minutes are unreadable at 51,089. Show the human span next to the number.
-        const shown = /_minutes$/.test(key) ? `${objectValue(value)} <small class="muted">${esc(speedupDurationText(value))}</small>` : objectValue(value);
-        return `<tr><td>${visualLabel(key, RESOURCE_LABELS[key] || titleFromId(key.replaceAll("_", " ")))}</td><td class="number">${shown}</td></tr>`;
-      });
-    return { id: `res-${id}`, cat: "resources", title, headers: ["Item", "Count"], rows };
+function inventoryViewState() {
+  return {
+    query: state.inventory_view?.query || "",
+    category: state.inventory_view?.category || "all",
+    open: state.inventory_view?.open || {},
+  };
+}
+
+function inventorySectionHtml(section) {
+  const { open } = inventoryViewState();
+  const count = section.rows.length;
+  const isOpen = open[section.id] === undefined ? (section.defaultOpen ?? count <= 12) : Boolean(open[section.id]);
+  return `<details class="extract-section" data-extract-section="${esc(section.id)}" data-cat="${esc(section.cat)}"${isOpen ? " open" : ""}>
+    <summary>
+      <span class="extract-section__caret" aria-hidden="true"></span>
+      <span class="extract-section__title">${esc(section.title)}</span>
+      ${section.note ? `<span class="extract-section__note">${esc(section.note)}</span>` : ""}
+      <span class="extract-section__count" data-count-for="${esc(section.id)}">${fmt(count)}</span>
+    </summary>
+    <div class="extract-section__body">${miniTable(section.headers, section.rows)}</div>
+  </details>`;
+}
+
+// An editable material row: label, the live value every calculator reads, and the
+// figure the last game capture recorded so you can see when they have drifted apart.
+function inventoryMaterialRow(key) {
+  const resource = resourceRecord(key);
+  const label = resource?.name || RESOURCE_LABELS[key] || titleFromId(key);
+  const value = rawInventoryValue(key);
+  const captured = state.extracted_current?.resources?.[key];
+  const drifted = typeof captured === "number" && Number(captured) !== Number(value);
+  const reserved = reservedInventoryValue(key);
+  return `<tr data-inv-key="${esc(key)}">
+    <td>${visualLabel(key, label)}</td>
+    <td class="inv-cell">
+      ${numberInput(`resources.${key}`, value)}
+      <span class="inv-fineprint" data-fineprint-for="${esc(key)}">${resourceFineprintHtml(key, value)}</span>
+    </td>
+    <td class="number inv-captured">
+      ${typeof captured === "number" ? fmt(captured) : '<span class="muted">not read</span>'}
+      ${drifted ? `<button type="button" class="inv-reset" data-inv-reset="${esc(key)}" title="Set back to what the game read said">reset</button>` : ""}
+    </td>
+    <td class="inv-cell">${numberInput(`resource_reservations.${key}`, reserved)}</td>
+  </tr>`;
+}
+
+function inventoryMaterialSections() {
+  const claimed = new Set();
+  const sections = INVENTORY_MATERIAL_GROUPS.map(([id, title, keys]) => {
+    const rows = keys.filter((key) => {
+      claimed.add(key);
+      return resourceRecord(key) || state.resources?.[key] !== undefined || state.extracted_current?.resources?.[key] !== undefined;
+    }).map(inventoryMaterialRow);
+    return {
+      id: `mat-${id}`,
+      cat: "materials",
+      title,
+      headers: ["Item", "You have", "Last game read", "Set aside"],
+      rows,
+      defaultOpen: id === "main" || id === "gear",
+    };
   });
 
   // Per-expert sigils are one row each and always belong together.
-  const sigilRows = Object.entries(data.resources || {})
-    .filter(([key]) => key.startsWith("sigils_"))
-    .map(([key, value]) => {
-      grouped.add(key);
-      return `<tr><td>${visualLabel("expert", titleFromId(key.replace("sigils_", "")))}</td><td class="number">${objectValue(value)}</td></tr>`;
+  ensureExpertSigilResources();
+  const sigilRows = Object.keys(state.resources || {})
+    .filter((key) => key.startsWith("sigils_"))
+    .sort()
+    .map((key) => {
+      claimed.add(key);
+      return inventoryMaterialRow(key);
     });
+  if (sigilRows.length) {
+    sections.push({ id: "mat-sigils", cat: "materials", title: "Sigils by Expert", headers: ["Expert", "You have", "Last game read", "Set aside"], rows: sigilRows });
+  }
 
-  // Anything the rules did not claim still gets shown rather than silently dropped.
-  const leftoverResourceRows = Object.entries(data.resources || {})
-    .filter(([key, value]) => !RESOURCE_SKIP_KEYS.has(key) && !grouped.has(key) && (typeof value === "number" || typeof value === "string"))
-    .map(([key, value]) => resourceRow(key, value));
+  // Nothing gets dropped just because no rule claimed it.
+  const leftover = [...new Set([...Object.keys(state.resources || {}), ...Object.keys(state.extracted_current?.resources || {})])]
+    .filter((key) => !claimed.has(key) && typeof (state.resources?.[key] ?? state.extracted_current?.resources?.[key]) === "number")
+    .sort()
+    .map(inventoryMaterialRow);
+  if (leftover.length) {
+    sections.push({ id: "mat-other", cat: "materials", title: "Other Tracked Counts", headers: ["Item", "You have", "Last game read", "Set aside"], rows: leftover });
+  }
+  return sections;
+}
 
-  // Provenance objects ("...observed") explain where a number came from. They used to be
-  // stringified into a table cell; give them a readable home instead.
-  const captureNoteRows = Object.entries(data.resources || {})
-    .filter(([key, value]) => value && typeof value === "object" && !Array.isArray(value) && !RESOURCE_SKIP_KEYS.has(key))
-    .map(([key, value]) => {
-      const note = value.note || "";
-      const detail = Object.entries(value)
-        .filter(([field]) => field !== "note")
-        .map(([field, inner]) => `${titleFromId(field.replaceAll("_", " "))}: ${typeof inner === "object" ? JSON.stringify(inner) : inner}`)
-        .join(" · ");
-      return `<tr><td>${esc(titleFromId(key.replaceAll("_", " ")))}</td><td>${esc(detail)}</td><td>${esc(note)}</td></tr>`;
+// Progress sections: the levels the calculators plan from. Editing here is the same
+// as editing on the module page - both write the identical state path.
+function inventoryProgressSections() {
+  const sections = [];
+  const gearLevels = sortByNumber(gameData.chief_gear_levels, "sequence");
+  const charmLevels = [{ charm_level: 0, label: "0" }, ...gameData.chief_charm_levels.map((row) => ({ ...row, label: String(row.charm_level) }))];
+  const buildingLevelsById = groupBy(gameData.building_levels, "building_id");
+  const petLevelsById = groupBy(gameData.pet_levels, "pet_id");
+  const expertLevelsById = groupBy(gameData.expert_affinity_levels, "expert_id");
+  const heroById = Object.fromEntries(gameData.heroes.map((hero) => [hero.hero_id, hero]));
+
+  const gearRows = gameData.chief_gear_slots
+    .filter((slot) => state.chief_gear?.[slot.slot_id])
+    .map((slot) => {
+      const saved = state.chief_gear[slot.slot_id];
+      return `<tr>
+        <td>${visualLabel("gear", slot.name, saved.item_name || "")}</td>
+        <td class="inv-cell"><select data-path="chief_gear.${slot.slot_id}.current">${optionList(gearLevels, "gear_level_code", "gear_level_code", saved.current)}</select></td>
+        <td class="inv-cell">${numberInput(`chief_gear.${slot.slot_id}.power`, saved.power || 0)}</td>
+      </tr>`;
     });
+  if (gearRows.length) sections.push({ id: "prog-chief-gear", cat: "progress", title: "Chief Gear", headers: ["Slot", "Current tier", "Power"], rows: gearRows });
 
-  const backpackRows = (data.resources?.backpack_items?.resources || []).map(
-    (item) => `<tr>
-      <td>${visualLabel("backpack resource", item.name || "-")}</td>
-      <td class="number">${objectValue(item.count)}</td>
-      <td>${objectValue(item.effect)}</td>
-    </tr>`,
-  );
+  const charmSlotById = Object.fromEntries(gameData.chief_charm_slots.map((slot) => [slot.slot_id, slot]));
+  const charmRows = Object.entries(state.charms || {}).map(([slotId, saved]) => {
+    const slot = charmSlotById[slotId] || {};
+    return `<tr>
+      <td>${visualLabel("charm", `${slot.gear_slot || titleFromId(slotId.split("_")[0])} ${slot.position || ""}`.trim())}</td>
+      <td class="inv-cell"><select data-path="charms.${slotId}.current">${optionList(charmLevels, "label", "charm_level", saved.current)}</select></td>
+    </tr>`;
+  });
+  if (charmRows.length) sections.push({ id: "prog-charms", cat: "progress", title: "Chief Charms", headers: ["Slot", "Current level"], rows: charmRows });
 
-  const backpackSpeedupRows = Object.entries(data.resources?.speedups || {}).flatMap(([category, stacks]) =>
-    Object.entries(stacks || {}).map(
-      ([duration, count]) => `<tr>
-        <td>${visualLabel("speedup", category)}</td>
-        <td>${esc(duration)}</td>
-        <td class="number">${objectValue(count)}</td>
-      </tr>`,
-    ),
+  const heroGearRow = ([heroId, hero, slot, piece]) => {
+    const level = Number(piece.level || 0);
+    const cap = heroGearCanEmpowerAtLevel(level) ? heroGearEmpowermentCapForMastery(level) : HERO_GEAR_MAX_ENHANCEMENT;
+    return `<tr>
+      <td>${visualLabel("gear", `${hero.name} · ${heroGearPieceName(slot, piece)}`)}</td>
+      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.level`, level)}</td>
+      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)}<span class="inv-fineprint">max +${fmt(cap)} at Lv ${fmt(level)}</span></td>
+      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.power`, Number(piece.power || 0), 0)}</td>
+    </tr>`;
+  };
+  const heroGearPiecesAll = Object.entries(state.extracted_current?.hero_gear || {}).flatMap(([heroId, gearSet]) =>
+    heroGearPieces(gearSet.gear).map(([slot, piece]) => [heroId, heroRecordFor(heroId), slot, piece]),
   );
+  // Most heroes have an all-zero gear record. Listing 136 rows where 116 are blank buries
+  // the five sets you have actually invested in.
+  const investedGear = heroGearPiecesAll.filter(([, , , piece]) => Number(piece.level || 0) > 0 || heroGearCurrentEnhancement(piece) > 0);
+  const untouchedGear = heroGearPiecesAll.filter((entry) => !investedGear.includes(entry));
+  const gearHeaders = ["Piece", "Mastery Lv", "Enhancement", "Power"];
+  if (investedGear.length) {
+    sections.push({ id: "prog-hero-gear", cat: "progress", title: "Hero Gear", headers: gearHeaders, rows: investedGear.map(heroGearRow), defaultOpen: false });
+  }
+  if (untouchedGear.length) {
+    sections.push({
+      id: "prog-hero-gear-blank",
+      cat: "progress",
+      title: "Hero Gear — nothing invested yet",
+      note: "Fill these in when you start a set",
+      headers: gearHeaders,
+      rows: untouchedGear.map(heroGearRow),
+      defaultOpen: false,
+    });
+  }
 
-  const backpackBonusRows = (data.resources?.backpack_items?.bonus || []).map(
-    (item) => `<tr>
-      <td>${visualLabel("bonus", item.name || "-", item.extraction_note || "")}</td>
-      <td class="number">${objectValue(item.count)}</td>
-      <td>${objectValue(item.effect)}</td>
-    </tr>`,
-  );
-
-  const backpackOtherRows = (data.resources?.backpack_items?.other || []).map(
-    (item) => `<tr>
-      <td>${visualLabel("backpack other", item.name || "-", item.extraction_note || "")}</td>
-      <td class="number">${objectValue(item.count)}</td>
-      <td>${objectValue(item.effect)}</td>
-    </tr>`,
-  );
-
-  const gearRows = Object.entries(data.chief_gear || {}).map(
-    ([slot, gear]) => `<tr>
-      <td>${visualLabel("gear", slot, gear.item_name || "")}</td>
-      <td>${esc(gear.item_name || "-")}</td>
-      <td>${esc(gear.current || "-")}</td>
-      <td class="number">${objectValue(gear.power)}</td>
-    </tr>`,
-  );
-
-  const charmRows = Object.entries(data.charms || {}).map(
-    ([slot, charm]) => `<tr><td>${visualLabel("charm", slot.replaceAll("_", " "))}</td><td class="number">${objectValue(charm.current)}</td></tr>`,
-  );
-
-  const heroRows = heroes.map(
-    (hero) => `<tr>
-      <td>${visualLabel("hero", hero.name, `${hero.rarity || ""}${hero.generation ? ` | Gen ${hero.generation}` : ""}`)}</td>
-      <td class="number">${objectValue(hero.current_level)}</td>
-      <td>${objectValue(hero.stars ?? hero.stars_observed ?? (hero.owned === false ? "Unowned" : ""))}</td>
-      <td class="number">${objectValue(hero.power ?? hero.power_preview)}</td>
-    </tr>`,
-  );
-
-  const petRows = pets.map(
-    (pet) => `<tr>
-      <td>${visualLabel("pet", pet.name, pet.rarity || "")}</td>
-      <td class="number">${objectValue(pet.level ?? pet.current_level)}</td>
-      <td class="number">${objectValue(pet.power)}</td>
-      <td>${objectValue(pet.troops_attack_percent != null ? `+${pet.troops_attack_percent}% / +${pet.troops_defense_percent}%` : "")}</td>
-    </tr>`,
-  );
-
-  const expertRows = experts.map(
-    (expert) => `<tr>
-      <td>${visualLabel("expert", expert.name, expert.relationship || "")}</td>
-      <td class="number">${objectValue(expert.level)}</td>
-      <td class="number">${objectValue(expert.power)}</td>
-      <td>${objectValue(expert.affinity_status || `${expert.affinity_current ?? "-"} / ${expert.affinity_required ?? "-"}`)}</td>
-    </tr>`,
-  );
+  const buildingRows = gameData.buildings
+    .filter((building) => state.buildings?.[building.building_id] && (buildingLevelsById[building.building_id] || []).length)
+    .map((building) => {
+      const saved = state.buildings[building.building_id];
+      const levels = sortByNumber(buildingLevelsById[building.building_id], "numerical_level");
+      return `<tr>
+        <td>${visualLabel("building", building.name, building.category || "")}</td>
+        <td class="inv-cell"><select data-path="buildings.${building.building_id}.current">${optionList(levels, "level_code", "level_code", saved.current)}</select></td>
+      </tr>`;
+    });
+  if (buildingRows.length) sections.push({ id: "prog-buildings", cat: "progress", title: "Buildings", headers: ["Building", "Current level"], rows: buildingRows });
 
   const researchRows = [
-    ["Normal active", data.research?.active_research?.name, data.research?.active_research?.remaining_time_observed],
-    ["War Academy", data.buildings?.war_academy?.current, data.buildings?.war_academy?.research_speed_bonus],
-    ["Fire Crystal Tech", warAcademy.fire_crystal_tech_power, `${warAcademy.fire_crystal_shards ?? "-"} shards`],
-    ["War active", warAcademy.active_research?.name, warAcademy.active_research?.remaining_time_observed],
-    ["Expert learning", data.experts?.active_learning?.expert, data.experts?.active_learning?.remaining_time_observed],
-  ].map(([system, current, detail]) => `<tr><td>${visualLabel("research", system)}</td><td>${objectValue(current)}</td><td>${objectValue(detail)}</td></tr>`);
+    ["Construction speed %", numberInput("profile.construction_speed_pct", Number(state.profile?.construction_speed_pct || 0), 0, 0.1)],
+    ["Research speed %", numberInput("profile.research_speed_pct", Number(state.profile?.research_speed_pct || 0), 0, 0.1)],
+    ["Training speed %", numberInput("profile.training_speed_pct", Number(state.profile?.training_speed_pct || 0), 0, 0.1)],
+  ].map(([label, control]) => `<tr><td>${visualLabel("research", label)}</td><td class="inv-cell">${control}</td></tr>`);
+  sections.push({ id: "prog-speed", cat: "progress", title: "Speed Bonuses", headers: ["Bonus", "Current"], rows: researchRows, note: "Used to work out build and research times" });
 
-  const troopRows = [
-    ["Total troops", troops.summary?.total_display, `March queue ${troops.summary?.march_queue || "-"} | Injured ${troops.summary?.injured_display || "-"}`],
-    ["Helios Infantry", troops.helios_infantry?.count, troops.helios_infantry?.type],
-    ["Helios Lancer", troops.helios_lancer?.count, troops.helios_lancer?.type],
-    ["Helios Marksman", troops.helios_marksman?.count, troops.helios_marksman?.type],
-  ].map(([scope, current, detail]) => `<tr><td>${visualLabel("troop", scope)}</td><td>${objectValue(current)}</td><td>${objectValue(detail)}</td></tr>`);
-
-  const skinRows = [
-    ["Current City Skin", skins.current_city_skin?.name, skins.current_city_skin?.acquisition_bonus, "city skin"],
-    ...(skins.visible_city_bonus_items || []).map((item) => [item.name, item.duration, item.bonus, "city skin"]),
-    ...Object.entries(skins.aggregate_bonus || {}).map(([key, value]) => [key.replaceAll("_", " "), `+${value}%`, "Aggregate skin bonus", "skin bonus"]),
-  ].map(([scope, current, detail, iconScope]) => `<tr><td>${visualLabel(iconScope || "skin", scope)}</td><td>${objectValue(current)}</td><td>${objectValue(detail)}</td></tr>`);
-
-  const nodeDetailFields = [
-    "effect",
-    "helios_infantry_healing_cost_reduction",
-    "helios_infantry_training_cost_reduction",
-    "helios_infantry_healing_time_reduction",
-    "helios_lancer_healing_cost_reduction",
-    "helios_lancer_training_cost_reduction",
-    "helios_lancer_healing_time_reduction",
-    "helios_marksman_healing_cost_reduction",
-    "helios_marksman_training_cost_reduction",
-    "helios_marksman_healing_time_reduction",
-    "infantry_attack",
-    "infantry_defense",
-    "lancer_attack",
-    "lancer_defense",
-    "marksman_attack",
-    "marksman_defense",
-    "troops_deployment_capacity",
-  ];
-  const warNodeRows = Object.entries(warAcademy.visible_nodes || {}).map(([key, node]) => {
-    const detail = nodeDetailFields
-      .filter((field) => node[field])
-      .map((field) => `${field.replaceAll("_", " ")}: ${node[field]}`)
-      .join(" | ");
-    const cost = node.research_cost ? Object.entries(node.research_cost).map(([resource, value]) => `${resource.replaceAll("_", " ")} ${value}`).join(" | ") : "";
-    const time = [node.current_time, node.original_time ? `base ${node.original_time}` : "", node.finish_cost_diamonds ? `${fmt(node.finish_cost_diamonds)} diamonds` : ""]
-      .filter(Boolean)
-      .join(" | ");
+  // ---- roster -------------------------------------------------------------
+  const heroRow = ([heroId, saved]) => {
+    const hero = heroById[heroId] || { name: titleFromId(heroId) };
     return `<tr>
-      <td>${visualLabel("research", (node.name || key).replaceAll("_", " "))}</td>
-      <td>${objectValue(node.level_progress ?? node.level ?? node.status)}</td>
-      <td>${objectValue(detail || node.status)}</td>
-      <td>${objectValue(cost)}</td>
-      <td>${objectValue(time || node.power)}</td>
+      <td>${visualLabel("hero", hero.name, [hero.rarity, hero.generation ? `Gen ${hero.generation}` : ""].filter(Boolean).join(" · "))}</td>
+      <td class="inv-cell">${checkboxInput(`heroes.${heroId}.owned`, Boolean(saved.owned))}</td>
+      <td class="inv-cell">${numberInput(`heroes.${heroId}.current_level`, Number(saved.current_level || 0), 0)}</td>
+      <td class="inv-cell">${numberInput(`heroes.${heroId}.current_stars`, Number(saved.current_stars || 0), 0, 0.1)}</td>
+      <td class="inv-cell">${numberInput(`heroes.${heroId}.current_widget_level`, Number(saved.current_widget_level || 0), 0)}</td>
     </tr>`;
-  });
+  };
+  const heroEntries = Object.entries(state.heroes || {});
+  const ownedHeroes = heroEntries.filter(([, saved]) => saved.owned);
+  const unownedHeroes = heroEntries.filter(([, saved]) => !saved.owned);
+  const heroHeaders = ["Hero", "Owned", "Level", "Stars", "Widget"];
+  if (ownedHeroes.length) sections.push({ id: "ros-heroes", cat: "roster", title: "Heroes You Own", headers: heroHeaders, rows: ownedHeroes.map(heroRow), defaultOpen: false });
+  if (unownedHeroes.length) {
+    sections.push({ id: "ros-heroes-unowned", cat: "roster", title: "Heroes Not Owned", note: "Tick Owned when you unlock one", headers: heroHeaders, rows: unownedHeroes.map(heroRow), defaultOpen: false });
+  }
 
-  const openRows = (data.open_items || []).map((item) => `<tr><td>${objectValue(item)}</td></tr>`);
+  const petRows = gameData.pets
+    .filter((pet) => state.pets?.[pet.pet_id] && (petLevelsById[pet.pet_id] || []).length)
+    .map((pet) => {
+      const saved = state.pets[pet.pet_id];
+      const levels = (petLevelsById[pet.pet_id] || []).map((row) => ({ ...row, label: row.level_code }));
+      return `<tr>
+        <td>${visualLabel("pet", pet.name)}</td>
+        <td class="inv-cell"><select data-path="pets.${pet.pet_id}.current">${optionList(levels, "label", "level_code", saved.current)}</select></td>
+      </tr>`;
+    });
+  if (petRows.length) sections.push({ id: "ros-pets", cat: "roster", title: "Pets", headers: ["Pet", "Current level"], rows: petRows });
 
-  const gallery = data.collection_gallery || {};
-  const galleryRows = [
-    ["Rank", gallery.rank, gallery.level ? `Lv. ${gallery.level} | ${objectValue(gallery.progress_current)} / ${objectValue(gallery.progress_required)}` : ""],
-    ...Object.entries(gallery.categories || {}).map(([category, count]) => [category.replaceAll("_", " "), count, "items"]),
-    ...(gallery.marching?.opened_items || []).map((item) => [item.name, item.owned ? "Owned" : "Not owned", item.stat_bonus]),
-  ].map(([scope, current, detail]) => `<tr><td>${visualLabel("skin gallery", scope)}</td><td>${objectValue(current)}</td><td>${objectValue(detail)}</td></tr>`);
+  const expertRows = gameData.experts
+    .filter((expert) => state.experts?.[expert.expert_id] && (expertLevelsById[expert.expert_id] || []).length)
+    .map((expert) => {
+      const saved = state.experts[expert.expert_id];
+      const levels = (expertLevelsById[expert.expert_id] || []).map((row) => ({ ...row, label: row.relationship_label || row.level_code }));
+      return `<tr>
+        <td>${visualLabel("expert", expert.name)}</td>
+        <td class="inv-cell"><select data-path="experts.${expert.expert_id}.relationship_current">${optionList(levels, "label", "level_code", saved.relationship_current)}</select></td>
+        <td class="inv-cell">${numberInput(`resources.sigils_${expert.expert_id}`, Number(state.resources?.[`sigils_${expert.expert_id}`] || 0), 0)}</td>
+      </tr>`;
+    });
+  if (expertRows.length) sections.push({ id: "ros-experts", cat: "roster", title: "Experts", headers: ["Expert", "Current level", "Sigils"], rows: expertRows });
 
-  const buildingRows = buildings.map((building) => {
-    const detail = [
-      building.status,
-      building.furnace_status ? `Status ${building.furnace_status}` : "",
-      building.furnace_consumption ? `Cost ${building.furnace_consumption}` : "",
-      building.research_speed_bonus ? `Research ${building.research_speed_bonus}` : "",
-      building.infirmary_capacity ? `Capacity ${building.infirmary_capacity}` : "",
-      building.capacity ? `Capacity ${building.capacity}` : "",
-      building.stove ? `Stove ${building.stove}` : "",
-    ]
-      .filter(Boolean)
-      .join(" | ");
-    return `<tr>
-      <td>${visualLabel("building", building.name)}</td>
-      <td>${objectValue(building.current)}</td>
-      <td>${objectValue(detail)}</td>
-      <td class="number">${objectValue(building.power)}</td>
-    </tr>`;
-  });
+  const troopRow = ([troopId, saved]) => `<tr>
+    <td>${visualLabel("troop", `${saved.troop_type || titleFromId(troopId)} T${saved.tier || ""}`.trim())}</td>
+    <td class="inv-cell">${numberInput(`troops.${troopId}.current`, Number(saved.current || 0), 0)}</td>
+  </tr>`;
+  const troopEntries = Object.entries(state.troops || {});
+  const heldTroops = troopEntries.filter(([, saved]) => Number(saved.current || 0) > 0);
+  const emptyTroops = troopEntries.filter(([, saved]) => !Number(saved.current || 0));
+  if (heldTroops.length) sections.push({ id: "ros-troops", cat: "roster", title: "Troops", headers: ["Troop", "Count"], rows: heldTroops.map(troopRow), defaultOpen: false });
+  if (emptyTroops.length) {
+    sections.push({ id: "ros-troops-empty", cat: "roster", title: "Troop Tiers With None Held", headers: ["Troop", "Count"], rows: emptyTroops.map(troopRow), defaultOpen: false });
+  }
 
-  const bonusOverview = data.bonus_overview || {};
-  const bonusOverviewSections = [
-    ["Power", bonusOverview.power],
-    ["Battle Results", bonusOverview.battle_results],
-    ["Military", bonusOverview.military],
-    ["City Defenses", bonusOverview.city_defenses],
-    ["Resources", bonusOverview.resources],
-    ["Growth", bonusOverview.growth],
-  ].filter(([, section]) => section && Object.keys(section).length);
-  const bonusOverviewHtml = bonusOverviewSections.length
-    ? `<div class="panel">
-        <h2>Bonus Overview (Chief Profile)</h2>
-        <div class="bonus-overview-grid">
-          ${bonusOverviewSections
-            .map(([title, section]) => `<section class="gd-section">
-              ${gameSectionBannerHtml(title)}
-              <div class="gd-bonus-list">
-                ${Object.entries(section)
-                  .map(([key, value]) => ({
-                    label: titleFromId(key.replace(/_percent$/, "").replaceAll("_", " ")),
-                    value: /percent$/.test(key) ? `${fmt(Number(value), 2)}%` : fmt(Number(value)),
-                  }))
-                  .map((row) => `<div class="gd-bonus-row"><span class="gd-bonus-label">${esc(row.label)}</span><span class="gd-bonus-values"><strong>${esc(row.value)}</strong></span></div>`)
-                  .join("")}
-              </div>
-            </section>`)
-            .join("")}
-        </div>
-      </div>`
-    : "";
+  return sections;
+}
 
-  // --- section registry -----------------------------------------------------
-  // Everything used to be dumped as 18 always-open panels in a fixed order. Group it,
-  // let it collapse, and make it searchable so a single value can actually be found.
+function inventoryProfileSection() {
+  const profile = state.profile || {};
+  const rows = [
+    ["Chief name", textInput("profile.chief_name", profile.chief_name)],
+    ["State", textInput("profile.state_number", profile.state_number)],
+    ["Alliance", textInput("profile.alliance", profile.alliance)],
+    ["Furnace", textInput("profile.furnace_level", profile.furnace_level)],
+    ["VIP level", numberInput("profile.vip_level", Number(profile.vip_level || 0), 0)],
+    ["Power", numberInput("profile.power", Number(profile.power || 0), 0)],
+  ].map(([label, control]) => `<tr><td>${esc(label)}</td><td class="inv-cell">${control}</td></tr>`);
+  return { id: "profile", cat: "profile", title: "Profile", headers: ["Field", "Value"], rows, defaultOpen: true };
+}
+
+// Read-only reference: raw capture detail that has no single editable value.
+function inventoryReferenceSections(data) {
+  const sections = [];
+  const backpack = data?.resources?.backpack_items || {};
+  const itemRows = (list) => (list || []).map((item) => `<tr>
+    <td>${visualLabel("backpack resource", item.name || "-")}</td>
+    <td class="number">${objectValue(item.count)}</td>
+    <td>${objectValue(item.effect)}</td>
+  </tr>`);
+
+  [["ref-backpack", "Backpack Items", backpack.resources], ["ref-bonus", "Backpack Bonus Items", backpack.bonus], ["ref-other", "Backpack Other", backpack.other]]
+    .forEach(([id, title, list]) => {
+      const rows = itemRows(list);
+      if (rows.length) sections.push({ id, cat: "reference", title, headers: ["Item", "Count", "Effect"], rows, defaultOpen: false });
+    });
+
+  const speedupRows = Object.entries(data?.resources?.speedups || {}).flatMap(([category, stacks]) =>
+    Object.entries(stacks || {}).map(([duration, count]) => `<tr>
+      <td>${visualLabel("speedup", titleFromId(category))}</td>
+      <td>${esc(duration)}</td>
+      <td class="number">${objectValue(count)}</td>
+    </tr>`),
+  );
+  if (speedupRows.length) {
+    sections.push({ id: "ref-speedups", cat: "reference", title: "Speedup Stacks (as counted in the backpack)", headers: ["Type", "Duration", "Count"], rows: speedupRows, defaultOpen: false });
+  }
+
+  const bonusOverview = data?.bonus_overview || {};
+  const bonusRows = Object.entries(bonusOverview).flatMap(([group, section]) =>
+    section && typeof section === "object"
+      ? Object.entries(section).map(([key, value]) => `<tr>
+          <td>${esc(titleFromId(group))}</td>
+          <td>${esc(titleFromId(key.replace(/_percent$/, "").replaceAll("_", " ")))}</td>
+          <td class="number">${esc(/percent$/.test(key) ? `${fmt(Number(value), 2)}%` : fmt(Number(value)))}</td>
+        </tr>`)
+      : [],
+  );
+  if (bonusRows.length) {
+    sections.push({ id: "ref-bonus-overview", cat: "reference", title: "Bonus Overview (from your Chief profile)", headers: ["Group", "Bonus", "Value"], rows: bonusRows, defaultOpen: false });
+  }
+
+  const warNodeRows = Object.entries(data?.research?.war_academy?.visible_nodes || {}).map(([key, node]) => `<tr>
+    <td>${visualLabel("research", (node.name || key).replaceAll("_", " "))}</td>
+    <td>${objectValue(node.level_progress ?? node.level ?? node.status)}</td>
+    <td>${objectValue(node.effect || node.status)}</td>
+  </tr>`);
+  if (warNodeRows.length) {
+    sections.push({ id: "ref-war-nodes", cat: "reference", title: "War Academy Nodes", headers: ["Node", "Level", "Effect"], rows: warNodeRows, defaultOpen: false });
+  }
+
+  const openRows = (data?.open_items || []).map((item) => `<tr><td>${objectValue(item)}</td></tr>`);
+  if (openRows.length) sections.push({ id: "ref-open", cat: "reference", title: "Open Questions From The Last Read", headers: ["Item"], rows: openRows, defaultOpen: false });
+
+  return sections;
+}
+
+// Fresh captures overwrite hand-typed values. Show exactly what moved rather than
+// letting a correction disappear without trace.
+function inventoryCaptureDiffHtml() {
+  const diff = state.capture_diff;
+  if (!diff || diff.dismissed || !diff.changes?.length) return "";
+  const shown = diff.changes.slice(0, 40);
+  return `<details class="panel inv-diff" open>
+    <summary class="inv-diff__bar">
+      <span class="extract-section__caret" aria-hidden="true"></span>
+      <span class="extract-section__title">The last game read changed ${fmt(diff.changes.length)} value${diff.changes.length === 1 ? "" : "s"}</span>
+      <button type="button" class="ghost" data-inv-diff-dismiss>Got it</button>
+    </summary>
+    <div class="extract-section__body">
+      <p class="muted">A capture always wins over typed-in values, so anything you had corrected by hand was replaced. Here is what moved${diff.captured_at ? ` in the read from ${esc(extractCaptureAgeText(diff.captured_at))}` : ""}.</p>
+      <div class="table-wrap compact-table"><table>
+        <thead><tr><th>Item</th><th>Was</th><th>Now</th><th>Change</th></tr></thead>
+        <tbody>${shown.map((change) => {
+          const delta = change.to - change.from;
+          return `<tr>
+            <td>${visualLabel(change.key, change.label)}</td>
+            <td class="number muted">${fmt(change.from)}</td>
+            <td class="number"><strong>${fmt(change.to)}</strong></td>
+            <td class="number ${delta > 0 ? "positive" : "negative"}">${signedFmt(delta)}</td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table></div>
+      ${diff.changes.length > shown.length ? `<p class="muted">${fmt(diff.changes.length - shown.length)} more not shown.</p>` : ""}
+    </div>
+  </details>`;
+}
+
+function renderInventory() {
+  const data = state.extracted_current || {};
   const sections = [
-    { id: "profile", cat: "profile", title: "Profile", headers: ["Field", "Value"], rows: profileRows },
-    { id: "resources", cat: "resources", title: "Main Resources", headers: ["Resource", "Observed"], rows: resourceRows },
-    ...groupedResourceSections,
-    { id: "res-sigils-expert", cat: "resources", title: "Sigils by Expert", headers: ["Expert", "Sigils"], rows: sigilRows },
-    { id: "res-other", cat: "resources", title: "Other Recorded Counts", headers: ["Item", "Count"], rows: leftoverResourceRows },
-    { id: "res-notes", cat: "meta", title: "How These Counts Were Read", headers: ["Field", "Detail", "Note"], rows: captureNoteRows },
-    { id: "backpack-resources", cat: "resources", title: "Backpack Resources", headers: ["Item", "Count", "Effect"], rows: backpackRows },
-    { id: "speedups", cat: "resources", title: "Speedups", headers: ["Type", "Duration", "Count"], rows: backpackSpeedupRows },
-    { id: "backpack-bonus", cat: "resources", title: "Backpack Bonus Items", headers: ["Item", "Count", "Effect"], rows: backpackBonusRows },
-    { id: "backpack-other", cat: "resources", title: "Backpack Other", headers: ["Item", "Count", "Effect"], rows: backpackOtherRows },
-    { id: "chief-gear", cat: "gear", title: "Chief Gear", headers: ["Slot", "Item", "Level", "Power"], rows: gearRows },
-    { id: "charms", cat: "gear", title: "Chief Charms", headers: ["Slot", "Level"], rows: charmRows },
-    { id: "heroes", cat: "roster", title: "Heroes", headers: ["Hero", "Level", "Stars", "Power"], rows: heroRows },
-    { id: "pets", cat: "roster", title: "Pets", headers: ["Pet", "Level", "Power", "Attack/Defense"], rows: petRows },
-    { id: "experts", cat: "roster", title: "Experts", headers: ["Expert", "Level", "Power", "Affinity"], rows: expertRows },
-    { id: "troops", cat: "roster", title: "Troops", headers: ["Scope", "Current", "Detail"], rows: troopRows },
-    { id: "buildings", cat: "city", title: "Buildings", headers: ["Building", "Current", "Detail", "Power"], rows: buildingRows },
-    { id: "research", cat: "city", title: "Research", headers: ["System", "Current", "Detail"], rows: researchRows },
-    { id: "war-nodes", cat: "city", title: "War Academy Nodes", headers: ["Node", "Level", "Effect", "Cost", "Time / Power"], rows: warNodeRows },
-    { id: "skins", cat: "city", title: "Skin Bonuses", headers: ["Scope", "Current", "Detail"], rows: skinRows },
-    { id: "gallery", cat: "city", title: "Collection Gallery", headers: ["Scope", "Current", "Detail"], rows: galleryRows },
-    { id: "open-items", cat: "meta", title: "Open Items", headers: ["Item"], rows: openRows },
-  ].filter((section) => section.rows.length); // an empty table tells you nothing
+    inventoryProfileSection(),
+    ...inventoryMaterialSections(),
+    ...inventoryProgressSections(),
+    ...inventoryReferenceSections(data),
+  ].filter((section) => section.rows.length);
 
-  const CATEGORIES = [
-    ["all", "Everything"],
-    ["profile", "Profile"],
-    ["resources", "Resources"],
-    ["gear", "Gear"],
-    ["roster", "Roster"],
-    ["city", "City"],
-    ["meta", "Notes"],
-  ];
-  const activeCat = state.extract_view?.category || "all";
-  const query = state.extract_view?.query || "";
-  const openIds = state.extract_view?.open || {};
+  const { query, category } = inventoryViewState();
   const totalRows = sections.reduce((sum, section) => sum + section.rows.length, 0);
-
-  const sectionHtml = sections
-    .map((section) => {
-      const count = section.rows.length;
-      // Default: open only if it is small enough to scan at a glance.
-      const isOpen = openIds[section.id] === undefined ? count <= 12 : Boolean(openIds[section.id]);
-      return `<details class="extract-section" data-extract-section="${esc(section.id)}" data-cat="${esc(section.cat)}"${isOpen ? " open" : ""}>
-        <summary>
-          <span class="extract-section__caret" aria-hidden="true"></span>
-          <span class="extract-section__title">${esc(section.title)}</span>
-          <span class="extract-section__count" data-count-for="${esc(section.id)}">${fmt(count)}</span>
-        </summary>
-        <div class="extract-section__body">${miniTable(section.headers, section.rows)}</div>
-      </details>`;
-    })
-    .join("");
-
   const capturedAt = extractCaptureAgeText(data.extracted_at);
 
-  $("#tab-current-extract").innerHTML = `
+  $("#tab-inventory").innerHTML = `
     <div class="toolbar">
       <div>
-        <h2>Current Extract</h2>
-        <p>Everything read straight out of the game and applied to the calculators. This is the raw record — edit values on their own pages, not here.</p>
+        <h2>Inventory</h2>
+        <p>Everything the dashboard knows about your account, in one place. Change any value here and it saves straight away — every calculator picks it up.</p>
       </div>
     </div>
-    <div class="summary-grid">
-      <div class="metric blue"><span>Current power</span><strong>${objectValue(data.profile?.power)}</strong></div>
-      <div class="metric amber"><span>Heroes read</span><strong>${fmt(heroes.length)}</strong></div>
-      <div class="metric green"><span>Pets read</span><strong>${fmt(pets.length)}</strong></div>
-      <div class="metric purple"><span>Experts read</span><strong>${fmt(experts.length)}</strong></div>
-      <div class="metric blue"><span>Buildings read</span><strong>${fmt(buildings.length)}</strong></div>
-    </div>
+    ${inventoryCaptureDiffHtml()}
     <div class="panel extract-meta">
       <div class="extract-meta__facts">
-        <span class="status-pill">${fmt(totalRows)} values recorded</span>
+        <span class="status-pill">${fmt(totalRows)} values</span>
         <span class="status-pill">${fmt(sections.length)} sections</span>
-        ${capturedAt ? `<span class="status-pill">Read ${esc(capturedAt)}</span>` : ""}
+        ${capturedAt ? `<span class="status-pill">Last game read ${esc(capturedAt)}</span>` : ""}
         ${data.capture_id ? `<span class="status-pill muted-pill">${esc(data.capture_id)}</span>` : ""}
       </div>
     </div>
     <div class="panel extract-controls">
       <div class="extract-search">
-        <input type="search" id="extractSearch" placeholder="Search every value — try &quot;amber&quot;, &quot;Gwen&quot;, &quot;infantry&quot;" value="${esc(query)}" autocomplete="off" />
+        <input type="search" id="extractSearch" placeholder="Search anything — try &quot;amber&quot;, &quot;Gwen&quot;, &quot;furnace&quot;" value="${esc(query)}" autocomplete="off" />
         <button type="button" class="ghost" data-extract-clear ${query ? "" : "hidden"}>Clear</button>
       </div>
       <div class="extract-chips" role="group" aria-label="Filter by area">
-        ${CATEGORIES.filter(([id]) => id === "all" || sections.some((section) => section.cat === id))
-          .map(
-            ([id, label]) =>
-              `<button type="button" class="extract-chip${activeCat === id ? " is-active" : ""}" data-extract-cat="${esc(id)}">${esc(label)}</button>`,
-          )
+        ${INVENTORY_CATEGORIES.filter(([id]) => id === "all" || sections.some((section) => section.cat === id))
+          .map(([id, label]) => `<button type="button" class="extract-chip${category === id ? " is-active" : ""}" data-extract-cat="${esc(id)}">${esc(label)}</button>`)
           .join("")}
       </div>
       <div class="extract-bulk">
@@ -4552,14 +4409,16 @@ function renderCurrentExtract() {
         <button type="button" class="ghost" data-extract-expand="0">Collapse all</button>
       </div>
     </div>
-    <p class="extract-noresults" hidden>No value matches that search.</p>
-    <div class="extract-stack">
-      ${bonusOverviewHtml}
-      ${sectionHtml}
+    <p class="extract-noresults" hidden>Nothing matches that search.</p>
+    <div class="extract-stack">${sections.map(inventorySectionHtml).join("")}</div>
+    <div class="panel" style="margin-top:12px">
+      <h2>Notes</h2>
+      <textarea class="notes-box" data-path="custom_notes">${esc(state.custom_notes || "")}</textarea>
     </div>
   `;
   applyExtractFilter();
 }
+
 
 function extractCaptureAgeText(iso) {
   if (!iso) return "";
@@ -4575,10 +4434,10 @@ function extractCaptureAgeText(iso) {
 // Filtering runs over the DOM rather than re-rendering, so typing stays instant and the
 // open/closed state of each section survives every keystroke.
 function applyExtractFilter() {
-  const root = $("#tab-current-extract");
+  const root = $("#tab-inventory");
   if (!root) return;
-  const query = String(state.extract_view?.query || "").trim().toLowerCase();
-  const cat = state.extract_view?.category || "all";
+  const query = String(state.inventory_view?.query || "").trim().toLowerCase();
+  const cat = state.inventory_view?.category || "all";
   let visibleSections = 0;
 
   root.querySelectorAll("[data-extract-section]").forEach((section) => {
@@ -4600,8 +4459,6 @@ function applyExtractFilter() {
     }
   });
 
-  const bonus = root.querySelector(".bonus-overview-grid")?.closest(".panel");
-  if (bonus) bonus.hidden = Boolean(query) || (cat !== "all" && cat !== "profile");
   const empty = root.querySelector(".extract-noresults");
   if (empty) empty.hidden = visibleSections > 0;
   const clear = root.querySelector("[data-extract-clear]");
@@ -7901,10 +7758,11 @@ function ensureExpertSigilResources() {
   gameData.experts.forEach((expert) => {
     RESOURCE_LABELS[`sigils_${expert.expert_id}`] = `${expert.name} Sigils`;
   });
-  CALCULATOR_INVENTORY_GROUPS.push({
-    title: "Expert Sigils",
-    note: "Each expert's own sigils plus common sigils (usable on any expert)",
-    fields: [["common_sigils", "sigils"], ...gameData.experts.map((expert) => `sigils_${expert.expert_id}`)].map((field) => (Array.isArray(field) ? field[0] : field)),
+  // Seed a zero so every expert gets a row on the Inventory page even before any
+  // sigils have been recorded for them.
+  gameData.experts.forEach((expert) => {
+    const key = `sigils_${expert.expert_id}`;
+    if (state.resources && state.resources[key] === undefined) state.resources[key] = 0;
   });
 }
 
@@ -8993,55 +8851,6 @@ function renderT12() {
   `;
 }
 
-function renderResources() {
-  ensureExpertSigilResources();
-  const grouped = groupBy(gameData.resource_types, "category");
-  const gensWithExclusive = [...new Set(
-    gameData.heroes
-      .filter((hero) => heroExclusiveGearName(hero) && hero.generation)
-      .map((hero) => Number(hero.generation)),
-  )].sort((a, b) => a - b);
-  const legacyWidgetFields = gensWithExclusive.map((gen) => `widgets_gen${gen}`).filter((key) => Number(state.resources?.[key] || 0) > 0);
-  const widgetGroup = {
-    title: "Exclusive Gear Widgets",
-    note: "One universal widget pool (game-verified 2026-07-27; 10/100 denominated packs). Legacy per-generation balances migrate automatically.",
-    fields: ["widgets", ...legacyWidgetFields],
-  };
-  $("#tab-resources").innerHTML = `
-    <div class="toolbar"><div><h2>Resources</h2><p>Edit the single current value used by every upgrade calculator. Changes save to the shared database automatically.</p></div></div>
-    <div class="inventory-editor">
-      ${[...CALCULATOR_INVENTORY_GROUPS, widgetGroup].map(inventoryEditorGroup).join("")}
-    </div>
-    ${currentProgressEditorHtml()}
-    <details class="table-disclosure resource-disclosure">
-      <summary>All resource fields</summary>
-      <div class="resource-grid">
-        ${Object.entries(grouped)
-          .map(
-            ([category, resources]) => `<section class="resource-group">
-              <h3>${esc(resourceCategoryLabel(category))}</h3>
-              <div class="resource-fields">
-                ${resources
-                  .map(
-                    (resource) => `<div class="compact-field">
-                      <label>${visualResourceLabel(resource.resource_id, resource.name)}</label>
-                      ${numberInput(`resources.${resource.resource_id}`, state.resources[resource.resource_id] || 0)}
-                      ${resourceFineprintHtml(resource.resource_id, state.resources[resource.resource_id] || 0)}
-                    </div>`,
-                  )
-                  .join("")}
-              </div>
-            </section>`,
-          )
-          .join("")}
-      </div>
-    </details>
-    <div class="panel" style="margin-top:14px">
-      <h2>Notes</h2>
-      <textarea class="notes-box" data-path="custom_notes">${esc(state.custom_notes || "")}</textarea>
-    </div>
-  `;
-}
 
 function renderSkins() {
   const skins = state.extracted_current?.skins;
@@ -9141,7 +8950,7 @@ function renderActive(options = {}) {
   const renderers = {
     overview: renderOverview,
     planner: renderPlanner,
-    "current-extract": renderCurrentExtract,
+    inventory: renderInventory,
     buildings: renderBuildings,
     "chief-gear": renderChiefGear,
     charms: renderCharms,
@@ -9153,7 +8962,6 @@ function renderActive(options = {}) {
     "t12-research": renderT12,
     troops: renderTroops,
     svs: renderSvs,
-    resources: renderResources,
     skins: renderSkins,
     sources: renderSources,
   };
@@ -9215,9 +9023,23 @@ function bindEvents() {
   document.addEventListener("change", (event) => {
     const target = event.target;
     if (!target.matches("[data-path]")) return;
-    setPath(state, target.dataset.path, controlValue(target));
-    if ((target.dataset.path || "").startsWith("hero_gear_current_overrides.")) applyHeroGearCurrentOverrides(state);
+    const path = target.dataset.path || "";
+    setPath(state, path, controlValue(target));
+    if (path.startsWith("hero_gear_current_overrides.")) applyHeroGearCurrentOverrides(state);
     normalizeTargets(state);
+
+    const onInventory = activeTab === "inventory" && target.closest("#tab-inventory");
+    if (onInventory) {
+      // Refresh only what the edit affects, so the page does not jump under the cursor.
+      const key = path.startsWith("resources.") ? path.slice("resources.".length) : "";
+      if (key) {
+        const fineprint = $(`[data-fineprint-for="${cssEscape(key)}"]`);
+        if (fineprint) fineprint.innerHTML = resourceFineprintHtml(key, rawInventoryValue(key));
+        refreshInventoryCapturedCell(key);
+      }
+      scheduleSave({ render: false });
+      return;
+    }
     scheduleSave({ render: true });
   });
 
@@ -9231,7 +9053,7 @@ function bindEvents() {
         return;
       }
       if (panel?.matches?.("[data-extract-section]")) {
-        setPath(state, `extract_view.open.${panel.dataset.extractSection}`, panel.open);
+        setPath(state, `inventory_view.open.${panel.dataset.extractSection}`, panel.open);
         scheduleSave({ render: false });
       }
     },
@@ -9240,12 +9062,34 @@ function bindEvents() {
 
   document.addEventListener("input", (event) => {
     if (event.target?.id !== "extractSearch") return;
-    setPath(state, "extract_view.query", event.target.value);
+    setPath(state, "inventory_view.query", event.target.value);
     applyExtractFilter();
     scheduleSave({ render: false });
   });
 
   document.addEventListener("click", (event) => {
+    const invReset = event.target.closest("[data-inv-reset]");
+    if (invReset) {
+      const key = invReset.dataset.invReset;
+      const captured = state.extracted_current?.resources?.[key];
+      if (typeof captured === "number") {
+        setPath(state, `resources.${key}`, captured);
+        const input = $(`input[data-path="resources.${cssEscape(key)}"]`);
+        if (input) input.value = String(captured);
+        const fineprint = $(`[data-fineprint-for="${cssEscape(key)}"]`);
+        if (fineprint) fineprint.innerHTML = resourceFineprintHtml(key, captured);
+        refreshInventoryCapturedCell(key);
+        scheduleSave({ render: false });
+      }
+      return;
+    }
+    if (event.target.closest("[data-inv-diff-dismiss]")) {
+      event.preventDefault();
+      setPath(state, "capture_diff.dismissed", true);
+      persistState();
+      renderActive();
+      return;
+    }
     const plannerView = event.target.closest("[data-planner-view]");
     if (plannerView) {
       setPath(state, "planner_view.view", plannerView.dataset.plannerView);
@@ -9271,14 +9115,14 @@ function bindEvents() {
     }
     const chip = event.target.closest("[data-extract-cat]");
     if (chip) {
-      setPath(state, "extract_view.category", chip.dataset.extractCat);
+      setPath(state, "inventory_view.category", chip.dataset.extractCat);
       chip.parentElement.querySelectorAll(".extract-chip").forEach((el) => el.classList.toggle("is-active", el === chip));
       applyExtractFilter();
       scheduleSave({ render: false });
       return;
     }
     if (event.target.closest("[data-extract-clear]")) {
-      setPath(state, "extract_view.query", "");
+      setPath(state, "inventory_view.query", "");
       const box = $("#extractSearch");
       if (box) box.value = "";
       applyExtractFilter();
@@ -9288,11 +9132,11 @@ function bindEvents() {
     const bulk = event.target.closest("[data-extract-expand]");
     if (bulk) {
       const open = bulk.dataset.extractExpand === "1";
-      $("#tab-current-extract")
+      $("#tab-inventory")
         ?.querySelectorAll("[data-extract-section]")
         .forEach((section) => {
           section.open = open;
-          setPath(state, `extract_view.open.${section.dataset.extractSection}`, open);
+          setPath(state, `inventory_view.open.${section.dataset.extractSection}`, open);
         });
       scheduleSave({ render: false });
     }
