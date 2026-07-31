@@ -1355,7 +1355,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260731a";
+const ASSET_CACHE_VERSION = "20260731b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -3713,7 +3713,12 @@ function plannerCandidates() {
       const hero = heroRecordFor(heroId);
       heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
         const current = heroGearCurrentEnhancement(piece);
-        const target = Math.min(HERO_GEAR_MAX_ENHANCEMENT, current + 10);
+        // The confidence note claimed an empowerment gate but none was applied here, so a
+        // low-mastery piece could be told to push past a milestone it cannot cross.
+        const ceiling = heroGearCanEmpowerAtLevel(piece.level)
+          ? heroGearEmpowermentCapForMastery(piece.level)
+          : HERO_GEAR_MAX_ENHANCEMENT;
+        const target = Math.min(HERO_GEAR_MAX_ENHANCEMENT, ceiling, current + 10);
         if (target <= current) return;
         const cost = heroGearEnhancementCostToTarget(piece, target, slot, hero, piece.level);
         if (costIsEmpty(cost)) return;
@@ -3722,7 +3727,7 @@ function plannerCandidates() {
           .map((row) => `${row.stat} +${fmt(Number(row.value_percent || 0))}%`);
         candidates.push(candidateRow({
           module: "Hero Gear",
-          item: `${hero.name || heroId} ${titleFromId(slot)}`,
+          item: `${hero.name || heroId} ${heroGearPieceName(slot, piece)}`,
           from: `+${current}`,
           to: `+${target}`,
           cost,

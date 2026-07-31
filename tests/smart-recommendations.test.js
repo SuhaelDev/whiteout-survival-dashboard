@@ -137,5 +137,19 @@ check("top_right reads as Gauntlet", pieceName("top_right"), "Gauntlet");
 check("bottom_left reads as Belt", pieceName("bottom_left"), "Belt");
 check("an explicit piece name still wins", pieceName("bottom_right", { name: "Frosted Boots" }), "Frosted Boots");
 
+// --- 7. the AI Planner's own hero gear path is gated too --------------------
+has(
+  "planner hero gear computes a ceiling",
+  /const ceiling = heroGearCanEmpowerAtLevel\(piece\.level\)\s*\n\s*\? heroGearEmpowermentCapForMastery\(piece\.level\)/,
+);
+has("planner target respects that ceiling", /Math\.min\(HERO_GEAR_MAX_ENHANCEMENT, ceiling, current \+ 10\)/);
+has("planner names the item", /item: `\$\{hero\.name \|\| heroId\} \$\{heroGearPieceName\(slot, piece\)\}`/);
+
+// --- 8. placeholder benefits are labelled, not hidden -----------------------
+has("building benefit flagged as estimated", /benefitEstimated: "Building stat gains are not in the workbook yet/);
+has("hero gear benefit flagged as estimated", /benefitEstimated: "Ranked on how many stat lines move/);
+has("estimated rows are excluded from the headline pick", /filtered\.find\(\(candidate\) => !candidate\.benefitEstimated\)/);
+has("estimated marker rendered in the score cell", /class="score-estimated"/);
+
 console.log(failed ? `\n${failed} FAILED` : "\nAll smart recommendation checks passed");
 process.exit(failed ? 1 : 0);
