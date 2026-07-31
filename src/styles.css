@@ -162,36 +162,42 @@ button.primary {
   box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
 }
 
+/* The sidebar is 260px wide. Everything down here has to survive that, so labels are
+   short, the email truncates rather than splitting mid-word, and nothing is a grid
+   that forces a second line. */
 .save-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 
-.save-panel span {
-  grid-column: 1 / -1;
-  color: #aebaca;
-  font-size: 12px;
+.save-panel > span {
+  color: #8fa0b3;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .save-panel button,
 .save-panel .file-button {
   display: inline-grid;
   place-items: center;
+  min-height: 30px;
+  padding: 0 8px;
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.18);
   color: #eef5fb;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .cloud-sync-panel {
-  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 8px;
+  gap: 7px;
+  padding: 9px 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.05);
@@ -6194,7 +6200,7 @@ select option {
 .cg-art-arrow { font-style: normal; font-weight: 800; font-size: 18px; opacity: 0.8; }
 
 /* ---- Wave 18: account panel + onboarding wizard ---- */
-.account-box { display: grid; gap: 6px; }
+.account-box { display: grid; gap: 7px; }
 .account-box input[type="email"] {
   width: 100%;
   padding: 6px 8px;
@@ -6204,9 +6210,40 @@ select option {
   color: #e2e8f0;
   font-size: 12px;
 }
-.account-box .account-email { font-weight: 700; font-size: 12px; word-break: break-all; }
+/* break-all split the address as "suhaeldev2003 / @gmail.com". Truncate instead;
+   the full value is on the title attribute. */
+.account-box .account-email {
+  font-weight: 600;
+  font-size: 11.5px;
+  color: #cbd7e4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .account-box .account-note { font-size: 11px; opacity: 0.75; line-height: 1.35; }
-.account-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.account-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.account-actions button {
+  min-height: 27px !important;
+  padding: 0 4px !important;
+  font-size: 11px !important;
+  white-space: nowrap;
+}
+
+.cloud-sync-panel #cloudSyncStatus,
+#cloudSyncStatus {
+  color: #7f8fa2;
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .wizard-overlay {
   position: fixed;
   inset: 0;
@@ -6788,18 +6825,19 @@ select option {
 }
 
 .sidebar-tools {
-  margin-top: 4px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 8px;
 }
 
+/* A plain text row, not a boxed button - it competes with the account card otherwise. */
 .sidebar-tools > summary {
   cursor: pointer;
   list-style: none;
-  padding: 5px 2px;
-  color: var(--muted);
-  font-size: 12px;
+  padding: 3px 2px;
+  color: #8fa0b3;
+  font-size: 11.5px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .sidebar-tools > summary::-webkit-details-marker {
@@ -6817,7 +6855,7 @@ select option {
 }
 
 .sidebar-tools > summary:hover {
-  color: var(--text);
+  color: #eef5fb;
 }
 
 .sidebar-tools__body {
@@ -6827,8 +6865,8 @@ select option {
 }
 
 .sidebar-tools__body .danger {
-  border-color: color-mix(in srgb, var(--red, #d9534f) 50%, var(--line));
-  color: var(--red, #d9534f);
+  border-color: rgba(217, 83, 79, 0.45) !important;
+  color: #e07b77 !important;
 }
 
 /* ==== Inventory: editable rows =========================================== */

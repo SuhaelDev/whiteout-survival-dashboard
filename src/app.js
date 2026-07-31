@@ -893,13 +893,13 @@ function renderAccountPanel() {
       </div>`;
     return;
   }
-  panel.innerHTML = `<span class="cloud-sync-title">Account</span>
-    <div class="account-box">
-      <span class="account-email">${esc(AUTH.user?.email || "Signed in")}</span>
+  const email = AUTH.user?.email || "Signed in";
+  panel.innerHTML = `<div class="account-box">
+      <span class="account-email" title="${esc(email)}">${esc(email)}</span>
       <div class="account-actions">
-        <button type="button" id="saveCloudState">Sync now</button>
-        <button type="button" id="loadCloudState">Reload cloud</button>
-        <button type="button" id="authSignOut">Sign out</button>
+        <button type="button" id="saveCloudState" title="Push this browser's data to the cloud now">Sync</button>
+        <button type="button" id="loadCloudState" title="Replace this browser's data with the cloud copy">Reload</button>
+        <button type="button" id="authSignOut" title="Sign out">Sign out</button>
       </div>
       ${status}
     </div>`;
@@ -1367,7 +1367,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260731d";
+const ASSET_CACHE_VERSION = "20260731e";
 
 function assetUrl(src) {
   if (!src) return src;
