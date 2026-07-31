@@ -87612,6 +87612,12 @@
   ],
   "gaps": [
     {
+      "Priority": "Medium",
+      "Gap / validation item": "Exchange routes out of Lunar Amber",
+      "Why it matters": "Surplus now flows to the most valuable shortfall first, but the rule set has no route out of Amber at all - only into it. So an Amber surplus is stranded and cannot be spent on Plans, Polish or Alloy.",
+      "Research / extraction approach": "Open Chief Gear > exchange and note whether Amber can be traded down, with the ratio and weekly limit for each."
+    },
+    {
       "Priority": "High",
       "Gap / validation item": "Expert power curve for Valeria, Ronne, Kathy and Gareth",
       "Why it matters": "The workbook carries a power figure at each advancement for the other experts, but these four have none, so their cards cannot show what an advancement is worth. Power is not derivable from the stat columns - the ratio runs from 2.3M per stat point for Cyrille to 18.5M for Baldur.",

@@ -189,6 +189,13 @@ const SMART_RECOMMENDATION_BIASES = [
   ["power", "Power / SVS bias"],
 ];
 const SMART_RECOMMENDATION_LIMIT = 120;
+// Ascending worth. Surplus flows toward the most valuable shortfall first.
+const MATERIAL_EXCHANGE_VALUE_ORDER = {
+  chief_gear: ["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber"],
+  chief_charms: ["charm_guides", "charm_designs", "charm_secrets"],
+  pet_chests: ["pet_manuals", "pet_potions", "pet_serum"],
+};
+
 const MATERIAL_EXCHANGE_SETS = {
   chief_gear: {
     label: "Enhancement Material Exchange",
@@ -1348,7 +1355,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260729a";
+const ASSET_CACHE_VERSION = "20260729b";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -2679,27 +2686,38 @@ function materialExchangePlan(cost, fields, exchangeKey) {
     recordTrade(second, cycles * secondTradesPerCycle);
   };
 
-  if (exchangeKey === "chief_gear") {
-    oneStep("gear_design_to_amber");
-    compound("gear_polish_to_design", "gear_design_to_amber", "lunar_amber", 10, 1);
-    compound("gear_alloy_to_design", "gear_design_to_amber", "lunar_amber", 10, 1);
-    oneStep("gear_polish_to_design");
-    oneStep("gear_alloy_to_design");
-    oneStep("gear_design_to_polish");
-    oneStep("gear_alloy_to_polish");
-    oneStep("gear_polish_to_alloy");
-    oneStep("gear_design_to_alloy");
-  } else if (exchangeKey === "chief_charms") {
-    oneStep("charm_guides_to_secrets");
-    oneStep("charm_designs_to_secrets");
-    oneStep("charm_designs_to_guides");
-    oneStep("charm_guides_to_designs");
-  } else if (exchangeKey === "pet_chests") {
-    // Fill the rarest gaps first: serum, then potions, then manuals.
-    oneStep("chest_to_serum");
-    oneStep("chest_to_potions");
-    oneStep("chest_to_manuals");
-  }
+  // Spend surplus on the most valuable thing you are short of, first. Alloy < polish <
+  // plans < amber, so an excess of plans goes to amber until amber is covered (or the
+  // plans cannot make another whole amber), and only then drops to polish and alloy.
+  // Sources are tried nearest-value-first so cheap bulk is not burned while a closer
+  // surplus would do. This used to be a hand-ordered list of calls per exchange set, which
+  // was right for the cases someone had thought about and silently wrong for the rest.
+  const order = MATERIAL_EXCHANGE_VALUE_ORDER[exchangeKey] || keys;
+  const byValueDesc = [...order].reverse();
+  const extraSources = [...new Set(set.rules.map((rule) => rule.from))].filter((key) => !order.includes(key));
+  const sourcePriority = [...byValueDesc, ...extraSources];
+  const ruleFor = (from, to) => set.rules.map((r) => rules[r.id]).find((r) => r.from === from && r.to === to && r.remaining > 0);
+  const short = (key) => Number(balances[key] || 0) < 0;
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+
+  byValueDesc.forEach((need) => {
+    sourcePriority.forEach((src) => {
+      if (src === need || !short(need) || Number(balances[src] || 0) <= 0) return;
+      const direct = ruleFor(src, need);
+      if (direct) oneStep(direct.id);
+      if (!short(need)) return;
+      // No direct route: go through an intermediate, e.g. polish -> plans -> amber. The
+      // cycle size is whatever makes the middle material balance exactly.
+      sourcePriority.forEach((mid) => {
+        if (mid === src || mid === need || !short(need)) return;
+        const first = ruleFor(src, mid);
+        const second = ruleFor(mid, need);
+        if (!first || !second) return;
+        const lcm = (first.toQty * second.fromQty) / gcd(first.toQty, second.fromQty);
+        compound(first.id, second.id, need, lcm / first.toQty, lcm / second.fromQty);
+      });
+    });
+  });
 
   const gap = keys.reduce((acc, key) => {
     if (Number(balances[key] || 0) < 0) acc[key] = Math.abs(balances[key]);
