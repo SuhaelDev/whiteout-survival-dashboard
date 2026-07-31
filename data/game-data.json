@@ -87688,6 +87688,18 @@
       "Gap / validation item": "Charm tap count at levels 1, 2",
       "Why it matters": "Levels 1-11 take four upgrade taps and 12 and up take five, confirmed against levels 10, 11 and 12. Levels 1, 2 do not divide evenly by four, so the very first levels may work differently. Only affects a brand-new charm.",
       "Research / extraction approach": "Watch a level 1 charm through to level 3 and count the taps."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Building upgrade stat gains",
+      "Why it matters": "The AI Planner has no measured benefit for a building level, so it ranks buildings on level-reached x 100,000. That placeholder made cheap low-level upgrades (Embassy Lv 1 to 2) outrank real stat gains. Rows are now marked 'estimated' and kept out of the Do-this-first card, but they are still ranked on an invented number.",
+      "Research / extraction approach": "For each building, open the upgrade panel and record the stat/power lines for the next level. Feed into building_levels as a stat delta so benefitValue can be measured rather than assumed."
+    },
+    {
+      "Priority": "Medium",
+      "Gap / validation item": "Hero gear mastery benefit size",
+      "Why it matters": "Hero gear candidates score on how MANY stat lines move (changes.length x 250,000), not how much they move. A step that adds 0.2% ranks equal to one that adds 5%. Rows are marked 'estimated'.",
+      "Research / extraction approach": "Capture the stat panel before and after a mastery level on one piece per troop type and derive the per-level delta."
     }
   ],
   "state_schema": [

@@ -1355,7 +1355,7 @@ function assetHasHiddenCount(asset) {
   return Boolean(asset && typeof asset === "object" && (asset.hide_count || asset.hideCount));
 }
 
-const ASSET_CACHE_VERSION = "20260729b";
+const ASSET_CACHE_VERSION = "20260731a";
 
 function assetUrl(src) {
   if (!src) return src;
@@ -2991,11 +2991,14 @@ function smartCostAffordable(cost, fields, exchangeKey = "") {
   return costIsEmpty(exchangeAdjustedNeed(cost, fields, exchangeKey));
 }
 
-function smartCostPressure(cost, fields) {
+function smartCostPressure(cost, fields, spent = null) {
   return fieldKeys(fields).reduce((total, key) => {
     const amount = Number(cost?.[key] || 0);
     if (amount <= 0) return total;
-    const available = availableInventoryValue(key);
+    // Price against what is LEFT, not the whole stock. Without this every step in the plan
+    // is costed as if it were the first, so the engine keeps picking the same scarce
+    // material until it runs out instead of easing off as the stock drains.
+    const available = availableInventoryValue(key) - Number(spent?.[key] || 0);
     if (available <= 0) return total + 4;
     return total + amount / available;
   }, 0);
@@ -3040,9 +3043,9 @@ function smartCandidateBenefit(candidate, bias) {
   return statBenefit + powerBenefit + svsBenefit;
 }
 
-function smartCandidateScore(candidate, fields, bias) {
+function smartCandidateScore(candidate, fields, bias, spent = null) {
   const benefit = smartCandidateBenefit(candidate, bias);
-  const pressure = smartCostPressure(candidate.cost, fields);
+  const pressure = smartCostPressure(candidate.cost, fields, spent);
   return benefit / Math.max(0.08, 1 + pressure);
 }
 
@@ -3057,7 +3060,7 @@ function smartOptimize({ moduleId, fields, exchangeKey = "", targetState, buildC
       .map((candidate) => ({
         ...candidate,
         benefit: smartCandidateBenefit(candidate, bias),
-        score: smartCandidateScore(candidate, fields, bias),
+        score: smartCandidateScore(candidate, fields, bias, totalCost),
       }))
       .filter((candidate) => candidate.benefit > 0);
     if (!candidates.length) break;
@@ -3065,7 +3068,15 @@ function smartOptimize({ moduleId, fields, exchangeKey = "", targetState, buildC
       .filter((candidate) => smartCostAffordable(addCostCopy(totalCost, candidate.cost), fields, exchangeKey))
       .sort((a, b) => b.score - a.score || b.benefit - a.benefit);
     if (!affordable.length) {
-      blockedCandidates = candidates.sort((a, b) => b.score - a.score || b.benefit - a.benefit).slice(0, 6);
+      // Record what is actually missing for each blocked step, so the panel can say
+      // "short 12,152 Alloy" instead of the unhelpful "not affordable".
+      blockedCandidates = candidates
+        .sort((a, b) => b.score - a.score || b.benefit - a.benefit)
+        .slice(0, 6)
+        .map((candidate) => ({
+          ...candidate,
+          shortfall: exchangeAdjustedNeed(addCostCopy(totalCost, candidate.cost), fields, exchangeKey),
+        }));
       break;
     }
     const best = affordable[0];
@@ -3073,6 +3084,18 @@ function smartOptimize({ moduleId, fields, exchangeKey = "", targetState, buildC
     addCost(totalCost, best.cost);
     best.applyToPlan?.(targetState);
   }
+  const statTotals = {};
+  let powerGain = 0;
+  selected.forEach((candidate) => {
+    powerGain += Math.max(0, Number(candidate.powerDelta || 0));
+    (candidate.changes || []).forEach((change) => {
+      const delta = Number(change.rawDelta || 0);
+      if (!delta) return;
+      const entry = (statTotals[change.label] ||= { label: change.label, type: change.type || "number", total: 0 });
+      entry.total += delta;
+    });
+  });
+  const headline = Object.values(statTotals).sort((a, b) => b.total - a.total);
   return {
     moduleId,
     bias,
@@ -3081,6 +3104,8 @@ function smartOptimize({ moduleId, fields, exchangeKey = "", targetState, buildC
     selected,
     blockedCandidates,
     totalCost,
+    headline,
+    powerGain,
   };
 }
 
@@ -3128,38 +3153,75 @@ function mergeSmartSteps(steps = []) {
   return order.map((key) => byLabel.get(key));
 }
 
-function smartRecommendationCardHtml(candidate, index) {
-  return `<div class="smart-card">
+function smartRecommendationCardHtml(candidate, index, options = {}) {
+  const blockedReason = options.blockedReason || "";
+  const sub = [candidate.meta, candidate.stepCount > 1 ? `${fmt(candidate.stepCount)} levels` : ""]
+    .filter(Boolean)
+    .join(" · ");
+  return `<li class="smart-card${blockedReason ? " smart-card--blocked" : ""}">
+    <span class="smart-card__rank">${fmt(index + 1)}</span>
     <div class="smart-card__head">
       ${iconHtml(candidate.kind || "generic", candidate.label, "sm", candidate.scope || "")}
-      <div><strong>${fmt(index + 1)}. ${esc(candidate.label)}</strong>${candidate.meta || candidate.stepCount > 1 ? `<span>${esc([candidate.meta, candidate.stepCount > 1 ? `${fmt(candidate.stepCount)} levels` : ""].filter(Boolean).join(" · "))}</span>` : ""}</div>
+      <div><strong>${esc(candidate.label)}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</div>
     </div>
     <div class="smart-card__route">
-      <span><small>Start</small><b>${esc(candidate.from)}</b></span>
+      <span><small>Now</small><b>${esc(candidate.from)}</b></span>
       <i aria-hidden="true"></i>
-      <span><small>Target</small><b>${esc(candidate.to)}</b></span>
+      <span><small>After</small><b>${esc(candidate.to)}</b></span>
     </div>
-    <p>${esc(smartCandidateImpactText(candidate))}</p>
+    <p class="smart-card__impact">${esc(smartCandidateImpactText(candidate))}</p>
+    ${blockedReason ? `<p class="smart-card__blocked">${esc(blockedReason)}</p>` : ""}
     ${costHtml(candidate.cost, candidate.fields || [])}
-  </div>`;
+  </li>`;
+}
+
+function smartShortfallText(shortfall, fields) {
+  const parts = fieldKeys(fields)
+    .filter((key) => Number(shortfall?.[key] || 0) > 0)
+    .map((key) => `${fmt(shortfall[key])} ${RESOURCE_LABELS[key] || titleFromId(key)}`);
+  return parts.length ? `Short ${parts.join(", ")}` : "";
+}
+
+function smartHeadlineText(plan) {
+  const top = (plan.headline || []).filter((entry) => entry.total > 0).slice(0, 2);
+  const bits = top.map((entry) => `${entry.label} ${statDeltaDisplay(entry.total, entry.type)}`);
+  if (plan.powerGain > 0) bits.push(`Power ${signedFmt(plan.powerGain)}`);
+  return bits.join(" · ");
+}
+
+function smartPanelIsOpen(moduleId) {
+  const saved = state.smart_recommendations?.[moduleId]?.open;
+  return saved === undefined ? true : Boolean(saved);
 }
 
 function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
   const mergedSteps = mergeSmartSteps(plan.selected);
   const shown = mergedSteps.slice(0, 8);
   const hidden = Math.max(0, mergedSteps.length - shown.length);
-  const blocked = !plan.selected.length && plan.blockedCandidates.length;
+  const blockedShown = !plan.selected.length ? plan.blockedCandidates.slice(0, 3) : [];
+  const blocked = blockedShown.length > 0;
+
   const cards = shown.length
     ? shown.map(smartRecommendationCardHtml).join("")
     : blocked
-      ? plan.blockedCandidates.slice(0, 3).map(smartRecommendationCardHtml).join("")
-      : `<div class="smart-empty">No affordable stat-positive target changes found with current materials.</div>`;
-  const selectedText = plan.selected.length
-    ? `${fmt(plan.selected.length)} recommended upgrade ${plan.selected.length === 1 ? "step" : "steps"}`
+      ? blockedShown
+          .map((candidate, index) => smartRecommendationCardHtml(candidate, index, {
+            blockedReason: smartShortfallText(candidate.shortfall, plan.fields),
+          }))
+          .join("")
+      : `<div class="smart-empty">Nothing worth suggesting right now — every target on this page is already met.</div>`;
+
+  const headline = smartHeadlineText(plan);
+  const biasLabel = SMART_RECOMMENDATION_BIASES.find(([value]) => value === plan.bias)?.[1] || "Balanced stats";
+
+  // The one-line verdict, readable with the panel shut.
+  const verdict = plan.selected.length
+    ? `${fmt(plan.selected.length)} step${plan.selected.length === 1 ? "" : "s"} you can afford now`
     : blocked
-      ? "Next best changes are not affordable"
-      : "No recommendation available";
-  const blockedShown = blocked ? plan.blockedCandidates.slice(0, 3) : [];
+      ? "Not affordable yet"
+      : "All targets met";
+  const verdictTone = plan.selected.length ? "go" : blocked ? "wait" : "done";
+
   const coverageCost = plan.selected.length
     ? plan.totalCost
     : blockedShown.length
@@ -3171,32 +3233,40 @@ function smartRecommendationPanelHtml(moduleId, title, plan, note = "") {
     ? plan.exchangeKey
       ? "What this suggestion would cost (with exchange)"
       : "What this suggestion would cost"
-    : blockedShown.length
+    : blocked
       ? "What the next best steps would cost — not affordable yet"
-      : plan.exchangeKey
-        ? "What this suggestion would cost (with exchange)"
-        : "What this suggestion would cost";
-  return `<section class="panel smart-panel">
-    <div class="smart-panel__head">
-      <div>
+      : "What this suggestion would cost";
+
+  return `<details class="panel smart-panel" data-smart-panel="${esc(moduleId)}"${smartPanelIsOpen(moduleId) ? " open" : ""}>
+    <summary class="smart-panel__bar">
+      <span class="smart-panel__caret" aria-hidden="true"></span>
+      <span class="smart-panel__bar-main">
         <span class="eyebrow">Smart recommendation</span>
-        <h2>${esc(title)}</h2>
-        <p>${esc(note || "Ranks affordable target changes by stat gain per material using your current inventory.")}</p>
+        <strong>${esc(title)}</strong>
+      </span>
+      <span class="smart-panel__bar-facts">
+        <span class="smart-pill smart-pill--${verdictTone}">${esc(verdict)}</span>
+        ${headline ? `<span class="smart-panel__gain">${esc(headline)}</span>` : ""}
+      </span>
+    </summary>
+    <div class="smart-panel__body">
+      <div class="smart-panel__head">
+        <p>${esc(note || "Ranks affordable upgrades by stat gain per material spent, using what you hold right now.")}</p>
+        <div class="smart-controls">
+          <label><span>Bias</span>${smartBiasSelectHtml(moduleId)}</label>
+          <button type="button" data-smart-apply="${esc(moduleId)}" ${plan.selected.length ? "" : "disabled"}>Apply recommendation</button>
+        </div>
       </div>
-      <div class="smart-controls">
-        <label><span>Bias</span>${smartBiasSelectHtml(moduleId)}</label>
-        <button type="button" data-smart-apply="${esc(moduleId)}" ${plan.selected.length ? "" : "disabled"}>Apply recommendation</button>
+      <div class="smart-panel__summary">
+        <span>Ranked for <strong>${esc(biasLabel)}</strong></span>
+        ${hidden ? `<em>${fmt(hidden)} more step${hidden === 1 ? "" : "s"} in the full plan</em>` : ""}
+        <em class="smart-panel__scope">Priced from your current levels, not the targets you set above</em>
       </div>
+      ${blocked ? `<p class="smart-blocked-note">You cannot afford any upgrade on this page yet. Here is what you are closest to, and what is missing.</p>` : ""}
+      <ol class="smart-card-grid">${cards}</ol>
+      ${inventoryComparisonHtml(coverageCost, plan.fields, comparisonTitle, plan.exchangeKey)}
     </div>
-    <div class="smart-panel__summary">
-      <span>${esc(selectedText)}</span>
-      <strong>${esc(SMART_RECOMMENDATION_BIASES.find(([value]) => value === plan.bias)?.[1] || "Balanced stats")}</strong>
-      ${hidden ? `<em>${fmt(hidden)} more in plan</em>` : ""}
-      <em class="smart-panel__scope">Priced from your current levels, not the targets you set above</em>
-    </div>
-    <div class="smart-card-grid">${cards}</div>
-    ${inventoryComparisonHtml(coverageCost, plan.fields, comparisonTitle, plan.exchangeKey)}
-  </section>`;
+  </details>`;
 }
 
 function upgradeSelectionText(count, singular, plural = `${singular}s`) {
@@ -3512,6 +3582,7 @@ function plannerCandidates() {
           ? `${timeFmt(constructionTimePlan(step.next.build_seconds).adjustedSeconds)} with selected construction buffs (${timeFmt(step.next.build_seconds)} base)`
           : "Next building level",
         benefitValue: Number(step.next.numerical_level || 0) * 100000,
+        benefitEstimated: "Building stat gains are not in the workbook yet, so this is ranked on level reached, not measured stats.",
         confidence: "High current-level confidence; building stat delta not in workbook table",
       }),
     );
@@ -3658,6 +3729,7 @@ function plannerCandidates() {
           fields: HERO_GEAR_FIELDS,
           benefit: changes.length ? changes.join(", ") : "Enhancement progress toward next stat breakpoint",
           benefitValue: changes.length ? changes.length * 250000 : 40000,
+          benefitEstimated: "Ranked on how many stat lines move, not the size of the gain.",
           confidence: "XP table game-audited (22,710 to +70 / 73,320 to +100); empowerment gate applied",
         }));
       });
@@ -3778,7 +3850,10 @@ function renderOverview() {
 
 function plannerScoreCell(candidate) {
   const detail = `utility ${fmt(Math.round(candidate.utility))} / scarcity-cost ${fmt(Math.round(candidate.scarcityCost))}${candidate.shortfallPenalty > 1 ? ` x${candidate.shortfallPenalty.toFixed(2)} shortfall penalty` : ""}`;
-  return `<td class="number" title="${esc(detail)}"><strong>${(candidate.score * 1000000).toFixed(1)}</strong><br><small class="muted">${esc(detail)}</small></td>`;
+  const estimated = candidate.benefitEstimated
+    ? `<br><small class="score-estimated" title="${esc(candidate.benefitEstimated)}">estimated</small>`
+    : "";
+  return `<td class="number" title="${esc(detail)}"><strong>${(candidate.score * 1000000).toFixed(1)}</strong>${estimated}<br><small class="muted">${esc(detail)}</small></td>`;
 }
 
 function plannerTableRows(candidates, limit = 16) {
@@ -3886,6 +3961,94 @@ function plannerPayload(candidates, coverage) {
   };
 }
 
+const PLANNER_VIEWS = [
+  ["affordable", "Ready now", "Every material is already covered."],
+  ["value", "Best value", "Ranked by gain per material, whether or not you can afford it yet."],
+  ["svs", "SvS week", "Ranked by SvS points per material."],
+  ["unranked", "Unconfirmed", "Costs we have not verified in-game, so they are kept out of the ranking."],
+];
+
+function plannerViewState() {
+  return {
+    view: state.planner_view?.view || "affordable",
+    module: state.planner_view?.module || "all",
+    expanded: Boolean(state.planner_view?.expanded),
+  };
+}
+
+// One ranked list with a view switch, instead of four tables repeating the same rows in
+// different orders. The old layout showed the affordable steps twice and made you scroll
+// past 36 rows to find the module you cared about.
+function plannerListHtml(verified, unverified, svsRanked) {
+  const { view, module: moduleFilter, expanded } = plannerViewState();
+  const pools = {
+    affordable: verified.filter((candidate) => candidate.affordable).sort((a, b) => b.score - a.score),
+    value: [...verified].sort((a, b) => b.score - a.score),
+    svs: svsRanked,
+    unranked: unverified,
+  };
+  const active = pools[view] || pools.affordable;
+  const modules = [...new Set(active.map((candidate) => candidate.module))].sort();
+  const filtered = moduleFilter === "all" ? active : active.filter((candidate) => candidate.module === moduleFilter);
+  const limit = expanded ? filtered.length : 12;
+  const meta = PLANNER_VIEWS.find(([id]) => id === view) || PLANNER_VIEWS[0];
+
+  const emptyText = {
+    affordable: "Nothing is fully covered yet. Switch to Best value to see what you are closest to.",
+    value: "No ranked upgrades — fill in your building levels and materials first.",
+    svs: "No upgrade here has confirmed SvS points yet.",
+    unranked: "Every cost on this page has been confirmed in-game.",
+  }[view];
+
+  // Only headline a step whose benefit is measured. Ranking a placeholder first put
+  // "Embassy Lv 1 -> 2" above real stat gains purely because it is cheap.
+  const top = view !== "unranked" && moduleFilter === "all" ? filtered.find((candidate) => !candidate.benefitEstimated) : null;
+
+  return `<div class="panel planner-list">
+    ${top ? `<div class="planner-top">
+      <span class="eyebrow">Do this first</span>
+      <div class="planner-top__row">
+        <div class="planner-top__what">
+          ${visualLabel(top.module, top.item, `${top.from} → ${top.to}`)}
+          <p>${esc(top.benefit)}</p>
+        </div>
+        <div class="planner-top__cost">
+          ${costHtml(top.cost, top.fields)}
+          ${top.affordable ? '<span class="status-pill">You can afford this now</span>' : `<span class="status-pill warn">Short ${esc(Object.keys(top.gap).map((key) => RESOURCE_LABELS[key] || titleFromId(key)).join(", "))}</span>`}
+        </div>
+      </div>
+    </div>` : ""}
+
+    <div class="planner-tabs" role="tablist">
+      ${PLANNER_VIEWS.filter(([id]) => id !== "unranked" || unverified.length)
+        .map(
+          ([id, label]) =>
+            `<button type="button" role="tab" class="planner-tab${view === id ? " is-active" : ""}" data-planner-view="${esc(id)}">${esc(label)}<span>${fmt((pools[id] || []).length)}</span></button>`,
+        )
+        .join("")}
+    </div>
+    <p class="planner-tabs__hint">${esc(meta[2])}</p>
+
+    ${modules.length > 1 ? `<div class="planner-chips">
+      <button type="button" class="extract-chip${moduleFilter === "all" ? " is-active" : ""}" data-planner-module="all">All areas</button>
+      ${modules
+        .map(
+          (name) =>
+            `<button type="button" class="extract-chip${moduleFilter === name ? " is-active" : ""}" data-planner-module="${esc(name)}">${esc(name)}<span class="chip-count">${fmt(active.filter((c) => c.module === name).length)}</span></button>`,
+        )
+        .join("")}
+    </div>` : ""}
+
+    <div class="table-wrap planner-recommendations">
+      <table>
+        <thead><tr><th>Area</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>What you get</th><th>Score</th></tr></thead>
+        <tbody>${plannerTableRows(filtered, limit) || `<tr><td colspan="6" class="muted">${esc(emptyText)}</td></tr>`}</tbody>
+      </table>
+    </div>
+    ${filtered.length > 12 ? `<button type="button" class="ghost planner-more" data-planner-expand="${expanded ? "0" : "1"}">${expanded ? "Show top 12 only" : `Show all ${fmt(filtered.length)}`}</button>` : ""}
+  </div>`;
+}
+
 function renderPlanner() {
   const candidates = plannerCandidates();
   const coverage = plannerCoverage();
@@ -3919,8 +4082,8 @@ function renderPlanner() {
       <div class="metric amber"><span>Buildings filled in</span><strong>${coverage.confirmedBuildings.length}/${gameData.buildings.length}</strong></div>
       <div class="metric purple"><span>Materials set aside</span><strong>${fmt(Object.values(state.resource_reservations || {}).filter((v) => Number(v) > 0).length)}</strong></div>
     </div>
-    <div class="panel coverage-banner">
-      <h2>How complete your data is</h2>
+    <details class="panel coverage-banner"${coverage.hardGaps.length || coverage.missingBuildings.length ? " open" : ""}>
+      <summary class="coverage-banner__bar"><span class="extract-section__caret" aria-hidden="true"></span><span class="extract-section__title">How complete your data is</span><span class="extract-section__count">${fmt(coverage.hardGaps.length + coverage.missingBuildings.length)} gaps</span></summary>
       <div class="coverage-summary">
         <span class="status-pill">Buildings ${coverage.confirmedBuildings.length}/${gameData.buildings.length}</span>
         <span class="status-pill warn">Still to fill in ${fmt(coverage.hardGaps.length)}</span>
@@ -3933,43 +4096,8 @@ function renderPlanner() {
           ${coverage.hardGaps.map((gap) => `<li><span class="status-pill warn">Missing</span> ${esc(gap)}</li>`).join("")}
         </ul>
       </details>
-    </div>
-    <div class="panel">
-      <h2>You can do these right now <small class="muted">covered by what you already hold</small></h2>
-      <div class="table-wrap planner-recommendations">
-        <table>
-          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
-          <tbody>${plannerTableRows(verified.filter((c) => c.affordable), 12) || '<tr><td colspan="6" class="muted">Nothing is fully covered yet — the list below shows what you are closest to.</td></tr>'}</tbody>
-        </table>
-      </div>
-    </div>
-    <div class="panel">
-      <h2>Best value for the materials <small class="muted">including things you are short on</small></h2>
-      <div class="table-wrap planner-recommendations">
-        <table>
-          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
-          <tbody>${plannerTableRows([...verified].sort((a, b) => b.score - a.score), 12)}</tbody>
-        </table>
-      </div>
-    </div>
-    <div class="panel">
-      <h2>Best picks for SvS week</h2>
-      <div class="table-wrap planner-recommendations">
-        <table>
-          <thead><tr><th>Module</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>Projected Gain</th><th>Score</th></tr></thead>
-          <tbody>${plannerTableRows(svsRanked, 8) || '<tr><td colspan="6" class="muted">No upgrades here have confirmed SvS points yet.</td></tr>'}</tbody>
-        </table>
-      </div>
-    </div>
-    ${unverified.length ? `<div class="panel">
-      <h2>Not ranked yet <small class="muted">we have not confirmed these costs in-game</small></h2>
-      <div class="table-wrap planner-recommendations">
-        <table>
-          <thead><tr><th>Area</th><th>Upgrade</th><th>Cost (unconfirmed)</th><th>Status</th><th>What you get</th><th></th></tr></thead>
-          <tbody>${plannerTableRows(unverified, 8)}</tbody>
-        </table>
-      </div>
-    </div>` : ""}
+    </details>
+    ${plannerListHtml(verified, unverified, svsRanked)}
     <div class="panel">
       <details class="table-disclosure">
         <summary>Set materials aside (they will not be spent in any plan)</summary>
@@ -4061,6 +4189,71 @@ function renderCurrentExtract() {
           `<tr><td>${visualLabel(key, `Backpack direct ${RESOURCE_LABELS[key] || key.replaceAll("_", " ")}`)}</td><td>${objectValue(value)}</td></tr>`,
       ),
   ];
+
+  // The page used to render only resource_displays and quietly drop every other counter -
+  // Lunar Amber, Mithril, charm mats and per-expert sigils were recorded but invisible.
+  // Sweep every plain number/string on data.resources and file it under a heading.
+  const RESOURCE_GROUP_RULES = [
+    ["gear-mats", "Chief Gear & Charm Materials", ["hardened_alloy", "polishing_solution", "design_plans", "lunar_amber", "charm_guides", "charm_designs", "charm_secrets"]],
+    ["hero-mats", "Hero & Hero Gear Materials", ["mithril", "hero_gear_xp", "essence_stones", "mythic_gear", "widgets", "mystery_badges"]],
+    ["pet-mats", "Pet Materials", ["pet_manuals", "pet_potions", "pet_serum", "pet_food", "pet_custom_chests", "advanced_wild_marks", "common_wild_marks"]],
+    ["shards", "Hero Shards, Sigils & Affinity", ["rare_general_shards", "epic_general_shards", "mythic_general_shards", "expert_sigils", "expert_affinity", "books_of_knowledge"]],
+    ["speedup-mins", "Speedup Totals (minutes)", ["general_speedups_minutes", "construction_speedups_minutes", "research_speedups_minutes", "training_speedups_minutes", "healing_speedups_minutes", "learning_speedups_minutes"]],
+    ["event-mats", "Event & Miscellaneous", ["stamina_cans", "match_stakes", "trek_attempts", "trek_compass", "wonderstar_coins", "warhymn_testaments", "fire_crystal_embers"]],
+  ];
+  const RESOURCE_SKIP_KEYS = new Set([
+    "resource_displays",
+    "backpack_items",
+    "backpack_direct_resource_value",
+    "speedups",
+    "top_bar_resource_observed",
+    ...Object.keys(resourceDisplays),
+  ]);
+  const resourceRow = (key, value) =>
+    `<tr><td>${visualLabel(key, RESOURCE_LABELS[key] || titleFromId(key.replaceAll("_", " ")))}</td><td class="number">${objectValue(value)}</td></tr>`;
+
+  const grouped = new Set();
+  const groupedResourceSections = RESOURCE_GROUP_RULES.map(([id, title, keys]) => {
+    const rows = keys
+      .filter((key) => {
+        const value = data.resources?.[key];
+        return value !== undefined && value !== null && (typeof value === "number" || typeof value === "string");
+      })
+      .map((key) => {
+        grouped.add(key);
+        const value = data.resources[key];
+        // Raw minutes are unreadable at 51,089. Show the human span next to the number.
+        const shown = /_minutes$/.test(key) ? `${objectValue(value)} <small class="muted">${esc(speedupDurationText(value))}</small>` : objectValue(value);
+        return `<tr><td>${visualLabel(key, RESOURCE_LABELS[key] || titleFromId(key.replaceAll("_", " ")))}</td><td class="number">${shown}</td></tr>`;
+      });
+    return { id: `res-${id}`, cat: "resources", title, headers: ["Item", "Count"], rows };
+  });
+
+  // Per-expert sigils are one row each and always belong together.
+  const sigilRows = Object.entries(data.resources || {})
+    .filter(([key]) => key.startsWith("sigils_"))
+    .map(([key, value]) => {
+      grouped.add(key);
+      return `<tr><td>${visualLabel("expert", titleFromId(key.replace("sigils_", "")))}</td><td class="number">${objectValue(value)}</td></tr>`;
+    });
+
+  // Anything the rules did not claim still gets shown rather than silently dropped.
+  const leftoverResourceRows = Object.entries(data.resources || {})
+    .filter(([key, value]) => !RESOURCE_SKIP_KEYS.has(key) && !grouped.has(key) && (typeof value === "number" || typeof value === "string"))
+    .map(([key, value]) => resourceRow(key, value));
+
+  // Provenance objects ("...observed") explain where a number came from. They used to be
+  // stringified into a table cell; give them a readable home instead.
+  const captureNoteRows = Object.entries(data.resources || {})
+    .filter(([key, value]) => value && typeof value === "object" && !Array.isArray(value) && !RESOURCE_SKIP_KEYS.has(key))
+    .map(([key, value]) => {
+      const note = value.note || "";
+      const detail = Object.entries(value)
+        .filter(([field]) => field !== "note")
+        .map(([field, inner]) => `${titleFromId(field.replaceAll("_", " "))}: ${typeof inner === "object" ? JSON.stringify(inner) : inner}`)
+        .join(" · ");
+      return `<tr><td>${esc(titleFromId(key.replaceAll("_", " ")))}</td><td>${esc(detail)}</td><td>${esc(note)}</td></tr>`;
+    });
 
   const backpackRows = (data.resources?.backpack_items?.resources || []).map(
     (item) => `<tr>
@@ -4254,8 +4447,73 @@ function renderCurrentExtract() {
       </div>`
     : "";
 
+  // --- section registry -----------------------------------------------------
+  // Everything used to be dumped as 18 always-open panels in a fixed order. Group it,
+  // let it collapse, and make it searchable so a single value can actually be found.
+  const sections = [
+    { id: "profile", cat: "profile", title: "Profile", headers: ["Field", "Value"], rows: profileRows },
+    { id: "resources", cat: "resources", title: "Main Resources", headers: ["Resource", "Observed"], rows: resourceRows },
+    ...groupedResourceSections,
+    { id: "res-sigils-expert", cat: "resources", title: "Sigils by Expert", headers: ["Expert", "Sigils"], rows: sigilRows },
+    { id: "res-other", cat: "resources", title: "Other Recorded Counts", headers: ["Item", "Count"], rows: leftoverResourceRows },
+    { id: "res-notes", cat: "meta", title: "How These Counts Were Read", headers: ["Field", "Detail", "Note"], rows: captureNoteRows },
+    { id: "backpack-resources", cat: "resources", title: "Backpack Resources", headers: ["Item", "Count", "Effect"], rows: backpackRows },
+    { id: "speedups", cat: "resources", title: "Speedups", headers: ["Type", "Duration", "Count"], rows: backpackSpeedupRows },
+    { id: "backpack-bonus", cat: "resources", title: "Backpack Bonus Items", headers: ["Item", "Count", "Effect"], rows: backpackBonusRows },
+    { id: "backpack-other", cat: "resources", title: "Backpack Other", headers: ["Item", "Count", "Effect"], rows: backpackOtherRows },
+    { id: "chief-gear", cat: "gear", title: "Chief Gear", headers: ["Slot", "Item", "Level", "Power"], rows: gearRows },
+    { id: "charms", cat: "gear", title: "Chief Charms", headers: ["Slot", "Level"], rows: charmRows },
+    { id: "heroes", cat: "roster", title: "Heroes", headers: ["Hero", "Level", "Stars", "Power"], rows: heroRows },
+    { id: "pets", cat: "roster", title: "Pets", headers: ["Pet", "Level", "Power", "Attack/Defense"], rows: petRows },
+    { id: "experts", cat: "roster", title: "Experts", headers: ["Expert", "Level", "Power", "Affinity"], rows: expertRows },
+    { id: "troops", cat: "roster", title: "Troops", headers: ["Scope", "Current", "Detail"], rows: troopRows },
+    { id: "buildings", cat: "city", title: "Buildings", headers: ["Building", "Current", "Detail", "Power"], rows: buildingRows },
+    { id: "research", cat: "city", title: "Research", headers: ["System", "Current", "Detail"], rows: researchRows },
+    { id: "war-nodes", cat: "city", title: "War Academy Nodes", headers: ["Node", "Level", "Effect", "Cost", "Time / Power"], rows: warNodeRows },
+    { id: "skins", cat: "city", title: "Skin Bonuses", headers: ["Scope", "Current", "Detail"], rows: skinRows },
+    { id: "gallery", cat: "city", title: "Collection Gallery", headers: ["Scope", "Current", "Detail"], rows: galleryRows },
+    { id: "open-items", cat: "meta", title: "Open Items", headers: ["Item"], rows: openRows },
+  ].filter((section) => section.rows.length); // an empty table tells you nothing
+
+  const CATEGORIES = [
+    ["all", "Everything"],
+    ["profile", "Profile"],
+    ["resources", "Resources"],
+    ["gear", "Gear"],
+    ["roster", "Roster"],
+    ["city", "City"],
+    ["meta", "Notes"],
+  ];
+  const activeCat = state.extract_view?.category || "all";
+  const query = state.extract_view?.query || "";
+  const openIds = state.extract_view?.open || {};
+  const totalRows = sections.reduce((sum, section) => sum + section.rows.length, 0);
+
+  const sectionHtml = sections
+    .map((section) => {
+      const count = section.rows.length;
+      // Default: open only if it is small enough to scan at a glance.
+      const isOpen = openIds[section.id] === undefined ? count <= 12 : Boolean(openIds[section.id]);
+      return `<details class="extract-section" data-extract-section="${esc(section.id)}" data-cat="${esc(section.cat)}"${isOpen ? " open" : ""}>
+        <summary>
+          <span class="extract-section__caret" aria-hidden="true"></span>
+          <span class="extract-section__title">${esc(section.title)}</span>
+          <span class="extract-section__count" data-count-for="${esc(section.id)}">${fmt(count)}</span>
+        </summary>
+        <div class="extract-section__body">${miniTable(section.headers, section.rows)}</div>
+      </details>`;
+    })
+    .join("");
+
+  const capturedAt = extractCaptureAgeText(data.extracted_at);
+
   $("#tab-current-extract").innerHTML = `
-    <div class="toolbar"><div><h2>Current Extract</h2><p>Loaded from data/current-player-state.json and applied to the calculator fields.</p></div></div>
+    <div class="toolbar">
+      <div>
+        <h2>Current Extract</h2>
+        <p>Everything read straight out of the game and applied to the calculators. This is the raw record — edit values on their own pages, not here.</p>
+      </div>
+    </div>
     <div class="summary-grid">
       <div class="metric blue"><span>Current power</span><strong>${objectValue(data.profile?.power)}</strong></div>
       <div class="metric amber"><span>Heroes read</span><strong>${fmt(heroes.length)}</strong></div>
@@ -4263,90 +4521,86 @@ function renderCurrentExtract() {
       <div class="metric purple"><span>Experts read</span><strong>${fmt(experts.length)}</strong></div>
       <div class="metric blue"><span>Buildings read</span><strong>${fmt(buildings.length)}</strong></div>
     </div>
-    <div class="extract-stack">
-      ${bonusOverviewHtml}
-      <div class="grid-2">
-        <div class="panel">
-          <h2>Profile</h2>
-          ${miniTable(["Field", "Value"], profileRows)}
-        </div>
-        <div class="panel">
-          <h2>Resources</h2>
-          ${miniTable(["Resource", "Observed"], resourceRows)}
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Backpack Resources</h2>
-        ${miniTable(["Item", "Count", "Effect"], backpackRows)}
-      </div>
-      <div class="grid-2">
-        <div class="panel">
-          <h2>Backpack Speedups</h2>
-          ${miniTable(["Type", "Duration", "Count"], backpackSpeedupRows)}
-        </div>
-        <div class="panel">
-          <h2>Backpack Bonus</h2>
-          ${miniTable(["Item", "Count", "Effect"], backpackBonusRows)}
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Backpack Other</h2>
-        ${miniTable(["Item", "Count", "Effect"], backpackOtherRows)}
-      </div>
-      <div class="panel">
-        <h2>Research</h2>
-        ${miniTable(["System", "Current", "Detail"], researchRows)}
-      </div>
-      <div class="grid-2">
-        <div class="panel">
-          <h2>Troops</h2>
-          ${miniTable(["Scope", "Current", "Detail"], troopRows)}
-        </div>
-        <div class="panel">
-          <h2>Skin Bonuses</h2>
-          ${miniTable(["Scope", "Current", "Detail"], skinRows)}
-        </div>
-      </div>
-      <div class="panel">
-        <h2>War Academy Nodes</h2>
-        ${miniTable(["Node", "Level", "Effect", "Cost", "Time / Power"], warNodeRows)}
-      </div>
-      <div class="panel">
-        <h2>Collection Gallery</h2>
-        ${miniTable(["Scope", "Current", "Detail"], galleryRows)}
-      </div>
-      <div class="panel">
-        <h2>Buildings</h2>
-        ${miniTable(["Building", "Current", "Detail", "Power"], buildingRows)}
-      </div>
-      <div class="grid-2">
-        <div class="panel">
-          <h2>Chief Gear</h2>
-          ${miniTable(["Slot", "Item", "Level", "Power"], gearRows)}
-        </div>
-        <div class="panel">
-          <h2>Chief Charms</h2>
-          ${miniTable(["Slot", "Level"], charmRows)}
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Heroes</h2>
-        ${miniTable(["Hero", "Level", "Stars", "Power"], heroRows)}
-      </div>
-      <div class="panel">
-        <h2>Pets</h2>
-        ${miniTable(["Pet", "Level", "Power", "Attack/Defense"], petRows)}
-      </div>
-      <div class="panel">
-        <h2>Experts</h2>
-        ${miniTable(["Expert", "Level", "Power", "Affinity"], expertRows)}
-      </div>
-      <div class="panel">
-        <h2>Open Items</h2>
-        ${miniTable(["Item"], openRows)}
+    <div class="panel extract-meta">
+      <div class="extract-meta__facts">
+        <span class="status-pill">${fmt(totalRows)} values recorded</span>
+        <span class="status-pill">${fmt(sections.length)} sections</span>
+        ${capturedAt ? `<span class="status-pill">Read ${esc(capturedAt)}</span>` : ""}
+        ${data.capture_id ? `<span class="status-pill muted-pill">${esc(data.capture_id)}</span>` : ""}
       </div>
     </div>
+    <div class="panel extract-controls">
+      <div class="extract-search">
+        <input type="search" id="extractSearch" placeholder="Search every value — try &quot;amber&quot;, &quot;Gwen&quot;, &quot;infantry&quot;" value="${esc(query)}" autocomplete="off" />
+        <button type="button" class="ghost" data-extract-clear ${query ? "" : "hidden"}>Clear</button>
+      </div>
+      <div class="extract-chips" role="group" aria-label="Filter by area">
+        ${CATEGORIES.filter(([id]) => id === "all" || sections.some((section) => section.cat === id))
+          .map(
+            ([id, label]) =>
+              `<button type="button" class="extract-chip${activeCat === id ? " is-active" : ""}" data-extract-cat="${esc(id)}">${esc(label)}</button>`,
+          )
+          .join("")}
+      </div>
+      <div class="extract-bulk">
+        <button type="button" class="ghost" data-extract-expand="1">Expand all</button>
+        <button type="button" class="ghost" data-extract-expand="0">Collapse all</button>
+      </div>
+    </div>
+    <p class="extract-noresults" hidden>No value matches that search.</p>
+    <div class="extract-stack">
+      ${bonusOverviewHtml}
+      ${sectionHtml}
+    </div>
   `;
+  applyExtractFilter();
+}
+
+function extractCaptureAgeText(iso) {
+  if (!iso) return "";
+  const when = new Date(iso);
+  if (Number.isNaN(when.getTime())) return "";
+  const days = Math.floor((Date.now() - when.getTime()) / 86400000);
+  const stamp = when.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  if (days <= 0) return `${stamp} (today)`;
+  if (days === 1) return `${stamp} (yesterday)`;
+  return `${stamp} (${fmt(days)} days ago)`;
+}
+
+// Filtering runs over the DOM rather than re-rendering, so typing stays instant and the
+// open/closed state of each section survives every keystroke.
+function applyExtractFilter() {
+  const root = $("#tab-current-extract");
+  if (!root) return;
+  const query = String(state.extract_view?.query || "").trim().toLowerCase();
+  const cat = state.extract_view?.category || "all";
+  let visibleSections = 0;
+
+  root.querySelectorAll("[data-extract-section]").forEach((section) => {
+    const catMatch = cat === "all" || section.dataset.cat === cat;
+    let shown = 0;
+    section.querySelectorAll("tbody tr").forEach((row) => {
+      const match = !query || row.textContent.toLowerCase().includes(query);
+      row.hidden = !match;
+      if (match) shown += 1;
+    });
+    const counter = section.querySelector("[data-count-for]");
+    if (counter) counter.textContent = fmt(shown);
+    const visible = catMatch && shown > 0;
+    section.hidden = !visible;
+    if (visible) {
+      visibleSections += 1;
+      // A search is a request to see the hits, so force the section open while one is active.
+      if (query) section.open = true;
+    }
+  });
+
+  const bonus = root.querySelector(".bonus-overview-grid")?.closest(".panel");
+  if (bonus) bonus.hidden = Boolean(query) || (cat !== "all" && cat !== "profile");
+  const empty = root.querySelector(".extract-noresults");
+  if (empty) empty.hidden = visibleSections > 0;
+  const clear = root.querySelector("[data-extract-clear]");
+  if (clear) clear.hidden = !query;
 }
 
 function getNextLevelCode(levels, currentCode) {
@@ -5078,8 +5332,23 @@ function heroGearPieceTargetsHtml(heroId, gearSet = {}) {
     .join("")}</div>`;
 }
 
+const HERO_GEAR_POSITION_ITEM_NAMES = {
+  "top-left": "Goggles",
+  "top-right": "Gauntlet",
+  "bottom-left": "Belt",
+  "bottom-right": "Boots",
+};
+
 function heroGearPieceName(slot, piece = {}) {
-  return piece.name || HERO_GEAR_SLOT_LABELS[slot] || HERO_GEAR_POSITION_LABELS[HERO_GEAR_SLOT_POSITIONS[slot]] || titleFromId(slot);
+  // Prefer the real item name over the grid position. "Boots" is something you can find
+  // in the game; "Bottom Right" is only meaningful while you are staring at the layout.
+  return (
+    piece.name ||
+    HERO_GEAR_POSITION_ITEM_NAMES[HERO_GEAR_SLOT_POSITIONS[slot]] ||
+    HERO_GEAR_SLOT_LABELS[slot] ||
+    HERO_GEAR_POSITION_LABELS[HERO_GEAR_SLOT_POSITIONS[slot]] ||
+    titleFromId(slot)
+  );
 }
 
 function heroGearPieceMeta(piece = {}) {
@@ -6007,11 +6276,11 @@ function smartHeroGearPlan() {
             candidates.push({
               kind: "gear",
               scope: `equipped ${heroId} ${slot}`,
-              label,
-              meta: `${setLabel || hero.name} | Mastery`,
+              label: `${hero.name} · ${label}`,
+              meta: `Mastery Forging${setLabel ? ` · ${setLabel}` : ""}`,
               troopType: troop,
-              from: `Lv ${currentLevel}`,
-              to: `Lv ${nextLevel}`,
+              from: `Mastery Lv ${currentLevel}`,
+              to: `Mastery Lv ${nextLevel}`,
               fields: HERO_GEAR_FIELDS,
               cost,
               changes: [numericStatChange(`${troop || "Hero"} Gear Stats`, currentLevel * 10, nextLevel * 10, "percent")],
@@ -6024,10 +6293,14 @@ function smartHeroGearPlan() {
 
           const currentEnhancement = Number(targetState.enhancements[key] || 0);
           const currentEmpowerment = heroGearCurrentEmpowerment({ ...piece, level: currentLevel, enhancement: currentEnhancement });
+          // Each milestone needs its own mastery level, so a Lv 12 piece cannot be pushed
+          // past +59 no matter how much Gear XP you hold. Without this the planner happily
+          // recommended +60, +80 and +100 on pieces that physically cannot take them.
+          const empowermentCeiling = heroGearEmpowermentCapForMastery(currentLevel);
           const empowermentRows = heroGearCanEmpowerAtLevel(currentLevel)
             ? heroGearEmpowermentStats(piece, hero, slot)
                 .map((row) => ({ ...row, enhancement: Number(row.enhancement || 0) }))
-                .filter((row) => row.enhancement > currentEnhancement)
+                .filter((row) => row.enhancement > currentEnhancement && row.enhancement <= empowermentCeiling)
                 .sort((a, b) => a.enhancement - b.enhancement)
             : [];
           const nextEmpowerment = empowermentRows[0];
@@ -6040,10 +6313,10 @@ function smartHeroGearPlan() {
             candidates.push({
               kind: "gear",
               scope: `equipped ${heroId} ${slot}`,
-              label,
-              meta: `${setLabel || hero.name} | Enhancement`,
+              label: `${hero.name} · ${label}`,
+              meta: `Empowerment${setLabel ? ` · ${setLabel}` : ""}`,
               troopType: troop,
-              from: `+${currentEnhancement}`,
+              from: heroGearCanEmpowerAtLevel(currentLevel) ? `+${currentEnhancement}` : `${currentEnhancement}`,
               to: `+${nextEnhancement}`,
               fields: HERO_GEAR_FIELDS,
               cost,
@@ -8941,6 +9214,83 @@ function bindEvents() {
     if ((target.dataset.path || "").startsWith("hero_gear_current_overrides.")) applyHeroGearCurrentOverrides(state);
     normalizeTargets(state);
     scheduleSave({ render: true });
+  });
+
+  document.addEventListener(
+    "toggle",
+    (event) => {
+      const panel = event.target;
+      if (panel?.matches?.("[data-smart-panel]")) {
+        setPath(state, `smart_recommendations.${panel.dataset.smartPanel}.open`, panel.open);
+        scheduleSave({ render: false });
+        return;
+      }
+      if (panel?.matches?.("[data-extract-section]")) {
+        setPath(state, `extract_view.open.${panel.dataset.extractSection}`, panel.open);
+        scheduleSave({ render: false });
+      }
+    },
+    true,
+  );
+
+  document.addEventListener("input", (event) => {
+    if (event.target?.id !== "extractSearch") return;
+    setPath(state, "extract_view.query", event.target.value);
+    applyExtractFilter();
+    scheduleSave({ render: false });
+  });
+
+  document.addEventListener("click", (event) => {
+    const plannerView = event.target.closest("[data-planner-view]");
+    if (plannerView) {
+      setPath(state, "planner_view.view", plannerView.dataset.plannerView);
+      setPath(state, "planner_view.module", "all");
+      setPath(state, "planner_view.expanded", false);
+      persistState();
+      renderActive();
+      return;
+    }
+    const plannerModule = event.target.closest("[data-planner-module]");
+    if (plannerModule) {
+      setPath(state, "planner_view.module", plannerModule.dataset.plannerModule);
+      persistState();
+      renderActive();
+      return;
+    }
+    const plannerExpand = event.target.closest("[data-planner-expand]");
+    if (plannerExpand) {
+      setPath(state, "planner_view.expanded", plannerExpand.dataset.plannerExpand === "1");
+      persistState();
+      renderActive();
+      return;
+    }
+    const chip = event.target.closest("[data-extract-cat]");
+    if (chip) {
+      setPath(state, "extract_view.category", chip.dataset.extractCat);
+      chip.parentElement.querySelectorAll(".extract-chip").forEach((el) => el.classList.toggle("is-active", el === chip));
+      applyExtractFilter();
+      scheduleSave({ render: false });
+      return;
+    }
+    if (event.target.closest("[data-extract-clear]")) {
+      setPath(state, "extract_view.query", "");
+      const box = $("#extractSearch");
+      if (box) box.value = "";
+      applyExtractFilter();
+      scheduleSave({ render: false });
+      return;
+    }
+    const bulk = event.target.closest("[data-extract-expand]");
+    if (bulk) {
+      const open = bulk.dataset.extractExpand === "1";
+      $("#tab-current-extract")
+        ?.querySelectorAll("[data-extract-section]")
+        .forEach((section) => {
+          section.open = open;
+          setPath(state, `extract_view.open.${section.dataset.extractSection}`, open);
+        });
+      scheduleSave({ render: false });
+    }
   });
 
   document.addEventListener("click", async (event) => {
