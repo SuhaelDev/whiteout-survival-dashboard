@@ -13,3 +13,7 @@ scratch/
 
 .vercel
 .env*
+
+# local verification output
+.ios-audit/
+.desktop-parity/

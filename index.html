@@ -2,10 +2,116 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- viewport-fit=cover lets the layout reach under the notch and home indicator;
+         mobile.css pays that back with env(safe-area-inset-*) padding. Pinch zoom is
+         deliberately left enabled - 16px form controls are what stop iOS auto-zooming,
+         not a maximum-scale lock. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Whiteout Survival Personal Dashboard</title>
+    <meta name="description" content="Personal Whiteout Survival progress dashboard: plan upgrades, track inventory, and see what to build next." />
+
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="src/styles.css?v=20260731-wave43d" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <meta name="theme-color" content="#0b111e" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="Whiteout Tracker" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Whiteout" />
+    <!-- black-translucent puts the app behind the status bar; mobile.css reserves
+         env(safe-area-inset-top) so nothing actually renders under the clock. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Numbers in the tables are quantities, not phone numbers. -->
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no" />
+
+    <!-- Sets the shell flag before first paint so a phone never flashes the
+         desktop layout. mobile.js re-evaluates the identical predicate on
+         resize/rotate - keep the two copies in step. -->
+    <script>
+      (function () {
+        try {
+          var forced = new URLSearchParams(location.search).get("shell");
+          if (forced !== "mobile" && forced !== "desktop") {
+            var coarse =
+              matchMedia("(hover: none) and (pointer: coarse)").matches ||
+              navigator.maxTouchPoints > 1;
+            var shortEdge = Math.min(innerWidth, innerHeight);
+            forced = coarse && shortEdge <= 500 ? "mobile" : "desktop";
+          }
+          document.documentElement.dataset.shell = forced;
+        } catch (e) {
+          document.documentElement.dataset.shell = "desktop";
+        }
+      })();
+    </script>
+
+    <link rel="stylesheet" href="src/styles.css?v=20260803-ios1" />
+    <link rel="stylesheet" href="src/mobile.css?v=20260803-ios1" />
+    <!-- Phones only, and only where WebP is supported; the <picture> below
+         falls back to JPEG on its own. -->
+    <link rel="preload" as="image" type="image/webp" href="assets/frost-command-dashboard-mobile.webp" media="(max-width: 820px)" />
+
+    <!-- iOS launch images. Safari matches one exact media query or shows a blank
+         screen, so every supported device gets both orientations. -->
+    <!-- iPhone SE 1 / 5s -->
+    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-640x1136.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-1136x640.png" />
+    <!-- iPhone 6-8 / SE 2-3 -->
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-750x1334.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-1334x750.png" />
+    <!-- iPhone 6-8 Plus -->
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1242x2208.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2208x1242.png" />
+    <!-- iPhone X / XS / 11 Pro -->
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2436x1125.png" />
+    <!-- iPhone 12-13 mini -->
+    <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1080x2340.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2340x1080.png" />
+    <!-- iPhone XR / 11 -->
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-1792x828.png" />
+    <!-- iPhone XS Max / 11 Pro Max -->
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1242x2688.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2688x1242.png" />
+    <!-- iPhone 12 / 13 / 14 -->
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2532x1170.png" />
+    <!-- iPhone 14 Pro / 15 / 16 -->
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2556x1179.png" />
+    <!-- iPhone 16 Pro -->
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1206x2622.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2622x1206.png" />
+    <!-- iPhone 12-13 Pro Max / 14 Plus -->
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2778x1284.png" />
+    <!-- iPhone 14 Pro Max / 15 Plus / 16 Plus -->
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2796x1290.png" />
+    <!-- iPhone 16 Pro Max -->
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="assets/splash/splash-1320x2868.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="assets/splash/splash-2868x1320.png" />
+    <!-- iPad 9.7 / mini -->
+    <link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-1536x2048.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2048x1536.png" />
+    <!-- iPad 10.2" -->
+    <link rel="apple-touch-startup-image" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-1620x2160.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2160x1620.png" />
+    <!-- iPad Air 10.9" -->
+    <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-1640x2360.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2360x1640.png" />
+    <!-- iPad Pro 10.5" -->
+    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-1668x2224.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2224x1668.png" />
+    <!-- iPad Pro 11" -->
+    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-1668x2388.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2388x1668.png" />
+    <!-- iPad Pro 12.9" -->
+    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="assets/splash/splash-2048x2732.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2732x2048.png" />
   </head>
   <body>
     <div class="app-shell">
@@ -42,7 +148,17 @@
 
       <main class="main">
         <section class="hero-band">
-          <img src="assets/frost-command-dashboard.png" alt="" />
+          <!-- display:contents keeps <picture> out of the box tree, so the
+               <img> stays the hero band's only flex child exactly as before
+               and desktop's box geometry is untouched. -->
+          <picture style="display: contents">
+            <!-- Phones get a 1100px WebP (48 KB) or JPEG (58 KB) instead of the
+                 2.2 MB PNG. Desktop deliberately keeps the original PNG so its
+                 rendering stays bit-identical to before. -->
+            <source media="(max-width: 820px)" type="image/webp" srcset="assets/frost-command-dashboard-mobile.webp" />
+            <source media="(max-width: 820px)" srcset="assets/frost-command-dashboard-mobile.jpg" />
+            <img src="assets/frost-command-dashboard.png" alt="" />
+          </picture>
           <div class="hero-content">
             <h1>Your Whiteout Progress</h1>
             <div class="profile-grid" id="profileInputs"></div>
@@ -64,7 +180,7 @@
           <div class="tab-panel" id="tab-t12-research"></div>
           <div class="tab-panel" id="tab-troops"></div>
           <div class="tab-panel" id="tab-svs"></div>
-          
+
           <div class="tab-panel" id="tab-skins"></div>
           <div class="tab-panel" id="tab-sources"></div>
         </section>
@@ -79,6 +195,7 @@
     </template>
 
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="src/app.js?v=20260731-wave43d"></script>
+<script type="module" src="src/app.js?v=20260803-ios1"></script>
+<script type="module" src="src/mobile.js?v=20260803-ios1"></script>
   </body>
 </html>

@@ -1,0 +1,1138 @@
+/* ==========================================================================
+   mobile.css - iOS phone layer
+   --------------------------------------------------------------------------
+   Everything in this file is scoped to html[data-shell="mobile"], which is set
+   by the inline boot script in index.html and re-evaluated by src/mobile.js.
+   The flag is only ever set on a coarse-pointer device whose short edge is
+   <= 500px, i.e. a phone in either orientation. A desktop browser - even one
+   resized to a narrow window - never gets the attribute, so no rule below can
+   reach it. That is the whole safety story: one attribute, one predicate.
+
+   styles.css is desktop-first with max-width breakpoints at 1100/900/800/
+   760/720/600, and this file loads after it, so equal-specificity rules here
+   win. Where styles.css uses !important (.account-actions button, .nav-button
+   .active) we match it.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Root behaviour
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] {
+  /* Stop iOS inflating text in narrow columns after a rotate. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Rubber-band overscroll should reveal the app background, not white. */
+  background: var(--bg);
+  /* Keep an inner scroller's overscroll from yanking the whole page. */
+  overscroll-behavior-y: contain;
+}
+
+html[data-shell="mobile"] body {
+  background: var(--bg);
+  /* The desktop 260px sidebar gradient has nothing to paint on a phone. */
+  min-width: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Landscape notch: keep content clear of the sensor housing. */
+html[data-shell="mobile"] .hero-content,
+html[data-shell="mobile"] .content-area {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Clearance for the fixed tab bar so the last row is never trapped under it. */
+html[data-shell="mobile"] .content-area {
+  padding-bottom: calc(var(--mtabs-h, 56px) + env(safe-area-inset-bottom) + 18px);
+}
+
+/* --------------------------------------------------------------------------
+   2. Top bar (static - it scrolls away)
+   --------------------------------------------------------------------------
+   Deliberately not position:fixed. app.js's focusActiveNutshell() scrolls a
+   target to viewport top with only an 8px allowance; a fixed header would hide
+   the thing it just scrolled to. A scrolling header also gives back ~52px of
+   a short screen.
+   -------------------------------------------------------------------------- */
+
+.mtopbar {
+  display: none;
+}
+
+html[data-shell="mobile"] .mtopbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px
+    calc(14px + env(safe-area-inset-left));
+  background: #17202a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Matches .brand-mark in styles.css (line ~4802) so the header mark on a phone
+   is the same icon the sidebar shows on desktop. */
+html[data-shell="mobile"] .mtopbar__mark {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+html[data-shell="mobile"] .mtopbar__titles {
+  min-width: 0;
+  flex: 1 1 auto;
+  line-height: 1.25;
+}
+
+html[data-shell="mobile"] .mtopbar__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #eef5fb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-shell="mobile"] .mtopbar__status {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: #8fa0b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-shell="mobile"] .mtopbar__menu {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #dbe6f1;
+}
+
+html[data-shell="mobile"] .mtopbar__menu:active {
+  background: rgba(255, 255, 255, 0.14);
+  transform: none;
+}
+
+/* The chrome icons are stroke-only; without this they inherit the SVG default
+   of black fill and vanish against the dark bar. */
+html[data-shell="mobile"] .mtopbar__menu svg,
+html[data-shell="mobile"] .mtab svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --------------------------------------------------------------------------
+   3. Bottom tab bar
+   -------------------------------------------------------------------------- */
+
+.mtabs {
+  display: none;
+}
+
+html[data-shell="mobile"] .mtabs {
+  position: fixed;
+  z-index: 120; /* above sticky th (1) and .extract-controls (4), below wizard (300) */
+  inset: auto 0 0 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+  padding: 0 max(4px, env(safe-area-inset-left)) env(safe-area-inset-bottom)
+    max(4px, env(safe-area-inset-right));
+  /* Near-opaque on purpose: at 0.92 the panel headings underneath stayed
+     legible through the bar and the whole thing read as a smear. */
+  background: rgba(15, 22, 33, 0.975);
+  -webkit-backdrop-filter: saturate(150%) blur(18px);
+  backdrop-filter: saturate(150%) blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  /* Hairline highlight so the bar reads as a separate plane over dark content. */
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+}
+
+html[data-shell="mobile"] .mtab {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 56px;
+  padding: 6px 2px 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #8ea0b5;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  transition: color 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html[data-shell="mobile"] .mtab:hover {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html[data-shell="mobile"] .mtab:active {
+  transform: none;
+  color: #cfe0f0;
+}
+
+html[data-shell="mobile"] .mtab svg {
+  width: 23px;
+  height: 23px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html[data-shell="mobile"] .mtab__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-shell="mobile"] .mtab.active {
+  color: #4cc3f5;
+}
+
+html[data-shell="mobile"] .mtab.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 26px;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: #38bdf8;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+}
+
+html[data-shell="mobile"] .mtab:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+}
+
+/* --------------------------------------------------------------------------
+   4. "More" sheet
+   --------------------------------------------------------------------------
+   The sheet adopts the real <aside class="sidebar"> element rather than
+   cloning it, so every listener app.js bound in bindEvents() and every
+   innerHTML target (#moduleNav, #accountPanel, #saveStatus) keeps working
+   untouched. mobile.js moves the node back into .app-shell if the shell ever
+   flips to desktop.
+   -------------------------------------------------------------------------- */
+
+.msheet {
+  display: none;
+}
+
+/* Deliberately no visibility toggle. Flipping visibility in the same frame as
+   the transform made WebKit start the slide-up from an indeterminate point and
+   occasionally leave the sheet parked half open. The panel is simply parked
+   off-screen instead, with pointer-events off and the subtree inert (set in
+   mobile.js) so nothing here is reachable while closed. */
+html[data-shell="mobile"] .msheet {
+  position: fixed;
+  inset: 0;
+  z-index: 200; /* under .wizard-overlay (300) on purpose */
+  display: block;
+  pointer-events: none;
+}
+
+html[data-shell="mobile"] .msheet.open {
+  pointer-events: auto;
+}
+
+html[data-shell="mobile"] .msheet__scrim {
+  position: absolute;
+  inset: 0;
+  /* Swallows scroll gestures, which locks the page behind the sheet without
+     the position:fixed body trick that loses scroll position on iOS. */
+  touch-action: none;
+  background: rgba(4, 10, 20, 0.55);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+html[data-shell="mobile"] .msheet.open .msheet__scrim {
+  opacity: 1;
+}
+
+html[data-shell="mobile"] .msheet__panel {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  /* dvh tracks the iOS URL bar; the vh value is the pre-dvh fallback. */
+  max-height: 86vh;
+  max-height: 86dvh;
+  background: #17202a;
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.6);
+  transform: translate3d(0, 100%, 0);
+  transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  overscroll-behavior: contain;
+  will-change: transform;
+}
+
+html[data-shell="mobile"] .msheet.open .msheet__panel {
+  transform: translate3d(0, 0, 0);
+}
+
+html[data-shell="mobile"] .msheet.dragging .msheet__panel {
+  transition: none;
+}
+
+html[data-shell="mobile"] .msheet__grab {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 9px 0 4px;
+  /* The whole strip is the drag handle, not just the pill. */
+  touch-action: none;
+  cursor: grab;
+}
+
+html[data-shell="mobile"] .msheet__grab::before {
+  content: "";
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+}
+
+html[data-shell="mobile"] .msheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* The adopted sidebar, restyled as sheet content.
+   Gated on data-mchrome="ready" so that if mobile.js never runs the sidebar
+   stays visible at the top of the page - degraded, but navigable - instead of
+   leaving the app with no navigation at all. */
+html[data-shell="mobile"][data-mchrome="ready"] .app-shell > .sidebar {
+  display: none;
+}
+
+html[data-shell="mobile"] .msheet__body > .sidebar {
+  position: static;
+  display: flex;
+  height: auto;
+  max-height: none;
+  gap: 14px;
+  padding: 0 14px 6px;
+  overflow: visible;
+  background: transparent;
+}
+
+html[data-shell="mobile"] .msheet__body .brand {
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Undo the <=720px horizontal chip strip - in the sheet the nav is a list. */
+html[data-shell="mobile"] .msheet__body .module-nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+html[data-shell="mobile"] .msheet__body .nav-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+html[data-shell="mobile"] .msheet__body .nav-group__label {
+  grid-column: 1 / -1;
+}
+
+html[data-shell="mobile"] .msheet__body .nav-button {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13.5px;
+}
+
+html[data-shell="mobile"] .msheet__body .save-panel {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 14px;
+}
+
+html[data-shell="mobile"] .msheet__body .cloud-sync-panel,
+html[data-shell="mobile"] .msheet__body .cloud-sync-actions {
+  grid-template-columns: 1fr;
+}
+
+html[data-shell="mobile"] .msheet__body .save-panel button,
+html[data-shell="mobile"] .msheet__body .save-panel .file-button {
+  min-height: 44px;
+  font-size: 13.5px;
+}
+
+html[data-shell="mobile"] .msheet__body .sidebar-tools > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+html[data-shell="mobile"] .msheet__body .sidebar-tools__body {
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   5. Shell layout on a phone
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .app-shell {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+html[data-shell="mobile"] .hero-band {
+  /* 320px of decorative header is a third of an iPhone screen. */
+  min-height: 148px;
+}
+
+html[data-shell="mobile"] .hero-band::after {
+  /* Vertical scrim reads better than the desktop left-to-right one when the
+     text sits across the full width. */
+  background: linear-gradient(
+    180deg,
+    rgba(13, 24, 36, 0.5) 0%,
+    rgba(13, 24, 36, 0.72) 55%,
+    rgba(13, 24, 36, 0.92) 100%
+  );
+}
+
+html[data-shell="mobile"] .hero-content {
+  width: 100%;
+  padding: 14px 14px 14px;
+}
+
+html[data-shell="mobile"] h1 {
+  margin: 0 0 10px;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+html[data-shell="mobile"] .content-area {
+  width: 100%;
+  margin: 12px auto 0;
+  padding-left: calc(12px + env(safe-area-inset-left));
+  padding-right: calc(12px + env(safe-area-inset-right));
+}
+
+html[data-shell="mobile"] .profile-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Collapsible chief profile - see wrapProfile() in mobile.js. Collapsed by
+   default so a module's own content starts near the top of the screen. */
+html[data-shell="mobile"] .mprofile {
+  margin-top: 4px;
+}
+
+html[data-shell="mobile"] .mprofile__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  background: rgba(9, 16, 26, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #eaf2fa;
+  cursor: pointer;
+  list-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html[data-shell="mobile"] .mprofile__summary::-webkit-details-marker {
+  display: none;
+}
+
+html[data-shell="mobile"] .mprofile__summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2px solid rgba(255, 255, 255, 0.55);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.55);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+html[data-shell="mobile"] .mprofile[open] .mprofile__summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+html[data-shell="mobile"] .mprofile__label {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #9fb3c8;
+}
+
+html[data-shell="mobile"] .mprofile__facts {
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------------------
+   6. Form controls - the iOS focus-zoom fix
+   --------------------------------------------------------------------------
+   Safari zooms the viewport whenever a focused control's font-size is under
+   16px, and never zooms back out cleanly. styles.css sets 11-13.5px on eleven
+   different control rules (one with !important), so this is a blanket
+   override. 16px is the floor, not a design choice.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] input,
+html[data-shell="mobile"] select,
+html[data-shell="mobile"] textarea {
+  font-size: 16px !important;
+}
+
+html[data-shell="mobile"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html[data-shell="mobile"] select,
+html[data-shell="mobile"] textarea {
+  min-height: 44px;
+  /* Safari applies its own inner shadow and rounding to text controls. */
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: var(--radius);
+}
+
+html[data-shell="mobile"] select {
+  /* appearance:none removes the chevron, so draw one back. */
+  background-image: linear-gradient(45deg, transparent 50%, #7b8ea4 50%),
+    linear-gradient(135deg, #7b8ea4 50%, transparent 50%);
+  background-position: right 15px center, right 10px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+
+/* A native iOS checkbox is ~16px and no amount of padding grows its hit area,
+   because padding is ignored on a control with its default appearance. Drawing
+   the box as a background image on a 44px transparent control gives a real
+   44x44 target while the visible box stays a normal 22px. */
+html[data-shell="mobile"] input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect x='1.25' y='1.25' width='19.5' height='19.5' rx='5' fill='%23ffffff' stroke='%2394a3b8' stroke-width='2'/%3E%3C/svg%3E");
+  vertical-align: middle;
+}
+
+html[data-shell="mobile"] input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect x='1.25' y='1.25' width='19.5' height='19.5' rx='5' fill='%230284c7' stroke='%230284c7' stroke-width='2'/%3E%3Cpath d='M6 11.3l3.4 3.4L16.2 7.9' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+html[data-shell="mobile"] input[type="checkbox"]:active {
+  background-color: rgba(56, 189, 248, 0.18);
+}
+
+html[data-shell="mobile"] td input[type="checkbox"] {
+  width: 44px;
+  /* A narrow column would otherwise squeeze the control below 44px wide;
+     the table already scrolls sideways, so widening the cell costs nothing. */
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+/* Table cells that were sized around a 13px control need the extra room. */
+html[data-shell="mobile"] td input[type="number"],
+html[data-shell="mobile"] td input[type="text"],
+html[data-shell="mobile"] td select {
+  min-height: 40px;
+}
+
+html[data-shell="mobile"] #tab-troops td input[type="number"] {
+  max-width: 130px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Touch targets
+   --------------------------------------------------------------------------
+   Apple's HIG floor is 44x44pt. styles.css ships 34px buttons, 27px account
+   actions, and ~20px chips. Chips stay visually small but get their hit area
+   back through padding, so nothing about the visual rhythm changes much.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] button,
+html[data-shell="mobile"] .file-button {
+  min-height: 44px;
+  padding: 0 14px;
+  touch-action: manipulation;
+}
+
+html[data-shell="mobile"] .account-actions {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+html[data-shell="mobile"] .account-actions button {
+  min-height: 44px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+}
+
+html[data-shell="mobile"] .extract-chip,
+html[data-shell="mobile"] .planner-tab,
+html[data-shell="mobile"] .charm-chip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Reference links on the Sources page are the page's only real controls. */
+html[data-shell="mobile"] .source-list a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+html[data-shell="mobile"] .planner-tabs,
+html[data-shell="mobile"] .extract-chips {
+  gap: 8px;
+}
+
+html[data-shell="mobile"] summary,
+html[data-shell="mobile"] .table-disclosure summary,
+html[data-shell="mobile"] .extract-section > summary,
+html[data-shell="mobile"] .hero-loadout-details summary {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+}
+
+html[data-shell="mobile"] .target-reset-button,
+html[data-shell="mobile"] .inv-reset {
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+html[data-shell="mobile"] .charm-socket-node__circle {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Row-revert buttons are hover-revealed on desktop; on touch there is no
+   hover, so they would be invisible-but-tappable. Show them. */
+html[data-shell="mobile"] .inv-reset {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   8. Hover states that misfire on touch
+   --------------------------------------------------------------------------
+   iOS keeps :hover latched on the last-tapped element until you tap elsewhere,
+   so any hover that moves or scales something leaves the layout visibly stuck.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .chief-gear-slot-card:hover,
+html[data-shell="mobile"] .building-list-item:hover,
+html[data-shell="mobile"] .satisfy-btn.upgradable:hover,
+html[data-shell="mobile"] .hero-portrait-btn:hover,
+html[data-shell="mobile"] button:hover,
+html[data-shell="mobile"] .file-button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+html[data-shell="mobile"] tbody tr:hover td {
+  background: inherit;
+}
+
+html[data-shell="mobile"] .chief-gear-slot-card:active,
+html[data-shell="mobile"] .building-list-item:active,
+html[data-shell="mobile"] .hero-portrait-btn:active {
+  /* Replace the lost hover feedback with a real press state. */
+  filter: brightness(1.18);
+}
+
+html[data-shell="mobile"] button:active,
+html[data-shell="mobile"] .file-button:active {
+  transform: none;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   9. Scrolling
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .table-wrap,
+html[data-shell="mobile"] .hero-selector-strip,
+html[data-shell="mobile"] .llm-brief {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+html[data-shell="mobile"] .table-wrap {
+  /* The scrollbar gutter wastes 15px of a 366px content box, and iOS overlays
+     its scrollbar anyway. */
+  scrollbar-gutter: auto;
+  scroll-snap-type: none;
+}
+
+/* Wide tables stay horizontally scrollable, but the first column pins so a
+   row stays identifiable while you scroll its numbers. */
+html[data-shell="mobile"] .table-wrap table th:first-child,
+html[data-shell="mobile"] .table-wrap table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #ffffff;
+  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.08);
+}
+
+html[data-shell="mobile"] .table-wrap table th:first-child {
+  z-index: 3;
+  background: var(--surface-2);
+}
+
+/* An inner 800px scroller inside a page scroller is a touch trap. */
+html[data-shell="mobile"] .buildings-sidebar {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* --------------------------------------------------------------------------
+   10. Content that overflows a 390px viewport
+   -------------------------------------------------------------------------- */
+
+/* The recurring cause of sideways scroll here is a grid track whose implicit
+   minimum is `auto`: one nowrap child then sets the width of everything above
+   it, and the page grows past the viewport. minmax(0, ...) and min-width: 0
+   break that chain at each container that showed up in the audit. */
+html[data-shell="mobile"] .smart-panel__body,
+html[data-shell="mobile"] .inventory-check,
+html[data-shell="mobile"] .coverage-table,
+html[data-shell="mobile"] .chief-gear-layout-container,
+html[data-shell="mobile"] .cost-cell {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html[data-shell="mobile"] .smart-panel__bar,
+html[data-shell="mobile"] .smart-panel__bar-facts,
+html[data-shell="mobile"] .smart-panel__head,
+html[data-shell="mobile"] .smart-panel__summary,
+html[data-shell="mobile"] .smart-card__head,
+html[data-shell="mobile"] .inventory-check__head,
+html[data-shell="mobile"] .exchange-rules div {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+html[data-shell="mobile"] .smart-panel__bar > *,
+html[data-shell="mobile"] .smart-panel__head > *,
+html[data-shell="mobile"] .inventory-check__head > * {
+  min-width: 0;
+}
+
+html[data-shell="mobile"] .smart-panel__bar-facts {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+}
+
+/* The recommendation headline is a full sentence held on one line. */
+html[data-shell="mobile"] .smart-panel__gain {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* The in-game-style "level 8 -> 9" row is centred and unwrappable. */
+html[data-shell="mobile"] .gd-hero-row {
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+html[data-shell="mobile"] .gd-level-flow {
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+html[data-shell="mobile"] .exchange-rules summary {
+  width: auto;
+}
+
+/* Four columns still fit once the 120/70/70/120px floors are dropped and the
+   status chip is allowed to wrap onto a second line. */
+html[data-shell="mobile"] .coverage-row {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 1.3fr);
+  gap: 6px;
+  padding: 6px;
+  font-size: 12px;
+}
+
+html[data-shell="mobile"] .coverage-row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* "Required" and "You have" are wider than their columns at 12px, and without
+   this they render on top of each other. */
+html[data-shell="mobile"] .coverage-row--head {
+  align-items: end;
+  font-size: 10px;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+html[data-shell="mobile"] .coverage-chip {
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+html[data-shell="mobile"] .chief-gear-screen {
+  min-width: 0;
+  min-height: 320px;
+  padding: 16px;
+}
+
+html[data-shell="mobile"] .chief-gear-editor-view {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-shell="mobile"] .chief-gear-slot-card {
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-shell="mobile"] .chief-gear-grid-container {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+html[data-shell="mobile"] .smart-card-grid,
+html[data-shell="mobile"] .summary-grid,
+html[data-shell="mobile"] .resource-grid,
+html[data-shell="mobile"] .grid-2,
+html[data-shell="mobile"] .hero-loadout-targets,
+html[data-shell="mobile"] .hero-primary-grid--main,
+html[data-shell="mobile"] .hero-primary-grid--secondary {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+html[data-shell="mobile"] .refine-stat-row {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+html[data-shell="mobile"] .refine-stat-row > *:first-child {
+  white-space: normal;
+}
+
+html[data-shell="mobile"] .extract-controls {
+  grid-template-columns: 1fr;
+  position: static;
+}
+
+/* Long labels wrap rather than force a horizontal scroll on the page itself. */
+html[data-shell="mobile"] .panel,
+html[data-shell="mobile"] .metric,
+html[data-shell="mobile"] .game-style-panel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------------------
+   11. Paint cost
+   --------------------------------------------------------------------------
+   styles.css puts backdrop-filter: blur(12px) !important on .panel, .metric,
+   .game-style-panel, .chief-troop-card, .upgrade-nutshell and .inventory-check.
+   That is dozens of blurred layers compositing on every scroll frame, which is
+   the single biggest source of jank on an iPhone. The panels are already
+   ~85% opaque, so dropping the blur for a solid fill is visually near-identical
+   and roughly free.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .panel,
+html[data-shell="mobile"] .metric,
+html[data-shell="mobile"] .game-style-panel,
+html[data-shell="mobile"] .chief-troop-card,
+html[data-shell="mobile"] .upgrade-nutshell,
+html[data-shell="mobile"] .inventory-check {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: rgba(17, 24, 39, 0.94) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* transition: all makes the compositor watch every property on every input. */
+html[data-shell="mobile"] .field input,
+html[data-shell="mobile"] .field select,
+html[data-shell="mobile"] .field textarea {
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+/* styles.css only silences 3 of its 7 infinite animations under
+   prefers-reduced-motion. Cover the rest. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-shell="mobile"] .chief-avatar-silhouette,
+  html[data-shell="mobile"] .charm-showcase svg,
+  html[data-shell="mobile"] .gd-chevrons,
+  html[data-shell="mobile"] .gear-up-arrow {
+    animation: none !important;
+  }
+
+  html[data-shell="mobile"] .msheet__panel,
+  html[data-shell="mobile"] .msheet__scrim {
+    transition-duration: 1ms;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   12. three.js canvas
+   --------------------------------------------------------------------------
+   app.js sets canvas.style.touchAction = "none" so a drag rotates the model.
+   On a phone that turns the Chief Gear and Charms canvases into scroll dead
+   zones. A CSS !important beats the inline style: vertical drags scroll the
+   page, horizontal drags still rotate, and the pointercancel handler app.js
+   already has cleans up when the browser takes over the gesture.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .chief-gear-screen canvas,
+html[data-shell="mobile"] .charm-showcase canvas,
+html[data-shell="mobile"] #chiefGear3d canvas,
+html[data-shell="mobile"] #charms3d canvas {
+  touch-action: pan-y !important;
+}
+
+html[data-shell="mobile"] .charm-showcase {
+  min-height: 220px;
+  height: 220px;
+}
+
+/* --------------------------------------------------------------------------
+   13. Standalone (installed to Home Screen)
+   -------------------------------------------------------------------------- */
+
+@media (display-mode: standalone) {
+  html[data-shell="mobile"] {
+    /* No URL bar to pull down to, so a rubber-band gap looks like a bug. */
+    overscroll-behavior-y: none;
+  }
+
+  /* There is no browser back button in standalone; the sheet is the way out. */
+  html[data-shell="mobile"] .mtopbar {
+    background: #141d27;
+  }
+}
+
+/* iOS keeps the legacy display-mode string on older builds. */
+@media (display-mode: fullscreen) {
+  html[data-shell="mobile"] {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   14. Keyboard open
+   --------------------------------------------------------------------------
+   mobile.js sets data-kb="open" from visualViewport. The tab bar is hidden so
+   it cannot sit on top of the keyboard's accessory bar, which iOS otherwise
+   renders over a bottom-fixed element.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"][data-kb="open"] .mtabs {
+  transform: translate3d(0, 110%, 0);
+  transition: transform 180ms ease;
+}
+
+html[data-shell="mobile"] .mtabs {
+  transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* --------------------------------------------------------------------------
+   15. Offline / update banner
+   -------------------------------------------------------------------------- */
+
+.mtoast {
+  display: none;
+}
+
+html[data-shell="mobile"] .mtoast,
+html[data-shell="desktop"] .mtoast {
+  position: fixed;
+  z-index: 210;
+  left: 50%;
+  bottom: calc(var(--mtabs-h, 56px) + env(safe-area-inset-bottom) + 14px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(420px, calc(100vw - 28px));
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(23, 32, 42, 0.98);
+  color: #eef5fb;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
+  transform: translate3d(-50%, 20px, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+html[data-shell="desktop"] .mtoast {
+  bottom: 20px;
+}
+
+html .mtoast.show {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+  pointer-events: auto;
+}
+
+html .mtoast button {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--blue-dark);
+  border-color: transparent;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   16. Wizard overlay on a phone
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] .wizard-overlay {
+  padding: 0;
+  align-items: flex-end;
+}
+
+html[data-shell="mobile"] .wizard-card {
+  width: 100%;
+  max-width: none;
+  max-height: 92dvh;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-shell="mobile"] .wizard-fields {
+  grid-template-columns: 1fr;
+}
+
+/* --------------------------------------------------------------------------
+   17. Focus visibility
+   --------------------------------------------------------------------------
+   -webkit-tap-highlight-color: transparent removes the only press feedback
+   some elements had, so make the keyboard/AT focus ring unmistakable.
+   -------------------------------------------------------------------------- */
+
+html[data-shell="mobile"] :focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+html[data-shell="mobile"] a,
+html[data-shell="mobile"] button,
+html[data-shell="mobile"] summary,
+html[data-shell="mobile"] label {
+  -webkit-touch-callout: none;
+}
+
+/* Long-press on data cells should not trigger the iOS text-selection loupe,
+   but real prose stays selectable. */
+html[data-shell="mobile"] .nav-button,
+html[data-shell="mobile"] .mtab,
+html[data-shell="mobile"] .planner-tab,
+html[data-shell="mobile"] .extract-chip {
+  -webkit-user-select: none;
+  user-select: none;
+}

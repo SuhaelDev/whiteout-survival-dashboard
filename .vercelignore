@@ -10,3 +10,5 @@ scripts/__pycache__
 scratch
 node_modules
 .env.local
+.ios-audit
+.desktop-parity

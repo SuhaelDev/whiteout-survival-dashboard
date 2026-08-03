@@ -1,0 +1,75 @@
+{
+  "id": "/",
+  "name": "Whiteout Tracker",
+  "short_name": "Whiteout",
+  "description": "Personal Whiteout Survival progress dashboard: plan upgrades, track inventory, and see what to build next.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#0b111e",
+  "theme_color": "#0b111e",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "games", "productivity"],
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Planner",
+      "short_name": "Planner",
+      "url": "/?tab=planner",
+      "icons": [{ "src": "/assets/icons/shortcut-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Inventory",
+      "url": "/?tab=inventory",
+      "icons": [{ "src": "/assets/icons/shortcut-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Chief Gear",
+      "short_name": "Gear",
+      "url": "/?tab=chief-gear",
+      "icons": [{ "src": "/assets/icons/shortcut-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false
+}
