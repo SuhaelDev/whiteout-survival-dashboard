@@ -3883,7 +3883,7 @@ function plannerListHtml(verified, unverified, svsRanked) {
 
     <div class="table-wrap planner-recommendations">
       <table>
-        <thead><tr><th>Area</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>What you get</th><th>Score</th></tr></thead>
+        <thead><tr><th>Area</th><th>Upgrade</th><th>Cost</th><th>Status</th><th>What you get</th><th class="number">Score</th></tr></thead>
         <tbody>${plannerTableRows(filtered, limit) || `<tr><td colspan="6" class="muted">${esc(emptyText)}</td></tr>`}</tbody>
       </table>
     </div>
@@ -4349,7 +4349,7 @@ function inventoryCaptureDiffHtml() {
     <div class="extract-section__body">
       <p class="muted">A capture always wins over typed-in values, so anything you had corrected by hand was replaced. Here is what moved${diff.captured_at ? ` in the read from ${esc(extractCaptureAgeText(diff.captured_at))}` : ""}.</p>
       <div class="table-wrap compact-table"><table>
-        <thead><tr><th>Item</th><th>Was</th><th>Now</th><th>Change</th></tr></thead>
+        <thead><tr><th>Item</th><th class="number">Was</th><th class="number">Now</th><th class="number">Change</th></tr></thead>
         <tbody>${shown.map((change) => {
           const delta = change.to - change.from;
           return `<tr>
@@ -6629,7 +6629,9 @@ function charmGearSlotCardHtml(gearSlotId, gearSlotById, charmSlotsByGear, selec
     .map((slot) => {
       const saved = state.charms[slot.slot_id] || { current: 0, target: 0 };
       const socketSelected = Number(saved.target) > Number(saved.current);
-      return `<span class="charm-chip ${slot.slot_id === selectedSocketId ? "active" : ""}" data-select-chief-charm-socket-id="${slot.slot_id}">${esc(String(slot.position || "").charAt(0))} ${esc(saved.current)}${socketSelected ? `<b class="gd-gain">➜${esc(saved.target)}</b>` : ""}</span>`;
+      // A <span> with a click handler is invisible to the keyboard and to
+      // assistive tech. These chips select a charm socket, so they are buttons.
+      return `<button type="button" class="charm-chip ${slot.slot_id === selectedSocketId ? "active" : ""}" data-select-chief-charm-socket-id="${slot.slot_id}" aria-pressed="${slot.slot_id === selectedSocketId ? "true" : "false"}">${esc(String(slot.position || "").charAt(0))} ${esc(saved.current)}${socketSelected ? `<b class="gd-gain">➜${esc(saved.target)}</b>` : ""}</button>`;
     })
     .join("");
   return `<div class="chief-gear-slot-card charm-troop-${troop} ${isActiveCard ? "active-card" : ""}" data-select-chief-charm-socket-id="${gearSlotId}_top">
@@ -8901,6 +8903,10 @@ function renderSkins() {
 
 function renderSources() {
   $("#tab-sources").innerHTML = `
+    <div class="toolbar">
+      <h2>Sources</h2>
+      <p class="muted">Where the numbers in this dashboard come from, and what is still unconfirmed.</p>
+    </div>
     <div class="grid-2">
       <div class="panel">
         <h2>Source Inventory</h2>
@@ -8943,6 +8949,26 @@ function focusActiveNutshell() {
   });
 }
 
+/* Turns a state path into something a screen reader can announce.
+   "resources.meat" -> "resources meat", ".../gear/helm/level" -> "helm level".
+   Inventory alone renders 939 path-bound controls with no label element and no
+   aria-label, so without this they are announced as 939 anonymous fields. */
+function pathLabel(path) {
+  const parts = String(path || "").split(".").filter(Boolean);
+  return parts.slice(-2).join(" ").replace(/_/g, " ").trim();
+}
+
+function labelPathControls(root) {
+  const scope = root || document;
+  scope.querySelectorAll("input[data-path], select[data-path], textarea[data-path]").forEach((el) => {
+    if (el.getAttribute("aria-label") || el.getAttribute("aria-labelledby")) return;
+    if (el.closest("label")) return;
+    if (el.id && document.querySelector(`label[for="${cssEscape(el.id)}"]`)) return;
+    const name = pathLabel(el.dataset.path);
+    if (name) el.setAttribute("aria-label", name);
+  });
+}
+
 function renderActive(options = {}) {
   document.body.dataset.activeTab = activeTab;
   renderNav();
@@ -8968,6 +8994,8 @@ function renderActive(options = {}) {
   renderers[activeTab]();
   $$(".tab-panel").forEach((panel) => panel.classList.remove("active"));
   $(`#tab-${activeTab}`).classList.add("active");
+  labelPathControls($(`#tab-${activeTab}`));
+  labelPathControls($("#profileInputs"));
   if (options.focusNutshell) focusActiveNutshell();
 }
 
@@ -10000,7 +10028,9 @@ function hero3dAnimate() {
 }
 
 function hero3dPointerEvents(canvas) {
-  canvas.style.touchAction = "none";
+  // The drag only reads horizontal movement, so pan-y lets a touch user
+  // scroll the page through the canvas instead of being trapped by it.
+  canvas.style.touchAction = "pan-y";
   canvas.addEventListener("pointerdown", (event) => {
     HERO3D.dragging = true;
     HERO3D.dragMoved = 0;

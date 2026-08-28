@@ -16,7 +16,7 @@
   --purple: #8b5cf6;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.35);
-  --focus: rgba(56, 189, 248, 0.4);
+  --focus: rgba(125, 211, 252, 0.9);
   --radius: 8px;
   --font: 'Outfit', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
@@ -79,10 +79,13 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+/* --blue is a bright cyan; white on it measures 2.14:1. Dark ink on the same
+   fill keeps the brand colour and reads at 7.8:1. */
 button.primary {
   background: var(--blue);
   border-color: var(--blue);
-  color: #ffffff;
+  color: #062033;
+  font-weight: 700;
 }
 
 .app-shell {
@@ -101,7 +104,12 @@ button.primary {
   padding: 18px 14px;
   background: #17202a;
   color: #eef5fb;
-  overflow-y: auto;
+  /* The sidebar itself must not scroll. When it did, nav + save status +
+     account panel + backup controls shared one 1172px scroll flow, so on any
+     screen under 1440px tall the save panel sat below the fold behind a
+     scrollbar that is invisible at rest. The nav scrolls instead, and the save
+     panel stays pinned to the bottom. */
+  overflow: hidden;
 }
 
 .brand {
@@ -137,6 +145,31 @@ button.primary {
 .module-nav {
   display: grid;
   gap: 4px;
+  /* Takes the leftover height and scrolls on its own so .save-panel below is
+     always reachable. min-height:0 is what lets a flex child shrink. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.module-nav::-webkit-scrollbar {
+  width: 8px;
+}
+
+.module-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+/* The list is cut by the fold on short screens and the thin scrollbar only
+   appears while scrolling, so fade the last row to say there is more. */
+@media (min-width: 1101px) {
+  .module-nav {
+    -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
 }
 
 .nav-button {
@@ -168,6 +201,7 @@ button.primary {
 .save-panel {
   display: grid;
   gap: 8px;
+  flex: 0 0 auto;
   margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
@@ -288,13 +322,13 @@ button.primary {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(13, 24, 36, 0.88) 0%, rgba(13, 24, 36, 0.72) 34%, rgba(13, 24, 36, 0.3) 72%);
+  background: linear-gradient(90deg, rgba(13, 24, 36, 0.9) 0%, rgba(13, 24, 36, 0.78) 34%, rgba(13, 24, 36, 0.58) 72%, rgba(13, 24, 36, 0.5) 100%);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
-  width: min(1720px, calc(100% - 32px));
+  width: min(1440px, calc(100% - 32px));
   margin: 0 auto;
   padding: 24px 0 20px;
   color: #ffffff;
@@ -371,11 +405,26 @@ textarea {
 .field input:focus, .field select:focus, .compact-field input:focus, .compact-field select:focus, textarea:focus {
   border-color: var(--blue) !important;
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
-  outline: none !important;
+}
+
+/* Keyboard focus has to stay visible on form fields. The rule above used to end
+   in `outline: none !important`, which killed the ring on every profile input
+   while the sidebar kept one, so tabbing into the page lost the caret. */
+.field input:focus-visible,
+.field select:focus-visible,
+.compact-field input:focus-visible,
+.compact-field select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--focus) !important;
+  outline-offset: 2px;
 }
 
 .content-area {
-  width: min(1720px, calc(100% - 32px));
+  /* Was 1720px. At that measure a 4-column table smeared a label 719px from its
+     own value on a 2560 screen, prose ran to ~150 characters, and the auto-fit
+     card grids went from a clean 4+4 at 1440 to 7+1. Capping at the width the
+     layout was actually tuned for fixes all three at once. */
+  width: min(1440px, calc(100% - 32px));
   margin: 14px auto 24px;
 }
 
@@ -514,6 +563,9 @@ textarea {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
   gap: 10px;
+  /* Without this the short card in a pair is stretched to match the tall one,
+     which left ~910px of empty panel beside Overview's cost table. */
+  align-items: start;
 }
 
 .grid-2 + .table-wrap {
@@ -1897,7 +1949,11 @@ td {
   text-align: left;
   font-size: 12px;
   line-height: 1.35;
-  overflow-wrap: anywhere;
+  /* `anywhere` also drops min-content width to a single glyph, so any table
+     allowed to shrink collapsed until "Infantry" ran one letter per line.
+     `break-word` still breaks a word too long for its own line but no longer
+     lets the column collapse. */
+  overflow-wrap: break-word;
 }
 
 th {
@@ -2031,7 +2087,7 @@ td input[type="checkbox"] {
 
 .visual-copy strong,
 .visual-label strong {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .game-icon {
@@ -2435,8 +2491,11 @@ td input[type="checkbox"] {
   min-width: 0;
 }
 
+/* A quantity must never split mid-digit - "59,200" was rendering as "59,20"
+   over "0". The label beside it has min-width:0 and can give way instead. */
 .overview-cost-table .cost-cell strong {
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .planner-recommendations table {
@@ -3539,23 +3598,59 @@ td input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
 
+  /* Flattening the sidebar makes its three children rows of the shell grid.
+     Two things follow that a static sidebar could not give: the nav can stick
+     to the top of the window for the whole page scroll (a sticky child of a
+     static sidebar only sticks inside the sidebar's own box, which ends before
+     the content begins), and the account/backup block can move below the
+     content with `order` instead of sitting between the nav and it. Before
+     this, an iPad spent 771 of its first 1080px on chrome and no module
+     content was above the fold. */
   .sidebar {
-    position: static;
-    height: auto;
+    display: contents;
+  }
+
+  .brand {
+    background: #17202a;
+    padding: 10px 16px;
+    border-bottom: 0;
   }
 
   .module-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #17202a;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.38);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .main {
+    order: 2;
   }
 
   .save-panel {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    order: 3;
+    background: #17202a;
+    margin-top: 0;
+    padding: 14px 16px 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 
   .cloud-sync-panel {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 
+  /* .account-box is the wrapper the panel actually renders, and leaving it out
+     of this list is what squeezed sign-in into a 40px column on an iPad. */
+  .account-box,
   .cloud-sync-panel input[type="password"],
   .cloud-auto-toggle,
   .cloud-sync-actions,
@@ -3563,15 +3658,25 @@ td input[type="checkbox"] {
     grid-column: 1 / -1;
   }
 
-  .profile-grid,
-  .summary-grid,
-  .resource-grid,
   .inventory-editor-fields,
   .hero-primary-grid,
   .hero-loadout-grid,
   .chief-gear-clusters,
   .grid-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* These three are already fluid in their base rules. Forcing them to two
+     columns gave an 810px iPad 385px-wide cards for a single number and made
+     every module 1.1-1.8x taller than the same page on a laptop only 210px
+     wider. Let them fit what they can. */
+  .profile-grid,
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  }
+
+  .resource-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
   .inventory-check__grid,
@@ -3963,8 +4068,10 @@ td input[type="checkbox"] {
     min-width: 640px;
   }
 
+  /* Was min-width:0, which let compact tables shrink past legibility instead of
+     scrolling inside .table-wrap. */
   .compact-table table {
-    min-width: 0;
+    min-width: 420px;
   }
 }
 
@@ -4324,7 +4431,7 @@ td input[type="checkbox"] {
   pointer-events: none;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .chief-gear-grid-container {
     position: relative;
     display: grid;
@@ -4359,7 +4466,9 @@ td input[type="checkbox"] {
 }
 
 .chief-gear-slot-card {
-  width: 290px;
+  /* Was a hard 290px, which let the two columns push the panel to 622px on a
+     393px phone and shear the right-hand cards inside overflow:hidden. */
+  width: min(290px, 100%);
   background: rgba(23, 32, 42, 0.9);
   border: 2px solid var(--glass-border);
   border-radius: 10px;
@@ -4547,6 +4656,22 @@ td input[type="checkbox"] {
   padding: 10px 0;
   margin-bottom: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* 62 heroes make a ~6700px strip. With no resting scrollbar and no edge
+     treatment the sliced last portrait read as a rendering fault rather than
+     as something you can scroll. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 44px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 44px), transparent 100%);
+}
+
+.hero-selector-strip::-webkit-scrollbar {
+  height: 8px;
+}
+
+.hero-selector-strip::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
 }
 
 .hero-portrait-btn {
@@ -4602,7 +4727,7 @@ td input[type="checkbox"] {
   gap: 20px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .hero-gear-layout {
     grid-template-columns: 1fr;
   }
@@ -4925,18 +5050,22 @@ summary:hover {
   color: #38bdf8 !important;
 }
 
-/* Status badge fixes for contrast */
+/* Status badge contrast.
+   These fills were #159a62 / #ef4444 / #f59e0b under white text, measuring
+   3.60 / 3.76 / 2.15 to 1 at 12px - all below the 4.5 AA floor, and the amber
+   worse than the pale pills this block replaced. Same hues, darkened until
+   white clears AA: 5.37 / 6.54 / 5.02. */
 .status-pill, .badge {
   color: #ffffff !important;
-  background-color: #159a62 !important; /* strong green default */
+  background-color: #0f7a4d !important; /* green, 5.37:1 under white */
 }
 
 .status-pill.gap {
-  background-color: #ef4444 !important; /* strong red */
+  background-color: #b3261e !important; /* red, 6.54:1 under white */
 }
 
 .status-pill.warn {
-  background-color: #f59e0b !important; /* strong amber */
+  background-color: #b45309 !important; /* amber, 5.02:1 under white */
 }
 
 .inventory-check--covered {
@@ -5096,6 +5225,26 @@ select option {
   border: 1px solid #9dbbdf !important;
   border-radius: 8px;
   font-weight: 700;
+}
+
+/* Under color-scheme:dark, WebKit paints its own dark chrome for a <select> and
+   discards the author background while still honouring the author color, so the
+   rule above delivered dark navy ink on a #343434 control: 1.08:1, and the
+   selected level was invisible in Safari. appearance:none opts out of the native
+   control so the light background actually paints; the chevron is drawn back
+   because appearance:none removes it. Chromium was always fine here. */
+.game-dialog select,
+.pet-card select,
+.research-node-card select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 26px;
+  background-image: linear-gradient(45deg, transparent 50%, #4a6788 50%),
+    linear-gradient(135deg, #4a6788 50%, transparent 50%);
+  background-position: right 14px center, right 9px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  background-color: #f6faff !important;
 }
 
 .game-dialog .compact-field > span,
@@ -5875,6 +6024,7 @@ select option {
   min-width: 150px;
 }
 .svs-toggle {
+  display: flex;
   flex-direction: row;
   align-items: center;
   gap: 8px;
@@ -6026,7 +6176,7 @@ select option {
   pointer-events: none;
   white-space: nowrap;
 }
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   .charm-showcase { min-height: 260px; height: 260px; }
 }
 
@@ -6041,11 +6191,14 @@ select option {
 .charm-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
-  padding: 2px 8px;
+  padding: 4px 10px;
+  min-height: 28px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
+  font-family: inherit;
   color: #cfe2f4;
   background: rgba(120, 155, 200, 0.14);
   border: 1px solid rgba(120, 155, 200, 0.3);
@@ -6223,15 +6376,22 @@ select option {
 
 .account-box .account-note { font-size: 11px; opacity: 0.75; line-height: 1.35; }
 
+/* Three equal tracks were sized for the signed-in state's three short buttons
+   (Sync / Reload / Sign out). The signed-out state puts two ~100px labels into
+   the same 66px tracks, and with white-space:nowrap they painted over each
+   other and past the panel edge. Flex lets each button claim its label width
+   and wrap to the next line when two will not fit. */
 .account-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 5px;
 }
 
 .account-actions button {
-  min-height: 27px !important;
-  padding: 0 4px !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 30px !important;
+  padding: 0 6px !important;
   font-size: 11px !important;
   white-space: nowrap;
 }
@@ -6999,4 +7159,156 @@ tr[data-inv-key]:focus-within .inv-reset,
 .sidebar-tools > summary:hover {
   background-color: transparent !important;
   color: #eef5fb !important;
+}
+
+
+/* ==========================================================================
+   Audit fixes - controls, targets and skip link
+   Added after a cross-device pass (phone / tablet / laptop / large display).
+   Everything above stays as it was; these are additive.
+   ========================================================================== */
+
+/* A keyboard user had to pass 20 sidebar stops before reaching page content. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--blue);
+  color: #062033;
+  font-weight: 700;
+  border-radius: 0 0 var(--radius) 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/* Nine columns of selects, number inputs and icons cannot share 778px, and
+   .compact-table table { min-width: 0 } let them try - the controls ended up
+   overlapping each other. Give the plan table a real floor so .table-wrap
+   scrolls it instead of squeezing it. */
+#tab-troops .compact-table table {
+  min-width: 900px;
+}
+
+/* A single number does not need the full width of a .grid-2 track. */
+#tab-troops .compact-field input[type="number"],
+#tab-svs .compact-field input[type="number"],
+#tab-troops .field input[type="number"],
+#tab-svs .field input[type="number"] {
+  max-width: 220px;
+}
+
+/* The smallest controls in the app: 27px tall selects packed three to a row in
+   Experts, and 11px type in the Hero Gear pickers.
+   Scoped to a fine pointer on purpose. #tab-experts select is an ID selector,
+   so unscoped it outranks the phone shell's html[data-shell="mobile"] select
+   rule and would drag those controls back under 44px on touch. */
+@media (pointer: fine) {
+  .expert-skill-current,
+  .expert-skill-target {
+    min-height: 30px;
+  }
+
+  #tab-hero-gear select,
+  #tab-experts select {
+    min-height: 30px;
+    font-size: 12px;
+  }
+}
+
+/* Touch devices that do NOT get the phone shell - tablets, and anything with a
+   coarse pointer whose short edge is over 500px. mobile.css owns phones and
+   makes its own, different choices there (40px table controls, drawn checkbox
+   targets), so this block excludes that shell rather than fighting it.
+   !important is deliberate: the sizes being overridden are set by a few dozen
+   scattered component rules like `.save-panel button { min-height: 30px }`,
+   which out-specify any plain element selector. A media query adds no
+   specificity of its own. */
+@media (pointer: coarse) {
+  html:not([data-shell="mobile"]) button,
+  html:not([data-shell="mobile"]) .file-button,
+  html:not([data-shell="mobile"]) .nav-button,
+  html:not([data-shell="mobile"]) select,
+  html:not([data-shell="mobile"]) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  html:not([data-shell="mobile"]) summary,
+  html:not([data-shell="mobile"]) .charm-chip,
+  html:not([data-shell="mobile"]) .extract-chip,
+  html:not([data-shell="mobile"]) .planner-tab {
+    min-height: 44px !important;
+  }
+
+  /* 16px is the floor below which Safari zooms the viewport on focus, and it
+     never zooms back out. */
+  html:not([data-shell="mobile"]) input,
+  html:not([data-shell="mobile"]) select,
+  html:not([data-shell="mobile"]) textarea {
+    font-size: 16px !important;
+  }
+
+  /* A native checkbox ignores padding, so this is as large as it goes without
+     redrawing the control the way the phone shell does. */
+  html:not([data-shell="mobile"]) input[type="checkbox"],
+  html:not([data-shell="mobile"]) input[type="radio"] {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+  }
+
+  /* Hover cannot reveal anything on a touch screen. */
+  html:not([data-shell="mobile"]) .inv-reset {
+    opacity: 1;
+  }
+}
+
+
+/* Tablet nav, declared last on purpose.
+   .nav-group { display: grid } lands around line 6980 - after the 1100px media
+   block - so flattening the groups has to be re-stated here or the later rule
+   wins and the nav falls back to five stacked columns of module names. */
+@media (max-width: 1100px) {
+  /* The buttons are wrapped in .nav-group divs. Without this the flex children
+     of .module-nav are five vertical column blocks rather than the sixteen
+     buttons, which is what left six modules off the right edge with nothing to
+     say they were there. */
+  .nav-group {
+    display: contents;
+  }
+
+  .nav-group__label {
+    display: none;
+  }
+
+  .nav-button {
+    width: auto;
+    flex: 0 0 auto;
+    justify-content: center;
+    white-space: nowrap;
+    min-height: 44px;
+    padding: 0 14px;
+    margin-bottom: 0;
+  }
+
+  .module-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .module-nav::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .module-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  /* Fades the last chip at the right edge so the row reads as scrollable
+     rather than as a list that happens to stop there. */
+  .module-nav {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 36px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 36px), transparent 100%);
+  }
 }

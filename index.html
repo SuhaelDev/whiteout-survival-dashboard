@@ -47,11 +47,12 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="src/styles.css?v=20260803-ios1" />
-    <link rel="stylesheet" href="src/mobile.css?v=20260803-ios1" />
+    <link rel="stylesheet" href="src/styles.css?v=20260829-audit1" />
+    <link rel="stylesheet" href="src/mobile.css?v=20260829-audit1" />
     <!-- Phones only, and only where WebP is supported; the <picture> below
          falls back to JPEG on its own. -->
     <link rel="preload" as="image" type="image/webp" href="assets/frost-command-dashboard-mobile.webp" media="(max-width: 820px)" />
+    <link rel="preload" as="image" type="image/webp" href="assets/frost-command-dashboard.webp" media="(min-width: 821px)" />
 
     <!-- iOS launch images. Safari matches one exact media query or shows a blank
          screen, so every supported device gets both orientations. -->
@@ -114,6 +115,7 @@
     <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="assets/splash/splash-2732x2048.png" />
   </head>
   <body>
+    <a class="skip-link" href="#tab-overview">Skip to content</a>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Module navigation">
         <div class="brand">
@@ -125,7 +127,7 @@
         </div>
         <nav class="module-nav" id="moduleNav"></nav>
         <div class="save-panel">
-          <span id="saveStatus">Loading data</span>
+          <span id="saveStatus" role="status" aria-live="polite">Loading data</span>
           <div class="cloud-sync-panel" id="accountPanel">
             <span class="cloud-sync-title">Account</span>
             <span id="cloudSyncStatus">Starting up</span>
@@ -157,6 +159,10 @@
                  rendering stays bit-identical to before. -->
             <source media="(max-width: 820px)" type="image/webp" srcset="assets/frost-command-dashboard-mobile.webp" />
             <source media="(max-width: 820px)" srcset="assets/frost-command-dashboard-mobile.jpg" />
+            <!-- Desktop used to pull the 2.27 MB PNG - 85% of a 2.67 MB cold
+                 load - to paint a 236px strip. Same image, 167 KB. The PNG
+                 stays as the fallback for anything without WebP. -->
+            <source type="image/webp" srcset="assets/frost-command-dashboard.webp" />
             <img src="assets/frost-command-dashboard.png" alt="" />
           </picture>
           <div class="hero-content">
@@ -195,7 +201,7 @@
     </template>
 
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script type="module" src="src/app.js?v=20260803-ios1"></script>
-<script type="module" src="src/mobile.js?v=20260803-ios1"></script>
+<script type="module" src="src/app.js?v=20260829-audit1"></script>
+<script type="module" src="src/mobile.js?v=20260829-audit1"></script>
   </body>
 </html>
