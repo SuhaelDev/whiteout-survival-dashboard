@@ -134,7 +134,35 @@ the tab bar · `fn` sub-16px controls on touch · `tn` sub-40px targets on touch
 | sheet | ok | ok | ok | ok | ok | ok | ok | ok | ok | - | - | - | - | - | - | - | - | - | - | - | - | - |
 | profile | ok | ok | ok | ok | ok | ok | ok | ok | ok | - | - | - | - | - | - | - | - | - | - | - | - | - |
 
-Residual codes in the "after" matrix, all reviewed:
+### Production (https://whiteout-survival-dashboard.vercel.app after the deploy, Chromium, refined overlap probe)
+
+| module | m320 | m360 | m375 | m390 | m412 | m430 | mL667 | mL844 | mL932 | t600 | t768 | t834 | t1024 | t1194 | d700 | d900 | d1100 | d1280 | d1366 | d1440 | d1920 | d2560 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| wizard | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| overview | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| planner | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| inventory | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| buildings | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| chief-gear | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| charms | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| heroes | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| hero-gear | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | e5 | ok | ok | ok | ok |
+| pets | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| experts | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | e5 | e5 | e5 | e5 | e5 | e5 | e5 |
+| research | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| t12-research | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| troops | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| svs | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| skins | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| sources | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok | ok |
+| sheet | ok | ok | ok | ok | ok | ok | ok | ok | ok | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| profile | ok | ok | ok | ok | ok | ok | ok | ok | ok | - | - | - | - | - | - | - | - | - | - | - | - | - |
+
+WebKit on the live site (m320 / m390 / m430 / mL844): every module, the More
+sheet and the profile `ok`, no errors. The `e5` on experts and hero-gear at
+desktop widths is the smart-card subtitle ellipsis, which carries a hover title.
+
+Residual codes in the matrices above, all reviewed:
 
 - `hero-gear O4/O5`: the "+100" / "Lv.15" badges deliberately overlaid on the
   gear tiles (inside the tile, no text collision).
