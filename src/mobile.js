@@ -310,9 +310,24 @@ function bindChrome() {
       switchTo(tab.dataset.mtab);
       return;
     }
-    // A module chosen from inside the sheet closes it; app.js already switched.
-    if (sheetOpen && event.target.closest(".msheet [data-tab]")) closeSheet();
   });
+
+  // A module chosen from inside the sheet closes it. This has to run in the
+  // capture phase: app.js's own click handler on #moduleNav re-renders the nav
+  // with innerHTML, so by the time a bubble-phase listener saw the event the
+  // tapped button was already detached and closest(".msheet ...") found
+  // nothing - the sheet stayed open over the module it had just opened. The
+  // close is deferred a tick so app.js switches first and the sheet's own
+  // focus restore lands on the new module.
+  doc.addEventListener(
+    "click",
+    (event) => {
+      if (!sheetOpen) return;
+      if (!event.target.closest(".msheet [data-tab]")) return;
+      window.setTimeout(closeSheet, 0);
+    },
+    true,
+  );
 
   doc.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -341,6 +356,18 @@ function bindChrome() {
   });
 
   bindSheetDrag();
+
+  // iOS Safari only synthesises a click for a tap on something it considers
+  // clickable; the scrim is a bare div, so a tap outside the sheet reached the
+  // document click handler above only on some engines (WebKit: a scrim tap
+  // fires pointerup/touchend and never click). Close on the pointer gesture
+  // itself; the mouse keeps the click path so a drag that ends on the scrim
+  // does not dismiss the sheet. closeSheet() is idempotent, so a double close
+  // from click + pointerup is harmless.
+  sheet.querySelector("[data-msheet-close]").addEventListener("pointerup", (event) => {
+    if (event.pointerType === "mouse") return;
+    closeSheet();
+  });
 }
 
 /* --------------------------------------------------------------------------

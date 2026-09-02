@@ -17,7 +17,7 @@
    caches wholesale on activate.
    ========================================================================== */
 
-const BUILD = "20260829-audit1";
+const BUILD = "20260902-audit2";
 const DATA = "20260731f";
 
 const SHELL_CACHE = `wos-shell-${BUILD}`;

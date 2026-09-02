@@ -1136,3 +1136,905 @@ html[data-shell="mobile"] .extract-chip {
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* --------------------------------------------------------------------------
+   18. Shared primitives (responsive audit, September 2026)
+   --------------------------------------------------------------------------
+   Cross-module fixes from the phone/tablet/desktop layout audit
+   (scripts/responsive-audit.mjs). Module-specific fixes follow in section 19.
+   -------------------------------------------------------------------------- */
+
+/* Two-column panel pairs on a phone. Section 10 turned .grid-2 into
+   auto-fit/minmax(140px), which still fits TWO 140px columns in a 366px
+   content box: the Overview cost table and the Planner brief were each
+   crushed into ~178px and painted over their neighbour. One column in
+   portrait; landscape phones (>= 700px wide) get two equal columns. */
+html[data-shell="mobile"] .grid-2 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 700px) {
+  html[data-shell="mobile"] .grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Compact tables use table-layout: fixed, which shares the width equally and
+   lets a column shrink below its longest word - "Remaining cost" rendered one
+   letter per line at 390px. Auto layout never squeezes a column below its
+   min-content width; a table that is still too wide scrolls inside
+   .table-wrap instead. */
+html[data-shell="mobile"] .compact-table table,
+html[data-shell="mobile"] .overview-cost-table table {
+  table-layout: auto;
+  min-width: 0;
+}
+
+/* The 96px first column of the Overview cost table was sized for the fixed
+   layout; under auto layout it sizes to "Buildings" / "Chief Gear". */
+html[data-shell="mobile"] .overview-cost-table th:first-child,
+html[data-shell="mobile"] .overview-cost-table td:first-child {
+  width: auto;
+  white-space: nowrap;
+}
+
+/* The pinned first column of a scrolling table must be opaque. Section 9 sets
+   background: #fff on it, but the dark-theme block in styles.css forces every
+   td/th to background-color: transparent !important, so scrolled cells painted
+   straight through the sticky column. */
+html[data-shell="mobile"] .table-wrap table td:first-child {
+  background-color: #111827 !important;
+}
+
+html[data-shell="mobile"] .table-wrap table th:first-child {
+  background-color: #0f172a !important;
+}
+
+/* The module intro copy is clamped to two lines on desktop, where a line holds
+   ~140 characters. On a phone a line holds ~55, so the clamp cut nearly every
+   intro mid-sentence. Let it wrap. */
+html[data-shell="mobile"] .toolbar p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  max-width: none;
+}
+
+html[data-shell="mobile"] .toolbar > div:first-child {
+  min-width: 0;
+}
+
+/* A checkbox inside a .field / .compact-field label inherits that rule's
+   background-color !important, which painted the drawn 44px control (section
+   6) as a dark rounded square around the box. Keep the control transparent;
+   only the box itself is drawn. */
+html[data-shell="mobile"] .field input[type="checkbox"],
+html[data-shell="mobile"] .compact-field input[type="checkbox"] {
+  background-color: transparent !important;
+}
+
+html[data-shell="mobile"] .field input[type="checkbox"]:active,
+html[data-shell="mobile"] .compact-field input[type="checkbox"]:active {
+  background-color: rgba(56, 189, 248, 0.18) !important;
+}
+
+/* --------------------------------------------------------------------------
+   19. Module fixes (responsive audit, 2026-09-02)
+   --------------------------------------------------------------------------
+   Per-module fixes from the phone/tablet/desktop layout audit, grouped by the
+   audit group that owned the module. All scoped to the phone shell.
+   -------------------------------------------------------------------------- */
+
+/* ---- 01-shared-phone ---- */
+/* Rules promoted from the group fix files because several modules share the
+   primitive. Letters in brackets: the audit groups that each found it. */
+
+/* Disclosure caption. The "Show" / "Hide" pseudo-element beside a long summary
+   title inherited overflow-wrap: anywhere and wrapped to "SHO / W". [A B E] */
+html[data-shell="mobile"] .table-disclosure summary::after {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* Smart recommendation cards: one per row in portrait, two from 700px.
+   Section 10's auto-fit packed two 178px cards beside each other and
+   truncated every title. [D E] */
+html[data-shell="mobile"] .smart-card-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 700px) {
+  html[data-shell="mobile"] .smart-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The card title and its subtitle (an expert's full skill list) are
+   single-line ellipsis, and the impact / "Short 13 Energizing Potion" copy is
+   clamped to two lines. On a phone there is no hover to reveal any of it, so
+   wrap. [D E] */
+html[data-shell="mobile"] .smart-card__head strong,
+html[data-shell="mobile"] .smart-card__head span {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+html[data-shell="mobile"] .smart-card p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+
+/* Captions that were set at 9px. [C D E] */
+html[data-shell="mobile"] .gd-level-badge small,
+html[data-shell="mobile"] .charm-socket-node__sub,
+html[data-shell="mobile"] .smart-card__route small,
+html[data-shell="mobile"] .nutshell-upgrade-route small,
+html[data-shell="mobile"] .stat-impact-values small,
+html[data-shell="mobile"] .upgrade-nutshell .stat-impact-values small,
+html[data-shell="mobile"] .hero-portrait-flag {
+  font-size: 10px;
+}
+
+/* Coverage rows (Material | Required | You have | Status) in every inventory
+   check and smart panel. Section 10 keeps four columns with
+   overflow-wrap: anywhere, which at 320-480px broke "REQUIRED", "Shards" and
+   "118,580" mid-word. Portrait phones get two lines per row: the material
+   across the top, then the three figures on tracks shared by every row
+   (subgrid where supported), so a number never splits. Landscape phones keep
+   the single-line rows. [C D E] */
+@media (max-width: 699px) {
+  html[data-shell="mobile"] .coverage-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+    row-gap: 3px;
+    align-items: center;
+  }
+
+  html[data-shell="mobile"] .coverage-row > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  html[data-shell="mobile"] .coverage-row--head > :first-child {
+    display: none;
+  }
+
+  html[data-shell="mobile"] .coverage-row__value {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+
+  html[data-shell="mobile"] .coverage-row__value small {
+    white-space: normal;
+  }
+
+  @supports (grid-template-columns: subgrid) {
+    html[data-shell="mobile"] .coverage-table {
+      grid-template-columns: max-content max-content minmax(0, 1fr);
+      column-gap: 10px;
+    }
+
+    html[data-shell="mobile"] .coverage-row {
+      grid-column: 1 / -1;
+      grid-template-columns: subgrid;
+    }
+  }
+}
+
+@media (max-width: 389px) {
+  /* .game-icon--sm sets 42px with !important; a 30px icon leaves room for
+     the material name beside it on the narrowest phones. */
+  html[data-shell="mobile"] .coverage-row .game-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 7px !important;
+  }
+}
+
+/* ---- A-chrome ---- */
+/* --- Overview: "Target Cost Snapshot" cost lines ------------------------
+   Each cost line is a grid of minmax(72px, 1fr) auto. The label needs
+   42px icon + 6px gap + one whole word (>= 81px for "Guides"), so at the
+   cell's minimum the text ran under the nowrap value ("Guides63,420",
+   "Taming Manua15,710") on every portrait phone and mL844. Two causes:
+   (1) the 72px floor is smaller than the label's own min-content, and
+   (2) mobile.css section 10 gives .cost-cell a minmax(0, 1fr) track, which
+   reports a 0 min-content width to the auto table layout, so the two cost
+   columns were squeezed to ~82px at 320px.
+   Fix: the icon gets its own 34px column and the label sits over the value
+   beside it (a line is no taller than the old 42px icon), and both the cost
+   cell and the label column are auto-sized again so the table keeps each
+   column at its longest word and .table-wrap scrolls the few px that do not
+   fit at 320-360px instead of the text colliding. */
+html[data-shell="mobile"] .overview-cost-table .cost-cell {
+  grid-template-columns: auto;
+}
+
+html[data-shell="mobile"] .overview-cost-table .cost-item {
+  grid-template-columns: 34px auto;
+  grid-template-rows: auto auto;
+  column-gap: 7px;
+  row-gap: 0;
+  align-items: center;
+}
+
+html[data-shell="mobile"] .overview-cost-table .cost-item > .visual-label--compact {
+  display: contents;
+}
+
+html[data-shell="mobile"] .overview-cost-table .cost-item > .visual-label--compact > .game-icon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 34px !important;
+  height: 34px !important;
+}
+
+html[data-shell="mobile"] .overview-cost-table .cost-item > .visual-label--compact > span:not(.game-icon) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  line-height: 1.2;
+}
+
+html[data-shell="mobile"] .overview-cost-table .cost-cell strong {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  text-align: left;
+  line-height: 1.2;
+}
+
+/* --- More sheet: the adopted sidebar nav ---------------------------------
+   styles.css's unscoped @media (max-width: 1100px) block turns .module-nav
+   into the tablet strip: position sticky / top 0 / z-index 40, a box-shadow,
+   and a horizontal mask that fades the last 36px. Every phone is narrower
+   than 1100px, and mobile.css only resets display / overflow / margin /
+   padding, so inside the sheet's scrolling body the nav (1) stayed sticky and
+   slid over the save status, account panel and "Data & reset" as soon as the
+   body scrolled (at 320x568 and 844x390 the "Data & reset" row could not be
+   tapped at all - the nav intercepted the touch), and (2) had its right-hand
+   column of buttons faded out by the mask (AI Planner, Chief Gear, Hero Gear,
+   Experts, T12 Research, Skins & Bonuses lost their right edge). */
+html[data-shell="mobile"] .msheet__body .module-nav {
+  position: static;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* The scrim closes the sheet through a document-level click listener
+   (mobile.js bindChrome). iOS Safari only synthesises click for a tap on an
+   element it considers clickable; a bare div with no cursor is not one, so
+   tapping outside the sheet did nothing there (reproduced in Playwright
+   WebKit: sheet stayed open after a scrim tap at 320x568 and 844x390).
+   cursor: pointer is the documented opt-in. */
+html[data-shell="mobile"] .msheet__scrim {
+  cursor: pointer;
+}
+
+/* --- Chief profile summary line ------------------------------------------
+   "[B2D]Sorrow · FC9 · State 2476" is wider than the ~150px left beside the
+   "Chief profile" label on a 320-360px phone and was ellipsised (the only
+   place the three facts show while the details are collapsed). Let it wrap;
+   the row already has a 44px minimum height. */
+html[data-shell="mobile"] .mprofile__facts {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+  padding: 6px 0;
+}
+
+/* ---- B-planner-inventory ---- */
+/* --------------------------------------------------------------------------
+   Planner: the recommendations table becomes a card list
+   --------------------------------------------------------------------------
+   .planner-recommendations table is 1040px wide inside a 268px wrapper (3.9
+   screens sideways at 320px) and every row is ~285px tall because the Cost
+   cell stacks up to six 42px material lines. Even with the pinned first
+   column the scroller was not usable, so each <tr> becomes a card: the
+   Upgrade cell as the head, Area as a pill, then Cost / Status / What you get
+   / Score blocks with their column names drawn by ::before (the column order
+   is fixed in plannerTableRows()). One card per row in portrait, two side by
+   side from ~700px (landscape phones). */
+html[data-shell="mobile"] .table-wrap.planner-recommendations {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  /* the dark-theme .table-wrap fill is !important */
+  background-color: transparent !important;
+}
+
+html[data-shell="mobile"] .planner-recommendations table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-shell="mobile"] .planner-recommendations thead {
+  display: none;
+}
+
+html[data-shell="mobile"] .planner-recommendations tbody {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 8px;
+}
+
+html[data-shell="mobile"] .planner-recommendations tbody tr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 11px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+  /* tr:nth-child(even) has an !important fill */
+  background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+/* Undo the table cell styling, the 280/190px column widths and the pinned
+   first column (mobile.css section 9/18, !important background). */
+html[data-shell="mobile"] .table-wrap.planner-recommendations tbody td,
+html[data-shell="mobile"] .table-wrap.planner-recommendations tbody td:first-child {
+  display: block;
+  position: static;
+  z-index: auto;
+  width: auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background-color: transparent !important;
+  text-align: left;
+  white-space: normal;
+}
+
+/* Upgrade is the card head. */
+html[data-shell="mobile"] .planner-recommendations td:nth-child(2) {
+  order: -1;
+}
+
+html[data-shell="mobile"] .planner-recommendations td:nth-child(2) .game-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+}
+
+html[data-shell="mobile"] .planner-recommendations td:nth-child(2) .visual-copy strong {
+  font-size: 13.5px;
+}
+
+/* Area: the module icon is redundant beside the upgrade's own art. */
+html[data-shell="mobile"] .planner-recommendations td:nth-child(1) .game-icon {
+  display: none;
+}
+
+html[data-shell="mobile"] .planner-recommendations td:nth-child(1) .visual-copy strong {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Column names, since the header row is gone. */
+html[data-shell="mobile"] .planner-recommendations tbody td::before {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(1)::before { content: "Area"; }
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(3)::before { content: "Cost"; }
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(4)::before { content: "Status"; }
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(5)::before { content: "What you get"; }
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(6)::before { content: "Score"; }
+
+/* The empty-state row is a single colspan cell: no label. */
+html[data-shell="mobile"] .planner-recommendations tbody td[colspan]::before {
+  content: none;
+}
+
+/* Area, Status and Score keep the label on the same line as their value. */
+html[data-shell="mobile"] .table-wrap.planner-recommendations tbody td:nth-child(1),
+html[data-shell="mobile"] .table-wrap.planner-recommendations tbody td:nth-child(4),
+html[data-shell="mobile"] .table-wrap.planner-recommendations tbody td:nth-child(6) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(1)::before,
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(4)::before,
+html[data-shell="mobile"] .planner-recommendations tbody td:nth-child(6)::before {
+  margin-bottom: 0;
+}
+
+html[data-shell="mobile"] .planner-recommendations td:nth-child(4) .mini-cost {
+  flex: 1 1 100%;
+  margin-top: 2px;
+}
+
+html[data-shell="mobile"] .planner-recommendations td.number br {
+  display: none;
+}
+
+html[data-shell="mobile"] .planner-recommendations td.number strong {
+  font-size: 14px;
+}
+
+html[data-shell="mobile"] .planner-recommendations td.number .score-estimated {
+  margin-top: 0;
+}
+
+html[data-shell="mobile"] .planner-recommendations td.number small {
+  max-width: none;
+}
+
+html[data-shell="mobile"] .planner-recommendations td.number small.muted {
+  flex: 1 1 100%;
+}
+
+/* Material lines: small icons, one per line on a portrait phone, two or more
+   side by side once the card is wide enough. */
+html[data-shell="mobile"] .planner-recommendations .cost-cell {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 3px 12px;
+}
+
+html[data-shell="mobile"] .planner-recommendations .cost-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  min-height: 28px;
+}
+
+html[data-shell="mobile"] .planner-recommendations .cost-cell .game-icon {
+  /* .game-icon--sm is 42px !important */
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Planner: pieces around the table
+   -------------------------------------------------------------------------- */
+
+/* "Do this first": the cost block is right-aligned for the desktop row; once
+   it wraps under the description on a portrait phone it lines up left. */
+html[data-shell="mobile"] .planner-top__cost {
+  justify-items: start;
+}
+
+@media (min-width: 700px) {
+
+  html[data-shell="mobile"] .planner-top__cost {
+    justify-items: end;
+  }
+
+}
+
+/* --------------------------------------------------------------------------
+   Inventory
+   -------------------------------------------------------------------------- */
+
+/* "Got it" in the capture-diff bar wrapped onto two lines beside the title. */
+html[data-shell="mobile"] .inv-diff__bar > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* 58px row icons left ~116px of a 266px wrapper for the numeric columns, so
+   even the 4-column Was/Now/Change table had to scroll. 40px keeps the art
+   legible, lets that table fit at 320px and shortens every editable table's
+   sideways scroll. */
+html[data-shell="mobile"] #tab-inventory .table-wrap .game-icon--md {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+}
+
+html[data-shell="mobile"] #tab-inventory .table-wrap .visual-label {
+  gap: 8px;
+}
+
+/* "Last game read" broke into three lines and made every header row ~130px
+   tall; a one-line header costs ~40px of sideways scroll instead. */
+html[data-shell="mobile"] #tab-inventory .table-wrap th {
+  white-space: nowrap;
+}
+
+/* The per-row revert button is 36px tall on a phone, under the 40px floor. */
+html[data-shell="mobile"] .inv-reset {
+  min-height: 40px;
+}
+
+/* ---- C-chief ---- */
+/* 1. Chief Gear / Charms slot cards (.chief-gear-slot-card) on a portrait phone.
+   The screen is a two-column grid, so each card gets 110-170px. styles.css lays the card out as an
+   80px icon beside the text, which left the text box 15-41px wide: "Legendary T2 (1-Star)" wrapped
+   one word per line and overflowed (T), the green target pill and the three charm chips poked out
+   of the card - clipped by .chief-gear-screen{overflow:hidden} at 320px (C), painted over the
+   neighbouring card at 360-412px (O) - and the slot names ellipsised to "Wa..." (e).
+   Stack the card vertically below 600px (portrait phones only; landscape phones keep the desktop
+   row layout, which fits at 667px+) and stop the columns from shrink-wrapping the cards. The
+   .chief-gear-grid-container padding (16px, from the unscoped <=1000px block) doubled the
+   .chief-gear-screen padding; the screen's own padding is enough on a phone. */
+html[data-shell="mobile"] .chief-gear-grid-container {
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+
+  html[data-shell="mobile"] .chief-gear-screen {
+    padding: 10px;
+  }
+
+  html[data-shell="mobile"] .chief-gear-grid-container {
+    gap: 8px;
+  }
+
+  html[data-shell="mobile"] .chief-gear-col-left,
+  html[data-shell="mobile"] .chief-gear-col-right {
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  html[data-shell="mobile"] .chief-gear-slot-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  html[data-shell="mobile"] .chief-gear-slot-card__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto;
+  }
+
+  html[data-shell="mobile"] .chief-gear-slot-card__info strong {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+  }
+
+  html[data-shell="mobile"] .chief-gear-slot-card__info .tier-label {
+    overflow-wrap: anywhere;
+  }
+
+  html[data-shell="mobile"] .chief-gear-slot-card__info .tier-label--target {
+    max-width: 100%;
+  }
+
+  html[data-shell="mobile"] .charm-chip-row {
+    justify-content: center;
+  }
+
+}
+
+/* 2. Charms troop cards ("Infantry - Coat / Pants" ...). .charms-slots-layout used
+   repeat(auto-fit, minmax(320px, 1fr)); inside a ~270px card at 320px the 320px track floor sized
+   the whole card - head, Group target select, Apply button, bonus rows, cost tiles - to 320px and
+   the page scrolled sideways (H! V13; the fixed tab bar grew with the layout viewport too). The
+   track floor must never exceed the card. */
+html[data-shell="mobile"] .charms-slots-layout {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+
+/* 6. "In a nutshell" tiles on a 320px phone. The <=720px block of styles.css keeps the material
+   tile grid and the upgrade-path strip at two columns, which at 320px is two ~128px tiles: the
+   resource name and the amount ("Designs" / "51,660") painted over each other in the tile head (O)
+   and the START/TARGET values of the path cards broke at their hyphen ("Legendary T4 (3-" /
+   "Star)"). One column below 360px; 360px and wider fit. Shared primitive (every module's
+   nutshell). */
+@media (max-width: 359px) {
+
+  html[data-shell="mobile"] .nutshell-material-grid,
+  html[data-shell="mobile"] .nutshell-upgrade-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+}
+
+/* 8. Chief Gear editor selects. Two side-by-side selects give each ~90-140px of text room on a
+   portrait phone while a level reads "Legendary T4 (3-Star)" (164px at the 16px phone control
+   size), so the chosen value was cut inside the control ("Epic T1 (3-S"). Stack them. */
+@media (max-width: 600px) {
+
+  html[data-shell="mobile"] .chief-gear-dialog .gd-select-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+}
+
+/* 9. Buildings "Construction Buffs" table (3 columns: Buff | Use | Speed %). Its min-content width
+   is 378px - a 58px icon plus the unbreakable "Meat/Wood/Coal/Iron" token in the subtitle in
+   column 1, a nowrap "After speed %" pill in column 2 and a 72px number input in column 3 - so it
+   scrolled sideways on every portrait phone. A 2-3 column table should simply fit: smaller icon,
+   wrapping pill, 64px input, and let the muted subtitle break inside its slash-joined token when
+   nothing else fits (the label itself keeps whole words). Fits from 360px; 320px still scrolls
+   34px inside .table-wrap. The clean fix for the subtitle is <wbr> after each "/" (see report). */
+html[data-shell="mobile"] #tab-buildings .compact-table .game-icon {
+  width: 40px;
+  height: 40px;
+}
+
+html[data-shell="mobile"] #tab-buildings .compact-table .status-pill {
+  white-space: normal;
+  text-align: center;
+}
+
+html[data-shell="mobile"] #tab-buildings .compact-table td input[type="number"] {
+  min-width: 64px;
+  width: 64px;
+}
+
+html[data-shell="mobile"] #tab-buildings .compact-table .visual-copy .muted {
+  overflow-wrap: anywhere;
+}
+
+/* ---- D-heroes ---- */
+/* Pets / Experts: .pet-card-grid is repeat(auto-fill, minmax(320px, 1fr)). A
+   320px phone has a 296px content box, so the single track resolved to 320px
+   and every card ran 24px past the viewport (pets V16 H!, experts V11 H!).
+   min(320px, 100%) keeps the 320px card floor everywhere it fits and drops to
+   the container width where it does not. Landscape phones still get 2 x 403px. */
+html[data-shell="mobile"] .pet-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+}
+
+/* Hero gear: the portrait strip fades its last 44px (mask-image) to say
+   "scrolls". The fade is on the scroll box, so at the end of the scroll it
+   still sat over the right half of the last hero (35 portraits, 3772px).
+   End padding inside the scroller puts the last portrait before the fade. */
+html[data-shell="mobile"] .hero-selector-strip {
+  padding-right: 48px;
+}
+
+/* Experts: the relationship selects sit two to a row. At the 16px phone font
+   the longest option ("10.1 · Acquaintance 1") is 161px and the selected
+   "100.1 · Intimate" is 118px, while a half-width select leaves 101px (320),
+   109px (360), 124px (390) or 143px (landscape) inside its padding, so the
+   value was cut at the control's border. One select per row: 288px+ inside. */
+html[data-shell="mobile"] .expert-card .gd-select-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Experts: the skill planner packs two selects into fixed 70px tracks
+   (grid-template-columns: 70px 42px 12px 70px). At 16px "Lv. 10" is 42px and
+   the select has 40px inside its 28px chevron padding, so the last digit was
+   clipped ("Lv. 1(") and, with no left padding, the text touched the border.
+   The row already flex-wraps, so the control block takes the whole row and the
+   two selects share it. */
+html[data-shell="mobile"] .expert-skill-controls {
+  flex: 1 1 100%;
+  width: 100%;
+  margin-left: 0;
+  grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 1fr);
+  justify-items: stretch;
+}
+
+html[data-shell="mobile"] .expert-skill-current {
+  max-width: none;
+}
+
+html[data-shell="mobile"] .expert-skill-target {
+  display: block;
+  min-width: 0;
+  text-align: center;
+}
+
+html[data-shell="mobile"] .expert-skill-target select {
+  width: 100%;
+}
+
+html[data-shell="mobile"] .expert-skill-controls select {
+  padding-left: 8px;
+}
+
+/* Experts: the talent standing ("Lv. 5  next at Lv 110.1") is one nowrap
+   flex row; let it break between the level and the note on a narrow card. */
+html[data-shell="mobile"] .expert-skill-controls--talent {
+  flex-wrap: wrap;
+  white-space: normal;
+  justify-content: flex-end;
+}
+
+/* --- Cross-cutting (nutshell + smart panel appear on most module tabs) ----- */
+
+/* Nutshell material cards: two 133px columns at 320px and 153px at 360px.
+   The card head is a space-between flex row; the label cannot shrink below
+   its longest word ("Strengthening", "Energizing"), so the value painted over
+   it (pets O1 at m320-m430). One column in portrait, like the lead's .grid-2;
+   landscape phones keep auto-fit at a 160px floor (790px -> 4 x 190px). */
+html[data-shell="mobile"] .nutshell-material-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 700px) {
+
+  html[data-shell="mobile"] .nutshell-material-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+}
+
+/* And whatever the column width, a value that does not fit beside its label
+   drops under it (right-aligned) instead of overlapping. */
+html[data-shell="mobile"] .nutshell-material__head {
+  flex-wrap: wrap;
+}
+
+html[data-shell="mobile"] .nutshell-material__head > strong {
+  margin-left: auto;
+}/* Stat panel footnote ("Opened detail popups provide exact current stats; ...")
+   is a two-line clamp meant for a 720px line; at 270-340px it cut the sentence
+   (hero-gear e1, pets e1, experts e1 at m320-m390). Wrap it under the title. */
+html[data-shell="mobile"] .stat-impact-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+html[data-shell="mobile"] .stat-impact-head span {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  max-width: none;
+  min-width: 0;
+  text-align: left;
+}
+
+/* ---- E-research-troops ---- */
+/* research + t12-research: the node-card grid has a 320px minimum track,
+   which is wider than the ~290px content box of a 320px phone, so all 9 (T11)
+   / 57 (T12) cards stuck 25px past the viewport and the page scrolled
+   sideways. min(320px, 100%) keeps the two-up layout on landscape phones and
+   drops to the container width when that is narrower. */
+html[data-shell="mobile"] .research-node-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+}
+
+html[data-shell="mobile"] .regular-node-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(215px, 100%), 1fr));
+}
+
+html[data-shell="mobile"] .research-node-card,
+html[data-shell="mobile"] .research-node-card__head > * {
+  min-width: 0;
+}
+
+/* Regular research node names are single-line ellipsis with no way to read
+   the full name (the title attribute holds the tier, not the name). Wrap. */
+html[data-shell="mobile"] .regular-node__body strong {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* A selected card's time row is a no-wrap flex line of three phrases; on a
+   290px card they were shrinking into word-per-line columns and the duration
+   itself split ("54d / 4h"). */
+html[data-shell="mobile"] .gd-time-row {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+html[data-shell="mobile"] .gd-time-row strong {
+  white-space: nowrap;
+}
+
+/* troops: .troop-plan-controls is a 1fr 1fr grid whose .compact-field
+   children carry a 150px floor, so the grid was 310px wide inside a 290px
+   panel and the "Training Capacity" and "Mobilize" fields stuck 15px past the
+   viewport (page-hscroll on 320px phones). Let the floor go and fit as many
+   160px columns as the panel holds (1 on a 320px phone, 2 from 360px up). */
+html[data-shell="mobile"] .troop-plan-controls {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+}
+
+html[data-shell="mobile"] .troop-plan-controls .compact-field {
+  min-width: 0;
+}
+
+/* troops: the plan table pins its first column while the other eight scroll.
+   That column held [44px checkbox] [58px icon] [name] in a row - 198px of a
+   290px scroller, leaving 92px to scroll the nine columns in. Stacking the
+   name under the icon brings the pinned column to ~125px. */
+html[data-shell="mobile"] .troop-enable {
+  gap: 4px;
+}
+
+html[data-shell="mobile"] .troop-enable .visual-label {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+html[data-shell="mobile"] .troop-enable .visual-copy {
+  text-align: center;
+}/* The light research / T12 card selects use the dark-ink chevron styles.css
+   draws for them (see the desktop rule below for why it never rendered). */
+html[data-shell="mobile"] .research-node-card .compact-field select {
+  background-image: linear-gradient(45deg, transparent 50%, #4a6788 50%),
+    linear-gradient(135deg, #4a6788 50%, transparent 50%) !important;
+}
+
+/* ---- F-events ---- */
+/* SvS "Plan inputs" (also the Troops plan controls): .troop-plan-controls is a
+   .gd-select-row, i.e. `grid-template-columns: 1fr 1fr` (styles.css 5371), and
+   its fields carry `min-width: 150px` (styles.css 6025). 150 + 10 + 150 = 310px
+   does not fit the ~270px content box of a 320px phone, so the second column
+   ran 15px past the viewport and the page scrolled sideways (docW 335 at m320,
+   harness `H! V6`). Fit as many 150px fields as the box allows instead: one
+   column at 320px, two from 360px up, more on a landscape phone. */
+html[data-shell="mobile"] .troop-plan-controls {
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+}
+
+html[data-shell="mobile"] .troop-plan-controls .compact-field {
+  min-width: 0;
+}
+
+/* The "Beast level" select's longest option ("Lv 26-30 · 12,000 pts", ~170px
+   at the 16px phone font) plus its 12px + 28px padding does not fit a ~150px
+   column, so the control clipped its own value to "Lv 26-30 · 12,000 p" at
+   m390 (worse at m360). A select cannot wrap; give its field the whole row.
+   Troops' governor-buff select is the same primitive. */
+html[data-shell="mobile"] .troop-plan-controls .compact-field:has(> select) {
+  grid-column: 1 / -1;
+}/* SvS activity table, "Best day" column. mobile.css section 10 lets
+   .coverage-chip wrap anywhere (needed for the long status chips of the
+   coverage table). Under the auto table layout that drops the column's
+   min-content width to one glyph, and every day chip broke mid-word into
+   "Da / y 5". A day chip is two short words: keep each on one line and let the
+   chips stack in the cell instead. */
+html[data-shell="mobile"] #tab-svs .coverage-chip {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* Skins "How close you are to the caps": .skin-bar carries min-width: 120px
+   (styles.css 6468). With four columns that made the table 336px wide, so a
+   table of short numbers scrolled inside .table-wrap on 320-375px phones (by
+   68px at m320, 28px at m360, 13px at m375). At 48px the bar still reads as a
+   fill level, it keeps growing with the cell, and the table fits at 320px
+   (268px wrapper, columns 71/59/74/65). */
+html[data-shell="mobile"] .skin-bar {
+  min-width: 48px;
+}
+
+/* Sources "Still to confirm": the priority pill is a 24px inline-flex box on a
+   ~19px line. Whenever the bold title wraps (every phone width), its second
+   line ran back under the pill (harness `O2`, overlap 43x21px). Give the pill
+   its own column so the title wraps inside its own; the note spans both. */
+html[data-shell="mobile"] .gap-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 6px;
+  align-items: baseline;
+}
+
+html[data-shell="mobile"] .gap-list li > .muted {
+  grid-column: 1 / -1;
+}

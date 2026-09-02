@@ -17,3 +17,7 @@ scratch/
 # local verification output
 .ios-audit/
 .desktop-parity/
+
+# responsive audit output
+.responsive-audit/
+.audit-work/

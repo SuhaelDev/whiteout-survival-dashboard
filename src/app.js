@@ -2992,7 +2992,7 @@ function smartRecommendationCardHtml(candidate, index, options = {}) {
     <span class="smart-card__rank">${fmt(index + 1)}</span>
     <div class="smart-card__head">
       ${iconHtml(candidate.kind || "generic", candidate.label, "sm", candidate.scope || "")}
-      <div><strong>${esc(candidate.label)}</strong>${sub ? `<span>${esc(sub)}</span>` : ""}</div>
+      <div><strong title="${esc(candidate.label)}">${esc(candidate.label)}</strong>${sub ? `<span title="${esc(sub)}">${esc(sub)}</span>` : ""}</div>
     </div>
     <div class="smart-card__route">
       <span><small>Now</small><b>${esc(candidate.from)}</b></span>
@@ -4157,7 +4157,7 @@ function inventoryProgressSections() {
     const level = Number(piece.level || 0);
     const cap = heroGearCanEmpowerAtLevel(level) ? heroGearEmpowermentCapForMastery(level) : HERO_GEAR_MAX_ENHANCEMENT;
     return `<tr>
-      <td>${visualLabel("gear", `${hero.name} · ${heroGearPieceName(slot, piece)}`)}</td>
+      <td>${visualLabel("gear", `${hero.name} · ${heroGearPieceName(slot, piece)}`)}</td>
       <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.level`, level)}</td>
       <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)}<span class="inv-fineprint">max +${fmt(cap)} at Lv ${fmt(level)}</span></td>
       <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.power`, Number(piece.power || 0), 0)}</td>
@@ -4725,7 +4725,7 @@ function renderBuildings() {
               <td>${numberInput("profile.construction_speed_pct", state.profile.construction_speed_pct, 0, 0.1)}</td>
             </tr>
             <tr>
-              <td>${visualLabel("construction", "Construction cost reduction %", "City skills (e.g. Zinman) cut Meat/Wood/Coal/Iron costs; FC and RFC are never discounted")}</td>
+              <td>${visualLabel("construction", "Construction cost reduction %", "City skills (e.g. Zinman) cut Meat / Wood / Coal / Iron costs; FC and RFC are never discounted")}</td>
               <td><span class="status-pill">Resources</span></td>
               <td>${numberInput("construction.cost_reduction_pct", constructionCostReductionPct(), 0, 0.5)}</td>
             </tr>
@@ -8944,8 +8944,11 @@ function focusActiveNutshell() {
   const nutshell = activePanel?.querySelector(".upgrade-nutshell");
   if (!nutshell) return;
   requestAnimationFrame(() => {
-    const top = Math.max(0, nutshell.getBoundingClientRect().top + window.scrollY - 8);
-    window.scrollTo({ top, behavior: "auto" });
+    // scrollIntoView honours .upgrade-nutshell's scroll-margin-top, which
+    // styles.css raises to 68px under 1100px where the module nav is a sticky
+    // strip at the top of the window; window.scrollTo() cannot see sticky
+    // chrome and parked the card 52px underneath it on tablets.
+    nutshell.scrollIntoView({ block: "start", behavior: "auto" });
   });
 }
 

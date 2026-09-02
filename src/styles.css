@@ -397,7 +397,13 @@ textarea {
   min-height: 34px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(15, 23, 42, 0.8) !important;
+  /* Longhand on purpose. The `background:` shorthand with !important reset
+     background-image/-size/-position too, which erased the drawn checkbox
+     box and the select chevron that mobile.css paints as background images:
+     the Troops "Mobilize" toggles and the SvS toggles were invisible on
+     phones, and every .compact-field select lost its dropdown affordance. No
+     control paints a background image of its own, so nothing else changes. */
+  background-color: rgba(15, 23, 42, 0.8) !important;
   color: var(--text) !important;
   padding: 6px 8px;
   transition: all 0.2s ease;
@@ -853,6 +859,10 @@ textarea:focus-visible {
   grid-template-columns: 30px minmax(0, 1fr);
   gap: 7px;
   align-items: center;
+  /* The rank badge is absolutely positioned in the card's top-right corner;
+     without this clearance a long title ("Helios Lancer First Aid") ran
+     underneath it instead of truncating in front of it. */
+  padding-right: 30px;
 }
 
 .smart-card__head .game-icon {
@@ -3726,13 +3736,15 @@ td input[type="checkbox"] {
 }
 
 @media (max-width: 720px) {
-  .sidebar {
-    gap: 10px;
-    padding: 12px;
-  }
-
+  /* This block predates the flattened tablet shell above (<= 1100px turns the
+     sidebar into display: contents, so .brand and .module-nav are grid items
+     of .app-shell, not children of a 12px-padded column). The old negative
+     margin that once tucked the nav strip under the sidebar padding therefore
+     hung 12px past the right edge of the viewport and gave every module a
+     sideways page scroll on any window or tablet 720px wide or narrower. The
+     strip keeps the 16px gutter the tablet shell gives it. */
   .brand {
-    padding: 4px 2px 8px;
+    padding: 10px 16px;
     border-bottom: 0;
   }
 
@@ -3746,8 +3758,8 @@ td input[type="checkbox"] {
     grid-template-columns: none;
     gap: 8px;
     overflow-x: auto;
-    margin: 0 -12px;
-    padding: 0 12px 4px;
+    margin: 0;
+    padding: 8px 16px;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
   }
@@ -7310,5 +7322,692 @@ tr[data-inv-key]:focus-within .inv-reset,
   .module-nav {
     -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 36px), transparent 100%);
     mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 36px), transparent 100%);
+  }
+}
+
+
+/* ==========================================================================
+   Responsive audit, 2026-09-02: tablet and desktop-shell fixes
+   --------------------------------------------------------------------------
+   Every rule here is scoped to html[data-shell="desktop"] so nothing can reach
+   the phone shell (src/mobile.css), and placed last so it wins ties with the
+   breakpoint blocks above.
+   ========================================================================== */
+
+/* ---- 02-shared-desktop ---- */
+/* Rules promoted from the group fix files because several modules share the
+   primitive. Letters in brackets: the audit groups that each found it. */
+
+/* Captions that were set at 9px, on every screen size. [C D E] */
+html[data-shell="desktop"] .gd-level-badge small,
+html[data-shell="desktop"] .charm-socket-node__sub,
+html[data-shell="desktop"] .smart-card__route small,
+html[data-shell="desktop"] .nutshell-upgrade-route small,
+html[data-shell="desktop"] .stat-impact-values small,
+html[data-shell="desktop"] .hero-portrait-flag {
+  font-size: 10px;
+}
+
+/* The module intro copy is clamped to two lines for a 1440px measure. At
+   tablet widths a line holds far less and the clamp cut nearly every intro
+   mid-sentence. [B] */
+@media (max-width: 1100px) {
+  html[data-shell="desktop"] .toolbar p {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+    max-width: none;
+  }
+}
+
+/* Touch tablets. The native checkbox tops out at 28px (the pointer: coarse
+   block above) and ignores padding, so it stayed a sub-40px target on every
+   tab that has one (Inventory, Heroes, Buildings, Troops, SvS). Draw it the
+   way the phone shell does: a 44px transparent control with a 22px box
+   painted as a background image. [B D E F] */
+@media (pointer: coarse) {
+  /* Smart card title and subtitle are single-line ellipsis with a hover
+     title; a touch tablet has no hover, so wrap them there. [D] */
+  html[data-shell="desktop"] .smart-card__head strong,
+  html[data-shell="desktop"] .smart-card__head span {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  html[data-shell="desktop"] input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background-color: transparent !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 22px 22px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect x='1.25' y='1.25' width='19.5' height='19.5' rx='5' fill='%23ffffff' stroke='%2394a3b8' stroke-width='2'/%3E%3C/svg%3E") !important;
+    vertical-align: middle;
+  }
+
+  html[data-shell="desktop"] input[type="checkbox"]:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect x='1.25' y='1.25' width='19.5' height='19.5' rx='5' fill='%230284c7' stroke='%230284c7' stroke-width='2'/%3E%3Cpath d='M6 11.3l3.4 3.4L16.2 7.9' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  }
+
+  html[data-shell="desktop"] input[type="checkbox"]:active {
+    background-color: rgba(56, 189, 248, 0.18) !important;
+  }
+
+  /* A narrow table column would otherwise squeeze the control. */
+  html[data-shell="desktop"] td input[type="checkbox"] {
+    min-width: 44px;
+  }
+}
+
+/* ---- A-chrome ---- */
+/* --- Overview cost lines, 601-1170px -------------------------------------
+   The same collision in the desktop shell: with .grid-2 in two columns and
+   table-layout: fixed the two cost columns get ~105px at 768px (t768 O2,
+   t834 O2, d900 O1) and ~144px in the sidebar layout at 1101-1150px
+   (1101x800 O1, 1120x800 O1); the label track never gets its 117px
+   ("Strengthening" + icon). Same icon | label-over-value layout as the
+   phone rule; table-layout: auto keeps each column at its longest word so
+   the table fits the panel (t600/d700 also stop scrolling: the table no
+   longer inherits the 640px floor of the <= 720px block). Unchanged from
+   1171px up (d1280 and wider were clean). */
+@media (max-width: 1170px) {
+
+  html[data-shell="desktop"] .overview-cost-table table {
+    table-layout: auto;
+    min-width: 0;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table th:first-child,
+  html[data-shell="desktop"] .overview-cost-table td:first-child {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table .cost-item {
+    grid-template-columns: 34px auto;
+    grid-template-rows: auto auto;
+    column-gap: 7px;
+    row-gap: 0;
+    align-items: center;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table .cost-item > .visual-label--compact {
+    display: contents;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table .cost-item > .visual-label--compact > .game-icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table .cost-item > .visual-label--compact > span:not(.game-icon) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    line-height: 1.2;
+  }
+
+  html[data-shell="desktop"] .overview-cost-table .cost-cell strong {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    text-align: left;
+    line-height: 1.2;
+  }
+
+}
+
+/* --- Hero profile grid, 1101-1150px --------------------------------------
+   Real desktop defect: .profile-grid is repeat(6, minmax(130px, 1fr)) with
+   10px gaps = 830px minimum, but beside the 260px sidebar the hero content
+   is only 809px wide at 1101px (841 - 32). The sixth field ("Research %")
+   ran past the band and was cut by the band's overflow: hidden until the
+   window reached ~1122px. Six equal fluid columns (126px at 1101px). */
+@media (min-width: 1101px) and (max-width: 1150px) {
+
+  html[data-shell="desktop"] .profile-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+}
+
+/* --- Sidebar on short desktop windows (>= 1101px wide) --------------------
+   The sidebar is overflow: hidden and only .module-nav scrolls. The save
+   panel is flex: 0 0 auto, so once "Data & reset" is open (459px of panel)
+   the nav is squeezed to 10px at 1280x600, 60px at 1366x650, 110px at
+   1440x700, and at 1101x520 it reaches 0 and the panel itself overflows the
+   sidebar: "Reset everything" sat 52px below the window with no way to
+   scroll to it. Keep at least ~3.5 nav rows and let the save panel scroll
+   for whatever is left. Only kicks in on windows under 690px tall: from
+   there up the nav keeps >= 100px on its own (110px at 1440x700, 130px at
+   1280x720), so 1280x720 and every taller desktop stay pixel-identical.
+   The 4px inline padding / negative margin keeps the buttons' focus ring
+   inside the new scroll box without moving anything. */
+@media (min-width: 1101px) and (max-height: 690px) {
+
+  html[data-shell="desktop"] .module-nav {
+    flex-shrink: 1000;
+    min-height: 132px;
+  }
+
+  html[data-shell="desktop"] .save-panel {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-inline: 4px;
+    margin-inline: -4px;
+  }
+
+}
+
+/* --- Sidebar nav: last row under the fade (>= 1101px) --------------------
+   The nav's bottom 22px are masked to say "there is more". At the end of
+   the scroll the last button ("Sources") ends 10px above the box, so its
+   lower 12px stayed faded even when there was nothing more. A 12px trailing
+   row moves the last button clear of the fade. Limited to windows where the
+   nav is guaranteed to scroll (794px of groups + at least 298px of brand,
+   gaps, padding and save panel): in a taller window the grid stretches its
+   rows to fill the sidebar and an extra row would re-space the groups
+   (verified: 2560x1440 re-flowed with an unconditional rule, is
+   pixel-identical with this one). */
+@media (min-width: 1101px) and (max-height: 1090px) {
+
+  html[data-shell="desktop"] .module-nav::after {
+    content: "";
+    display: block;
+    height: 12px;
+  }
+
+}
+
+/* --- Tablet / narrow-window nav strip (<= 1100px) ------------------------
+   Same defect sideways: the strip masks its last 36px, and at the end of
+   the scroll the "Sources" chip ends 16px from the edge, so 20px of it were
+   always faded. A 36px flex spacer after the last chip (a flex item, so
+   every engine includes it in the scrollable overflow, unlike end padding)
+   puts the last chip fully clear of the fade at the scroll end. */
+@media (max-width: 1100px) {
+
+  html[data-shell="desktop"] .module-nav::after {
+    content: "";
+    flex: 0 0 36px;
+  }
+
+  /* focusActiveNutshell() (app.js) scrolls the "In a nutshell" card to the
+     top of the window after Clear my targets / a reset-target or smart-apply
+     click, but the nav strip is sticky at the top, so 52px of the card
+     landed under it on every tablet and <= 1100px window. This margin is
+     the offset scrollIntoView() will honour once app.js uses it (see the
+     A-chrome report); window.scrollTo() cannot see sticky chrome. */
+  html[data-shell="desktop"] .upgrade-nutshell {
+    scroll-margin-top: 68px;
+  }
+
+}
+
+/* ---- B-planner-inventory ---- */
+/* Inventory: the search / filter bar is sticky at top: 8px with z-index 4, but
+   at <= 1100px the flattened sidebar's nav strip is also sticky (top: 0,
+   z-index 40, ~60px tall), so once the page scrolls the search field sits
+   underneath the nav and only the chip row peeks out below it (t768, t834,
+   t1024, t1194). styles.css already makes the bar static at <= 760px; the
+   same applies for the whole flattened-sidebar range. */
+@media (max-width: 1100px) {
+
+  html[data-shell="desktop"] .extract-controls {
+    position: static;
+  }
+
+}
+
+/* Planner recommendations as cards on narrow desktop-shell windows and
+   portrait tablets. At 600-834px the 1040px table scrolled 1-2 screens
+   sideways with no pinned column and ~300px-tall rows (t600, d700, t768,
+   t834); from 900px the scroll is under 200px and the table stays. Same card
+   rules as the phone shell; two cards per row from ~700px. */
+@media (max-width: 900px) {
+
+  html[data-shell="desktop"] .table-wrap.planner-recommendations {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent !important;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations thead {
+    display: none;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 8px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px 11px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+    background-color: rgba(255, 255, 255, 0.035) !important;
+  }
+
+  html[data-shell="desktop"] .table-wrap.planner-recommendations tbody td,
+  html[data-shell="desktop"] .table-wrap.planner-recommendations tbody td:first-child {
+    display: block;
+    position: static;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent !important;
+    text-align: left;
+    white-space: normal;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(2) {
+    order: -1;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(2) .game-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(2) .visual-copy strong {
+    font-size: 13.5px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(1) .game-icon {
+    display: none;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(1) .visual-copy strong {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations tbody td::before {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(1)::before { content: "Area"; }
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(3)::before { content: "Cost"; }
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(4)::before { content: "Status"; }
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(5)::before { content: "What you get"; }
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(6)::before { content: "Score"; }
+
+  html[data-shell="desktop"] .planner-recommendations tbody td[colspan]::before {
+    content: none;
+  }
+
+  html[data-shell="desktop"] .table-wrap.planner-recommendations tbody td:nth-child(1),
+  html[data-shell="desktop"] .table-wrap.planner-recommendations tbody td:nth-child(4),
+  html[data-shell="desktop"] .table-wrap.planner-recommendations tbody td:nth-child(6) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(1)::before,
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(4)::before,
+  html[data-shell="desktop"] .planner-recommendations tbody td:nth-child(6)::before {
+    margin-bottom: 0;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td:nth-child(4) .mini-cost {
+    flex: 1 1 100%;
+    margin-top: 2px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td.number br {
+    display: none;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td.number strong {
+    font-size: 14px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td.number .score-estimated {
+    margin-top: 0;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td.number small {
+    max-width: none;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations td.number small.muted {
+    flex: 1 1 100%;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations .cost-cell {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 3px 12px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations .cost-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    min-height: 28px;
+  }
+
+  html[data-shell="desktop"] .planner-recommendations .cost-cell .game-icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 6px !important;
+  }
+
+}
+
+/* ---- C-chief ---- */
+/* 4. Smart recommendation summary bar (every module with a smart panel) in a narrow desktop-shell
+   window / small tablet (t600, d700). .smart-panel__bar-facts is flex:none, so below ~760px the
+   pill + headline (~550px) no longer fit beside the title: .smart-panel__bar-main shrank to ~20px,
+   its text spilled under the pill ("4 steps you can afford now" painted over "Chief Gear Targets")
+   and the facts were clipped by .smart-panel{overflow:hidden}. Let the bar wrap, as mobile.css
+   section 10 already does for phones. Cross-cutting: candidate for the <=900px block of styles.css. */
+@media (max-width: 900px) {
+
+  html[data-shell="desktop"] .smart-panel__bar {
+    flex-wrap: wrap;
+  }
+
+  html[data-shell="desktop"] .smart-panel__bar-facts {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  html[data-shell="desktop"] .smart-panel__gain {
+    white-space: normal;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+}
+
+/* 10. Buildings "Construction Buffs" / "Speedup Coverage" tables in the desktop shell between 721
+   and 1100px (iPad portrait, small windows). The <=1100px block keeps .grid-2 at two columns, so
+   each panel is 330-520px wide, and .compact-table table{table-layout:fixed} splits the buffs
+   table into three equal ~110-170px columns: beside a 58px icon the label column had 27-60px of
+   text and rendered a syllable per line ("Bas / e / con / stru / ctio / n"). Auto layout sizes the
+   columns to content; the same icon/input/subtitle trims as the phone rule let the table fit the
+   panel (min-content 302px vs 334px at 768). Below 720px .grid-2 is one column and nothing
+   collapses; above 1100px the equal columns are 188px+ and only the "Meat/Wood/Coal/Iron" token
+   breaks (app.js proposal in the report). */
+@media (max-width: 1100px) {
+
+  html[data-shell="desktop"] #tab-buildings .compact-table table {
+    table-layout: auto;
+  }
+
+  html[data-shell="desktop"] #tab-buildings .compact-table .game-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  html[data-shell="desktop"] #tab-buildings .compact-table td input[type="number"] {
+    min-width: 64px;
+    width: 64px;
+  }
+
+  html[data-shell="desktop"] #tab-buildings .compact-table .visual-copy .muted {
+    overflow-wrap: anywhere;
+  }
+
+}
+
+@media (max-width: 720px) {
+
+  html[data-shell="desktop"] .upgrade-nutshell .stat-impact-values small {
+    font-size: 10px;
+  }
+
+}
+
+/* ---- D-heroes ---- */
+/* Heroes: each roster card splits its body 1.3fr/1fr into Current and Target
+   fieldsets, each a two-column grid. Cards are 236px at t768/t1024 and at a
+   1280px desktop window (988px content / 4 columns), which leaves the Target
+   fieldset 87px wide and its columns 30px, while the "Widget" label is 35px
+   (T62 at t768/t1024). Let the fieldsets stack when two 112px ones do not fit
+   (body < 232px); wider cards (>= 1366px: 258px cards) are untouched. */
+@media (max-width: 1365px) {
+
+  html[data-shell="desktop"] .hero-field-groups {
+    grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  }
+
+}
+
+/* Hero gear: same strip end-fade defect at every desktop width (the strip is
+   3772px wide, the fade sits on the scroll box). Deliberate desktop change:
+   the last portrait is no longer half-faded when scrolled to the end. */
+html[data-shell="desktop"] .hero-selector-strip {
+  padding-right: 48px;
+}
+
+/* Nutshell material head at tablet widths: four 173px columns at 768px, and
+   "Strengthening Serum" + "2,010" do not fit side by side (pets O2 at t768).
+   Same wrap as the phone rule; at >= 1101px the columns are >= 256px and the
+   rule never engages. */
+@media (max-width: 1100px) {
+
+  html[data-shell="desktop"] .nutshell-material__head {
+    flex-wrap: wrap;
+  }
+
+  html[data-shell="desktop"] .nutshell-material__head > strong {
+    margin-left: auto;
+  }
+
+}
+
+/* Smart panel summary bar at <= 720px (t600, d700): the facts group is
+   flex: none with a nowrap pill and a nowrap gain sentence, so at 600px it ran
+   under the "Expert Targets" / "Hero Gear Targets" title (O1 on every module
+   with a smart panel at t600). Same treatment mobile.css section 10 gives the
+   phone shell: wrap the facts onto their own line. Cross-cutting. */
+@media (max-width: 720px) {
+
+  html[data-shell="desktop"] .smart-panel__bar {
+    flex-wrap: wrap;
+  }
+
+  html[data-shell="desktop"] .smart-panel__bar-facts {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  html[data-shell="desktop"] .smart-panel__gain {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+}
+
+/* Touch tablets (desktop shell, coarse pointer). The pointer:coarse block in
+   styles.css raises controls to 44px and 16px type but leaves a native
+   checkbox at 28px and the Experts selects at their desktop tracks. */
+@media (pointer: coarse) {
+
+  /* Heroes: 62 "Owned" checkboxes at 28px (t62). Drawn the way the phone
+     shell draws them: a 40px transparent control with a 22px box painted in
+     the middle, so the visible box does not change size. */
+  html[data-shell="desktop"] .hero-owned-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 40px;
+  }/* Experts: at the 16px touch font the relationship select has 124px (t768)
+     or 104px (t1024) inside for a 161px longest option. One per row. */
+  html[data-shell="desktop"] .expert-card .gd-select-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Experts: skill selects in 70px tracks hold exactly 42px of "Lv. 10" at
+     16px, and the target select shrinks to its 25px content. Wider tracks;
+     the row wraps the control block under the skill name when needed. */
+  html[data-shell="desktop"] .expert-skill-controls {
+    grid-template-columns: 92px 42px 12px 92px;
+  }
+
+  html[data-shell="desktop"] .expert-skill-current {
+    max-width: none;
+  }
+
+  html[data-shell="desktop"] .expert-skill-target {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  html[data-shell="desktop"] .expert-skill-target select {
+    width: 100%;
+  }
+
+  html[data-shell="desktop"] .expert-skill-controls select {
+    padding-left: 6px;
+  }
+
+  
+}
+
+/* ---- E-research-troops ---- */
+/* troops: the plan table is 9 columns of selects, number inputs and an
+   icon+checkbox label under table-layout: fixed, which hands every column the
+   same 1/9 of the table. The 112px-minimum selects and the ~150px "Type" cell
+   then paint over their right-hand neighbours ("Infantry" over "Train new",
+   "Tier 11" over the quantity input) at every desktop width up to 2560px.
+   Auto layout gives each column its content width; the 900px floor already in
+   styles.css makes .table-wrap scroll it below that. */
+html[data-shell="desktop"] #tab-troops .compact-table table {
+  table-layout: auto;
+}
+
+/* research: the "Active regular research target" table (5 columns, two of
+   them 112px-minimum selects) is table-layout: fixed with a 420px floor below
+   720px, so at 600px each column is ~84px, the Target select painted over
+   "No target selected" and the node name broke into 3-letter chunks
+   ("Ass / ault / Tec / hni"). Only the tablet shell range shows it. */
+@media (max-width: 1100px) {
+
+  html[data-shell="desktop"] #tab-research .compact-table table {
+    table-layout: auto;
+  }
+
+}
+
+/* research / t12-research: a selected card's "Research time: 54d 4h ~ 78,000
+   min of research speedups" row is a centred no-wrap flex line. The cards are
+   330-360px wide from t768 up to d1440 (two or three per row), so the three
+   phrases were squeezed into word-wrapped columns and the duration split
+   across lines ("54d / 4h"). Only visible once a target is selected; this is
+   the one desktop-width change in this file beyond the troops table. */
+html[data-shell="desktop"] .gd-time-row {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+html[data-shell="desktop"] .gd-time-row strong {
+  white-space: nowrap;
+}
+
+/* Regular research node names: 215px cards ellipsize most names ("Advanced
+   Infantry Defe...") with no hover text carrying the full name. Wrap. */
+html[data-shell="desktop"] .regular-node__body strong {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* CROSS-CUTTING (.research-node-card / .pet-card / .game-dialog selects):
+   styles.css:5221 sets `background: #f6faff !important` (a shorthand, so it
+   also forces background-image: none), then :5238 removes the native chevron
+   with appearance: none and draws one back with a NON-important
+   background-image - which the earlier !important shorthand wins over. Every
+   Current / Target select on the research and T12 cards therefore rendered
+   as a plain light box with no dropdown affordance, at every width. Restated
+   with the matching !important; the lead can widen it to .pet-card and
+   .game-dialog selects (same cause). */
+html[data-shell="desktop"] .research-node-card select {
+  background-image: linear-gradient(45deg, transparent 50%, #4a6788 50%),
+    linear-gradient(135deg, #4a6788 50%, transparent 50%) !important;
+  background-position: right 14px center, right 9px center !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+}
+
+/* ---- F-events ---- */
+/* Sources "Still to confirm": the same pill / wrapped-title collision on
+   tablets (t768, t834, t1194) and on desktops whose 0.9fr column is ~400px
+   (d900, d1280 - "Expert power curve for Valeria, Ronne, Kathy and Gareth"
+   wraps there). Two-column grid as on the phone. When the title fits on one
+   line the rendering is unchanged: pill, then the title on the same baseline
+   after a gap of 0.275em = the 3.56px space character it replaces at the
+   list's 13px (measured at d1440: pill.right 998.97, strong.left 1002.53
+   before / 1002.55 after, strong.top 369.8 both; a d1440/d1920 pixel diff
+   against the unfixed page shows only sub-pixel glyph anti-aliasing on title
+   rows, no moved pixels anywhere else). */
+html[data-shell="desktop"] .gap-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.275em;
+  align-items: baseline;
+}
+
+html[data-shell="desktop"] .gap-list li > .muted {
+  grid-column: 1 / -1;
+}
+
+/* Touch tablets (the desktop shell with a coarse pointer). Mouse desktops are
+   untouched; `pointer: coarse` never matches them. */
+@media (pointer: coarse) {
+
+  /* Sources reference links are inline text 17px tall (harness `t9` at
+     t600-t1194). The phone shell already makes them 44px flex rows
+     (mobile.css section 7); do the same here. */
+  html[data-shell="desktop"] .source-list a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
   }
 }

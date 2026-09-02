@@ -143,6 +143,34 @@ Everything runs against a local server: `node scripts/dev-server.mjs 5173`.
 | `scripts/desktop-parity.mjs` | Screenshots every module at 1440×900 against a checkout of the previous build and diffs pixel for pixel. |
 | `scripts/sheet-cycle.mjs` | The sheet always lands fully open or fully closed, and the tab bar still navigates while the sheet is inert. |
 | `scripts/diff-image.mjs` | Red-highlight overlay of where two parity screenshots differ. |
+| `scripts/responsive-audit.mjs` | Every module at 22 viewports (phones portrait/landscape, tablets, desktop windows from 700 to 2560px) in both shells, Chromium or WebKit: page overflow, elements past the viewport, clipped or truncated text, text wider than its box, overlapping text/controls, see-through sticky columns, content under the tab bar, sub-16px controls and sub-40px targets on touch. Optional interaction passes re-probe after opening every disclosure and activating every kind of control. Matrix + findings in `.responsive-audit/summary-<engine>.md`, screenshots of each flagged element. |
+| `scripts/responsive-audit-lib.mjs` | The viewport matrix, context options and in-page probe (`window.__audit`) the audit uses, importable by a one-off Playwright script that drives a tab-specific flow and then calls `probe()`. |
+
+### Responsive audit
+
+```
+node scripts/responsive-audit.mjs                      # full matrix, Chromium
+node scripts/responsive-audit.mjs --engine webkit --viewports m320,m390,mL844
+node scripts/responsive-audit.mjs --tabs heroes --viewports m390,t768 --interact full
+node scripts/responsive-audit.mjs --extra-css fix.css  # try a fix without touching the source
+node scripts/responsive-audit.mjs --nav                # navigate through the tab bar / sheet / nav chips
+node scripts/responsive-audit.mjs --list               # the viewport names
+```
+
+The matrix codes: `H!` the page scrolls sideways, `Vn` elements past the
+viewport, `Wn` scroll wrappers wider than the viewport, `Cn` clipped by an
+`overflow: hidden` box, `Tn` text wider than its box, `On` overlaps, `Sn`
+see-through sticky cells, `B!` content under the tab bar, `fn` sub-16px
+controls on touch, `tn` sub-40px targets on touch, `en` ellipsis truncations,
+`xn` sub-10px text. A clean module reads `ok`. The probe is a heuristic: a
+badge deliberately overlaid on a tile is reported as an overlap, so read the
+screenshot before changing anything.
+
+Two rules the September 2026 audit settled on, so the two shells cannot fight:
+phone fixes live in `mobile.css` scoped `html[data-shell="mobile"]`, and
+tablet/desktop fixes added since live at the end of `styles.css` scoped
+`html[data-shell="desktop"]`. Landscape phones are up to 932px wide, so an
+unscoped tablet media query would otherwise leak into the phone shell.
 
 For `desktop-parity.mjs`, serve the baseline alongside:
 
