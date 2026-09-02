@@ -89,6 +89,11 @@ the tab bar · `fn` sub-16px controls on touch · `tn` sub-40px targets on touch
 
 ### Before (deployed build, Chromium, `--interact basic`)
 
+The baseline probe treated cells scrolled out of a wrapper as unpainted, so the
+Overview cost table crushed to two columns at 360-430px (values painted over
+labels, seen in the first smoke run) reads `ok` in this table; every other
+finding is as measured.
+
 | module | m320 | m360 | m375 | m390 | m412 | m430 | mL667 | mL844 | mL932 | t600 | t768 | t834 | t1024 | t1194 | d700 | d900 | d1100 | d1280 | d1366 | d1440 | d1920 | d2560 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | wizard | ok | ok | ok | ok | ok | ok | ok | ok | ok | H! | ok | ok | ok | ok | H! | ok | ok | ok | ok | ok | ok | ok |
