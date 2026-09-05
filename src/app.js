@@ -380,9 +380,9 @@ function ownerBaselineState() {
 
 function applyHeroGearCurrentOverrides(target) {
   const overrides = target?.hero_gear_current_overrides || {};
-  Object.entries(overrides).forEach(([heroId, slots]) => {
+  Object.entries(overrides).forEach(([setId, slots]) => {
     Object.entries(slots || {}).forEach(([slot, values]) => {
-      const piece = target?.extracted_current?.hero_gear?.[heroId]?.gear?.[slot];
+      const piece = target?.hero_gear_sets?.[setId]?.gear?.[slot];
       if (!piece || !values) return;
       if (values.level != null && values.level !== "") piece.level = Number(values.level);
       if (values.enhancement != null && values.enhancement !== "") {
@@ -436,6 +436,7 @@ function stateFromSaved(savedState) {
     merged.extract_applied_at = extractedState.extracted_at;
     merged.extract_applied_capture = captureId;
   }
+  ensureHeroGearSets(merged);
   applyHeroGearCurrentOverrides(merged);
   // Widget pools are one universal resource in-game (verified 2026-07-27):
   // migrate any legacy per-generation balances into the single pool once.
@@ -2087,8 +2088,8 @@ function allExpertCosts() {
 }
 
 function allHeroGearCosts() {
-  return Object.entries(state.extracted_current?.hero_gear || {}).reduce((acc, [heroId, gearSet]) => {
-    return addCost(acc, heroGearCostToTarget(gearSet, heroId));
+  return heroGearSetPairs().reduce((acc, [setId, gearSet]) => {
+    return addCost(acc, heroGearCostToTarget(gearSet, setId));
   }, makeCost(HERO_GEAR_FIELDS));
 }
 
@@ -2149,17 +2150,17 @@ function resetAllTargetsToCurrent(nextState = state) {
   });
 
   nextState.hero_gear_targets ||= {};
-  nextState.hero_gear_targets.heroes ||= {};
-  Object.entries(nextState.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
-    const heroTargets = (nextState.hero_gear_targets.heroes[heroId] ||= {});
-    heroTargets.pieces ||= {};
+  nextState.hero_gear_targets.sets ||= {};
+  heroGearSetPairs(nextState).forEach(([setId, gearSet]) => {
+    const setTargets = (nextState.hero_gear_targets.sets[setId] ||= {});
+    setTargets.pieces ||= {};
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-      const pieceTargets = (heroTargets.pieces[slot] ||= {});
+      const pieceTargets = (setTargets.pieces[slot] ||= {});
       changed += setIfChanged(pieceTargets, "target_level", Number(piece.level || 0));
       changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEnhancement(piece));
     });
     const special = gearSet.special_item || gearSet.charm_toolkit;
-    changed += setIfChanged(heroTargets, "special_enhancement", Number(special?.enhancement || 0));
+    changed += setIfChanged(setTargets, "special_enhancement", Number(special?.enhancement || 0));
   });
 
   nextState.research_targets ||= {};
@@ -2200,14 +2201,14 @@ function resetCharmSlotTarget(slotId) {
   return setIfChanged(saved, "target", Number(saved.current));
 }
 
-function resetHeroGearPieceTarget(heroId, slot) {
-  const piece = state.extracted_current?.hero_gear?.[heroId]?.gear?.[slot];
+function resetHeroGearPieceTarget(setId, slot) {
+  const piece = heroGearSetRecord(setId).gear?.[slot];
   if (!piece) return 0;
   state.hero_gear_targets ||= {};
-  state.hero_gear_targets.heroes ||= {};
-  const heroTargets = (state.hero_gear_targets.heroes[heroId] ||= {});
-  heroTargets.pieces ||= {};
-  const pieceTargets = (heroTargets.pieces[slot] ||= {});
+  state.hero_gear_targets.sets ||= {};
+  const setTargets = (state.hero_gear_targets.sets[setId] ||= {});
+  setTargets.pieces ||= {};
+  const pieceTargets = (setTargets.pieces[slot] ||= {});
   let changed = 0;
   changed += setIfChanged(pieceTargets, "target_level", Number(piece.level || 0));
   changed += setIfChanged(pieceTargets, "target_enhancement", heroGearCurrentEnhancement(piece));
@@ -2224,7 +2225,7 @@ function resetTargetAction(action) {
 
 function normalizeHeroGearCurrentValues(nextState) {
   let changed = false;
-  Object.values(nextState?.extracted_current?.hero_gear || {}).forEach((gearSet) => {
+  heroGearSetPairs(nextState).forEach(([, gearSet]) => {
     heroGearPieces(gearSet.gear).forEach(([, piece]) => {
       const level = Number(piece.level || 0);
       const rawEnhancement = Number(piece.enhancement || 0);
@@ -2287,9 +2288,9 @@ function normalizeTargets(nextState) {
     });
   });
   nextState.hero_gear_targets ||= {};
-  nextState.hero_gear_targets.heroes ||= {};
-  Object.entries(nextState.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
-    const heroTargets = (nextState.hero_gear_targets.heroes[heroId] ||= {});
+  nextState.hero_gear_targets.sets ||= {};
+  heroGearSetPairs(nextState).forEach(([setId, gearSet]) => {
+    const heroTargets = (nextState.hero_gear_targets.sets[setId] ||= {});
     heroTargets.pieces ||= {};
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
       const pieceTargets = (heroTargets.pieces[slot] ||= {});
@@ -2395,9 +2396,9 @@ function applyBulkTarget(action, value) {
     }[action];
     state.hero_gear_targets ||= {};
     state.hero_gear_targets[defaultKey] = Number(value);
-    state.hero_gear_targets.heroes ||= {};
-    Object.entries(state.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
-      const heroTargets = (state.hero_gear_targets.heroes[heroId] ||= {});
+    state.hero_gear_targets.sets ||= {};
+    heroGearSetPairs().forEach(([setId, gearSet]) => {
+      const heroTargets = (state.hero_gear_targets.sets[setId] ||= {});
       if (action === "hero-special-enhancement") {
         heroTargets.special_enhancement = Number(value);
         return;
@@ -3537,10 +3538,7 @@ function plannerCandidates() {
 
   // Hero gear: next +10 enhancement block for the invested primary pieces.
   try {
-    const primaryIds = new Set(heroGearPrimaryEntries(Object.entries(state.extracted_current?.hero_gear || {})).filter((entry) => entry.setNumber === 1).map((entry) => entry.heroId));
-    Object.entries(state.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
-      if (!primaryIds.has(heroId)) return;
-      const hero = heroRecordFor(heroId);
+    heroGearSetEntries().filter((entry) => entry.setNumber === 1).forEach(({ setLabel, gearSet, hero }) => {
       heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
         const current = heroGearCurrentEnhancement(piece);
         // The confidence note claimed an empowerment gate but none was applied here, so a
@@ -3557,7 +3555,7 @@ function plannerCandidates() {
           .map((row) => `${row.stat} +${fmt(Number(row.value_percent || 0))}%`);
         candidates.push(candidateRow({
           module: "Hero Gear",
-          item: `${hero.name || heroId} ${heroGearPieceName(slot, piece)}`,
+          item: `${hero.name || setLabel} ${heroGearPieceName(slot, piece)}`,
           from: `+${current}`,
           to: `+${target}`,
           cost,
@@ -3722,7 +3720,7 @@ function plannerBrief(candidates, coverage) {
     `Account: ${state.profile.chief_name || "unknown"} in State ${state.profile.state_number || "unknown"}, Furnace ${state.profile.furnace_level || "unknown"}, power ${fmt(state.profile.power)}.`,
     `Inventory used for math: the single editable resource values in the Resources page. Random and choice resource chests are intentionally excluded unless the user converts them into those editable values.`,
     `Construction timing uses ${fmt(constructionPlan.totalSpeedPct, 2)}% total construction speed: ${fmt(constructionPlan.baseSpeedPct, 2)}% base plus ${fmt(constructionPlan.activeBuffPct, 2)}% selected minister/pet/chief-order/other buffs.`,
-    `Confirmed current systems: ${coverage.confirmedBuildings.length}/${gameData.buildings.length} workbook buildings, ${Object.keys(state.chief_gear).length}/6 chief gear slots, ${Object.keys(state.charms).length}/18 charms, ${coverage.confirmedPets.length}/${gameData.pets.length} pets, ${Object.keys(state.experts).length}/${gameData.experts.length} experts, ${Object.keys(state.extracted_current?.hero_gear || {}).length} hero gear sets.`,
+    `Confirmed current systems: ${coverage.confirmedBuildings.length}/${gameData.buildings.length} workbook buildings, ${Object.keys(state.chief_gear).length}/6 chief gear slots, ${Object.keys(state.charms).length}/18 charms, ${coverage.confirmedPets.length}/${gameData.pets.length} pets, ${Object.keys(state.experts).length}/${gameData.experts.length} experts, ${heroGearSetIds().length} hero gear sets.`,
     affordable.length
       ? `Best affordable next steps by immediate value: ${affordable.map((candidate) => `${candidate.module} ${candidate.item} ${candidate.from}->${candidate.to}`).join("; ")}.`
       : "No affordable next step was found from the tracked material balances; update backpack material inventories in Resources to unlock recommendations.",
@@ -3775,7 +3773,7 @@ function plannerPayload(candidates, coverage) {
       charm_slots: Object.keys(state.charms || {}).length,
       confirmed_pets: coverage.confirmedPets,
       experts: Object.keys(state.experts || {}),
-      hero_gear_sets: state.extracted_current?.hero_gear || {},
+      hero_gear_sets: state.hero_gear_sets || {},
       hero_gear_targets: state.hero_gear_targets || {},
     },
     data_quality: {
@@ -4153,22 +4151,25 @@ function inventoryProgressSections() {
   });
   if (charmRows.length) sections.push({ id: "prog-charms", cat: "progress", title: "Chief Charms", headers: ["Slot", "Current level"], rows: charmRows });
 
-  const heroGearRow = ([heroId, hero, slot, piece]) => {
+  // Edits land in hero_gear_current_overrides, the layer that survives a reload -
+  // writing straight into the extract would be wiped by the next game read.
+  const heroGearRow = ([setId, setLabel, hero, slot, piece]) => {
     const level = Number(piece.level || 0);
     const cap = heroGearCanEmpowerAtLevel(level) ? heroGearEmpowermentCapForMastery(level) : HERO_GEAR_MAX_ENHANCEMENT;
+    const wearer = hero.hero_id ? ` · ${hero.name}` : "";
     return `<tr>
-      <td>${visualLabel("gear", `${hero.name} · ${heroGearPieceName(slot, piece)}`)}</td>
-      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.level`, level)}</td>
-      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)}<span class="inv-fineprint">max +${fmt(cap)} at Lv ${fmt(level)}</span></td>
-      <td class="inv-cell">${numberInput(`extracted_current.hero_gear.${heroId}.gear.${slot}.power`, Number(piece.power || 0), 0)}</td>
+      <td>${visualLabel("gear", `${setLabel}${wearer} · ${heroGearPieceName(slot, piece)}`)}</td>
+      <td class="inv-cell">${numberInput(`hero_gear_current_overrides.${setId}.${slot}.level`, level)}</td>
+      <td class="inv-cell">${numberInput(`hero_gear_current_overrides.${setId}.${slot}.enhancement`, heroGearCurrentEnhancement(piece), 0)}<span class="inv-fineprint">max +${fmt(cap)} at Lv ${fmt(level)}</span></td>
+      <td class="inv-cell">${numberInput(`hero_gear_current_overrides.${setId}.${slot}.power`, Number(piece.power || 0), 0)}</td>
     </tr>`;
   };
-  const heroGearPiecesAll = Object.entries(state.extracted_current?.hero_gear || {}).flatMap(([heroId, gearSet]) =>
-    heroGearPieces(gearSet.gear).map(([slot, piece]) => [heroId, heroRecordFor(heroId), slot, piece]),
+  const heroGearPiecesAll = heroGearSetPairs().flatMap(([setId, gearSet]) =>
+    heroGearPieces(gearSet.gear).map((entry) => [setId, heroGearSetLabel(setId), heroGearSetHeroRecord(setId), entry[0], entry[1]]),
   );
   // Most heroes have an all-zero gear record. Listing 136 rows where 116 are blank buries
   // the five sets you have actually invested in.
-  const investedGear = heroGearPiecesAll.filter(([, , , piece]) => Number(piece.level || 0) > 0 || heroGearCurrentEnhancement(piece) > 0);
+  const investedGear = heroGearPiecesAll.filter(([, , , , piece]) => Number(piece.level || 0) > 0 || heroGearCurrentEnhancement(piece) > 0);
   const untouchedGear = heroGearPiecesAll.filter((entry) => !investedGear.includes(entry));
   const gearHeaders = ["Piece", "Mastery Lv", "Enhancement", "Power"];
   if (investedGear.length) {
@@ -4836,6 +4837,220 @@ const HERO_GEAR_PRIMARY_LIMITS = {
   marksman: 2,
 };
 
+// --- Hero gear sets -------------------------------------------------------
+// Hero gear is interchangeable: mastery level and gear XP belong to the *set*, and a set
+// can be moved onto any hero at any time. Only exclusive-gear widgets are hero-bound, and
+// those already live on state.heroes[heroId]. So the set record owns the pieces and
+// hero_id is only "who is wearing it right now" - reassigning never disturbs the
+// investment. Sets are keyed <troop>_<n>, so a hero from a brand new generation is just
+// another option in the dropdown rather than a set the planner has to learn about.
+const HERO_GEAR_DEFAULT_SET_COUNTS = { infantry: 2, lancer: 1, marksman: 2 };
+const HERO_GEAR_MAX_SETS_PER_TROOP = 9;
+const HERO_GEAR_BLANK_SLOTS = ["top_left", "top_right", "bottom_left", "bottom_right"];
+
+function heroGearSetId(troop, number) {
+  return `${troop}_${number}`;
+}
+
+function heroGearSetTroop(setId) {
+  const troop = String(setId || "").replace(/_\d+$/, "");
+  return HERO_GEAR_TROOP_ORDER.includes(troop) ? troop : "";
+}
+
+function heroGearSetNumber(setId) {
+  const match = /_(\d+)$/.exec(String(setId || ""));
+  return match ? Number(match[1]) : 0;
+}
+
+function heroGearSetLabel(setId) {
+  const troop = heroGearSetTroop(setId);
+  return troop ? `${titleFromId(troop)} Set ${heroGearSetNumber(setId)}` : titleFromId(setId);
+}
+
+function heroGearSetIds(source = state) {
+  const sets = source?.hero_gear_sets || {};
+  return HERO_GEAR_TROOP_ORDER.flatMap((troop) =>
+    Object.keys(sets)
+      .filter((setId) => heroGearSetTroop(setId) === troop)
+      .sort((a, b) => heroGearSetNumber(a) - heroGearSetNumber(b)),
+  );
+}
+
+function heroGearSetRecord(setId, source = state) {
+  return source?.hero_gear_sets?.[setId] || {};
+}
+
+function heroGearSetHeroId(setId, source = state) {
+  return heroGearSetRecord(setId, source).hero_id || "";
+}
+
+// Cost and stat tables are keyed by troop line, and that line belongs to the gear rather
+// than to whoever is wearing it - so it stays put when the set is reassigned.
+function heroGearSetHeroRecord(setId) {
+  const hero = heroRecordFor(heroGearSetHeroId(setId));
+  const troop = heroGearSetTroop(setId);
+  return troop ? { ...hero, troop_type: titleFromId(troop) } : hero;
+}
+
+function heroGearBlankGear() {
+  const gear = {};
+  HERO_GEAR_BLANK_SLOTS.forEach((slot) => {
+    gear[slot] = { level: 0, enhancement: 0 };
+  });
+  return gear;
+}
+
+function heroGearBlankSet(troop) {
+  const gear = heroGearBlankGear();
+  return { troop, hero_id: "", gear, gear_baseline: clone(gear) };
+}
+
+function heroGearSetEntries(source = state) {
+  return heroGearSetIds(source).map((setId) => ({
+    setId,
+    heroId: heroGearSetHeroId(setId, source),
+    gearSet: heroGearSetRecord(setId, source),
+    hero: heroGearSetHeroRecord(setId),
+    troopKey: heroGearSetTroop(setId),
+    setNumber: heroGearSetNumber(setId),
+    setLabel: heroGearSetLabel(setId),
+  }));
+}
+
+function heroGearSetPairs(source = state) {
+  return heroGearSetIds(source).map((setId) => [setId, heroGearSetRecord(setId, source)]);
+}
+
+// Who a set can go on: every hero ticked Owned on the Hero tab, matching troop line
+// first. A hero from a new generation shows up here as soon as the game data lists it and
+// you tick it Owned - nothing about the set itself has to change.
+function heroGearAssignableHeroes(troop) {
+  const wanted = normalizedTroopKey(troop);
+  const owned = (gameData.heroes || []).filter((hero) => state.heroes?.[hero.hero_id]?.owned);
+  const byNewest = (list) =>
+    [...list].sort(
+      (a, b) =>
+        Number(b.generation || 0) - Number(a.generation || 0) ||
+        String(a.name || "").localeCompare(String(b.name || "")),
+    );
+  return {
+    matching: byNewest(owned.filter((hero) => normalizedTroopKey(hero.troop_type) === wanted)),
+    other: byNewest(owned.filter((hero) => normalizedTroopKey(hero.troop_type) !== wanted)),
+  };
+}
+
+function heroGearAddSet(troop) {
+  if (!HERO_GEAR_TROOP_ORDER.includes(troop)) return "";
+  state.hero_gear_sets ||= {};
+  const used = new Set(
+    Object.keys(state.hero_gear_sets)
+      .filter((setId) => heroGearSetTroop(setId) === troop)
+      .map((setId) => heroGearSetNumber(setId)),
+  );
+  if (used.size >= HERO_GEAR_MAX_SETS_PER_TROOP) return "";
+  let number = 1;
+  while (used.has(number)) number += 1;
+  const setId = heroGearSetId(troop, number);
+  state.hero_gear_sets[setId] = heroGearBlankSet(troop);
+  return setId;
+}
+
+function heroGearRemoveSet(setId) {
+  if (!state.hero_gear_sets?.[setId]) return false;
+  delete state.hero_gear_sets[setId];
+  if (state.hero_gear_targets?.sets) delete state.hero_gear_targets.sets[setId];
+  if (state.hero_gear_current_overrides) delete state.hero_gear_current_overrides[setId];
+  if (state.selected_hero_gear_set_id === setId) state.selected_hero_gear_set_id = heroGearSetIds()[0] || "";
+  return true;
+}
+
+// The sets an existing account already had were only ever inferred - each troop line's
+// most-invested loadouts, ranked. That inference now runs exactly once, to seed an
+// editable roster; from then on the assignment belongs to the user.
+function heroGearSeedEntries(source) {
+  const grouped = HERO_GEAR_TROOP_ORDER.reduce((acc, key) => ({ ...acc, [key]: [] }), {});
+  const heroesById = new Map((gameData.heroes || []).map((hero) => [hero.hero_id, hero]));
+  Object.entries(source?.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
+    const hero = heroesById.get(heroId === "lumak_bokan" ? "walis_bokan" : heroId) || {};
+    const troopKey = normalizedTroopKey(gearSet.troop_type || hero.troop_type);
+    if (!grouped[troopKey]) return;
+    grouped[troopKey].push({ heroId, gearSet, hero, troopKey });
+  });
+  return HERO_GEAR_TROOP_ORDER.flatMap((troopKey) =>
+    grouped[troopKey]
+      .sort((a, b) => {
+        const aScore = heroGearEntryPriority(a);
+        const bScore = heroGearEntryPriority(b);
+        return (
+          bScore.currentPieces - aScore.currentPieces ||
+          bScore.readablePieces - aScore.readablePieces ||
+          bScore.namedPieces - aScore.namedPieces ||
+          bScore.generation - aScore.generation ||
+          bScore.power - aScore.power ||
+          aScore.name.localeCompare(bScore.name)
+        );
+      })
+      .slice(0, HERO_GEAR_PRIMARY_LIMITS[troopKey] || 1)
+      .map((entry, index) => ({ ...entry, setNumber: index + 1 })),
+  );
+}
+
+// A set's baseline is the pristine game read; corrections live in
+// hero_gear_current_overrides and are re-applied on top of it every load. Rebuilding the
+// working copy here is what keeps a correction reversible - bake one into the baseline and
+// clearing it would have nothing left to fall back to.
+function heroGearRefreshSetBaselines(nextState) {
+  Object.entries(nextState.hero_gear_sets || {}).forEach(([setId, record]) => {
+    if (!record || typeof record !== "object") return;
+    // While a set is still on the hero it was read from, the game read stays its
+    // baseline. Move it to anyone else and the pieces travel with the set instead.
+    const stillOnSeedHero = record.seeded_from_hero_id && record.seeded_from_hero_id === record.hero_id;
+    const read = stillOnSeedHero ? nextState.extracted_current?.hero_gear?.[record.hero_id] : null;
+    if (read?.gear) record.gear_baseline = clone(read.gear);
+    if (!record.gear_baseline) record.gear_baseline = record.gear ? clone(record.gear) : heroGearBlankGear();
+    record.gear = clone(record.gear_baseline);
+  });
+}
+
+function ensureHeroGearSets(nextState) {
+  if (!nextState) return;
+  if (!nextState.hero_gear_sets_seeded) {
+    const sets = {};
+    heroGearSeedEntries(nextState).forEach(({ heroId, gearSet, troopKey, setNumber }) => {
+      sets[heroGearSetId(troopKey, setNumber)] = {
+        ...clone(gearSet),
+        troop: troopKey,
+        hero_id: heroId,
+        seeded_from_hero_id: heroId,
+      };
+    });
+    HERO_GEAR_TROOP_ORDER.forEach((troop) => {
+      const count = HERO_GEAR_DEFAULT_SET_COUNTS[troop] || 1;
+      for (let number = 1; number <= count; number += 1) {
+        const setId = heroGearSetId(troop, number);
+        if (!sets[setId]) sets[setId] = heroGearBlankSet(troop);
+      }
+    });
+    // Targets and corrections used to be keyed by hero. Move them onto the set that
+    // inherited the gear so nothing already planned is lost in the changeover.
+    Object.entries(sets).forEach(([setId, record]) => {
+      const heroId = record.hero_id;
+      if (!heroId) return;
+      const heroTargets = nextState.hero_gear_targets?.heroes?.[heroId];
+      if (heroTargets) {
+        nextState.hero_gear_targets ||= {};
+        nextState.hero_gear_targets.sets ||= {};
+        nextState.hero_gear_targets.sets[setId] ||= clone(heroTargets);
+      }
+      const overrides = nextState.hero_gear_current_overrides?.[heroId];
+      if (overrides) nextState.hero_gear_current_overrides[setId] ||= clone(overrides);
+    });
+    nextState.hero_gear_sets = sets;
+    nextState.hero_gear_sets_seeded = true;
+  }
+  heroGearRefreshSetBaselines(nextState);
+}
+
 function normalizedTroopKey(value) {
   const key = normalizeKey(value);
   return key === "marksmen" ? "marksman" : key;
@@ -4850,9 +5065,10 @@ function titleFromId(id) {
 }
 
 function heroRecordFor(heroId) {
+  if (!heroId) return { hero_id: "", name: "Unassigned", troop_type: "", rarity: "", generation: "" };
   const normalizedId = heroId === "lumak_bokan" ? "walis_bokan" : heroId;
   const workbookHero = gameData.heroes.find((hero) => hero.hero_id === normalizedId);
-  const extractedHero = state.extracted_current?.heroes?.[heroId] || state.extracted_current?.heroes?.[normalizedId];
+  const extractedHero = state?.extracted_current?.heroes?.[heroId] || state?.extracted_current?.heroes?.[normalizedId];
   return {
     hero_id: normalizedId,
     name: workbookHero?.name || extractedHero?.name || titleFromId(heroId),
@@ -4937,9 +5153,9 @@ function heroGearTargetEmpowerment(piece = {}, rawTarget, targetLevel) {
   return Math.min(clamped, heroGearEmpowermentCapForMastery(targetLevel));
 }
 
-function heroGearTargetsFor(heroId) {
+function heroGearTargetsFor(setId) {
   const defaults = state.hero_gear_targets || {};
-  const heroTargets = defaults.heroes?.[heroId] || {};
+  const heroTargets = defaults.sets?.[setId] || {};
   return {
     gearLevel: Number(heroTargets.gear_level ?? defaults.default_gear_level ?? 16),
     gearEnhancement: Number(heroTargets.gear_enhancement ?? defaults.default_gear_enhancement ?? 100),
@@ -4947,11 +5163,11 @@ function heroGearTargetsFor(heroId) {
   };
 }
 
-function heroGearPieceTargetsFor(heroId, slot) {
+function heroGearPieceTargetsFor(setId, slot) {
   const defaults = state.hero_gear_targets || {};
-  const heroTargets = defaults.heroes?.[heroId] || {};
+  const heroTargets = defaults.sets?.[setId] || {};
   const pieceTargets = heroTargets.pieces?.[slot] || {};
-  const piece = state.extracted_current?.hero_gear?.[heroId]?.gear?.[slot] || {};
+  const piece = heroGearSetRecord(setId).gear?.[slot] || {};
   const maxMasteryLevel = Math.max(20, ...((gameData.hero_gear_mastery_levels || []).map((row) => Number(row.level || 0))));
   const currentLevel = Number(piece.level || 0);
   const currentEnhancement = heroGearCurrentEnhancement(piece);
@@ -5131,8 +5347,8 @@ function heroGearPieceInvestment(piece, slot, hero) {
   return addCost(heroGearMasteryInvestment(piece, slot, hero), heroGearEnhancementInvestment(piece, slot, hero));
 }
 
-function heroGearSetInvestment(gearSet, heroId) {
-  const hero = heroRecordFor(heroId);
+function heroGearSetInvestment(gearSet, setId) {
+  const hero = heroGearSetHeroRecord(setId);
   return heroGearPieces(gearSet?.gear).reduce((total, [slot, piece]) => {
     return addCost(total, heroGearPieceInvestment(piece, slot, hero));
   }, makeCost(HERO_GEAR_FIELDS));
@@ -5151,23 +5367,23 @@ function heroGearPieceCostToTarget(piece, targets, slot, hero) {
   return addCost(masteryCost, enhancementCost);
 }
 
-function heroGearCostToTarget(gearSet, heroId) {
-  const hero = heroRecordFor(heroId);
+function heroGearCostToTarget(gearSet, setId) {
+  const hero = heroGearSetHeroRecord(setId);
   return heroGearPieces(gearSet?.gear).reduce((total, [slot, piece]) => {
-    const targets = heroGearPieceTargetsFor(heroId, slot);
+    const targets = heroGearPieceTargetsFor(setId, slot);
     return addCost(total, heroGearPieceCostToTarget(piece, targets, slot, hero));
   }, makeCost(HERO_GEAR_FIELDS));
 }
 
 function commonHeroGearTarget(kind, fallback) {
   const values = [];
-  Object.entries(state.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
+  heroGearSetPairs().forEach(([setId, gearSet]) => {
     if (kind === "special") {
-      values.push(heroGearTargetsFor(heroId).specialEnhancement);
+      values.push(heroGearTargetsFor(setId).specialEnhancement);
       return;
     }
     heroGearPieces(gearSet.gear).forEach(([slot]) => {
-      const targets = heroGearPieceTargetsFor(heroId, slot);
+      const targets = heroGearPieceTargetsFor(setId, slot);
       values.push(kind === "level" ? targets.targetLevel : targets.targetEnhancement);
     });
   });
@@ -5181,12 +5397,12 @@ function commonHeroGearTarget(kind, fallback) {
   return String(state.hero_gear_targets?.[defaultKey] ?? fallback);
 }
 
-function heroGearPieceTargetsHtml(heroId, gearSet = {}) {
+function heroGearPieceTargetsHtml(setId, gearSet = {}) {
   const pieces = heroGearPieces(gearSet.gear);
   if (!pieces.length) return `<span class="muted">No targets</span>`;
   return `<div class="piece-target-summary">${pieces
     .map(([slot, piece]) => {
-      const targets = heroGearPieceTargetsFor(heroId, slot);
+      const targets = heroGearPieceTargetsFor(setId, slot);
       const position = HERO_GEAR_POSITION_LABELS[HERO_GEAR_SLOT_POSITIONS[slot]] || titleFromId(slot);
       const currentLevel = piece.level != null ? `Lv ${piece.level}` : "Lv ?";
       return `<div><span>${esc(position)}</span><strong>${currentLevel} -> Lv ${fmt(targets.targetLevel)} / +${fmt(targets.targetEnhancement)}</strong></div>`;
@@ -5328,10 +5544,10 @@ function heroGearEmpowermentChipsHtml(piece = {}, hero = {}, targetEnhancement =
     .join("")}</div>`;
 }
 
-function heroGearPieceProjectedChanges(heroId, slot, piece = {}) {
-  const hero = heroRecordFor(heroId);
+function heroGearPieceProjectedChanges(setId, slot, piece = {}) {
+  const hero = heroGearSetHeroRecord(setId);
   const troop = hero.troop_type || "Hero";
-  const targets = heroGearPieceTargetsFor(heroId, slot);
+  const targets = heroGearPieceTargetsFor(setId, slot);
   const changes = [];
   const currentLevel = Number(piece.level || 0);
   const targetLevel = Number(targets.targetLevel || 0);
@@ -5352,8 +5568,8 @@ function heroGearPieceProjectedChanges(heroId, slot, piece = {}) {
   return changes;
 }
 
-function heroGearPieceImpactCompactHtml(heroId, slot, piece = {}) {
-  const changes = heroGearPieceProjectedChanges(heroId, slot, piece).filter((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
+function heroGearPieceImpactCompactHtml(setId, slot, piece = {}) {
+  const changes = heroGearPieceProjectedChanges(setId, slot, piece).filter((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
   if (!changes.length) return `<span class="muted">No projected stat change</span>`;
   return `<div class="hero-piece-impact">${changes
     .slice(0, 3)
@@ -5413,11 +5629,11 @@ function heroGearProjectedStatCards(gearEntries) {
   const mergeChange = (label, current, target, type) => {
     mergeNumericStatChanges(projected, [numericStatChange(label, current, target, type)]);
   };
-  gearEntries.forEach(([heroId, gearSet]) => {
-    const hero = heroRecordFor(heroId);
+  gearEntries.forEach(([setId, gearSet]) => {
+    const hero = heroGearSetHeroRecord(setId);
     const troop = hero.troop_type || gearSet.troop_type || "Hero";
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-      const targets = heroGearPieceTargetsFor(heroId, slot);
+      const targets = heroGearPieceTargetsFor(setId, slot);
       const currentLevel = Number(piece.level || 0);
       const targetLevel = Number(targets.targetLevel || 0);
       if (targetLevel > currentLevel) {
@@ -5544,40 +5760,78 @@ function heroGearEntryPriority(entry) {
   };
 }
 
-function heroGearPrimaryEntries(gearEntries) {
-  const grouped = HERO_GEAR_TROOP_ORDER.reduce((acc, key) => ({ ...acc, [key]: [] }), {});
-  gearEntries.forEach(([heroId, gearSet]) => {
-    const hero = heroRecordFor(heroId);
-    const troopKey = heroGearTroopKey(heroId, gearSet);
-    if (!grouped[troopKey]) return;
-    grouped[troopKey].push({ heroId, gearSet, hero, troopKey });
-  });
-  return HERO_GEAR_TROOP_ORDER.flatMap((troopKey) => {
-    const limit = HERO_GEAR_PRIMARY_LIMITS[troopKey] || 1;
-    return grouped[troopKey]
-      .sort((a, b) => {
-        const aScore = heroGearEntryPriority(a);
-        const bScore = heroGearEntryPriority(b);
-        return (
-          bScore.currentPieces - aScore.currentPieces ||
-          bScore.readablePieces - aScore.readablePieces ||
-          bScore.namedPieces - aScore.namedPieces ||
-          bScore.generation - aScore.generation ||
-          bScore.power - aScore.power ||
-          aScore.name.localeCompare(bScore.name)
-        );
+// The picker that makes a set movable. Owned heroes of the matching troop line come
+// first, then everyone else you own - nothing is blocked, because gear can go on anyone.
+function heroGearHeroSelectHtml(setId) {
+  const troop = heroGearSetTroop(setId);
+  const assignedId = heroGearSetHeroId(setId);
+  const { matching, other } = heroGearAssignableHeroes(troop);
+  const optionHtml = (hero) =>
+    `<option value="${esc(hero.hero_id)}"${hero.hero_id === assignedId ? " selected" : ""}>${esc(hero.name)}${hero.generation ? ` (Gen ${esc(hero.generation)})` : ""}</option>`;
+  const groupHtml = (label, list) =>
+    list.length ? `<optgroup label="${esc(label)}">${list.map(optionHtml).join("")}</optgroup>` : "";
+  const known = new Set([...matching, ...other].map((hero) => hero.hero_id));
+  // A hero assigned before being un-ticked on the Heroes tab has to stay selectable, or
+  // the dropdown would quietly reassign the set the next time the page rendered.
+  const orphanHtml =
+    assignedId && !known.has(assignedId)
+      ? `<option value="${esc(assignedId)}" selected>${esc(heroRecordFor(assignedId).name)} (not marked owned)</option>`
+      : "";
+  return `<select class="hero-set-assign__select" data-path="hero_gear_sets.${esc(setId)}.hero_id" aria-label="Hero wearing ${esc(heroGearSetLabel(setId))}">
+    <option value=""${assignedId ? "" : " selected"}>Unassigned</option>
+    ${orphanHtml}
+    ${groupHtml(`${titleFromId(troop)} heroes you own`, matching)}
+    ${groupHtml("Other troop types", other)}
+  </select>`;
+}
+
+// One row per set: who is wearing it, what is invested in it, and the option to drop it.
+function heroGearSetRosterHtml() {
+  const setIds = heroGearSetIds();
+  const assignedCounts = setIds.reduce((acc, setId) => {
+    const heroId = heroGearSetHeroId(setId);
+    if (heroId) acc[heroId] = (acc[heroId] || 0) + 1;
+    return acc;
+  }, {});
+  const groups = HERO_GEAR_TROOP_ORDER.map((troop) => {
+    const troopSetIds = setIds.filter((setId) => heroGearSetTroop(setId) === troop);
+    const rows = troopSetIds
+      .map((setId) => {
+        const gearSet = heroGearSetRecord(setId);
+        const heroId = gearSet.hero_id || "";
+        const invested = heroGearSetInvestment(gearSet, setId);
+        const levels = heroGearPieces(gearSet.gear)
+          .map(([, piece]) => Number(piece.level || 0))
+          .filter((level) => level > 0);
+        const levelText = levels.length ? `Lv ${fmt(Math.min(...levels))}-${fmt(Math.max(...levels))}` : "No levels yet";
+        const clash = heroId && assignedCounts[heroId] > 1;
+        return `<div class="hero-set-row${heroId ? "" : " is-unassigned"}">
+          <button type="button" class="hero-set-row__open" data-select-hero-gear-set-id="${esc(setId)}">${esc(heroGearSetLabel(setId))}</button>
+          <label class="hero-set-assign"><span>Equipped by</span>${heroGearHeroSelectHtml(setId)}</label>
+          <span class="hero-set-row__meta">${esc(levelText)} &middot; ${fmt(invested.hero_gear_xp || 0)} XP invested</span>
+          ${clash ? `<span class="hero-set-row__warn" title="Two sets point at the same hero">Duplicate hero</span>` : ""}
+          <button type="button" class="hero-set-row__remove" data-hero-gear-remove-set="${esc(setId)}">Remove</button>
+        </div>`;
       })
-      .slice(0, limit)
-      .map((entry, index) => ({
-        ...entry,
-        setNumber: index + 1,
-        setLabel: `${titleFromId(troopKey)} Set ${index + 1}`,
-      }));
-  });
+      .join("");
+    const full = troopSetIds.length >= HERO_GEAR_MAX_SETS_PER_TROOP;
+    return `<section class="hero-set-group">
+      <header class="hero-set-group__head">
+        <h3>${esc(titleFromId(troop))}</h3>
+        <button type="button" class="hero-set-group__add" data-hero-gear-add-set="${esc(troop)}"${full ? " disabled" : ""}>+ Add set</button>
+      </header>
+      ${rows || `<p class="muted">No ${esc(titleFromId(troop))} sets tracked yet. Add one when you start building it.</p>`}
+    </section>`;
+  }).join("");
+  return `<div class="panel hero-set-roster">
+    <h2>Your Gear Sets</h2>
+    <p class="gd-note">Hero gear is interchangeable: mastery level and Gear XP stay with the <strong>set</strong>, so moving one onto a different hero keeps every level you have already paid for. Pick any hero ticked <strong>Owned</strong> on the Heroes tab &mdash; a new generation appears here as soon as you own it. Exclusive-gear widgets are the exception: they are bound to the hero (0 to +10, 275 widgets) and stay on the Heroes tab.</p>
+    <div class="hero-set-groups">${groups}</div>
+  </div>`;
 }
 
 function heroGearEntryPairs(entries) {
-  return entries.map((entry) => (Array.isArray(entry) ? entry : [entry.heroId, entry.gearSet]));
+  return entries.map((entry) => (Array.isArray(entry) ? entry : [entry.setId, entry.gearSet]));
 }
 
 function heroGearUpgradeSummary(entries) {
@@ -5589,22 +5843,22 @@ function heroGearUpgradeSummary(entries) {
   let totalPower = 0;
   let pieceCount = 0;
   let specialCount = 0;
-  pairs.forEach(([heroId, gearSet]) => {
-    const hero = heroRecordFor(heroId);
-    addCost(totalCost, heroGearCostToTarget(gearSet, heroId));
-    addCost(investedCost, heroGearSetInvestment(gearSet, heroId));
+  pairs.forEach(([setId, gearSet]) => {
+    const hero = heroGearSetHeroRecord(setId);
+    addCost(totalCost, heroGearCostToTarget(gearSet, setId));
+    addCost(investedCost, heroGearSetInvestment(gearSet, setId));
     totalPower += heroGearPowerTotal(gearSet);
     pieceCount += heroGearPieces(gearSet.gear).length;
     if (gearSet.special_item || gearSet.charm_toolkit) specialCount += 1;
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-      const pieceTargets = heroGearPieceTargetsFor(heroId, slot);
+      const pieceTargets = heroGearPieceTargetsFor(setId, slot);
       const pieceCost = heroGearPieceCostToTarget(piece, pieceTargets, slot, hero);
       if (costIsEmpty(pieceCost)) return;
       const position = HERO_GEAR_SLOT_POSITIONS[slot] || slot.replaceAll("_", "-");
       selectedPieceCount += 1;
       selectedUpgrades.push({
         kind: "gear",
-        scope: `equipped ${heroId} ${position}`,
+        scope: `equipped ${setId} ${position}`,
         label: heroGearPieceName(slot, piece),
         meta: `${hero.name} | ${HERO_GEAR_POSITION_LABELS[position] || titleFromId(position)}`,
         from: `Lv ${piece.level ?? "?"}/+${heroGearCurrentEnhancement(piece)}`,
@@ -5628,13 +5882,13 @@ function heroGearUpgradeSummary(entries) {
 
 function heroGearSetInvestmentBreakdown(entries) {
   return entries.reduce((acc, entry) => {
-    const [heroId, gearSet] = Array.isArray(entry) ? entry : [entry.heroId, entry.gearSet];
-    const setNumber = Number(entry?.setNumber || gearSet?.set_number || gearSet?.gear_set_number || 0);
-    const setLabel = entry?.setLabel || (setNumber ? `${titleFromId(heroGearTroopKey(heroId, gearSet))} Set ${setNumber}` : heroRecordFor(heroId).name);
-    const investment = heroGearSetInvestment(gearSet, heroId);
+    const [setId, gearSet] = Array.isArray(entry) ? entry : [entry.setId, entry.gearSet];
+    const setNumber = Number(entry?.setNumber ?? heroGearSetNumber(setId));
+    const setLabel = entry?.setLabel || heroGearSetLabel(setId);
+    const investment = heroGearSetInvestment(gearSet, setId);
     const key = setNumber > 0 ? `set_${setNumber}` : "unassigned";
     acc[key] ||= { setNumber, sets: [], total: makeCost(HERO_GEAR_FIELDS) };
-    acc[key].sets.push({ heroId, setLabel, investment });
+    acc[key].sets.push({ setId, setLabel, investment });
     addCost(acc[key].total, investment);
     return acc;
   }, {});
@@ -5660,240 +5914,6 @@ function heroGearSpecialHtml(gearSet = {}) {
   if (!special) return `<span class="muted">None read</span>`;
   const meta = special.enhancement != null ? `+${special.enhancement}` : special.enhancement_observed || "";
   return visualLabel("special gear", special.name || "Special Item", meta);
-}
-
-function heroGearSlotCardHtml(heroId, position, entry) {
-  if (!entry) {
-    return `<div class="equipped-slot equipped-slot--empty equipped-slot--${position}">
-      <span>${esc(HERO_GEAR_POSITION_LABELS[position] || titleFromId(position))}</span>
-      <strong>Not read</strong>
-    </div>`;
-  }
-  const { slot, piece } = entry;
-  const label = heroGearPieceName(slot, piece);
-  const sourceScope = `equipped ${heroId} ${position}`;
-  const sourceState = heroGearPieceStatEntries(piece).length ? "Opened detail" : piece.name ? "Equipped item read" : "Visible slot";
-  const targets = heroGearPieceTargetsFor(heroId, slot);
-  const targetLevelPath = `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_level`;
-  const targetEnhancementPath = `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_enhancement`;
-  const hero = heroRecordFor(heroId);
-  const pieceCost = heroGearPieceCostToTarget(piece, targets, slot, hero);
-  const investment = heroGearPieceInvestment(piece, slot, hero);
-  const currentEnhancement = heroGearCurrentEnhancement(piece);
-  const targetEmpowerment = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targets.targetLevel);
-  const lockedObserved = heroGearLockedObservedEnhancement(piece);
-  return `<div class="equipped-slot equipped-slot--${position}">
-    <div class="equipped-slot__icon">${heroGearTileHtml(heroId, position, slot, piece, { size: 84, targets })}</div>
-    <div class="equipped-slot__copy">
-      <span>${esc(HERO_GEAR_POSITION_LABELS[position] || titleFromId(position))}</span>
-      <strong>${esc(label)}</strong>
-      <small>${esc(sourceState)}</small>
-    </div>
-    <div class="equipped-slot__badges">
-      ${piece.level != null ? `<b>Lv ${esc(piece.level)}</b>` : ""}
-      ${piece.enhancement != null || piece.visible_enhancement != null ? `<b>+${esc(currentEnhancement)}</b>` : ""}
-      ${piece.rarity ? `<em>${esc(piece.rarity)}</em>` : ""}
-      ${lockedObserved ? `<em>empower stats locked</em>` : ""}
-    </div>
-    <div class="equipped-slot__targets">
-      <label><span>Target level</span>${numberInput(targetLevelPath, targets.targetLevel, 0)}</label>
-      <label><span>Target +</span>${numberInput(targetEnhancementPath, targets.targetEnhancement, 0)}</label>
-      ${resetTargetButton(`hero-gear:${heroId}:${slot}`, "Reset this piece")}
-      ${piece.power != null ? `<div><span>Power read</span><strong>${fmt(piece.power)}</strong></div>` : ""}
-      <div><span>Enhance XP</span><strong>${fmt(pieceCost.hero_gear_xp)}</strong></div>
-    </div>
-    <div class="equipped-slot__invested">${heroGearInvestmentMiniHtml(investment, "Current investment")}</div>
-    <div class="equipped-slot__materials"><span>Upgrade materials</span>${costHtml(pieceCost, HERO_GEAR_FIELDS)}</div>
-    <div class="equipped-slot__stats">${heroGearPieceStatsHtml(piece)}${heroGearEmpowermentHtml(piece, hero, targetEmpowerment, slot)}</div>
-	  </div>`;
-}
-
-function heroGearMiniSlotHtml(heroId, position, entry) {
-  const positionLabel = HERO_GEAR_POSITION_LABELS[position] || titleFromId(position);
-  if (!entry) {
-    return `<div class="hero-gear-mini-slot hero-gear-mini-slot--empty">
-      <span>${esc(positionLabel)}</span>
-      <strong>Not read</strong>
-    </div>`;
-  }
-  const { slot, piece } = entry;
-  const label = heroGearPieceName(slot, piece);
-  const sourceScope = `equipped ${heroId} ${position}`;
-  const level = piece.level != null ? `Lv ${piece.level}` : "Lv ?";
-  const enhancement = piece.enhancement != null || piece.visible_enhancement != null ? `+${heroGearCurrentEnhancement(piece)}` : "";
-  const lockedObserved = heroGearLockedObservedEnhancement(piece);
-  return `<div class="hero-gear-mini-slot">
-    ${heroGearTileHtml(heroId, position, slot, piece, { size: 56 })}
-    <span>${esc(positionLabel)}</span>
-    <strong>${esc(level)}${enhancement ? ` <em>${esc(enhancement)}</em>` : ""}${lockedObserved ? ` <em>stats locked</em>` : ""}</strong>
-  </div>`;
-}
-
-function heroGearPrimaryPieceHtml(heroId, position, entry) {
-  const positionLabel = HERO_GEAR_POSITION_LABELS[position] || titleFromId(position);
-  if (!entry) {
-    return `<div class="hero-primary-piece hero-primary-piece--empty">
-      <span>${esc(positionLabel)}</span>
-      <strong>Not read</strong>
-    </div>`;
-  }
-  const { slot, piece } = entry;
-  const label = heroGearPieceName(slot, piece);
-  const targets = heroGearPieceTargetsFor(heroId, slot);
-  const targetLevelPath = `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_level`;
-  const targetEnhancementPath = `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_enhancement`;
-  const hero = heroRecordFor(heroId);
-  const investment = heroGearPieceInvestment(piece, slot, hero);
-  const lockedObserved = heroGearLockedObservedEnhancement(piece);
-  const startText = `${piece.level ?? "?"}/+${heroGearCurrentEnhancement(piece)}`;
-  const targetText = `${targets.targetLevel}/+${targets.targetEnhancement}`;
-  const targetEmpowerment = heroGearTargetEmpowerment(piece, targets.targetEnhancement, targets.targetLevel);
-  const primaryChange = heroGearPieceProjectedChanges(heroId, slot, piece).find((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
-  return `<div class="hero-primary-piece">
-    <div class="hero-primary-piece__head">
-      ${heroGearTileHtml(heroId, position, slot, piece, { size: 64, targets })}
-      <div><span>${esc(positionLabel)}</span><strong>${esc(label)}</strong></div>
-    </div>
-    <div class="hero-primary-route">
-      <span><small>Start</small><b>${esc(startText)}</b>${lockedObserved ? `<em>empower stats locked</em>` : ""}</span>
-      <i aria-hidden="true"></i>
-      <span><small>End</small><b>${esc(targetText)}</b></span>
-    </div>
-    <div class="hero-primary-inputs">
-      <label><span>Target Lv</span>${numberInput(targetLevelPath, targets.targetLevel, 0)}</label>
-      <label><span>Target +</span>${numberInput(targetEnhancementPath, targets.targetEnhancement, 0)}</label>
-      ${resetTargetButton(`hero-gear:${heroId}:${slot}`, "Reset piece")}
-    </div>
-    <div class="hero-primary-impact">${
-      primaryChange
-        ? `<span><b>${esc(compactHeroGearStatLabel(primaryChange.label))}</b><em>${esc(primaryChange.delta)}</em></span>`
-        : `<span class="muted">No projected stat change</span>`
-    }</div>
-    ${heroGearEmpowermentChipsHtml(piece, hero, targetEmpowerment, slot)}
-    ${heroGearInvestmentMiniHtml(investment)}
-  </div>`;
-}
-
-function heroGearPrimarySetImpactHtml(heroId, gearSet = {}) {
-  const projected = {};
-  heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-    heroGearPieceProjectedChanges(heroId, slot, piece)
-      .filter((change) => Math.abs(Number(change.rawDelta || 0)) > 0)
-      .forEach((change) => mergeNumericStatChanges(projected, [change]));
-  });
-  const changes = Object.values(projected).filter((change) => Math.abs(Number(change.rawDelta || 0)) > 0);
-  if (!changes.length) return `<span class="muted">No projected stat changes</span>`;
-  return changes
-    .slice(0, 3)
-    .map((change) => `<span><b>${esc(compactHeroGearStatLabel(change.label))}</b><em>${esc(statDeltaDisplay(change.rawDelta, change.type))}</em></span>`)
-    .join("");
-}
-
-function heroGearPrimarySetCardHtml(entry, variant = "primary") {
-  const { heroId, gearSet, hero, setLabel } = entry;
-  const byPosition = heroGearPiecesByPosition(gearSet.gear || {});
-  const pieceHtml = HERO_GEAR_POSITION_ORDER.map((position) => heroGearPrimaryPieceHtml(heroId, position, byPosition[position])).join("");
-  const targetCost = heroGearCostToTarget(gearSet, heroId);
-  const investedCost = heroGearSetInvestment(gearSet, heroId);
-  const targets = heroGearTargetsFor(heroId);
-  const special = gearSet.special_item || (gearSet.charm_toolkit ? { name: "Charm Toolkit", enhancement: gearSet.charm_toolkit.enhancement } : null);
-  const specialMeta = special
-    ? [special.enhancement != null ? `+${special.enhancement}` : "", special.enhancement_observed || ""].filter(Boolean).join(" | ")
-    : "";
-  return `<article class="hero-primary-card hero-primary-card--${esc(variant)}">
-    <div class="hero-primary-card__head">
-      <div>
-        <span>${esc(setLabel)}</span>
-        <h3>${esc(hero.name)}</h3>
-      </div>
-      ${visualLabel("troop", gearSet.troop_type || hero.troop_type)}
-    </div>
-    <div class="hero-primary-card__meta">
-      <span>${fmt(heroGearCurrentPieceCount(gearSet))}/4 pieces with current levels</span>
-      <span>${esc(heroGearPowerText(gearSet))}</span>
-      <span>${fmt(investedCost.essence_stones)} stones invested</span>
-      <span>${fmt(investedCost.hero_gear_xp)} XP invested</span>
-      <span>${fmt(investedCost.mythic_gear)} mythic gear invested</span>
-      <span>${fmt(investedCost.mithril)} mithril invested</span>
-      <span>${special ? `Special ${specialMeta || "read"}` : "No special read"}</span>
-    </div>
-    <div class="hero-primary-pieces">${pieceHtml}</div>
-    <div class="hero-primary-card__impact">${heroGearPrimarySetImpactHtml(heroId, gearSet)}</div>
-    <div class="hero-primary-bottom">
-      <div class="special-loadout special-loadout--compact">
-        <span>Special</span>
-        ${special ? visualLabel("special gear", special.name || "Special Item", specialMeta) : `<strong class="muted">None read</strong>`}
-        <label class="inline-target"><span>Target special</span>${numberInput(`hero_gear_targets.heroes.${heroId}.special_enhancement`, targets.specialEnhancement, 0)}</label>
-      </div>
-      <div class="hero-primary-total">
-        <span>Set materials</span>
-        ${costHtml(targetCost, HERO_GEAR_FIELDS)}
-      </div>
-    </div>
-  </article>`;
-}
-
-function heroGearPrimaryOverviewHtml(primaryEntries) {
-  if (!primaryEntries.length) {
-    return `<div class="empty-state"><span class="muted">No primary hero gear sets could be matched from the current extract.</span></div>`;
-  }
-  const mainEntries = HERO_GEAR_TROOP_ORDER.map((troopKey) => primaryEntries.find((entry) => entry.troopKey === troopKey && entry.setNumber === 1)).filter(Boolean);
-  const secondaryEntries = primaryEntries.filter((entry) => entry.setNumber > 1);
-  return `<section class="hero-primary-overview" aria-label="Primary equipped hero gear sets">
-    <div class="section-title-row">
-      <div><h2>Main Interchangeable Gear Sets</h2><p>Hero gear can be swapped between heroes. These are the leading Infantry, Lancer, and Marksman sets to plan first.</p></div>
-      <span class="status-pill">${fmt(mainEntries.length)} main sets</span>
-    </div>
-    <div class="hero-primary-grid hero-primary-grid--main">${mainEntries.map((entry) => heroGearPrimarySetCardHtml(entry, "main")).join("")}</div>
-    ${
-      secondaryEntries.length
-        ? `<div class="section-title-row section-title-row--sub">
-            <div><h2>Secondary Interchangeable Sets</h2><p>Additional troop sets after the main Infantry, Lancer, and Marksman gear are planned.</p></div>
-            <span class="status-pill">${fmt(secondaryEntries.length)} secondary sets</span>
-          </div>
-          <div class="hero-primary-grid hero-primary-grid--secondary">${secondaryEntries
-            .map((entry) => heroGearPrimarySetCardHtml(entry, "secondary"))
-            .join("")}</div>`
-        : ""
-    }
-  </section>`;
-}
-
-function heroGearLoadoutHtml(heroId, gearSet, hero, targetCost, targets, setLabel = "") {
-  const byPosition = heroGearPiecesByPosition(gearSet.gear || {});
-  const slotsHtml = HERO_GEAR_POSITION_ORDER.map((position) => heroGearSlotCardHtml(heroId, position, byPosition[position])).join("");
-  const miniSlotsHtml = HERO_GEAR_POSITION_ORDER.map((position) => heroGearMiniSlotHtml(heroId, position, byPosition[position])).join("");
-  const overview = gearSet.gear?.overview
-    ? `<div class="gear-overview-note">${esc(gearSet.gear.overview)}</div>`
-    : "";
-  const special = gearSet.special_item || (gearSet.charm_toolkit ? { name: "Charm Toolkit", enhancement: gearSet.charm_toolkit.enhancement } : null);
-  const specialMeta = special
-    ? [special.enhancement != null ? `+${special.enhancement}` : "", special.enhancement_observed || ""].filter(Boolean).join(" | ")
-    : "";
-  return `<article class="hero-loadout-card">
-    <div class="hero-loadout-head">
-      ${visualLabel("hero", hero.name, [setLabel, hero.rarity, hero.generation ? `Gen ${hero.generation}` : ""].filter(Boolean).join(" | "))}
-      ${visualLabel("troop", gearSet.troop_type || hero.troop_type)}
-    </div>
-    <div class="hero-loadout-summary">
-      <div class="hero-gear-strip">${miniSlotsHtml}</div>
-      <div class="hero-loadout-side">
-        <div class="special-loadout special-loadout--compact">
-          <span>Special</span>
-          ${special ? visualLabel("special gear", special.name || "Special Item", specialMeta) : `<strong class="muted">None read</strong>`}
-        </div>
-        <div class="hero-loadout-targets hero-loadout-targets--compact">
-          <label><span>Target special</span>${numberInput(`hero_gear_targets.heroes.${heroId}.special_enhancement`, targets.specialEnhancement, 0)}</label>
-          <div><span>Needed</span>${costHtml(targetCost, HERO_GEAR_FIELDS)}</div>
-        </div>
-      </div>
-    </div>
-    ${overview}
-    <details class="hero-loadout-details">
-      <summary>Piece targets and captured stats</summary>
-      <div class="equipped-layout">${slotsHtml}</div>
-    </details>
-  </article>`;
 }
 
 function smartChiefGearPlan() {
@@ -6110,11 +6130,11 @@ function smartExpertPlan() {
 }
 
 function smartHeroGearPlan() {
-  const entries = heroGearPrimaryEntries(Object.entries(state.extracted_current?.hero_gear || {}));
+  const entries = heroGearSetEntries();
   const targetState = { levels: {}, enhancements: {} };
-  entries.forEach(({ heroId, gearSet }) => {
+  entries.forEach(({ setId, gearSet }) => {
     heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-      const key = `${heroId}:${slot}`;
+      const key = `${setId}:${slot}`;
       targetState.levels[key] = Number(piece.level || 0);
       targetState.enhancements[key] = heroGearCurrentEnhancement(piece);
     });
@@ -6125,9 +6145,9 @@ function smartHeroGearPlan() {
     targetState,
     buildCandidates: (targetState) => {
       const candidates = [];
-      entries.forEach(({ heroId, gearSet, hero, setLabel }) => {
+      entries.forEach(({ setId, gearSet, hero, setLabel }) => {
         heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
-          const key = `${heroId}:${slot}`;
+          const key = `${setId}:${slot}`;
           const label = heroGearPieceName(slot, piece);
           const troop = hero.troop_type || gearSet.troop_type || "";
           const currentLevel = Number(targetState.levels[key] || 0);
@@ -6137,7 +6157,7 @@ function smartHeroGearPlan() {
             const cost = heroGearMasteryCostToTarget({ ...piece, level: currentLevel }, nextLevel, slot, hero);
             candidates.push({
               kind: "gear",
-              scope: `equipped ${heroId} ${slot}`,
+              scope: `equipped ${setId} ${slot}`,
               label: `${hero.name} · ${label}`,
               meta: `Mastery Forging${setLabel ? ` · ${setLabel}` : ""}`,
               troopType: troop,
@@ -6146,7 +6166,7 @@ function smartHeroGearPlan() {
               fields: HERO_GEAR_FIELDS,
               cost,
               changes: [numericStatChange(`${troop || "Hero"} Gear Stats`, currentLevel * 10, nextLevel * 10, "percent")],
-              updates: [{ path: `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_level`, value: nextLevel }],
+              updates: [{ path: `hero_gear_targets.sets.${setId}.pieces.${slot}.target_level`, value: nextLevel }],
               applyToPlan: () => {
                 targetState.levels[key] = nextLevel;
               },
@@ -6174,7 +6194,7 @@ function smartHeroGearPlan() {
               .map((row) => numericStatChange(row.stat || "Empowerment Stat", 0, Number(row.value_percent || 0), "percent"));
             candidates.push({
               kind: "gear",
-              scope: `equipped ${heroId} ${slot}`,
+              scope: `equipped ${setId} ${slot}`,
               label: `${hero.name} · ${label}`,
               meta: `Empowerment${setLabel ? ` · ${setLabel}` : ""}`,
               troopType: troop,
@@ -6183,7 +6203,7 @@ function smartHeroGearPlan() {
               fields: HERO_GEAR_FIELDS,
               cost,
               changes,
-              updates: [{ path: `hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_enhancement`, value: nextEnhancement }],
+              updates: [{ path: `hero_gear_targets.sets.${setId}.pieces.${slot}.target_enhancement`, value: nextEnhancement }],
               applyToPlan: () => {
                 targetState.enhancements[key] = nextEnhancement;
               },
@@ -6299,9 +6319,9 @@ function resetSmartModuleTargets(moduleId) {
     });
   } else if (moduleId === "hero_gear") {
     state.hero_gear_targets ||= {};
-    state.hero_gear_targets.heroes ||= {};
-    Object.entries(state.extracted_current?.hero_gear || {}).forEach(([heroId, gearSet]) => {
-      const heroTargets = (state.hero_gear_targets.heroes[heroId] ||= {});
+    state.hero_gear_targets.sets ||= {};
+    heroGearSetPairs().forEach(([setId, gearSet]) => {
+      const heroTargets = (state.hero_gear_targets.sets[setId] ||= {});
       heroTargets.pieces ||= {};
       heroGearPieces(gearSet.gear).forEach(([slot, piece]) => {
         heroTargets.pieces[slot] ||= {};
@@ -7426,32 +7446,32 @@ function renderHeroes() {
 }
 
 function renderHeroGear() {
-  const gearEntries = Object.entries(state.extracted_current?.hero_gear || {});
-  const primaryEntries = heroGearPrimaryEntries(gearEntries);
-  const primaryIds = new Set(primaryEntries.map((entry) => entry.heroId));
-  const primarySetIds = new Set(primaryEntries.filter((entry) => entry.setNumber === 1).map((entry) => entry.heroId));
-  const secondarySetIds = new Set(primaryEntries.filter((entry) => entry.setNumber >= 2).map((entry) => entry.heroId));
-  const setTagFor = (heroId) => (primarySetIds.has(heroId) ? "Primary set" : secondarySetIds.has(heroId) ? "Secondary set" : "Equip only");
-  const trackedHeroes = gearEntries.length;
-  const primarySummary = heroGearUpgradeSummary(primaryEntries);
-  const primarySetInvestments = heroGearSetInvestmentBreakdown(primaryEntries);
+  const setEntries = heroGearSetEntries();
+  const primaryEntries = setEntries;
+  const setTagFor = (setId) => (heroGearSetNumber(setId) === 1 ? "Primary set" : "Secondary set");
+  const trackedHeroes = setEntries.length;
+  // Every set is explicit now, so "the sets worth planning" and "every tracked set" are
+  // the same list - summarise once instead of walking the same gear twice.
+  const primarySummary = heroGearUpgradeSummary(setEntries);
+  const allSummary = primarySummary;
+  const primarySetInvestments = heroGearSetInvestmentBreakdown(setEntries);
   const set2Investment = primarySetInvestments.set_2?.total || makeCost(HERO_GEAR_FIELDS);
   const set2Labels = (primarySetInvestments.set_2?.sets || []).map((set) => set.setLabel + ": " + fmt(set.investment.hero_gear_xp) + " XP");
-  const allSummary = heroGearUpgradeSummary(gearEntries);
   const capturedGearStats = allSummary.capturedStats;
-  const gearRows = gearEntries
-    .map(([heroId, gearSet]) => {
-      const hero = heroRecordFor(heroId);
-      const targets = heroGearTargetsFor(heroId);
-      const targetCost = heroGearCostToTarget(gearSet, heroId);
-      const setTag = setTagFor(heroId);
+  const gearRows = setEntries
+    .map(({ setId, gearSet, hero, heroId, setLabel }) => {
+      const targets = heroGearTargetsFor(setId);
+      const targetCost = heroGearCostToTarget(gearSet, setId);
+      const wearer = heroId
+        ? hero.name + (hero.generation ? " | Gen " + hero.generation : "")
+        : "Not assigned to a hero yet";
       return `<tr>
-        <td>${visualLabel("hero", hero.name, hero.rarity + (hero.generation ? " | Gen " + hero.generation : "") + " | " + setTag)}</td>
-        <td>${visualLabel("troop", gearSet.troop_type || hero.troop_type)}</td>
+        <td>${visualLabel("troop", setLabel, wearer)}</td>
+        <td>${heroGearHeroSelectHtml(setId)}</td>
         <td>${heroGearPiecesHtml(gearSet.gear)}</td>
         <td>${heroGearSpecialHtml(gearSet)}</td>
-        <td>${heroGearPieceTargetsHtml(heroId, gearSet)}</td>
-        <td>${numberInput("hero_gear_targets.heroes." + heroId + ".special_enhancement", targets.specialEnhancement, 0)}</td>
+        <td>${heroGearPieceTargetsHtml(setId, gearSet)}</td>
+        <td>${numberInput("hero_gear_targets.sets." + setId + ".special_enhancement", targets.specialEnhancement, 0)}</td>
         <td>${costHtml(targetCost, HERO_GEAR_FIELDS)}</td>
       </tr>`;
     })
@@ -7498,13 +7518,13 @@ function renderHeroGear() {
   // only pieces below the ascension threshold appear in either Reforge tab.
   const reforgeEligiblePieces = (gearSet) =>
     heroGearPieces(gearSet?.gear).filter(([, piece]) => !heroGearCanEmpowerAtLevel(Number(piece?.level || 0)));
-  const secondaryEntries = primaryEntries
+  const secondaryEntries = setEntries
     .filter((entry) => entry.setNumber >= 2)
-    .map((entry) => [entry.heroId, entry.gearSet]);
+    .map((entry) => [entry.setId, entry.gearSet]);
   const secondaryTotals = makeCost(HERO_GEAR_FIELDS);
   const secondaryRows = secondaryEntries
-    .map(([heroId, gearSet]) => {
-      const hero = heroRecordFor(heroId);
+    .map(([setId, gearSet]) => {
+      const hero = heroGearSetHeroRecord(setId);
       const eligible = reforgeEligiblePieces(gearSet);
       const total = heroGearPieces(gearSet.gear).length;
       const invested = eligible.reduce(
@@ -7527,7 +7547,7 @@ function renderHeroGear() {
   const secondaryPanel = secondaryEntries.length
     ? `<div class="panel secondary-gear-panel">
         <h2>Secondary Sets — Reforge Bank</h2>
-        <p class="gd-note">Your actively invested secondary sets (Set 2 per troop type) — other equipped heroes are fillers with no investment and aren't counted. Game-verified refunds (2026-07-27): Enhancement Reforge returns <strong>100% of invested Gear XP</strong>; Mastery Reforge returns <strong>50% of Essence Stones and 100% of Mythic Gear</strong>. <strong>Ascended Legendary pieces (mastery Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL}+) cannot be reforged at all</strong> and are excluded below. Mithril is not used by any hero-gear panel in this version.</p>
+        <p class="gd-note">Every set you track beyond the first of its troop line (Set 2 and up). Game-verified refunds (2026-07-27): Enhancement Reforge returns <strong>100% of invested Gear XP</strong>; Mastery Reforge returns <strong>50% of Essence Stones and 100% of Mythic Gear</strong>. <strong>Ascended Legendary pieces (mastery Lv ${HERO_GEAR_EMPOWERMENT_MIN_MASTERY_LEVEL}+) cannot be reforged at all</strong> and are excluded below. Mithril is not used by any hero-gear panel in this version.</p>
         <div class="table-wrap compact-table secondary-gear-table"><table>
           <thead><tr><th>Secondary set</th><th class="number">Gear XP back (100%)</th><th class="number">Essence invested</th><th class="number">Essence back (50%)</th><th class="number">Mythic Gear back (100%)</th></tr></thead>
           <tbody>${secondaryRows}</tbody>
@@ -7541,30 +7561,28 @@ function renderHeroGear() {
     .join("");
   const smartPlan = smartRecommendationPlan("hero_gear");
 
-  // Selected Hero Logic
-  const selectedHeroId = state.selected_hero_id || (gearEntries[0] ? gearEntries[0][0] : "edith");
-  const portraitsHtml = gearEntries.map(([heroId, gearSet]) => {
-    const hero = heroRecordFor(heroId);
-    const isActive = heroId === selectedHeroId;
-    const isPrimary = primaryIds.has(heroId);
-    const setTag = setTagFor(heroId);
-    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${primarySetIds.has(heroId) ? 'primary-set' : ''} ${secondarySetIds.has(heroId) ? 'secondary-set' : ''}" data-select-hero-id="${heroId}" title="${esc(hero.name)} · ${setTag}">
-      ${iconHtml("hero", hero.name, "md", heroId)}
-      ${secondarySetIds.has(heroId) ? `<span class="hero-portrait-flag">2nd</span>` : ""}
+  // You pick a set here, not a hero - the hero is whatever the set is currently on.
+  const rosterSetIds = heroGearSetIds();
+  const selectedSetId = rosterSetIds.includes(state.selected_hero_gear_set_id)
+    ? state.selected_hero_gear_set_id
+    : rosterSetIds[0] || "";
+  const portraitsHtml = setEntries.map(({ setId, heroId, hero, setNumber, setLabel }) => {
+    const isActive = setId === selectedSetId;
+    return `<button class="hero-portrait-btn ${isActive ? 'active-hero' : ''} ${setNumber === 1 ? 'primary-set' : 'secondary-set'}${heroId ? '' : ' is-unassigned'}" data-select-hero-gear-set-id="${esc(setId)}" title="${esc(setLabel)}: ${esc(heroId ? hero.name : "no hero assigned")}">
+      ${iconHtml("hero", heroId ? hero.name : setLabel, "md", heroId)}
+      <span class="hero-portrait-set">${esc(setLabel)}</span>
     </button>`;
   }).join("");
 
-  const selectedEntry = gearEntries.find(([id]) => id === selectedHeroId) || gearEntries[0];
+  const selectedEntry = setEntries.find((entry) => entry.setId === selectedSetId) || setEntries[0];
   let selectedHeroLayoutHtml = "";
-  
+
   if (selectedEntry) {
-    const [heroId, gearSet] = selectedEntry;
-    const hero = heroRecordFor(heroId);
-    const targets = heroGearTargetsFor(heroId);
-    const targetCost = heroGearCostToTarget(gearSet, heroId);
-    const isPrimary = primaryIds.has(heroId);
-    const setLabel = setTagFor(heroId);
-    
+    const { setId, gearSet, hero, heroId, setLabel, troopKey } = selectedEntry;
+    const targets = heroGearTargetsFor(setId);
+    const targetCost = heroGearCostToTarget(gearSet, setId);
+    const setTag = setTagFor(setId);
+
     const byPosition = heroGearPiecesByPosition(gearSet.gear || {});
     
     const slotsHtml = HERO_GEAR_POSITION_ORDER.map((position) => {
@@ -7578,14 +7596,14 @@ function renderHeroGear() {
       
       const { slot, piece } = entry;
       const label = heroGearPieceName(slot, piece);
-      const pieceTargets = heroGearPieceTargetsFor(heroId, slot);
+      const pieceTargets = heroGearPieceTargetsFor(setId, slot);
       const pieceCost = heroGearPieceCostToTarget(piece, pieceTargets, slot, hero);
       const currentEnhancement = heroGearCurrentEnhancement(piece);
       
       return `<div class="hero-gear-slot-node border-${chiefGearRarityBorderClass(piece.rarity || 'epic')}">
         <div class="hero-gear-slot-node__head">
           <div class="hero-gear-slot-node__icon">
-            ${heroGearTileHtml(heroId, position, slot, piece, { size: 112, targets: pieceTargets, gearSet })}
+            ${heroGearTileHtml(heroId, position, slot, piece, { size: 112, targets: pieceTargets, gearSet, troopKey })}
           </div>
           <div class="hero-gear-slot-node__title">
             <strong>${esc(label)}</strong>
@@ -7596,26 +7614,26 @@ function renderHeroGear() {
         <div class="hero-gear-slot-node__values">
           <label>
             <span>Current Lv</span>
-            <select data-path="hero_gear_current_overrides.${heroId}.${slot}.level">
+            <select data-path="hero_gear_current_overrides.${setId}.${slot}.level">
               ${optionList(gameData.hero_gear_mastery_levels.filter(row => row.scope === 'base'), "level", "level", Number(piece.level || 0))}
             </select>
           </label>
           <label>
             <span>Target Lv</span>
-            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_level">
+            <select data-path="hero_gear_targets.sets.${setId}.pieces.${slot}.target_level">
               ${optionList(gameData.hero_gear_mastery_levels.filter(row => row.scope === 'base'), "level", "level", pieceTargets.targetLevel)}
             </select>
           </label>
           
           <label>
             <span>Current +</span>
-            <select data-path="hero_gear_current_overrides.${heroId}.${slot}.enhancement">
+            <select data-path="hero_gear_current_overrides.${setId}.${slot}.enhancement">
               ${optionList(Array.from({ length: 101 }, (_, i) => ({ level: i })), "level", "level", currentEnhancement)}
             </select>
           </label>
           <label>
             <span>Target +</span>
-            <select data-path="hero_gear_targets.heroes.${heroId}.pieces.${slot}.target_enhancement">
+            <select data-path="hero_gear_targets.sets.${setId}.pieces.${slot}.target_enhancement">
               ${optionList(Array.from({ length: 101 }, (_, i) => ({ level: i })), "level", "level", pieceTargets.targetEnhancement)}
             </select>
           </label>
@@ -7635,7 +7653,7 @@ function renderHeroGear() {
                 : "";
             return note + heroGearEmpowermentHtml(piece, hero, gatedTarget, slot, effMastery);
           })()}
-          ${heroGearPieceImpactCompactHtml(heroId, slot, piece)}
+          ${heroGearPieceImpactCompactHtml(setId, slot, piece)}
         </div>
         
         <div class="hero-gear-slot-node__cost">
@@ -7647,10 +7665,13 @@ function renderHeroGear() {
     selectedHeroLayoutHtml = `
       <div class="hero-gear-layout">
         <div class="hero-profile-card">
-          <img src="${esc(heroPortraitSrc(heroId))}" alt="${esc(hero.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.1);" />
-          <h3>${esc(hero.name)}</h3>
-          <p>${esc(gearSet.troop_type || hero.troop_type)}</p>
-          <span class="hero-meta-badge">${esc(setLabel)}</span>
+          ${heroId
+            ? `<img src="${esc(heroPortraitSrc(heroId))}" alt="${esc(hero.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.1);" />`
+            : `<div class="hero-profile-card__vacant" aria-hidden="true">?</div>`}
+          <h3>${esc(setLabel)}</h3>
+          <p>${esc(titleFromId(troopKey))} gear</p>
+          <label class="hero-set-assign hero-set-assign--card"><span>Equipped by</span>${heroGearHeroSelectHtml(setId)}</label>
+          <span class="hero-meta-badge">${esc(setTag)}</span>
           
           <div class="hero-profile-card__footer">
             <section class="gd-section">
@@ -7667,7 +7688,9 @@ function renderHeroGear() {
   }
 
   $("#tab-hero-gear").innerHTML = `
-    <div class="toolbar"><div><h2>Hero Gear</h2><p>Your equipped sets as they stand in-game, with what each piece needs to reach the level you want.</p></div></div>
+    <div class="toolbar"><div><h2>Hero Gear</h2><p>Your gear sets as they stand in-game, who is wearing each one, and what every piece needs to reach the level you want.</p></div></div>
+
+    ${heroGearSetRosterHtml()}
     
     <div class="panel">
       <h2>Visual Hero Equipment Planner</h2>
@@ -7678,19 +7701,19 @@ function renderHeroGear() {
     </div>
     
     ${upgradeNutshellHtml({
-      module: "Hero Gear Primary Sets",
-      selected: upgradeSelectionText(primarySummary.selectedPieceCount, "primary gear piece target", "primary gear piece targets"),
+      module: "Hero Gear Sets",
+      selected: upgradeSelectionText(primarySummary.selectedPieceCount, "gear piece target", "gear piece targets"),
       upgrades: primarySummary.selectedUpgrades,
       impactCards: primarySummary.impactCards.length
         ? primarySummary.impactCards
         : [
-            statSnapshotCard("Primary Gear Power", fmt(primarySummary.totalPower), "Current account", "No target stat breakpoint selected yet"),
-            statSnapshotCard("Primary Pieces", fmt(primarySummary.pieceCount), "Current account", "Set piece targets to project mastery and empowerment gains"),
+            statSnapshotCard("Gear Set Power", fmt(primarySummary.totalPower), "Current account", "No target stat breakpoint selected yet"),
+            statSnapshotCard("Gear Pieces", fmt(primarySummary.pieceCount), "Current account", "Set piece targets to project mastery and empowerment gains"),
           ],
       details: [
-        fmt(primaryEntries.length) + " primary sets",
-        fmt(trackedHeroes) + " tracked loadouts total",
-        "Primary power " + fmt(primarySummary.totalPower),
+        fmt(trackedHeroes) + " gear sets tracked",
+        fmt(setEntries.filter((entry) => entry.heroId).length) + " assigned to a hero",
+        "Set power " + fmt(primarySummary.totalPower),
         fmt(primarySummary.investedCost.essence_stones) + " stones invested",
         fmt(primarySummary.investedCost.hero_gear_xp) + " XP invested",
         fmt(set2Investment.hero_gear_xp) + " Set 2 XP invested",
@@ -7702,7 +7725,7 @@ function renderHeroGear() {
       fields: HERO_GEAR_FIELDS,
       empty: "Set hero gear piece targets above current levels or enhancements to see material gaps.",
     })}
-    ${smartRecommendationPanelHtml("hero_gear", "Hero Gear Targets", smartPlan, "Optimizes primary interchangeable hero gear sets using mastery stat gains and enhancement breakpoints.")}
+    ${smartRecommendationPanelHtml("hero_gear", "Hero Gear Targets", smartPlan, "Optimizes your tracked gear sets using mastery stat gains and enhancement breakpoints.")}
     ${secondaryPanel}
     <div class="summary-grid">
       <div class="metric blue"><span>Tracked sets</span><strong>${fmt(trackedHeroes)}</strong></div>
@@ -7739,8 +7762,8 @@ function renderHeroGear() {
     <details class="table-disclosure">
       <summary>Full hero gear target table</summary>
       <div class="table-wrap hero-gear-table"><table>
-        <thead><tr><th>Hero</th><th>Troop</th><th>Current Gear Set</th><th>Special</th><th>Piece Targets</th><th>Target Special</th><th>Target Materials</th></tr></thead>
-        <tbody>${gearRows || `<tr><td colspan="7"><span class="muted">No hero gear extract loaded yet.</span></td></tr>`}</tbody>
+        <thead><tr><th>Set</th><th>Equipped by</th><th>Current Gear</th><th>Special</th><th>Piece Targets</th><th>Target Special</th><th>Target Materials</th></tr></thead>
+        <tbody>${gearRows || `<tr><td colspan="7"><span class="muted">No gear sets tracked yet - add one above.</span></td></tr>`}</tbody>
       </table></div>
     </details>
     <details class="table-disclosure">
@@ -9056,6 +9079,10 @@ function bindEvents() {
     if (!target.matches("[data-path]")) return;
     const path = target.dataset.path || "";
     setPath(state, path, controlValue(target));
+    if (path.startsWith("hero_gear_sets.")) {
+      heroGearRefreshSetBaselines(state);
+      applyHeroGearCurrentOverrides(state);
+    }
     if (path.startsWith("hero_gear_current_overrides.")) applyHeroGearCurrentOverrides(state);
     normalizeTargets(state);
 
@@ -9232,10 +9259,35 @@ function bindEvents() {
       renderActive();
       return;
     }
-    const selectHero = event.target.closest("[data-select-hero-id]");
-    if (selectHero) {
-      state.selected_hero_id = selectHero.dataset.selectHeroId;
+    const selectGearSet = event.target.closest("[data-select-hero-gear-set-id]");
+    if (selectGearSet) {
+      state.selected_hero_gear_set_id = selectGearSet.dataset.selectHeroGearSetId;
       renderActive();
+      return;
+    }
+    const addGearSet = event.target.closest("[data-hero-gear-add-set]");
+    if (addGearSet) {
+      const setId = heroGearAddSet(addGearSet.dataset.heroGearAddSet);
+      if (setId) {
+        state.selected_hero_gear_set_id = setId;
+        normalizeTargets(state);
+        persistState();
+        renderActive();
+        $("#saveStatus").textContent = `Added ${heroGearSetLabel(setId)}`;
+      }
+      return;
+    }
+    const removeGearSet = event.target.closest("[data-hero-gear-remove-set]");
+    if (removeGearSet) {
+      const setId = removeGearSet.dataset.heroGearRemoveSet;
+      const label = heroGearSetLabel(setId);
+      // Removing a set drops the levels recorded against it, so make that explicit.
+      if (!window.confirm(`Remove ${label}? The mastery levels and Gear XP recorded against it are removed with it.`)) return;
+      if (heroGearRemoveSet(setId)) {
+        persistState();
+        renderActive();
+        $("#saveStatus").textContent = `Removed ${label}`;
+      }
       return;
     }
   });

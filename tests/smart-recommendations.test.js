@@ -143,7 +143,7 @@ has(
   /const ceiling = heroGearCanEmpowerAtLevel\(piece\.level\)\s*\n\s*\? heroGearEmpowermentCapForMastery\(piece\.level\)/,
 );
 has("planner target respects that ceiling", /Math\.min\(HERO_GEAR_MAX_ENHANCEMENT, ceiling, current \+ 10\)/);
-has("planner names the item", /item: `\$\{hero\.name \|\| heroId\} \$\{heroGearPieceName\(slot, piece\)\}`/);
+has("planner names the item", /item: `\$\{hero\.name \|\| setLabel\} \$\{heroGearPieceName\(slot, piece\)\}`/);
 
 // --- 8. placeholder benefits are labelled, not hidden -----------------------
 has("building benefit flagged as estimated", /benefitEstimated: "Building stat gains are not in the workbook yet/);

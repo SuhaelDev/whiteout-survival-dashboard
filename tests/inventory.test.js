@@ -77,7 +77,9 @@ has("charm level editable", /data-path="charms\.\$\{slotId\}\.current"/);
 has("building level editable", /data-path="buildings\.\$\{building\.building_id\}\.current"/);
 has("pet level editable", /data-path="pets\.\$\{pet\.pet_id\}\.current"/);
 has("expert level editable", /data-path="experts\.\$\{expert\.expert_id\}\.relationship_current"/);
-has("hero gear mastery editable", /extracted_current\.hero_gear\.\$\{heroId\}\.gear\.\$\{slot\}\.level/);
+// Gear levels are edited through the override layer now, keyed by set: writing into the
+// extract itself never survived a reload, because the extract is re-read on every load.
+has("hero gear mastery editable", /hero_gear_current_overrides\.\$\{setId\}\.\$\{slot\}\.level/);
 has("profile fields editable", /textInput\("profile\.chief_name", profile\.chief_name\)/);
 
 // every field the calculators consume must appear in a group

@@ -8011,3 +8011,232 @@ html[data-shell="desktop"] .gap-list li > .muted {
     min-height: 44px;
   }
 }
+
+
+/* ---- Hero gear sets: the assignment roster --------------------------------
+   Gear sets are the durable thing and the hero is a choice, so the roster has to
+   read as a list of sets each pointing at a hero - not as a list of heroes. */
+.hero-set-roster .gd-note {
+  max-width: 78ch;
+}
+
+.hero-set-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.hero-set-group {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.hero-set-group__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.hero-set-group__head h3 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-set-group__add {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--blue);
+  border-radius: 99px;
+  padding: 4px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.hero-set-group__add:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.hero-set-group__add:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hero-set-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.hero-set-row.is-unassigned .hero-set-row__open {
+  color: var(--muted);
+}
+
+.hero-set-row__open {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted rgba(255, 255, 255, 0.25);
+  text-underline-offset: 3px;
+}
+
+.hero-set-row__open:hover {
+  color: var(--blue);
+}
+
+/* Sits beside the set name rather than taking a row of its own - it is the least
+   likely thing on the row to be wanted, so it should not read as the main action. */
+.hero-set-row__remove {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.hero-set-row__remove:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: var(--red);
+}
+
+.hero-set-assign {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hero-set-assign > span {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* min-width:0 is what lets the select shrink inside the grid instead of forcing
+   the row wider than the panel when a hero name is long. */
+.hero-set-assign__select {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hero-set-row__meta {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.hero-set-row__warn {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+/* The same picker again on the selected set's card, where the decision is made. */
+.hero-set-assign--card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  margin-top: 12px;
+  text-align: left;
+}
+
+.hero-profile-card__vacant {
+  width: 240px;
+  height: 240px;
+  max-width: 100%;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 3px dashed var(--line-strong);
+  background: rgba(13, 20, 27, 0.5);
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* The strip selects a set now, so every tile is captioned with the set it opens. */
+.hero-portrait-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: auto;
+  min-height: 100px;
+  /* Five sets, not sixty-two heroes: there is room for the caption to spell out
+     "Marksman Set 1" instead of ellipsing it. */
+  width: 124px;
+}
+
+/* The caption names the set, so the old "P" / number badges only repeat it. */
+.hero-portrait-btn.primary-set::after {
+  content: none;
+}
+
+.hero-portrait-btn .game-icon {
+  width: 100%;
+  height: 72px;
+  flex: 0 0 auto;
+}
+
+.hero-portrait-btn.is-unassigned {
+  border-style: dashed;
+  border-color: var(--line-strong);
+}
+
+.hero-portrait-set {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-portrait-btn.active-hero .hero-portrait-set {
+  color: var(--blue);
+}
+
+/* Phones: the label and its dropdown each need the full width to stay legible. */
+@media (max-width: 560px) {
+  .hero-set-assign {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .hero-set-assign__select {
+    width: 100%;
+  }
+}
